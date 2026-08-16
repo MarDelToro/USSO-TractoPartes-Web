@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta charset="utf-8">
+</helmet>
+<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#1a1a1a">
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="390px,844px">
+    <div style="height:100%;padding-top:59px;box-sizing:border-box;background:#0a0a0b">
+      <iframe src="{{ src }}" style="width:100%;height:100%;border:none;display:block"></iframe>
+    </div>
+  </x-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return { src: 'USSO Tractopartes.dc.html?v=' + Date.now() };
+  }
+}
+
+</script>
+</body>
+</html>
