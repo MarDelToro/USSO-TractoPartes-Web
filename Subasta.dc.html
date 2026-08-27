@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subasta activa — USSO Tractopartes</title>
+<meta name="description" content="Puja por motores, transmisiones y diferenciales diesel reconstruidos en subasta.">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet data-dc-atomics>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0b; --bg-rgb: 10,10,11;
+    --bg-alt: #111113;
+    --card-bg: #141416;
+    --text: #f3f1ec; --text-rgb: 243,241,236;
+    --border-rgb: 255,255,255;
+  }
+  body { margin: 0; background: var(--bg); font-family: 'Manrope', system-ui, sans-serif; }
+  a { color: #f6c02a; text-decoration: none; }
+  a:hover { color: #ffd75e; }
+  ::selection { background: #f6c02a; color: #0a0a0b; }
+  img, video { max-width: 100%; }
+  @media (max-width: 860px) {
+    .subasta-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+    .subasta-pad { padding: 110px 24px 60px !important; }
+  }
+</style>
+</helmet>
+
+<div style="background:var(--bg);color:var(--text);min-height:100vh;opacity:{{ pageOpacity }};transition:opacity 380ms ease">
+
+  <nav style="position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(var(--bg-rgb),0.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(var(--border-rgb),0.08)">
+    <a href="usso-tractopartes.dc.html#hero" onClick="{{ fadeBack }}" style="display:flex;align-items:center;cursor:pointer">
+      <img src="assets/logo-usso-v2-transparent.png" alt="USSO Tractopartes" style="height:36px;width:auto;display:block">
+    </a>
+    <div style="display:flex;align-items:center;gap:20px">
+      <div style="display:flex;align-items:center;gap:8px;background:rgba(var(--border-rgb),0.06);border:1px solid rgba(var(--border-rgb),0.12);border-radius:100px;padding:9px 16px;min-width:180px">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.2" stroke="rgba(var(--text-rgb),0.55)" stroke-width="1.6"></circle><path d="M11.2 11.2L14.5 14.5" stroke="rgba(var(--text-rgb),0.55)" stroke-width="1.6" stroke-linecap="round"></path></svg>
+        <input type="text" value="{{ searchValue }}" onChange="{{ onSearchChange }}" onKeyDown="{{ onSearchKeyDown }}" placeholder="Buscar pieza..." style="background:transparent;border:0;outline:0;color:var(--text);font:600 13px Manrope,sans-serif;width:100%">
+      </div>
+      <a href="{{ backLink }}" onClick="{{ fadeBack }}" style="font:700 14px Manrope,sans-serif;color:var(--text);border-bottom:2px solid {{ accent }};padding-bottom:3px;white-space:nowrap">← Volver a subastas</a>
+    </div>
+  </nav>
+
+  <section class="subasta-pad" style="padding:120px 48px 80px;max-width:1200px;margin:0 auto">
+    <sc-if value="{{ lot }}" hint-placeholder-val="{{ false }}">
+      <div class="subasta-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start">
+        <div>
+          <div onClick="{{ openLightbox }}" style="cursor:zoom-in">
+            <image-slot id="lot-{{ lot.id }}" shape="rect" placeholder="{{ lot.placeholder }}" src="{{ lot.src }}" style="width:100%;aspect-ratio:1/1;border-radius:16px"></image-slot>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px">
+            <image-slot id="lot-{{ lot.id }}-2" shape="rect" placeholder="+ Foto" style="width:100%;aspect-ratio:1/1;border-radius:10px"></image-slot>
+            <image-slot id="lot-{{ lot.id }}-3" shape="rect" placeholder="+ Foto" style="width:100%;aspect-ratio:1/1;border-radius:10px"></image-slot>
+            <image-slot id="lot-{{ lot.id }}-4" shape="rect" placeholder="+ Foto" style="width:100%;aspect-ratio:1/1;border-radius:10px"></image-slot>
+            <image-slot id="lot-{{ lot.id }}-video" shape="rect" placeholder="+ Video" style="width:100%;aspect-ratio:1/1;border-radius:10px"></image-slot>
+          </div>
+        </div>
+        <div>
+          <span style="display:inline-block;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 11px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:6px 12px;border-radius:100px;margin-bottom:16px">{{ lot.status }}</span>
+          <div style="font:700 12px Manrope,sans-serif;color:rgba(var(--text-rgb),0.45);letter-spacing:0.1em;margin-bottom:8px">LOTE {{ lot.number }}</div>
+          <h1 style="font-family:'Archivo Black',sans-serif;font-size:clamp(28px,3.6vw,42px);line-height:1.1;margin:0 0 24px;color:var(--text)">{{ lot.title }}</h1>
+          <div style="display:flex;gap:32px;padding:20px 0;border-top:1px solid rgba(var(--border-rgb),0.1);border-bottom:1px solid rgba(var(--border-rgb),0.1);margin-bottom:28px">
+            <div>
+              <div style="font:600 12px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin-bottom:4px">Puja actual</div>
+              <div style="font-family:'Archivo Black',sans-serif;font-size:28px;color:{{ accent }}">{{ lot.bid }}</div>
+            </div>
+            <div>
+              <div style="font:600 12px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin-bottom:4px">{{ lot.closesLabel }}</div>
+              <div style="font:700 20px/1 'Archivo Black',monospace;color:var(--text);font-variant-numeric:tabular-nums">{{ lot.closesDisplay }}</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px">
+            <sc-for list="{{ lot.evidence }}" as="ev" hint-placeholder-count="3">
+              <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.32);border-radius:100px;padding:6px 12px;font:700 11.5px Manrope,sans-serif;color:#7ee2a8">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" style="flex:none"><path d="M1.5 6.2l3 3L10.5 2.8" stroke="#7ee2a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{ ev }}
+              </span>
+            </sc-for>
+          </div>
+
+          <p style="font:500 16px/1.65 Manrope,sans-serif;color:rgba(var(--text-rgb),0.68);margin:0 0 26px">{{ lot.intro }}</p>
+
+          <div style="display:flex;flex-direction:column;gap:11px;max-width:420px">
+            <sc-if value="{{ lot.isUpcoming }}" hint-placeholder-val="{{ false }}">
+              <a href="{{ lot.buyLink }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;background:{{ accent }};color:#0a0a0b;font:800 16px Manrope,sans-serif;padding:17px 32px;border-radius:100px">Comprar ahora · {{ lot.buyNowPrice }}</a>
+            </sc-if>
+            <sc-if value="{{ lot.isActive }}" hint-placeholder-val="{{ true }}">
+              <a href="{{ lot.whatsappLink }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;background:{{ accent }};color:#0a0a0b;font:800 16px Manrope,sans-serif;padding:17px 32px;border-radius:100px">Pujar por WhatsApp</a>
+            </sc-if>
+            <button onClick="{{ toggleWatch }}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:{{ watchBg }};border:1px solid {{ watchBorder }};color:{{ watchColor }};font:700 15px Manrope,sans-serif;padding:15px 30px;border-radius:100px;cursor:pointer">{{ watchLabel }}</button>
+          </div>
+
+          <sc-if value="{{ lot.isUpcoming }}" hint-placeholder-val="{{ false }}">
+            <p style="font:500 13.5px/1.6 Manrope,sans-serif;color:rgba(var(--text-rgb),0.45);margin:18px 0 0;max-width:420px">Puedes llevártela hoy al precio fijo, o esperar a la subasta y arriesgarte a que otro la gane — pero quizá a mejor precio.</p>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ lightboxOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeLightbox }}" style="position:fixed;inset:0;z-index:400;background:rgba(5,5,5,0.95);display:flex;align-items:center;justify-content:center;overflow:auto;cursor:zoom-out">
+        <img ref="{{ setLightboxImg }}" onClick="{{ toggleZoom }}" style="max-width:{{ zoomStyle.maxWidth }};max-height:{{ zoomStyle.maxHeight }};transform:scale({{ zoomStyle.scale }});transition:transform 220ms ease;cursor:{{ zoomStyle.cursor }};border-radius:8px">
+        <button onClick="{{ closeLightbox }}" aria-label="Cerrar" style="position:absolute;top:20px;right:24px;background:rgba(var(--border-rgb),0.1);border:1px solid rgba(var(--border-rgb),0.3);border-radius:10px;width:40px;height:40px;color:#fff;font-size:18px;cursor:pointer">✕</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ notFound }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:80px 0">
+        <h1 style="font-family:'Archivo Black',sans-serif;font-size:32px;color:var(--text);margin:0 0 16px">Lote no encontrado</h1>
+        <a href="usso-tractopartes.dc.html#subastas" style="font:700 15px Manrope,sans-serif;color:{{ accent }}">← Volver a subastas</a>
+      </div>
+    </sc-if>
+  </section>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { pageOpacity: 0, lightboxOpen: false, lightboxSrc: '', zoomed: false, searchValue: '' };
+  accent = '#f6c02a';
+
+  onSearchChange = (e) => this.setState({ searchValue: e.target.value });
+  onSearchKeyDown = (e) => {
+    if (e.key !== 'Enter') return;
+    const q = this.state.searchValue.trim();
+    window.location.href = q ? `Catalogo.dc.html?q=${encodeURIComponent(q)}` : 'Catalogo.dc.html';
+  };
+
+  STORE = 'usso_cuenta_v1';
+
+  rawAuctionItems = [
+    { id: 'l1', number: '104', title: 'Motor Cummins ISX15 reconstruido', bid: '$68,500', evidence: ['Video funcionando', 'Probado en banco', 'Garantía 15 días'], status: 'Activa', statusBg: 'rgba(246,192,42,0.9)', statusColor: '#0a0a0b', placeholder: 'Foto del lote', src: 'assets/lot-l1.webp', closesAt: Date.now() + 2 * 86400000 },
+    { id: 'l2', number: '107', title: 'Transmisión Eaton Fuller 18 vel.', bid: '$32,900', evidence: ['Video funcionando', 'Reporte de condición', 'Garantía 15 días'], status: 'Activa', statusBg: 'rgba(246,192,42,0.9)', statusColor: '#0a0a0b', placeholder: 'Foto del lote', src: 'assets/lot-l2.webp', closesAt: Date.now() + 5 * 86400000 },
+    { id: 'l3', number: '112', title: 'Diferencial Meritor RS-23-160', bid: 'Próximamente', buyNowPrice: '$24,900', evidence: ['Reporte de condición', 'Fotos de desgaste'], status: 'Próxima', statusBg: 'rgba(var(--border-rgb),0.12)', statusColor: '#f3f1ec', placeholder: 'Foto del lote', src: 'assets/lot-l3.webp', closesAt: Date.now() + 21 * 86400000 },
+    { id: 'l4', number: '118', title: 'Estructura International 9200i', bid: 'Próximamente', buyNowPrice: '$56,000', evidence: ['Reporte de condición', 'Fotos de chasis'], status: 'Próxima', statusBg: 'rgba(var(--border-rgb),0.12)', statusColor: '#f3f1ec', placeholder: 'Foto del lote', closesAt: Date.now() + 28 * 86400000 },
+    { id: 'l5', number: '121', title: 'Corte completo Kenworth T680', bid: 'Próximamente', buyNowPrice: '$124,000', evidence: ['Video funcionando', 'Reporte de condición'], status: 'Próxima', statusBg: 'rgba(var(--border-rgb),0.12)', statusColor: '#f3f1ec', placeholder: 'Foto del lote', closesAt: Date.now() + 35 * 86400000 },
+    { id: 'l6', number: '124', title: 'Motor Detroit DD15 con 480 mil km', bid: '$51,000', evidence: ['Video funcionando', 'Prueba de compresión'], status: 'Activa', statusBg: 'rgba(246,192,42,0.9)', statusColor: '#0a0a0b', placeholder: 'Foto del lote', closesAt: Date.now() + 4 * 86400000 },
+    { id: 'l7', number: '126', title: 'Transmisión Eaton Advantage 10 vel.', bid: 'Próximamente', buyNowPrice: '$28,500', evidence: ['Reporte de condición'], status: 'Próxima', statusBg: 'rgba(var(--border-rgb),0.12)', statusColor: '#f3f1ec', placeholder: 'Foto del lote', closesAt: Date.now() + 17 * 86400000 },
+    { id: 'l8', number: '129', title: 'Suspensión de aire Hendrickson', bid: '$9,800', evidence: ['Reporte de condición', 'Fotos de desgaste'], status: 'Activa', statusBg: 'rgba(246,192,42,0.9)', statusColor: '#0a0a0b', placeholder: 'Foto del lote', closesAt: Date.now() + 6 * 86400000 },
+  ];
+
+  readStore() {
+    try { return JSON.parse(localStorage.getItem(this.STORE) || 'null') || {}; } catch (e) { return {}; }
+  }
+
+  toggleWatch = () => {
+    const id = window.location.hash.replace('#', '');
+    const lot = this.rawAuctionItems.find((l) => l.id === id);
+    if (!lot) return;
+    const d = this.readStore();
+    if (!d.user) { window.location.href = 'usso-tractopartes.dc.html#subastas'; return; }
+    const w = d.watching || {};
+    const on = !!w[id];
+    if (on) delete w[id]; else w[id] = true;
+    d.watching = w;
+    if (!on) {
+      const notifs = d.notifs || [];
+      notifs.unshift({ id: 'n-' + Date.now(), icon: '🔔', kind: 'info', title: 'Aviso activado', body: 'Te escribimos al WhatsApp cuando abra la subasta del lote ' + lot.number + ' — ' + lot.title + '.', when: 'Ahora', read: false });
+      d.notifs = notifs;
+    }
+    try { localStorage.setItem(this.STORE, JSON.stringify(d)); } catch (e) {}
+    this.forceUpdate();
+  };
+
+  componentDidMount() {
+    requestAnimationFrame(() => this.setState({ pageOpacity: 1 }));
+    this.countdownTimer = setInterval(() => this.forceUpdate(), 1000);
+  }
+
+  componentWillUnmount() {
+    if (this.countdownTimer) clearInterval(this.countdownTimer);
+  }
+
+  formatCountdown(ms) {
+    if (ms <= 0) return '00:00:00';
+    const pad = (n) => String(n).padStart(2, '0');
+    const s = Math.floor(ms / 1000);
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return d > 0 ? `${d}d ${pad(h)}:${pad(m)}:${pad(sec)}` : `${pad(h)}:${pad(m)}:${pad(sec)}`;
+  }
+
+  openLightbox = () => {
+    const id = window.location.hash.replace('#', '');
+    const slot = document.querySelector(`image-slot#lot-${id}`);
+    // Skip in the editor (image-slot's own hover controls / double-click
+    // reframe live on this same element) — pujar y zoom deben funcionar
+    // igual en el editor y en el sitio publicado.
+    if (slot && slot.hasAttribute('data-reframe')) return;
+    const img = slot && slot.shadowRoot && slot.shadowRoot.querySelector('[part="image"]');
+    const src = img && img.getAttribute('src');
+    if (!src) return;
+    this._pendingLightboxSrc = src;
+    this.setState({ lightboxOpen: true, zoomed: false });
+  };
+  setLightboxImg = (el) => {
+    if (el && this._pendingLightboxSrc) el.src = this._pendingLightboxSrc;
+  };
+  closeLightbox = (e) => { if (e) e.stopPropagation(); this.setState({ lightboxOpen: false }); };
+  toggleZoom = (e) => { e.stopPropagation(); this.setState((s) => ({ zoomed: !s.zoomed })); };
+
+  fadeBack = (e) => {
+    e.preventDefault();
+    const href = e.currentTarget.getAttribute('href');
+    this.setState({ pageOpacity: 0 });
+    setTimeout(() => { window.location.href = href; }, 380);
+  };
+
+  renderVals() {
+    const id = window.location.hash.replace('#', '');
+    const found = this.rawAuctionItems.find((l) => l.id === id);
+    const upcoming = found && found.status === 'Próxima';
+    const lot = found ? {
+      ...found,
+      closesLabel: found.status === 'Activa' ? 'Cierra en' : 'Inicia en',
+      closesDisplay: this.formatCountdown(found.closesAt - Date.now()),
+      isUpcoming: upcoming,
+      isActive: !upcoming,
+      intro: upcoming
+        ? 'Esta pieza todavía no abre a subasta. Puedes comprarla ahora al precio fijo, o esperar a que abra y pujar.'
+        : 'Subasta abierta. Manda tu puja por WhatsApp o pide más evidencia: fotos adicionales, video en marcha o estado mecánico.',
+      whatsappLink: `https://wa.me/524522822400?text=${encodeURIComponent(`Hola, quiero pujar por el lote ${found.number}: ${found.title}`)}`,
+      buyLink: `https://wa.me/524522822400?text=${encodeURIComponent(`Hola, quiero comprar ahora el lote ${found.number} (${found.title}) en ${found.buyNowPrice || ''}, sin esperar la subasta.`)}`,
+    } : null;
+    const watching = !!(this.readStore().watching || {})[id];
+    return {
+      toggleWatch: this.toggleWatch,
+      watchLabel: watching ? '✓ Te avisaremos por WhatsApp' : (upcoming ? 'Avisarme cuando inicie la subasta' : 'Avisarme sobre esta subasta'),
+      watchBg: watching ? 'rgba(74,222,128,0.1)' : 'transparent',
+      watchBorder: watching ? 'rgba(74,222,128,0.35)' : 'rgba(var(--border-rgb),0.22)',
+      watchColor: watching ? '#7ee2a8' : 'rgba(243,241,236,0.8)',
+      accent: this.accent,
+      pageOpacity: this.state.pageOpacity,
+      backLink: 'usso-tractopartes.dc.html#subastas',
+      fadeBack: this.fadeBack,
+      searchValue: this.state.searchValue,
+      onSearchChange: this.onSearchChange,
+      onSearchKeyDown: this.onSearchKeyDown,
+      lot,
+      notFound: !lot,
+      lightboxOpen: this.state.lightboxOpen,
+      setLightboxImg: this.setLightboxImg,
+      openLightbox: this.openLightbox,
+      closeLightbox: this.closeLightbox,
+      toggleZoom: this.toggleZoom,
+      zoomStyle: this.state.zoomed
+        ? { maxWidth: 'none', maxHeight: 'none', scale: 1.8, cursor: 'zoom-out' }
+        : { maxWidth: '92vw', maxHeight: '90vh', scale: 1, cursor: 'zoom-in' },
+    };
+  }
+}
+
+</script>
+</body>
+</html>
