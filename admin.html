@@ -49,8 +49,23 @@
       </thead>
       <tbody id="rows"></tbody>
     </table>
-  </main>
 
+    
+  <h2>Avisos pendientes</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Pieza</th>
+      <th>WhatsApp</th>
+      <th>Mensaje</th>
+      <th>Estado</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="avisos"></tbody>
+</table>
+
+  </main>
   <script>
     const client = window.supabase.createClient(
       "https://ahhlfvjicxylidpmeciw.supabase.co",
@@ -85,6 +100,34 @@
         </tr>
       `).join("");
     }
+
+    async function loadAvisos() {
+  const { data, error } = await client
+    .from("notifications")
+    .select("id, title, phone, message, status, amount")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    msg.textContent = error.message;
+    return;
+  }
+
+  document.getElementById("avisos").innerHTML = (data || []).map((n) => {
+    const tel = (n.phone || "").replace(/\D/g, "");
+    const wa = tel
+      ? `https://wa.me/52${tel.slice(-10)}?text=${encodeURIComponent(n.message)}`
+      : "";
+    return `
+      <tr>
+        <td>${n.title || ""}</td>
+        <td>${n.phone || "-"}</td>
+        <td>${n.message || ""}</td>
+        <td>${n.status}</td>
+        <td>${wa ? `<a href="${wa}" target="_blank">Avisar</a>` : "-"}</td>
+      </tr>
+    `;
+  }).join("") || `<tr><td colspan="5">Sin avisos</td></tr>`;
+}
 
     async function loadListings() {
       const { data, error } = await client
@@ -161,6 +204,7 @@
       msg.textContent = "Listo";
       loadUsers();
       loadListings();
+      loadAvisos();
     })();
   </script>
 </body>
