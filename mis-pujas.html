@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mis pujas · USSO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="usso-app.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    #list { display:grid; gap:16px; }
+    .card { padding:16px; display:grid; gap:8px; }
+    .ok { color:#7dffa0; }
+    .bad { color:#ffb4b4; }
+    .card img { width:100%; max-height:180px; object-fit:cover; border-radius:10px; background:#000; }
+  </style>
+</head>
+<body>
+  <main>
+    <nav>
+      <a href="subastas.html">Subastas</a>
+      <a href="perfil.html">Perfil</a>
+      <a href="login.html">Entrar</a>
+    </nav>
+    <h1>Mis pujas</h1>
+    <p class="msg" id="msg">Cargando...</p>
+    <div id="list"></div>
+  </main>
+
+  <script>
+    const client = window.supabase.createClient(
+      "https://ahhlfvjicxylidpmeciw.supabase.co",
+      "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+    );
+    const WHATSAPP_TIENDA = "524521492109";
+    const msg = document.getElementById("msg");
+
+    async function load() {
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const { data, error } = await client
+        .from("bids")
+        .select("amount, created_at, listing_id, listings (id, title, image_url, current_price, status, winner_id, ends_at)")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        msg.textContent = error.message;
+        return;
+      }
+
+      const porPieza = {};
+      (data || []).forEach((b) => {
+        if (!b.listings) return;
+        if (!porPieza[b.listing_id] || b.amount > porPieza[b.listing_id].amount) {
+          porPieza[b.listing_id] = b;
+        }
+      });
+
+      const items = Object.values(porPieza);
+      msg.textContent = items.length ? items.length + " pieza(s)" : "Aún no has pujado";
+
+      document.getElementById("list").innerHTML = items.map((b) => {
+        const p = b.listings;
+        const actual = Number(p.current_price || 0);
+        const mia = Number(b.amount || 0);
+        const gano = p.status === "closed" && p.winner_id === user.id;
+        const vaGanando = p.status === "active" && mia >= actual;
+        const estado = gano
+          ? '<b class="ok">Ganaste</b>'
+          : p.status === "closed"
+            ? '<b class="bad">No ganaste</b>'
+            : vaGanando
+              ? '<b class="ok">Vas ganando</b>'
+              : '<b class="bad">Te superaron</b>';
+        const texto = `Hola, voy en la subasta ${p.title}. Mi puja: $${mia}. Precio actual: $${actual}`;
+        const wa = `https://wa.me/${WHATSAPP_TIENDA}?text=${encodeURIComponent(texto)}`;
+
+        return `
+          <article class="card">
+            ${p.image_url ? `<img src="${p.image_url}" alt="">` : ""}
+            <h2>${p.title}</h2>
+            <p>Tu puja: <b>$${mia}</b></p>
+            <p>Precio actual: <b>$${actual}</b></p>
+            <p>Estado: ${p.status} · ${estado}</p>
+            <p>
+              <a href="subastas.html">Pujar de nuevo</a> ·
+              <a href="${wa}" target="_blank">WhatsApp tienda</a>
+            </p>
+          </article>
+        `;
+      }).join("");
+    }
+
+    load();
+  </script>
+</body>
+</html>
