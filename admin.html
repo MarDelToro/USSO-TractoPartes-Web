@@ -4,16 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin · USSO</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="usso-app.css">
-</head> 
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="usso-app.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
 <body>
   <main>
     <h1>Panel admin</h1>
     <p id="who"></p>
-    <p><a href="perfil.html">Ir a perfil</a> · <a href="subastas.html">Ver subastas</a></p>
+    <p>
+      <a href="perfil.html">Ir a perfil</a> ·
+      <a href="subastas.html">Ver subastas</a>
+    </p>
     <p class="msg" id="msg">Cargando...</p>
 
     <h2>Subir pieza</h2>
@@ -50,22 +53,21 @@
       <tbody id="rows"></tbody>
     </table>
 
-    
-  <h2>Avisos pendientes</h2>
-<table>
-  <thead>
-    <tr>
-      <th>Pieza</th>
-      <th>WhatsApp</th>
-      <th>Mensaje</th>
-      <th>Estado</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody id="avisos"></tbody>
-</table>
-
+    <h2>Avisos pendientes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Pieza</th>
+          <th>WhatsApp</th>
+          <th>Mensaje</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="avisos"></tbody>
+    </table>
   </main>
+
   <script>
     const client = window.supabase.createClient(
       "https://ahhlfvjicxylidpmeciw.supabase.co",
@@ -101,34 +103,6 @@
       `).join("");
     }
 
-    async function loadAvisos() {
-  const { data, error } = await client
-    .from("notifications")
-    .select("id, title, phone, message, status, amount")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    msg.textContent = error.message;
-    return;
-  }
-
-  document.getElementById("avisos").innerHTML = (data || []).map((n) => {
-    const tel = (n.phone || "").replace(/\D/g, "");
-    const wa = tel
-      ? `https://wa.me/52${tel.slice(-10)}?text=${encodeURIComponent(n.message)}`
-      : "";
-    return `
-      <tr>
-        <td>${n.title || ""}</td>
-        <td>${n.phone || "-"}</td>
-        <td>${n.message || ""}</td>
-        <td>${n.status}</td>
-        <td>${wa ? `<a href="${wa}" target="_blank">Avisar</a>` : "-"}</td>
-      </tr>
-    `;
-  }).join("") || `<tr><td colspan="5">Sin avisos</td></tr>`;
-}
-
     async function loadListings() {
       const { data, error } = await client
         .from("listings")
@@ -158,6 +132,36 @@
           const { error } = await client.rpc("close_listing", { p_listing_id: btn.dataset.close });
           msg.textContent = error ? error.message : "Subasta cerrada";
           if (!error) loadListings();
+        });
+      });
+    }
+
+    async function loadAvisos() {
+      const { data, error } = await client
+        .from("notifications")
+        .select("id, title, phone, message, status")
+        .order("created_at", { ascending: false });
+      if (error) return msg.textContent = error.message;
+
+      document.getElementById("avisos").innerHTML = (data || []).map((n) => {
+        const tel = (n.phone || "").replace(/\D/g, "");
+        const wa = tel
+          ? `https://wa.me/52${tel.slice(-10)}?text=${encodeURIComponent(n.message)}`
+          : "";
+        return `
+          <tr>
+            <td>${n.title || ""}</td>
+            <td>${n.phone || "-"}</td>
+            <td>${n.message || ""}</td>
+            <td>${n.status}</td>
+            <td>${wa ? `<a href="${wa}" target="_blank" data-sent="${n.id}">Avisar</a>` : "-"}</td>
+          </tr>
+        `;
+      }).join("") || `<tr><td colspan="5">Sin avisos</td></tr>`;
+
+      document.querySelectorAll("[data-sent]").forEach((a) => {
+        a.addEventListener("click", async () => {
+          await client.from("notifications").update({ status: "sent" }).eq("id", a.dataset.sent);
         });
       });
     }
