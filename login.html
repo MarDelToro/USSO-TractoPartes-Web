@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión · USSO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="usso-app.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { display:grid; place-items:center; }
+    form { width:min(380px, 92vw); padding:28px; display:grid; gap:12px; }
+    form img { width:120px; justify-self:center; }
+    p { margin:0; color:#9aa3ad; text-align:center; }
+  </style>
+</head>
+<body>
+  <form id="login">
+    <img src="logo-usso-icon.png" alt="USSO">
+    <h1>Entrar</h1>
+    <input id="email" type="email" placeholder="Correo" required>
+    <input id="password" type="password" placeholder="Contraseña" required>
+    <button type="submit">Iniciar sesión</button>
+    <p class="msg" id="msg"></p>
+    <p><a href="registro.html">Crear cuenta</a> · <a href="subastas.html">Ver subastas</a></p>
+  </form>
+
+  <script>
+    const client = window.supabase.createClient(
+      "https://ahhlfvjicxylidpmeciw.supabase.co",
+      "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+    );
+
+    document.getElementById("login").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("msg");
+      msg.textContent = "Entrando...";
+
+      const { data: { user }, error } = await client.auth.signInWithPassword({
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value
+      });
+
+      if (error) {
+        msg.textContent = error.message;
+        return;
+      }
+
+      const { data: profile } = await client
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      window.location.href = profile?.role === "admin" ? "admin.html" : "subastas.html";
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro · USSO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="usso-app.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { display:grid; place-items:center; }
+    form { width:min(380px, 92vw); padding:28px; display:grid; gap:12px; }
+    form img { width:120px; justify-self:center; }
+    p { margin:0; color:#9aa3ad; text-align:center; }
+  </style>
+</head>
+<body>
+  <form id="registro">
+    <img src="logo-usso-icon.png" alt="USSO">
+    <h1>Crear cuenta</h1>
+    <input id="full_name" placeholder="Nombre" required>
+    <input id="phone" placeholder="WhatsApp" required>
+    <input id="email" type="email" placeholder="Correo" required>
+    <input id="password" type="password" placeholder="Contraseña (mínimo 6)" minlength="6" required>
+    <button type="submit">Registrarme</button>
+    <p class="msg" id="msg"></p>
+    <p><a href="login.html">Ya tengo cuenta</a></p>
+  </form>
+
+  <script>
+    const client = window.supabase.createClient(
+      "https://ahhlfvjicxylidpmeciw.supabase.co",
+      "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+    );
+
+    document.getElementById("registro").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("msg");
+      msg.textContent = "Creando cuenta...";
+
+      const { data, error } = await client.auth.signUp({
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value,
+        options: {
+          data: {
+            full_name: document.getElementById("full_name").value.trim(),
+            phone: document.getElementById("phone").value.trim()
+          }
+        }
+      });
+
+      if (error) {
+        msg.textContent = error.message;
+        return;
+      }
+
+      if (!data.session) {
+        msg.textContent = "Cuenta creada. Entra desde login.";
+        return;
+      }
+
+      window.location.href = "subastas.html";
+    });
+  </script>
+</body>
+</html>

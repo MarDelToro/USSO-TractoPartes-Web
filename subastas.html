@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subastas · USSO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="usso-app.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    #list { display:grid; gap:16px; }
+    .card { padding:16px; display:grid; gap:8px; }
+    .card img { width:100%; max-height:240px; object-fit:cover; border-radius:10px; background:#000; }
+    .card form { display:flex; gap:8px; margin:0; width:auto; padding:0; border:0; background:transparent; }
+    .card form input { flex:1; }
+  </style>
+</head>
+<body>
+  <main>
+    <nav>
+      <a href="subastas.html">Subastas</a>
+      <a href="login.html">Entrar</a>
+      <a href="registro.html">Registro</a>
+      <a href="perfil.html">Perfil</a>
+    </nav>
+    <h1>Subastas USSO</h1>
+    <p class="msg" id="msg">Cargando...</p>
+    <div id="list"></div>
+  </main>
+
+  <script>
+    const client = window.supabase.createClient(
+      "https://ahhlfvjicxylidpmeciw.supabase.co",
+      "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+    );
+    const WHATSAPP_TIENDA = "524521492109";
+    const msg = document.getElementById("msg");
+    let currentUser = null;
+
+    async function load() {
+      const { data: { user } } = await client.auth.getUser();
+      currentUser = user;
+      msg.textContent = user ? "Sesión: " + user.email : "Entra para pujar";
+
+      const { data, error } = await client
+        .from("listings")
+        .select("id, title, description, image_url, start_price, current_price, status, ends_at")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        msg.textContent = error.message;
+        return;
+      }
+
+      document.getElementById("list").innerHTML = (data || []).map((p) => {
+        const precio = Number(p.current_price || p.start_price || 0);
+        const texto = `Hola, me interesa la subasta: ${p.title}. Precio actual: $${precio}`;
+        const wa = `https://wa.me/${WHATSAPP_TIENDA}?text=${encodeURIComponent(texto)}`;
+        return `
+          <article class="card">
+            ${p.image_url ? `<img src="${p.image_url}" alt="">` : ""}
+            <h2>${p.title}</h2>
+            <p>${p.description || ""}</p>
+            <p>Precio actual: <b>$${precio}</b></p>
+            <p>Cierra: ${p.ends_at ? new Date(p.ends_at).toLocaleString() : "Sin fecha"}</p>
+            <form data-id="${p.id}" data-title="${p.title}">
+              <input type="number" min="1" step="1" placeholder="Tu puja" required>
+              <button type="submit">Pujar</button>
+            </form>
+            <a href="${wa}" target="_blank">Seguimiento por WhatsApp</a>
+          </article>
+        `;
+      }).join("") || "<p>No hay subastas activas.</p>";
+
+      document.querySelectorAll("form[data-id]").forEach((form) => {
+        form.addEventListener("submit", onBid);
+      });
+    }
+
+    async function onBid(e) {
+      e.preventDefault();
+      if (!currentUser) {
+        window.location.href = "login.html";
+        return;
+      }
+      const amount = Number(e.target.querySelector("input").value);
+      const { error } = await client.rpc("place_bid", {
+        p_listing_id: e.target.getAttribute("data-id"),
+        p_amount: amount
+      });
+      if (error) {
+        msg.textContent = error.message;
+        return;
+      }
+      const texto = `Nueva puja en ${e.target.getAttribute("data-title")}: $${amount}`;
+      window.open(`https://wa.me/${WHATSAPP_TIENDA}?text=${encodeURIComponent(texto)}`, "_blank");
+      msg.textContent = "Puja registrada";
+      load();
+    }
+
+    load();
+  </script>
+</body>
+</html>

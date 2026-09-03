@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · USSO</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="usso-app.css">
+</head> 
+<body>
+  <main>
+    <h1>Panel admin</h1>
+    <p id="who"></p>
+    <p><a href="perfil.html">Ir a perfil</a> · <a href="subastas.html">Ver subastas</a></p>
+    <p class="msg" id="msg">Cargando...</p>
+
+    <h2>Subir pieza</h2>
+    <form id="pieza">
+      <input id="title" placeholder="Título" required>
+      <textarea id="description" placeholder="Descripción" rows="3"></textarea>
+      <input id="photo" type="file" accept="image/*">
+      <input id="image_url" placeholder="O pega una URL de foto">
+      <input id="start_price" type="number" min="0" step="1" placeholder="Precio inicial" required>
+      <input id="ends_at" type="datetime-local">
+      <button type="submit">Publicar subasta</button>
+    </form>
+
+    <h2>Subastas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Pieza</th>
+          <th>Precio</th>
+          <th>Estado</th>
+          <th>Ganador</th>
+          <th>WhatsApp</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="listings"></tbody>
+    </table>
+
+    <h2>Usuarios</h2>
+    <table>
+      <thead>
+        <tr><th>Nombre</th><th>WhatsApp</th><th>Ciudad</th><th>Rol</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+
+  <script>
+    const client = window.supabase.createClient(
+      "https://ahhlfvjicxylidpmeciw.supabase.co",
+      "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+    );
+    const msg = document.getElementById("msg");
+
+    async function requireAdmin() {
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) {
+        window.location.href = "login.html";
+        return null;
+      }
+      const { data: me } = await client.from("profiles").select("full_name, role").eq("id", user.id).single();
+      if (!me || me.role !== "admin") {
+        msg.textContent = "No tienes permiso de admin.";
+        return null;
+      }
+      document.getElementById("who").textContent = me.full_name + " · " + user.email;
+      return user;
+    }
+
+    async function loadUsers() {
+      const { data, error } = await client.from("profiles").select("full_name, phone, city, role").order("created_at", { ascending: false });
+      if (error) return msg.textContent = error.message;
+      document.getElementById("rows").innerHTML = (data || []).map((p) => `
+        <tr>
+          <td>${p.full_name || ""}</td>
+          <td>${p.phone || ""}</td>
+          <td>${p.city || ""}</td>
+          <td>${p.role || ""}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function loadListings() {
+      const { data, error } = await client
+        .from("listings")
+        .select("id, title, current_price, start_price, status, winner_id")
+        .order("created_at", { ascending: false });
+      if (error) return msg.textContent = error.message;
+
+      const { data: people } = await client.from("profiles").select("id, full_name, phone");
+      const byId = Object.fromEntries((people || []).map((p) => [p.id, p]));
+
+      document.getElementById("listings").innerHTML = (data || []).map((p) => {
+        const w = p.winner_id ? byId[p.winner_id] : null;
+        return `
+          <tr>
+            <td>${p.title}</td>
+            <td>${p.current_price || p.start_price}</td>
+            <td>${p.status}</td>
+            <td>${w ? w.full_name : "-"}</td>
+            <td>${w ? w.phone : "-"}</td>
+            <td>${p.status === "active" ? `<button data-close="${p.id}">Cerrar</button>` : "Cerrada"}</td>
+          </tr>
+        `;
+      }).join("");
+
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const { error } = await client.rpc("close_listing", { p_listing_id: btn.dataset.close });
+          msg.textContent = error ? error.message : "Subasta cerrada";
+          if (!error) loadListings();
+        });
+      });
+    }
+
+    document.getElementById("pieza").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const { data: { user } } = await client.auth.getUser();
+      const file = document.getElementById("photo").files[0];
+      let imageUrl = document.getElementById("image_url").value.trim();
+
+      if (file) {
+        const path = Date.now() + "-" + file.name.replace(/\s+/g, "-");
+        const { error: upErr } = await client.storage.from("listings").upload(path, file);
+        if (upErr) {
+          msg.textContent = upErr.message;
+          return;
+        }
+        imageUrl = client.storage.from("listings").getPublicUrl(path).data.publicUrl;
+      }
+
+      const start = Number(document.getElementById("start_price").value || 0);
+      const ends = document.getElementById("ends_at").value;
+      const { error } = await client.from("listings").insert({
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        image_url: imageUrl,
+        start_price: start,
+        current_price: start,
+        status: "active",
+        ends_at: ends ? new Date(ends).toISOString() : null,
+        created_by: user.id
+      });
+
+      msg.textContent = error ? error.message : "Pieza publicada";
+      if (!error) {
+        e.target.reset();
+        loadListings();
+      }
+    });
+
+    (async () => {
+      const user = await requireAdmin();
+      if (!user) return;
+      msg.textContent = "Listo";
+      loadUsers();
+      loadListings();
+    })();
+  </script>
+</body>
+</html>
