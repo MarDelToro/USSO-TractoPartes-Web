@@ -431,7 +431,13 @@
           <p style="font:800 13px Manrope,sans-serif;color:{{ bidStatusColor }};margin:0 0 5px;letter-spacing:0.04em;text-transform:uppercase">{{ bidStatusTitle }}</p>
           <p style="font:500 13.5px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.68);margin:0">{{ bidStatusDesc }}</p>
           <sc-if value="{{ canRequestAuth }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ requestAuth }}" style="margin-top:14px;background:{{ accent }};color:#0a0a0b;font:800 13.5px Manrope,sans-serif;padding:12px 22px;border-radius:100px;border:0;cursor:pointer">Solicitar autorización para pujar</button>
+            <a
+  href="https://wa.me/524521641231?text=Hola%2C%20quiero%20hacer%20el%20proceso%20de%20verificacion%20de%20mi%20cuenta."
+  target="_blank"
+  style="background:#f6c02a;color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:12px 18px;border-radius:100px;text-decoration:none;display:inline-block"
+>
+  Solicitar verificación
+</a>
           </sc-if>
         </div>
 
@@ -439,12 +445,12 @@
         <p style="font:500 13px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0 0 6px">Te escribimos al {{ userWhatsapp }} únicamente sobre lo que dejes encendido aquí. Apaga lo que no quieras y deja de recibirlo.</p>
         <p style="font:600 12px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.4);margin:0 0 14px">Puedes cambiarlo cuando quieras.</p>
         <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px">
-          <sc-for list="{{ notifPrefItems }}" as="p" hint-placeholder-count="5">
+          <sc-for list="{{ notifPrefItems }}" as="p" hint-placeholder-count="5">S
             <button onClick="{{ p.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:14px;background:transparent;border:0;border-bottom:1px solid rgba(var(--border-rgb),0.06);padding:14px 2px;cursor:pointer;text-align:left;width:100%">
               <span style="font:600 14px Manrope,sans-serif;color:var(--text)">{{ p.label }}</span>
               <span style="width:44px;height:26px;border-radius:100px;flex:none;background:{{ p.trackBg }};position:relative;transition:background 0.18s">
                 <span style="position:absolute;top:3px;left:{{ p.knobLeft }};width:20px;height:20px;border-radius:50%;background:{{ p.knobBg }};transition:left 0.18s"></span>
-              </span>
+              </span>S
             </button>
           </sc-for>
         </div>
@@ -536,7 +542,7 @@
       <!-- LOTE DESTACADO -->
       <div class="usso-featured-lot">
         <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
-          <image-slot id="lot-featured-{{ featuredId }}" shape="rect" placeholder="Foto del lote destacado" src="{{ featuredSrc }}" style="width:100%;height:100%"></image-slot>
+         <img src="{{ featuredSrc }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
           <span class="usso-live-badge" style="position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:7px;background:rgba(10,10,11,0.82);backdrop-filter:blur(6px);border:1px solid rgba(246,192,42,0.45);border-radius:100px;padding:7px 14px">
             <span style="width:6px;height:6px;border-radius:50%;background:#ff0000;animation:livePulse 0.8s ease-in-out infinite"></span>
             <span style="font:800 11px Manrope,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:{{ accent }}">Cerrando pronto</span>
@@ -587,7 +593,7 @@
         <sc-for list="{{ auctionItems }}" as="lot" hint-placeholder-count="3">
           <div onClick="{{ lot.goTo }}" style="background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.07);border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;flex:0 0 320px">
             <div style="position:relative">
-              <image-slot id="lot-{{ lot.id }}" shape="rect" placeholder="{{ lot.placeholder }}" src="{{ lot.src }}" style="width:100%;aspect-ratio:1/1"></image-slot>
+             <img src="{{ featuredSrc }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
               <span style="position:absolute;top:14px;left:14px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 11px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:6px 12px;border-radius:100px">{{ lot.status }}</span>
             </div>
             <div style="padding:22px;display:flex;flex-direction:column;flex:1">
@@ -819,6 +825,7 @@
 </div>
 
 </x-dc>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="text/x-dc" data-dc-script data-props="{
   &quot;accent&quot;: {
     &quot;editor&quot;: &quot;color&quot;,
@@ -1314,16 +1321,7 @@ class Component extends DCLogic {
     { id: 'diferenciales', mono: 'D', name: 'Diferenciales', desc: 'Diferenciales reconstruidos y usados, probados y listos para instalar.', count: '50', placeholder: 'Foto de diferencial', src: 'assets/diferencial-cover.webp' },
   ];
 
-  rawAuctionItems = [
-    { id: 'l1', number: '104', cat: 'motores', title: 'Motor Cummins ISX15 reconstruido', bid: '$68,500', base: '$55,000', bidCount: 7, evidence: ['Video funcionando', 'Probado en banco', 'Garantía 15 días'], status: 'Activa', statusBg: 'rgba(246,192,42,0.9)', statusColor: '#0a0a0b', placeholder: 'Foto del lote', src: 'assets/lot-l1.webp', closesAt: Date.now() + 2 * 86400000 },
-    { id: 'l2', number: '107', cat: 'transmisiones', title: 'Transmisión Eaton Fuller 18 vel.', bid: '$32,900', base: '$26,000', bidCount: 4, evidence: ['Video funcionando', 'Reporte de condición', 'Garantía 15 días'], status: 'Activa', statusBg: 'rgba(246,192,42,0.9)', statusColor: '#0a0a0b', placeholder: 'Foto del lote', src: 'assets/lot-l2.webp', closesAt: Date.now() + 5 * 86400000 },
-    { id: 'l3', number: '112', cat: 'diferenciales', buyNowPrice: '$24,900', title: 'Diferencial Meritor RS-23-160', bid: 'Próximamente', base: '$18,000', bidCount: 0, evidence: ['Reporte de condición', 'Fotos de desgaste'], status: 'Próxima', statusBg: 'rgba(var(--border-rgb),0.12)', statusColor: '#f3f1ec', placeholder: 'Foto del lote', src: 'assets/lot-l3.webp', closesAt: Date.now() + 21 * 86400000 },
-    { id: 'l4', number: '118', cat: 'cortes', buyNowPrice: '$56,000', title: 'Estructura International 9200i', bid: 'Próximamente', base: '$42,000', bidCount: 0, evidence: ['Reporte de condición', 'Fotos de chasis'], status: 'Próxima', statusBg: 'rgba(var(--border-rgb),0.12)', statusColor: '#f3f1ec', placeholder: 'Foto del lote', closesAt: Date.now() + 28 * 86400000 },
-    { id: 'l5', number: '121', cat: 'cortes', buyNowPrice: '$124,000', title: 'Corte completo Kenworth T680', bid: 'Próximamente', base: '$95,000', bidCount: 0, evidence: ['Video funcionando', 'Reporte de condición'], status: 'Próxima', statusBg: 'rgba(var(--border-rgb),0.12)', statusColor: '#f3f1ec', placeholder: 'Foto del lote', closesAt: Date.now() + 35 * 86400000 },
-    { id: 'l6', number: '124', cat: 'motores', title: 'Motor Detroit DD15 con 480 mil km', bid: '$51,000', base: '$44,000', bidCount: 3, evidence: ['Video funcionando', 'Prueba de compresión'], status: 'Activa', statusBg: 'rgba(246,192,42,0.9)', statusColor: '#0a0a0b', placeholder: 'Foto del lote', closesAt: Date.now() + 4 * 86400000 },
-    { id: 'l7', number: '126', cat: 'transmisiones', buyNowPrice: '$28,500', title: 'Transmisión Eaton Advantage 10 vel.', bid: 'Próximamente', base: '$21,500', bidCount: 0, evidence: ['Reporte de condición'], status: 'Próxima', statusBg: 'rgba(var(--border-rgb),0.12)', statusColor: '#f3f1ec', placeholder: 'Foto del lote', closesAt: Date.now() + 17 * 86400000 },
-    { id: 'l8', number: '129', cat: 'suspension', title: 'Suspensión de aire Hendrickson', bid: '$9,800', base: '$7,500', bidCount: 2, evidence: ['Reporte de condición', 'Fotos de desgaste'], status: 'Activa', statusBg: 'rgba(246,192,42,0.9)', statusColor: '#0a0a0b', placeholder: 'Foto del lote', closesAt: Date.now() + 6 * 86400000 },
-  ];
+  rawAuctionItems = [];
 
   formatCountdown(ms) {
     if (ms <= 0) return '00:00:00';
@@ -1348,7 +1346,7 @@ class Component extends DCLogic {
   loadUser() {
     try {
       const raw = localStorage.getItem(this.STORE);
-      if (!raw) return;
+      if (raw) {
       const d = JSON.parse(raw);
       if (d && d.user) {
         this.setState({
@@ -1359,9 +1357,75 @@ class Component extends DCLogic {
           notifs: d.notifs || [],
           myBids: d.myBids || {},
         });
+        }
       }
     } catch (e) {}
+    this.loadListingsFromDB();
   }
+
+  async loadListingsFromDB() {
+  if (!window.supabase || !window.supabase.createClient) {
+    setTimeout(() => this.loadListingsFromDB(), 300);
+    return;
+  }
+  const client = window.supabase.createClient(
+    "https://ahhlfvjicxylidpmeciw.supabase.co",
+    "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+  );
+  const { data } = await client
+    .from("listings")
+    .select("id, title, image_url, current_price, start_price, status, ends_at")
+    .order("created_at", { ascending: false });
+
+  this.rawAuctionItems = (data || []).map((p, i) => {
+    const activa = p.status === "active" && (!p.ends_at || new Date(p.ends_at) > new Date());
+    const precio = Number(p.current_price || p.start_price || 0);
+    return {
+      id: p.id,
+      number: String(100 + i),
+      cat: "motores",
+      title: p.title || "Pieza",
+      bid: activa ? ("$" + precio.toLocaleString("es-MX")) : "Cerrada",
+      base: "$" + Number(p.start_price || 0).toLocaleString("es-MX"),
+      bidCount: 0,
+      evidence: ["Publicada en el sistema"],
+      status: activa ? "Activa" : "Próxima",
+      statusBg: activa ? "rgba(246,192,42,0.9)" : "rgba(255,255,255,0.12)",
+      statusColor: activa ? "#0a0a0b" : "#f3f1ec",
+      placeholder: "Foto del lote",
+      src: p.image_url || "",
+      closesAt: p.ends_at ? new Date(p.ends_at).getTime() : Date.now() + 7 * 86400000
+    };
+  });
+
+  if (typeof this.forceUpdate === "function") this.forceUpdate();
+  else if (typeof this.setState === "function") this.setState({});
+  this.syncAuthFromSupabase();
+}
+
+async syncAuthFromSupabase() {
+  if (!window.supabase || !window.supabase.createClient) return;
+  const client = window.supabase.createClient(
+    "https://ahhlfvjicxylidpmeciw.supabase.co",
+    "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+  );
+  const { data: { user } } = await client.auth.getUser();
+  if (!user) return;
+  const { data: profile } = await client
+    .from("profiles")
+    .select("full_name, phone, authorized")
+    .eq("id", user.id)
+    .single();
+  if (!profile) return;
+  this.setState({
+    user: {
+      nombre: profile.full_name || "",
+      whatsapp: profile.phone || "",
+      correo: user.email
+    },
+    bidStatus: profile.authorized ? "autorizado" : "ninguno"
+  });
+}
 
   persist(extra) {
     try {
@@ -1442,44 +1506,65 @@ class Component extends DCLogic {
     this.setState((s) => ({ authForm: { ...s.authForm, [key]: v }, authError: '' }));
   };
 
-  submitAuth = (e) => {
-    e.preventDefault();
-    const f = this.state.authForm;
-    const correo = (f.correo || '').trim().toLowerCase();
-    const pass = f.pass || '';
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo);
+submitAuth = async (e) => {
+  e.preventDefault();
+  const f = this.state.authForm || {};
+  const correo = (f.correo || "").trim().toLowerCase();
+  const pass = f.pass || "";
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
 
-    if (this.state.authMode === 'login') {
-      if (!emailOk) return this.setState({ authError: 'Escribe un correo válido.' });
-      let saved = null;
-      try { saved = JSON.parse(localStorage.getItem(this.STORE) || 'null'); } catch (err) {}
-      if (!saved || !saved.user || saved.user.correo !== correo) {
-        return this.setState({ authError: 'No encontramos una cuenta con ese correo en este dispositivo.' });
-      }
-      if (saved.user.pass !== pass) return this.setState({ authError: 'Contraseña incorrecta.' });
-      this.setState({ user: saved.user, bidStatus: saved.bidStatus || 'ninguno', notifPrefs: saved.notifPrefs || this.state.notifPrefs, notifs: saved.notifs || [], myBids: saved.myBids || {}, authOpen: false, authError: '' });
-      return;
-    }
+  if (!window.supabase) {
+    return this.setState({ authError: "No se pudo conectar." });
+  }
 
-    const nombre = (f.nombre || '').trim();
-    const ciudad = (f.ciudad || '').trim();
-    const tel = (f.whatsapp || '').replace(/\D/g, '');
-    if (nombre.length < 3) return this.setState({ authError: 'Escribe tu nombre completo.' });
-    if (tel.length !== 10) return this.setState({ authError: 'El WhatsApp debe tener 10 dígitos, sin lada de país.' });
-    if (!emailOk) return this.setState({ authError: 'Escribe un correo válido.' });
-    if (ciudad.length < 3) return this.setState({ authError: 'Escribe tu ciudad y estado.' });
-    if (pass.length < 6) return this.setState({ authError: 'La contraseña necesita al menos 6 caracteres.' });
+  const client = window.supabase.createClient(
+    "https://ahhlfvjicxylidpmeciw.supabase.co",
+    "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+  );
 
-    const user = { nombre, whatsapp: tel, correo, ciudad, pass };
-    const notifs = [
-      { id: 'n-welcome', icon: '✓', kind: 'ok', title: 'Cuenta creada', body: 'Ya puedes seguir subastas. Para pujar necesitas autorización — pídela desde Mi cuenta.', when: 'Ahora' , read: false },
-      { id: 'n-demo-1', icon: '!', kind: 'alert', title: 'Ejemplo: alguien superó tu puja', body: 'Así se verá el aviso que te llegará al WhatsApp cuando te superen en un lote.', when: 'Ejemplo', read: true },
-    ];
-    this.setState({ user, notifs, authOpen: false, authError: '', bidStatus: 'ninguno' }, () => this.persist());
-    this.netlifySubmit('usso-registro', { nombre, whatsapp: tel, correo, ciudad });
-  };
+  if (this.state.authMode === "login") {
+    if (!emailOk) return this.setState({ authError: "Escribe un correo válido." });
+    const { error } = await client.auth.signInWithPassword({ email: correo, password: pass });
+    if (error) return this.setState({ authError: error.message });
+    this.setState({ authOpen: false, authError: "" });
+    this.syncAuthFromSupabase();
+    return;
+  }
+
+  const nombre = (f.nombre || "").trim();
+  const ciudad = (f.ciudad || "").trim();
+  const tel = (f.whatsapp || "").replace(/\D/g, "");
+  if (nombre.length < 3) return this.setState({ authError: "Escribe tu nombre completo." });
+  if (tel.length !== 10) return this.setState({ authError: "El WhatsApp debe tener 10 dígitos, sin lada de país." });
+  if (!emailOk) return this.setState({ authError: "Escribe un correo válido." });
+  if (ciudad.length < 3) return this.setState({ authError: "Escribe tu ciudad y estado." });
+  if (pass.length < 6) return this.setState({ authError: "La contraseña necesita al menos 6 caracteres." });
+
+  const { error } = await client.auth.signUp({
+    email: correo,
+    password: pass,
+    options: { data: { full_name: nombre, phone: tel, city: ciudad } }
+  });
+  if (error) return this.setState({ authError: error.message });
+
+  await client.from("profiles").update({
+    full_name: nombre,
+    phone: tel,
+    city: ciudad
+  }).eq("id", (await client.auth.getUser()).data.user?.id || "");
+
+  this.setState({ authOpen: false, authError: "" });
+  this.syncAuthFromSupabase();
+};
 
   logout = () => {
+    if (window.supabase) {
+  window.supabase.createClient(
+    "https://ahhlfvjicxylidpmeciw.supabase.co",
+    "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+  ).auth.signOut();
+}
+
     this.setState({ user: null, accountOpen: false, notifOpen: false, bidOpen: false, authForm: { nombre: '', whatsapp: '', correo: '', ciudad: '', pass: '' } });
   };
 
@@ -1544,26 +1629,39 @@ class Component extends DCLogic {
   closeBid = () => this.setState({ bidOpen: false, bidError: '' });
   onBidAmount = (e) => { const v = e.target.value; this.setState({ bidAmount: v, bidError: '' }); };
 
-  submitBid = (e) => {
-    e.preventDefault();
-    const lot = this.rawAuctionItems.find((l) => l.id === this.state.bidLotId);
-    if (!lot) return;
-    const current = Math.max(this.parseMoney(lot.bid), this.parseMoney(this.state.myBids[lot.id] || 0));
-    const step = Math.max(500, Math.round(current * 0.02 / 500) * 500);
-    const min = current + step;
-    const amount = this.parseMoney(this.state.bidAmount);
-    if (!amount) return this.setState({ bidError: 'Escribe el monto de tu oferta.' });
-    if (amount < min) return this.setState({ bidError: 'Tu oferta debe ser de al menos ' + this.formatMoney(min) + '.' });
-
-    const u = this.state.user;
-    this.setState((s) => ({ myBids: { ...s.myBids, [lot.id]: amount }, bidOpen: false, bidAmount: '', bidError: '' }), () => this.persist());
-    this.netlifySubmit('usso-puja', {
-      nombre: u.nombre, whatsapp: u.whatsapp, correo: u.correo,
-      lote: lot.number, pieza: lot.title, monto: this.formatMoney(amount),
-    });
-    this.pushNotif({ icon: '✓', kind: 'ok', title: 'Puja registrada: ' + this.formatMoney(amount), body: 'Lote ' + lot.number + ' — ' + lot.title + '. Te avisamos si alguien te supera.' });
-    this.openWhats('Hola, soy ' + u.nombre + '. Pujé ' + this.formatMoney(amount) + ' en el lote ' + lot.number + ' (' + lot.title + ').');
-  };
+ submitBid = async (e) => {
+  if (e && e.preventDefault) e.preventDefault();
+  const lot = this.rawAuctionItems.find((l) => l.id === this.state.bidLotId);
+  if (!lot) return;
+  const amount = this.parseMoney(this.state.bidAmount);
+  if (!amount) {
+    this.setState({ bidError: "Escribe el monto de tu oferta." });
+    return;
+  }
+  if (!window.supabase) {
+    this.setState({ bidError: "No se pudo conectar." });
+    return;
+  }
+  const client = window.supabase.createClient(
+    "https://ahhlfvjicxylidpmeciw.supabase.co",
+    "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+  );
+  const { data: { user } } = await client.auth.getUser();
+  if (!user) {
+    this.setState({ bidOpen: false, authOpen: true, authMode: "login" });
+    return;
+  }
+  const { error } = await client.rpc("place_bid", {
+    p_listing_id: lot.id,
+    p_amount: amount
+  });
+  if (error) {
+    this.setState({ bidError: error.message });
+    return;
+  }
+  this.setState({ bidOpen: false, bidAmount: "", bidError: "" });
+  this.loadListingsFromDB();
+};
 
   renderVals() {
     const phase = this.state.phase;
@@ -1868,4 +1966,6 @@ class Component extends DCLogic {
 
 </script>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="puente-home.js"></script>
 </html>
