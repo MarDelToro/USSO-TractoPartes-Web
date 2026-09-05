@@ -5,9 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin · USSO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="usso-app.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .ghost { background:#2a323e; }
+    .warn { background:#b45309; }
+  </style>
 </head>
 <body>
   <main>
@@ -48,7 +52,14 @@
     <h2>Usuarios</h2>
     <table>
       <thead>
-        <tr><th>Nombre</th><th>WhatsApp</th><th>Ciudad</th><th>Rol</th></tr>
+        <tr>
+          <th>Nombre</th>
+          <th>WhatsApp</th>
+          <th>Ciudad</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
       </thead>
       <tbody id="rows"></tbody>
     </table>
@@ -91,22 +102,74 @@
     }
 
     async function loadUsers() {
-      const { data, error } = await client.from("profiles").select("full_name, phone, city, role").order("created_at", { ascending: false });
+      const { data, error } = await client
+        .from("profiles")
+        .select("id, full_name, phone, city, role, authorized")
+        .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
-      document.getElementById("rows").innerHTML = (data || []).map((p) => `
-        <tr>
-          <td>${p.full_name || ""}</td>
-          <td>${p.phone || ""}</td>
-          <td>${p.city || ""}</td>
-          <td>${p.role || ""}</td>
-        </tr>
-      `).join("");
+
+      document.getElementById("rows").innerHTML = (data || []).map((p) => {
+        const authBtn = p.role === "admin"
+          ? ""
+          : p.authorized
+            ? `<button class="warn" data-unauth="${p.id}">Quitar</button>`
+: `<button data-auth="${p.id}" data-phone="${p.phone || ""}">Autorizar</button>`;
+        const delBtn = p.role === "admin"
+          ? ""
+          : `<button class="ghost" data-deluser="${p.id}">Eliminar</button>`;
+        return `
+          <tr>
+            <td>${p.full_name || ""}</td>
+            <td>${p.phone || ""}</td>
+            <td>${p.city || ""}</td>
+            <td>${p.role || ""}</td>
+            <td>${p.authorized ? "Autorizada" : "Pendiente"}</td>
+            <td>${authBtn} ${delBtn}</td>
+          </tr>
+        `;
+      }).join("");
+
+     document.querySelectorAll("[data-auth]").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const { error } = await client.from("profiles").update({ authorized: true }).eq("id", btn.dataset.auth);
+    if (error) {
+      msg.textContent = error.message;
+      return;
+    }
+    msg.textContent = "Cuenta autorizada";
+    const tel = (btn.dataset.phone || "").replace(/\D/g, "").slice(-10);
+    if (tel) {
+      const texto = "Has sido autorizado para pujar en USSO Tractopartes. Entra a ussotractopartes.com/subastas.html";
+      window.open("https://wa.me/52" + tel + "?text=" + encodeURIComponent(texto), "_blank");
+    }
+    loadUsers();
+  });
+});
+
+      document.querySelectorAll("[data-unauth]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const { error } = await client.from("profiles").update({ authorized: false }).eq("id", btn.dataset.unauth);
+          msg.textContent = error ? error.message : "Autorización quitada";
+          if (!error) loadUsers();
+        });
+      });
+
+      document.querySelectorAll("[data-deluser]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm("¿Eliminar este usuario?")) return;
+          const { error } = await client.rpc("admin_delete_user", { p_user_id: btn.dataset.deluser });
+          msg.textContent = error ? error.message : "Usuario eliminado";
+          if (!error) loadUsers();
+        });
+      });
     }
 
     async function loadListings() {
+      await client.rpc("expire_listings");
+
       const { data, error } = await client
         .from("listings")
-        .select("id, title, current_price, start_price, status, winner_id")
+        .select("id, title, current_price, start_price, status, winner_id, ends_at")
         .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
 
@@ -115,14 +178,21 @@
 
       document.getElementById("listings").innerHTML = (data || []).map((p) => {
         const w = p.winner_id ? byId[p.winner_id] : null;
+        const vencida = p.ends_at && new Date(p.ends_at) < new Date();
+        const cerrada = p.status !== "active" || vencida;
+        const estado = p.status === "closed" ? "closed" : (vencida ? "closed" : "active");
+        const acciones = cerrada
+          ? `<button class="ghost" data-reopen="${p.id}">Reabrir</button>
+             <button class="warn" data-dellist="${p.id}">Eliminar</button>`
+          : `<button data-close="${p.id}">Cerrar</button>`;
         return `
           <tr>
             <td>${p.title}</td>
             <td>${p.current_price || p.start_price}</td>
-            <td>${p.status}</td>
+            <td>${estado}</td>
             <td>${w ? w.full_name : "-"}</td>
             <td>${w ? w.phone : "-"}</td>
-            <td>${p.status === "active" ? `<button data-close="${p.id}">Cerrar</button>` : "Cerrada"}</td>
+            <td>${acciones}</td>
           </tr>
         `;
       }).join("");
@@ -131,6 +201,27 @@
         btn.addEventListener("click", async () => {
           const { error } = await client.rpc("close_listing", { p_listing_id: btn.dataset.close });
           msg.textContent = error ? error.message : "Subasta cerrada";
+          if (!error) loadListings();
+        });
+      });
+
+      document.querySelectorAll("[data-reopen]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const { error } = await client.from("listings").update({
+            status: "active",
+            winner_id: null,
+            ends_at: null
+          }).eq("id", btn.dataset.reopen);
+          msg.textContent = error ? error.message : "Subasta reabierta. Ponle fecha otra vez si quieres límite.";
+          if (!error) loadListings();
+        });
+      });
+
+      document.querySelectorAll("[data-dellist]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm("¿Eliminar esta pieza? Solo si ya se vendió.")) return;
+          const { error } = await client.from("listings").delete().eq("id", btn.dataset.dellist);
+          msg.textContent = error ? error.message : "Pieza eliminada";
           if (!error) loadListings();
         });
       });

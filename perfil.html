@@ -5,27 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Perfil · USSO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="usso-app.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     .box { width:min(420px, 92vw); padding:28px; display:grid; gap:12px; }
+    .ok { color:#7dffa0; }
+    .bad { color:#ffb4b4; }
+    #pedir { display:none; }
+    #adminLink { display:none; }
   </style>
 </head>
 <body>
   <main>
     <nav>
       <a href="subastas.html">Subastas</a>
-      <a href="admin.html">Admin</a>
       <a href="mis-pujas.html">Mis pujas</a>
+      <a id="adminLink" href="admin.html">Admin</a>
     </nav>
     <div class="box card">
       <h1>Mi perfil</h1>
       <p id="email"></p>
+      <p id="estado"></p>
       <input id="full_name" placeholder="Nombre">
       <input id="phone" placeholder="WhatsApp">
       <input id="city" placeholder="Ciudad">
       <button id="save">Guardar</button>
+      <a id="pedir" href="#" target="_blank">Pedir autorización por WhatsApp</a>
       <button id="logout">Cerrar sesión</button>
       <p class="msg" id="msg"></p>
     </div>
@@ -36,6 +42,7 @@
       "https://ahhlfvjicxylidpmeciw.supabase.co",
       "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
     );
+    const WHATSAPP_TIENDA = "524521492109";
     const msg = document.getElementById("msg");
 
     async function load() {
@@ -44,16 +51,42 @@
         window.location.href = "login.html";
         return;
       }
+
       document.getElementById("email").textContent = user.email;
-      const { data, error } = await client.from("profiles").select("full_name, phone, city, role").eq("id", user.id).single();
+
+      const { data, error } = await client
+        .from("profiles")
+        .select("full_name, phone, city, role, authorized")
+        .eq("id", user.id)
+        .single();
+
       if (error) {
         msg.textContent = error.message;
         return;
       }
+
       document.getElementById("full_name").value = data.full_name || "";
       document.getElementById("phone").value = data.phone || "";
       document.getElementById("city").value = data.city || "";
       msg.textContent = "Rol: " + data.role;
+
+      if (data.role === "admin") {
+        document.getElementById("adminLink").style.display = "inline";
+      }
+
+      const ok = !!data.authorized;
+      document.getElementById("estado").innerHTML = ok
+        ? '<b class="ok">Cuenta autorizada. Ya puedes pujar.</b>'
+        : '<b class="bad">Cuenta pendiente de autorización.</b>';
+
+      const pedir = document.getElementById("pedir");
+      if (!ok) {
+        const texto = "Hola, quiero autorizar mi cuenta.\nNombre: " + (data.full_name || "") + "\nCorreo: " + user.email + "\nWhatsApp: " + (data.phone || "");
+        pedir.href = "https://wa.me/" + WHATSAPP_TIENDA + "?text=" + encodeURIComponent(texto);
+        pedir.style.display = "inline";
+      } else {
+        pedir.style.display = "none";
+      }
     }
 
     document.getElementById("save").addEventListener("click", async () => {
@@ -64,6 +97,7 @@
         city: document.getElementById("city").value
       }).eq("id", user.id);
       msg.textContent = error ? error.message : "Perfil guardado";
+      if (!error) load();
     });
 
     document.getElementById("logout").addEventListener("click", async () => {

@@ -292,8 +292,8 @@
         </button>
       </sc-if>
       <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
-        <button onClick="{{ openRegistro }}" class="usso-nav-guest-primary" style="background:{{ accent }};color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:11px 20px;border-radius:100px;border:0;cursor:pointer;white-space:nowrap">Crear cuenta para pujar</button>
-        <button onClick="{{ openLogin }}" style="background:transparent;border:1px solid rgba(255,255,255,0.22);color:var(--text);font:700 13px Manrope,sans-serif;padding:10px 18px;border-radius:100px;cursor:pointer">Entrar</button>
+        <a href="registro.html" class="usso-nav-guest-primary" style="background:{{ accent }};color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:11px 20px;border-radius:100px;border:0;cursor:pointer;white-space:nowrap;text-decoration:none">Crear cuenta para pujar</a>
+        <a href="login.html" style="background:transparent;border:1px solid rgba(255,255,255,0.22);color:var(--text);font:700 13px Manrope,sans-serif;padding:10px 18px;border-radius:100px;cursor:pointer;text-decoration:none">Entrar</a>
       </sc-if>
     </div>
     <button onClick="{{ toggleMobileMenu }}" class="usso-nav-burger" aria-label="Menú" style="display:none;background:transparent;border:1px solid rgba(var(--border-rgb),0.25);border-radius:10px;padding:9px 11px;cursor:pointer">
