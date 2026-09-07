@@ -1374,7 +1374,7 @@ class Component extends DCLogic {
   );
   const { data } = await client
     .from("listings")
-    .select("id, title, image_url, current_price, start_price, status, ends_at")
+    .select("id, title, image_url, current_price, start_price, status, ends_at, category")
     .order("created_at", { ascending: false });
 
   this.rawAuctionItems = (data || []).map((p, i) => {
@@ -1383,7 +1383,7 @@ class Component extends DCLogic {
     return {
       id: p.id,
       number: String(100 + i),
-      cat: "motores",
+      cat: p.category || "motores",
       title: p.title || "Pieza",
       bid: activa ? ("$" + precio.toLocaleString("es-MX")) : "Cerrada",
       base: "$" + Number(p.start_price || 0).toLocaleString("es-MX"),

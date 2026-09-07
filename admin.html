@@ -27,6 +27,13 @@
     <h2>Subir pieza</h2>
     <form id="pieza">
       <input id="title" placeholder="Título" required>
+      <select id="category" required>
+  <option value="motores">Motores</option>
+  <option value="transmisiones">Transmisiones</option>
+  <option value="diferenciales">Diferenciales</option>
+  <option value="cortes">Cortes completos</option>
+  <option value="suspension">Suspensión</option>
+</select>
       <textarea id="description" placeholder="Descripción" rows="3"></textarea>
       <input id="photo" type="file" accept="image/*">
       <input id="image_url" placeholder="O pega una URL de foto">
@@ -278,6 +285,7 @@
       const ends = document.getElementById("ends_at").value;
       const { error } = await client.from("listings").insert({
         title: document.getElementById("title").value.trim(),
+        category: document.getElementById("category").value,
         description: document.getElementById("description").value.trim(),
         image_url: imageUrl,
         start_price: start,
