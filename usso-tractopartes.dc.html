@@ -1684,14 +1684,25 @@ submitAuth = async (e) => {
     const u = st.user;
     const initials = u ? u.nombre.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() : '';
     const active = this.auctionItemsComputed.filter((l) => l.status === 'Activa');
-    const feat = active[0] || this.auctionItemsComputed[0];
+    const feat = active[0] || this.auctionItemsComputed[0] || {
+      id: '',
+      src: '',
+      number: '—',
+      title: 'No hay subastas disponibles',
+      evidence: [],
+      bid: '—',
+      base: '—',
+      bidCount: 0,
+      closesDisplay: '—',
+      goTo: () => {},
+    };
     const unread = st.notifs.filter((n) => !n.read).length;
 
     const bidLot = st.bidLotId ? this.auctionItemsComputed.find((l) => l.id === st.bidLotId) : null;
     let bidMin = 0;
     if (bidLot) {
       const raw = this.rawAuctionItems.find((l) => l.id === bidLot.id);
-      const cur = Math.max(this.parseMoney(raw.bid), this.parseMoney(st.myBids[bidLot.id] || 0));
+      const cur = Math.max(this.parseMoney(raw ? raw.bid : bidLot.bid), this.parseMoney(st.myBids[bidLot.id] || 0));
       const step = Math.max(500, Math.round(cur * 0.02 / 500) * 500);
       bidMin = cur + step;
     }
