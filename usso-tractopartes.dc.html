@@ -1608,21 +1608,26 @@ submitAuth = async (e) => {
     if (!w) window.location.href = url;
   }
 
-  requestAuth = async () => {
+  requestAuth = async (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
     const u = this.state.user;
     if (!u) return;
     if (!window.supabase) return;
+    const whatsappUrl = this.waLink('Hola, soy ' + u.nombre + ' (' + u.ciudad + '). Quiero autorización para pujar en las subastas de USSO. Mi WhatsApp es ' + u.whatsapp + '.');
+    const whatsappWindow = window.open('', '_blank');
     const client = window.supabase.createClient(
       "https://ahhlfvjicxylidpmeciw.supabase.co",
       "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
     );
     const { error } = await client.rpc("request_bid_authorization");
     if (error) {
+      if (whatsappWindow) whatsappWindow.close();
       this.pushNotif({ icon: '⚠️', kind: 'alert', title: 'No se pudo enviar', body: error.message });
       return;
     }
     this.setState({ bidStatus: 'pendiente' }, () => this.persist());
-    this.openWhats('Hola, soy ' + u.nombre + ' (' + u.ciudad + '). Quiero autorización para pujar en las subastas de USSO. Mi WhatsApp es ' + u.whatsapp + '.');
+    if (whatsappWindow) whatsappWindow.location.href = whatsappUrl;
+    else window.location.href = whatsappUrl;
     this.netlifySubmit('usso-autorizacion', {
       nombre: u.nombre, whatsapp: u.whatsapp, correo: u.correo, ciudad: u.ciudad,
       mensaje: 'Solicita autorización para pujar',
@@ -1833,7 +1838,11 @@ submitAuth = async (e) => {
       featuredBase: feat.base,
       featuredBidCount: feat.bidCount + (st.myBids[feat.id] ? 1 : 0),
       featuredClock: feat.closesDisplay,
-      featuredBidAction: hasAnyAuction ? this.startBid(feat.id) : () => {},
+      featuredBidAction: !hasAnyAuction
+        ? () => {}
+        : (!u
+          ? this.startBid(feat.id)
+          : (st.bidStatus === 'autorizado' ? this.startBid(feat.id) : this.requestAuth)),
       featuredBidDisabled: !hasAnyAuction,
       featuredBidCursor: hasAnyAuction ? 'pointer' : 'not-allowed',
       featuredBidOpacity: hasAnyAuction ? '1' : '0.55',

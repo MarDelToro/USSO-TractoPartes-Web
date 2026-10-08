@@ -102,12 +102,19 @@
     document.getElementById("requestAuth").addEventListener("click", async () => {
       const msg = document.getElementById("msg");
       msg.textContent = "Enviando solicitud...";
+      const text = `Hola, quiero solicitar autorización para pujar en USSO. Mi cuenta es ${currentUser?.email || ""}.`;
+      const whatsappUrl = `https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(text)}`;
+      const whatsappWindow = window.open("", "_blank");
       const {error} = await client.rpc("request_bid_authorization");
-      if (error) { msg.textContent = error.message; return; }
+      if (error) {
+        if (whatsappWindow) whatsappWindow.close();
+        msg.textContent = error.message;
+        return;
+      }
       msg.style.color = "#8ee7aa";
       msg.textContent = "Solicitud guardada. Completa el mensaje de WhatsApp para avisarnos también por ese medio.";
-      const text = `Hola, quiero solicitar autorización para pujar en USSO. Mi cuenta es ${currentUser?.email || ""}.`;
-      window.open(`https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(text)}`, "_blank");
+      if (whatsappWindow) whatsappWindow.location.href = whatsappUrl;
+      else window.location.href = whatsappUrl;
     });
 
     load();
