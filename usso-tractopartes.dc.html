@@ -586,6 +586,7 @@
           </div>
           <div style="display:flex;gap:10px">
             <button onClick="{{ featuredBidAction }}" aria-disabled="{{ featuredBidDisabled }}" style="flex:1;min-width:170px;background:{{ accent }};color:#0a0a0b;font:800 14px Manrope,sans-serif;padding:14px 24px;border-radius:100px;border:0;cursor:{{ featuredBidCursor }};opacity:{{ featuredBidOpacity }}">{{ bidButtonLabel }}</button>
+            <button onClick="{{ featuredGoTo }}" style="background:transparent;border:1.5px solid rgba(var(--text-rgb),0.25);color:var(--text);font:700 14px Manrope,sans-serif;padding:13px 22px;border-radius:100px;cursor:pointer">Ver detalles</button>
           </div>
         </div>
       </div>
@@ -1280,7 +1281,8 @@ class Component extends DCLogic {
 
   goToLot = (id) => (e) => {
     if (e && e.stopPropagation) e.stopPropagation();
-    this.startBid(id)(e);
+    this.setState({ pageOpacity: 0 });
+    setTimeout(() => { window.location.href = `Subasta.dc.html#${id}`; }, 240);
   };
 
   playingVideo = null;
