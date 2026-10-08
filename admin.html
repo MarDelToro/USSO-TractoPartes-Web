@@ -62,10 +62,12 @@
       <thead>
         <tr>
           <th>Nombre</th>
+          <th>Correo</th>
           <th>WhatsApp</th>
           <th>Ciudad</th>
           <th>Rol</th>
           <th>Estado</th>
+          <th>Solicitud</th>
           <th></th>
         </tr>
       </thead>
@@ -110,6 +112,13 @@
     }
 
     async function loadUsers() {
+      const { data: requests, error: requestError } = await client
+        .from("authorization_requests")
+        .select("user_id, email, status, requested_at");
+      const requestsByUser = requestError
+        ? {}
+        : Object.fromEntries((requests || []).map((r) => [r.user_id, r]));
+
       const { data, error } = await client
         .from("profiles")
         .select("id, full_name, phone, city, role, authorized")
@@ -117,6 +126,14 @@
       if (error) return msg.textContent = error.message;
 
       document.getElementById("rows").innerHTML = (data || []).map((p) => {
+        const request = requestsByUser[p.id];
+        const requestLabel = request?.status === "pending"
+          ? `Recibida · ${new Date(request.requested_at).toLocaleString("es-MX")}`
+          : request?.status === "approved"
+            ? "Aprobada"
+            : request?.status === "revoked"
+              ? "Revocada"
+              : "Sin solicitud";
         const authBtn = p.role === "admin"
           ? ""
           : p.authorized
@@ -128,10 +145,12 @@
         return `
           <tr>
             <td>${p.full_name || ""}</td>
+            <td>${request?.email || ""}</td>
             <td>${p.phone || ""}</td>
             <td>${p.city || ""}</td>
             <td>${p.role || ""}</td>
             <td>${p.authorized ? "Autorizada" : "Pendiente"}</td>
+            <td>${requestLabel}</td>
             <td>${authBtn} ${delBtn}</td>
           </tr>
         `;

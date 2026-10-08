@@ -1608,9 +1608,19 @@ submitAuth = async (e) => {
     if (!w) window.location.href = url;
   }
 
-  requestAuth = () => {
+  requestAuth = async () => {
     const u = this.state.user;
     if (!u) return;
+    if (!window.supabase) return;
+    const client = window.supabase.createClient(
+      "https://ahhlfvjicxylidpmeciw.supabase.co",
+      "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+    );
+    const { error } = await client.rpc("request_bid_authorization");
+    if (error) {
+      this.pushNotif({ icon: '⚠️', kind: 'alert', title: 'No se pudo enviar', body: error.message });
+      return;
+    }
     this.setState({ bidStatus: 'pendiente' }, () => this.persist());
     this.openWhats('Hola, soy ' + u.nombre + ' (' + u.ciudad + '). Quiero autorización para pujar en las subastas de USSO. Mi WhatsApp es ' + u.whatsapp + '.');
     this.netlifySubmit('usso-autorizacion', {
