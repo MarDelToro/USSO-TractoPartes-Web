@@ -584,7 +584,7 @@
             </sc-for>
           </div>
           <div style="display:flex;gap:10px">
-            <button onClick="{{ featuredBidAction }}" style="flex:1;min-width:170px;background:{{ accent }};color:#0a0a0b;font:800 14px Manrope,sans-serif;padding:14px 24px;border-radius:100px;border:0;cursor:pointer">{{ bidButtonLabel }}</button>
+            <button onClick="{{ featuredBidAction }}" aria-disabled="{{ featuredBidDisabled }}" style="flex:1;min-width:170px;background:{{ accent }};color:#0a0a0b;font:800 14px Manrope,sans-serif;padding:14px 24px;border-radius:100px;border:0;cursor:{{ featuredBidCursor }};opacity:{{ featuredBidOpacity }}">{{ bidButtonLabel }}</button>
             <button onClick="{{ featuredGoTo }}" style="background:transparent;border:1.5px solid rgba(var(--text-rgb),0.25);color:var(--text);font:700 14px Manrope,sans-serif;padding:13px 22px;border-radius:100px;cursor:pointer">Ver evidencia</button>
           </div>
         </div>
@@ -1684,6 +1684,7 @@ submitAuth = async (e) => {
     const u = st.user;
     const initials = u ? u.nombre.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() : '';
     const active = this.auctionItemsComputed.filter((l) => l.status === 'Activa');
+    const hasAnyAuction = this.auctionItemsComputed.length > 0;
     const feat = active[0] || this.auctionItemsComputed[0] || {
       id: '',
       src: '',
@@ -1716,7 +1717,9 @@ submitAuth = async (e) => {
     const prefLabels = { superada: 'Alguien superó mi puja', cierre: 'Mi subasta cierra en 1 hora', gane: 'Gané la subasta', perdi: 'No gané la subasta', favorita: 'Recordatorio de mis favoritos' };
     const kindColor = { ok: ['rgba(74,222,128,0.14)', '#7ee2a8'], alert: ['rgba(255,59,48,0.14)', '#ff8a80'], info: ['rgba(246,192,42,0.14)', accent] };
 
-    const bidLabel = !u ? 'Crear cuenta para pujar' : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : 'Pujar ahora');
+    const bidLabel = !hasAnyAuction
+      ? 'No hay subastas activas'
+      : (!u ? 'Crear cuenta para pujar' : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : 'Pujar ahora'));
     const activeFilter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
     const filtered = this.auctionItemsComputed.filter(activeFilter.test);
 
@@ -1809,7 +1812,10 @@ submitAuth = async (e) => {
       featuredBase: feat.base,
       featuredBidCount: feat.bidCount + (st.myBids[feat.id] ? 1 : 0),
       featuredClock: feat.closesDisplay,
-      featuredBidAction: this.startBid(feat.id),
+      featuredBidAction: hasAnyAuction ? this.startBid(feat.id) : () => {},
+      featuredBidDisabled: !hasAnyAuction,
+      featuredBidCursor: hasAnyAuction ? 'pointer' : 'not-allowed',
+      featuredBidOpacity: hasAnyAuction ? '1' : '0.55',
       featuredGoTo: feat.goTo,
       bidButtonLabel: bidLabel,
 
