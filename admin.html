@@ -139,7 +139,10 @@
 
      document.querySelectorAll("[data-auth]").forEach((btn) => {
   btn.addEventListener("click", async () => {
-    const { error } = await client.from("profiles").update({ authorized: true }).eq("id", btn.dataset.auth);
+    const { error } = await client.rpc("admin_set_user_authorized", {
+      p_user_id: btn.dataset.auth,
+      p_authorized: true
+    });
     if (error) {
       msg.textContent = error.message;
       return;
@@ -156,7 +159,10 @@
 
       document.querySelectorAll("[data-unauth]").forEach((btn) => {
         btn.addEventListener("click", async () => {
-          const { error } = await client.from("profiles").update({ authorized: false }).eq("id", btn.dataset.unauth);
+          const { error } = await client.rpc("admin_set_user_authorized", {
+            p_user_id: btn.dataset.unauth,
+            p_authorized: false
+          });
           msg.textContent = error ? error.message : "Autorización quitada";
           if (!error) loadUsers();
         });

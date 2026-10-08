@@ -1543,18 +1543,16 @@ submitAuth = async (e) => {
   const { error } = await client.auth.signUp({
     email: correo,
     password: pass,
-    options: { data: { full_name: nombre, phone: tel, city: ciudad } }
+    options: {
+      emailRedirectTo: new URL("usso-tractopartes.dc.html", window.location.href).href,
+      data: { full_name: nombre, phone: tel, city: ciudad }
+    }
   });
   if (error) return this.setState({ authError: error.message });
 
-  await client.from("profiles").update({
-    full_name: nombre,
-    phone: tel,
-    city: ciudad
-  }).eq("id", (await client.auth.getUser()).data.user?.id || "");
-
-  this.setState({ authOpen: false, authError: "" });
-  this.syncAuthFromSupabase();
+  this.setState({
+    authError: "Cuenta creada. Revisa tu correo y confirma tu cuenta antes de iniciar sesión."
+  });
 };
 
   logout = () => {
