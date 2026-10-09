@@ -1551,7 +1551,7 @@ submitAuth = async (e) => {
   if (ciudad.length < 3) return this.setState({ authError: "Escribe tu ciudad y estado." });
   if (pass.length < 6) return this.setState({ authError: "La contraseña necesita al menos 6 caracteres." });
 
-  const { error } = await client.auth.signUp({
+  const { data, error } = await client.auth.signUp({
     email: correo,
     password: pass,
     options: {
@@ -1561,8 +1561,14 @@ submitAuth = async (e) => {
   });
   if (error) return this.setState({ authError: error.message });
 
+  if (data.session) {
+    this.setState({ authOpen: false, authError: "" });
+    this.syncAuthFromSupabase();
+    return;
+  }
+
   this.setState({
-    authError: "Cuenta creada. Revisa tu correo y confirma tu cuenta antes de iniciar sesión."
+    authError: "Cuenta creada. Ya puedes iniciar sesión."
   });
 };
 
