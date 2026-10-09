@@ -57,6 +57,12 @@
   @keyframes barGrow { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
   @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
   @keyframes livePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.2; transform: scale(1.5); } }
+  @keyframes ussoConfettiFall { 0% { opacity:0; transform:translateY(-18px) rotate(0deg); } 12% { opacity:1; } 100% { opacity:0; transform:translateY(115px) rotate(420deg); } }
+  @keyframes ussoFinishGlow { 0%,100% { box-shadow:0 0 0 rgba(255,82,82,0); } 50% { box-shadow:0 0 42px rgba(255,82,82,.22); } }
+  .usso-finished-lot { animation:ussoFinishGlow 1.4s ease-in-out 3; }
+  .usso-celebration { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:3; }
+  .usso-celebration i { position:absolute; top:0; width:8px; height:14px; border-radius:2px; animation:ussoConfettiFall 2.4s ease-in forwards; }
+  .usso-celebration i:nth-child(1){left:12%;background:#f6c02a}.usso-celebration i:nth-child(2){left:25%;background:#ff5c52;animation-delay:.12s}.usso-celebration i:nth-child(3){left:39%;background:#fff;animation-delay:.24s}.usso-celebration i:nth-child(4){left:55%;background:#7ee2a8;animation-delay:.08s}.usso-celebration i:nth-child(5){left:70%;background:#f6c02a;animation-delay:.3s}.usso-celebration i:nth-child(6){left:86%;background:#ff5c52;animation-delay:.18s}
   .usso-inventory-grid, .usso-auctions-grid, .usso-videos-grid { display: flex !important; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); scrollbar-width: none; padding-bottom: 4px; }
   .usso-inventory-grid::-webkit-scrollbar, .usso-auctions-grid::-webkit-scrollbar, .usso-videos-grid::-webkit-scrollbar { display: none; }
   .usso-inventory-grid > div, .usso-auctions-grid > div, .usso-videos-grid > div { scroll-snap-align: center; scroll-snap-stop: always; transform-origin: center; transition: transform 0.2s ease-out, opacity 0.2s ease-out; }
@@ -550,13 +556,14 @@
 
       <!-- LOTE DESTACADO -->
       <sc-if value="{{ hasAnyAuction }}" hint-placeholder-val="{{ true }}">
-      <div class="usso-featured-lot">
+      <div class="usso-featured-lot {{ featuredFinishClass }}">
         <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
          <img src="{{ featuredSrc }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
-          <span class="usso-live-badge" style="position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:7px;background:rgba(10,10,11,0.82);backdrop-filter:blur(6px);border:1px solid rgba(246,192,42,0.45);border-radius:100px;padding:7px 14px">
-            <span style="width:6px;height:6px;border-radius:50%;background:#ff0000;animation:livePulse 0.8s ease-in-out infinite"></span>
-            <span style="font:800 11px Manrope,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:{{ accent }}">Cerrando pronto</span>
+          <span class="usso-live-badge" style="position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:7px;background:rgba(10,10,11,0.86);backdrop-filter:blur(6px);border:1px solid {{ featuredBadgeBorder }};border-radius:100px;padding:7px 14px;z-index:4">
+            <span style="width:6px;height:6px;border-radius:50%;background:{{ featuredBadgeDot }};animation:{{ featuredBadgeAnimation }}"></span>
+            <span style="font:800 11px Manrope,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:{{ featuredBadgeColor }}">{{ featuredBadgeLabel }}</span>
           </span>
+          <sc-if value="{{ featuredCelebrating }}"><div class="usso-celebration"><i></i><i></i><i></i><i></i><i></i><i></i></div></sc-if>
         </div>
 
         <div class="usso-featured-body" style="padding:30px 32px 0;display:flex;flex-direction:column;justify-content:center">
@@ -573,13 +580,13 @@
 
           <div class="usso-featured-meta" style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(var(--border-rgb),0.09);border-bottom:1px solid rgba(var(--border-rgb),0.09);margin-bottom:22px">
             <div>
-              <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">Puja actual · {{ featuredBidCount }} ofertas</p>
+              <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">{{ featuredPriceLabel }}</p>
               <p class="usso-featured-bid" style="font-family:'Archivo Black',sans-serif;font-size:34px;line-height:1;color:{{ accent }};margin:0">{{ featuredBid }}</p>
               <p style="font:600 12px Manrope,sans-serif;color:rgba(var(--text-rgb),0.4);margin:7px 0 0">Precio base {{ featuredBase }}</p>
             </div>
             <div style="text-align:right">
-              <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">Cierra en</p>
-              <p class="usso-featured-clock" style="font-family:'Archivo Black',monospace;font-size:25px;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;margin:0">{{ featuredClock }}</p>
+              <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">{{ featuredClockLabel }}</p>
+              <p class="usso-featured-clock" style="font-family:'Archivo Black',monospace;font-size:25px;line-height:1;color:{{ featuredClockColor }};font-variant-numeric:tabular-nums;margin:0">{{ featuredClock }}</p>
             </div>
           </div>
 
@@ -594,8 +601,10 @@
             </sc-for>
           </div>
           <div style="display:flex;gap:10px">
+            <sc-if value="{{ featuredIsActive }}">
             <button onClick="{{ featuredBidAction }}" aria-disabled="{{ featuredBidDisabled }}" style="flex:1;min-width:170px;background:{{ accent }};color:#0a0a0b;font:800 14px Manrope,sans-serif;padding:14px 24px;border-radius:100px;border:0;cursor:{{ featuredBidCursor }};opacity:{{ featuredBidOpacity }}">{{ bidButtonLabel }}</button>
-            <button onClick="{{ featuredGoTo }}" style="background:transparent;border:1.5px solid rgba(var(--text-rgb),0.25);color:var(--text);font:700 14px Manrope,sans-serif;padding:13px 22px;border-radius:100px;cursor:pointer">Ver detalles</button>
+            </sc-if>
+            <button onClick="{{ featuredGoTo }}" style="flex:{{ featuredDetailsFlex }};background:transparent;border:1.5px solid rgba(var(--text-rgb),0.25);color:var(--text);font:700 14px Manrope,sans-serif;padding:13px 22px;border-radius:100px;cursor:pointer">Ver detalles</button>
           </div>
         </div>
       </div>
@@ -613,7 +622,7 @@
         <sc-for list="{{ auctionItems }}" as="lot" hint-placeholder-count="3">
           <div onClick="{{ lot.goTo }}" style="background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.07);border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;flex:0 0 320px">
             <div style="position:relative">
-             <img src="{{ featuredSrc }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+             <img src="{{ lot.src }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
               <span style="position:absolute;top:14px;left:14px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 11px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:6px 12px;border-radius:100px">{{ lot.status }}</span>
             </div>
             <div style="padding:22px;display:flex;flex-direction:column;flex:1">
@@ -629,7 +638,7 @@
                 </div>
                 <div style="text-align:right">
                   <div style="font:600 11px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5)">{{ lot.closesLabel }}</div>
-                  <div style="font:700 15px/1 'Archivo Black',monospace;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:0.02em">{{ lot.closesDisplay }}</div>
+                  <div style="font:700 15px/1 'Archivo Black',monospace;color:{{ lot.clockColor }};font-variant-numeric:tabular-nums;letter-spacing:0.02em">{{ lot.closesDisplay }}</div>
                 </div>
               </div>
             </div>
@@ -1406,24 +1415,25 @@ class Component extends DCLogic {
     .order("created_at", { ascending: false });
 
   this.rawAuctionItems = (data || []).map((p, i) => {
-    const activa = p.status === "active" && (!p.ends_at || new Date(p.ends_at) > new Date());
+    const termina = p.ends_at ? new Date(p.ends_at).getTime() : null;
+    const activa = p.status === "active" && (!termina || termina > Date.now());
     const precio = Number(p.current_price || p.start_price || 0);
     return {
       id: p.id,
       number: String(100 + i),
       cat: p.category || "motores",
       title: p.title || "Pieza",
-      bid: activa ? ("$" + precio.toLocaleString("es-MX")) : "Cerrada",
+      bid: "$" + precio.toLocaleString("es-MX"),
       base: "$" + Number(p.start_price || 0).toLocaleString("es-MX"),
       bidCount: Number(p.bid_count || 0),
       auctionRound: Number(p.auction_round || 1),
       evidence: ["Publicada en el sistema"],
-      status: activa ? "Activa" : "Próxima",
+      status: activa ? "Activa" : "Finalizada",
       statusBg: activa ? "rgba(246,192,42,0.9)" : "rgba(255,255,255,0.12)",
       statusColor: activa ? "#0a0a0b" : "#f3f1ec",
       placeholder: "Foto del lote",
       src: p.image_url || "",
-      closesAt: p.ends_at ? new Date(p.ends_at).getTime() : Date.now() + 7 * 86400000
+      closesAt: termina || Date.now() + 7 * 86400000
     };
   });
 
@@ -1816,9 +1826,10 @@ submitAuth = async (e) => {
       return {
         ...l,
         bid: l.bid,
-        closesLabel: l.status === 'Activa' ? 'Cierra en' : 'Inicia en',
-        closesDisplay: this.formatCountdown(l.closesAt - Date.now()),
-        bidLabel: count > 0 ? 'Puja actual · ' + count + ' ofertas' : 'Precio base',
+        closesLabel: l.status === 'Activa' ? 'Cierra en' : 'Finalizó',
+        closesDisplay: l.status === 'Activa' ? this.formatCountdown(l.closesAt - Date.now()) : '00:00:00',
+        clockColor: l.status === 'Activa' ? 'var(--text)' : '#ff5c52',
+        bidLabel: l.status === 'Activa' ? (count > 0 ? 'Puja actual · ' + count + ' ofertas' : 'Precio base') : (count > 0 ? 'Precio final · ' + count + ' ofertas' : 'Sin ofertas'),
         evidenceLabel: l.evidence[0],
         goTo: this.goToLot(l.id),
       };
@@ -1828,9 +1839,8 @@ submitAuth = async (e) => {
     const st = this.state;
     const u = st.user;
     const initials = u ? u.nombre.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() : '';
-    const active = this.auctionItemsComputed.filter((l) => l.status === 'Activa');
     const hasAnyAuction = this.auctionItemsComputed.length > 0;
-    const feat = active[0] || this.auctionItemsComputed[0] || {
+    const feat = this.auctionItemsComputed[0] || {
       id: '',
       src: '',
       number: '—',
@@ -1864,6 +1874,9 @@ submitAuth = async (e) => {
     const featuredOwnBid = this.parseMoney(st.myBids[feat.id] || 0);
     const featuredCurrent = this.parseMoney(feat.bid);
     const featuredIsLeading = !!featuredOwnBid && featuredOwnBid >= featuredCurrent;
+    const featuredIsActive = feat.status === 'Activa';
+    const featuredEndingSoon = featuredIsActive && feat.closesAt - Date.now() <= 60 * 60 * 1000;
+    const featuredCelebrating = !featuredIsActive && !!feat.closesAt && Date.now() - feat.closesAt >= 0 && Date.now() - feat.closesAt < 12000;
     const bidLabel = !hasAnyAuction
       ? 'No hay subastas activas'
       : (!u ? 'Crear cuenta para pujar' : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : (featuredIsLeading ? 'Vas ganando' : 'Pujar ahora')));
@@ -1965,14 +1978,26 @@ submitAuth = async (e) => {
       featuredBase: feat.base,
       featuredBidCount: feat.bidCount,
       featuredClock: feat.closesDisplay,
+      featuredClockLabel: featuredIsActive ? 'Cierra en' : 'Finalizó',
+      featuredClockColor: featuredIsActive ? 'var(--text)' : '#ff5c52',
+      featuredPriceLabel: featuredIsActive ? `Puja actual · ${feat.bidCount} ofertas` : (feat.bidCount ? `Precio final · ${feat.bidCount} ofertas` : 'Finalizada sin ofertas'),
+      featuredIsActive,
+      featuredCelebrating,
+      featuredFinishClass: featuredCelebrating ? 'usso-finished-lot' : '',
+      featuredBadgeLabel: featuredIsActive ? (featuredEndingSoon ? 'Cerrando pronto' : 'Subasta activa') : 'Subasta finalizada',
+      featuredBadgeColor: featuredIsActive ? accent : '#ff8a80',
+      featuredBadgeBorder: featuredIsActive ? 'rgba(246,192,42,0.45)' : 'rgba(255,92,82,0.55)',
+      featuredBadgeDot: featuredIsActive ? '#ff0000' : '#ff5c52',
+      featuredBadgeAnimation: featuredIsActive ? 'livePulse 0.8s ease-in-out infinite' : 'none',
+      featuredDetailsFlex: featuredIsActive ? '0' : '1',
       featuredBidAction: !hasAnyAuction
         ? () => {}
         : (!u
           ? this.startBid(feat.id)
           : (st.bidStatus === 'autorizado' ? this.startBid(feat.id) : this.requestAuth)),
-      featuredBidDisabled: !hasAnyAuction || featuredIsLeading,
-      featuredBidCursor: hasAnyAuction && !featuredIsLeading ? 'pointer' : 'not-allowed',
-      featuredBidOpacity: hasAnyAuction && !featuredIsLeading ? '1' : '0.55',
+      featuredBidDisabled: !hasAnyAuction || !featuredIsActive || featuredIsLeading,
+      featuredBidCursor: hasAnyAuction && featuredIsActive && !featuredIsLeading ? 'pointer' : 'not-allowed',
+      featuredBidOpacity: hasAnyAuction && featuredIsActive && !featuredIsLeading ? '1' : '0.55',
       featuredGoTo: feat.goTo,
       bidButtonLabel: bidLabel,
       hasAnyAuction,
