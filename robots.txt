@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /login
+Disallow: /login.html
+Disallow: /registro
+Disallow: /registro.html
+Disallow: /perfil
+Disallow: /perfil.html
+Disallow: /mis-pujas
+Disallow: /mis-pujas.html
+Disallow: /Catalogo.dc.html
+Disallow: /catalogo.dc
+
+Sitemap: https://ussotractopartes.com/sitemap.xml
