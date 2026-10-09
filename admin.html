@@ -78,6 +78,7 @@
     .status-pending { color:#ffd45b; background:rgba(246,192,42,.1); border:1px solid rgba(246,192,42,.28); }
     .actions-cell { display:flex; align-items:center; gap:7px; min-width:max-content; }
     .action-btn { min-height:38px; padding:9px 14px; border-radius:999px; font-size:12px; white-space:nowrap; }
+    .action-btn:disabled { opacity:.58; cursor:not-allowed; filter:saturate(.45); }
     .action-primary { background:#f6c02a; color:#0a0a0b; }
     .action-secondary { background:#242429; color:#eceae5; border:1px solid rgba(255,255,255,.08); }
     .action-danger { background:rgba(180,83,9,.16); color:#ffb467; border:1px solid rgba(217,119,6,.32); }
@@ -147,7 +148,7 @@
     <p class="msg admin-ready" id="msg">Cargando...</p>
 
     <nav class="admin-index" aria-label="Secciones del panel">
-      <a href="#publicar">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
+      <a href="#publicar">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#ganadores-contacto">Ganadores</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
     </nav>
 
     <section class="panel-card" id="publicar">
@@ -213,6 +214,12 @@
     <div class="table-wrap compact-history"><table>
       <thead><tr><th>Pieza</th><th>Precio final</th><th>Ofertas</th><th>Ronda</th><th>Ganador</th><th></th></tr></thead>
       <tbody id="closedListings"></tbody>
+    </table></div>
+
+    <div class="section-head" id="ganadores-contacto"><div><h2>Ganadores por avisar</h2><p>Los avisos pendientes aparecen primero y cambian automáticamente a “Avisado” cuando abres el mensaje.</p></div></div>
+    <div class="table-wrap compact-history"><table>
+      <thead><tr><th>Ganador</th><th>Subasta</th><th>Ronda</th><th>Precio final</th><th>WhatsApp</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="winnerFollowup"><tr><td colspan="7">Cargando ganadores...</td></tr></tbody>
     </table></div>
 
     <div class="section-head" id="usuarios-admin"><div><h2>Usuarios</h2><p>Autoriza cuentas y consulta sus datos de contacto.</p></div></div>
@@ -402,13 +409,39 @@
 
       const { data: winnerNotices } = await client
         .from("notifications")
-        .select("user_id, title, amount, auction_round, created_at")
+        .select("id, user_id, listing_id, title, amount, auction_round, status, created_at")
         .eq("notification_type", "auction_won")
         .order("created_at", { ascending:false });
+      const profilesById = Object.fromEntries((data || []).map((profile) => [profile.id, profile]));
       const latestWinByUser = {};
       (winnerNotices || []).forEach((win) => {
         if (win.user_id && !latestWinByUser[win.user_id]) latestWinByUser[win.user_id] = win;
       });
+
+      const winnerMessageFor = (win, profile) => `¡Felicidades, ${profile?.full_name || "ganador"}! Te escribimos de USSO Tractopartes para confirmarte que ganaste la subasta de ${win.title || "tu lote"} con una oferta final de ${money(win.amount)}. Por favor responde a este mensaje para confirmar que recibiste el aviso y coordinar el pago y la entrega.`;
+      const winnerButtonFor = (win, profile) => {
+        if (win.status === "sent") return `<button class="action-btn action-secondary" disabled>✓ Avisado</button>`;
+        if (!profile?.phone) return `<button class="action-btn action-secondary" disabled>Sin WhatsApp</button>`;
+        return `<button class="action-btn action-primary" data-winner-notice="${win.id}" data-winner-phone="${String(profile.phone).replace(/\D/g, "")}" data-winner-message="${encodeURIComponent(winnerMessageFor(win, profile))}">Avisar ganador</button>`;
+      };
+
+      const orderedWinnerNotices = [...(winnerNotices || [])].sort((a, b) => {
+        const aSent = a.status === "sent" ? 1 : 0;
+        const bSent = b.status === "sent" ? 1 : 0;
+        return aSent - bSent || new Date(b.created_at) - new Date(a.created_at);
+      });
+      document.getElementById("winnerFollowup").innerHTML = orderedWinnerNotices.map((win) => {
+        const profile = profilesById[win.user_id];
+        return `<tr>
+          <td><strong>${profile?.full_name || "Usuario"}</strong></td>
+          <td>${win.title || "Subasta"}</td>
+          <td>Ronda ${win.auction_round || 1}</td>
+          <td><span class="money">${money(win.amount)}</span></td>
+          <td>${profile?.phone || "—"}</td>
+          <td><span class="status-badge ${win.status === "sent" ? "status-approved" : "status-pending"}">${win.status === "sent" ? "Avisado" : "Pendiente"}</span></td>
+          <td><div class="actions-cell">${winnerButtonFor(win, profile)}</div></td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="7">No hay ganadores pendientes de seguimiento.</td></tr>`;
 
       document.getElementById("rows").innerHTML = (data || []).map((p) => {
         const request = requestsByUser[p.id];
@@ -428,12 +461,7 @@
           ? ""
           : `<button class="action-btn action-secondary" data-deluser="${p.id}">Eliminar</button>`;
         const win = latestWinByUser[p.id];
-        const winnerMessage = win
-          ? `¡Felicidades ${p.full_name || ""}! Ganaste la subasta de ${win.title || "tu lote"} con una oferta final de ${money(win.amount)}. Comunícate con USSO Tractopartes para continuar con tu compra.`
-          : "";
-        const winnerBtn = win && p.phone
-          ? `<button class="action-btn action-primary" data-winner-phone="${String(p.phone).replace(/\D/g, "")}" data-winner-message="${encodeURIComponent(winnerMessage)}">Avisar que ganó</button>`
-          : "";
+        const winnerBtn = win ? winnerButtonFor(win, p) : "";
         return `
           <tr>
             <td>${p.full_name || ""}</td>
@@ -460,11 +488,26 @@
         return `<tr><td><strong>${p.full_name || "Usuario"}</strong></td><td>${p.phone || "—"}</td>${prefLabels.map(([key]) => `<td>${prefBadge(prefs[key] !== false)}</td>`).join("")}</tr>`;
       }).join("") || `<tr><td colspan="7">Todavía no hay usuarios</td></tr>`;
 
-      document.querySelectorAll("[data-winner-phone]").forEach((button) => button.addEventListener("click", () => {
+      document.querySelectorAll("[data-winner-notice]").forEach((button) => button.addEventListener("click", async () => {
         const tel = String(button.dataset.winnerPhone || "").replace(/\D/g, "").slice(-10);
         if (!tel) return;
         const message = decodeURIComponent(button.dataset.winnerMessage || "");
         window.open(`https://wa.me/52${tel}?text=${encodeURIComponent(message)}`, "_blank");
+        button.disabled = true;
+        button.textContent = "Marcando aviso...";
+        const { error: noticeError } = await client
+          .from("notifications")
+          .update({ status:"sent" })
+          .eq("id", button.dataset.winnerNotice);
+        if (noticeError) {
+          button.disabled = false;
+          button.textContent = "Avisar ganador";
+          msg.textContent = "WhatsApp se abrió, pero no se pudo guardar el aviso: " + noticeError.message;
+          return;
+        }
+        msg.textContent = "Ganador marcado como avisado";
+        loadUsers();
+        loadAvisos();
       }));
 
      document.querySelectorAll("[data-auth]").forEach((btn) => {
