@@ -413,8 +413,13 @@
           <h3 style="font:800 16px Manrope,sans-serif;color:var(--text);margin:0">Notificaciones</h3>
           <button onClick="{{ markAllRead }}" style="background:transparent;border:0;color:{{ accent }};font:700 12px Manrope,sans-serif;cursor:pointer;padding:0">Marcar leídas</button>
         </div>
-        <sc-if value="{{ hasNotifs }}" hint-placeholder-val="{{ true }}">
-          <div style="display:flex;flex-direction:column">
+        <div style="display:flex;gap:8px;padding:12px 14px;border-bottom:1px solid rgba(var(--border-rgb),0.08);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+          <sc-for list="{{ notifFilters }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.select }}" style="flex:none;border:1px solid {{ f.border }};border-radius:100px;padding:8px 12px;background:{{ f.bg }};color:{{ f.color }};font:800 11px Manrope,sans-serif;cursor:pointer;white-space:nowrap">{{ f.label }} <span style="opacity:.66">{{ f.count }}</span></button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ hasFilteredNotifs }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;max-height:min(58vh,520px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y">
             <sc-for list="{{ notifItems }}" as="n" hint-placeholder-count="3">
               <div onClick="{{ n.open }}" style="display:flex;gap:13px;padding:16px 20px;border-bottom:1px solid rgba(var(--border-rgb),0.06);cursor:pointer;background:{{ n.bg }}">
                 <span style="width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:{{ n.iconBg }};font:800 14px Manrope,sans-serif;color:{{ n.iconColor }}">{{ n.icon }}</span>
@@ -427,10 +432,10 @@
             </sc-for>
           </div>
         </sc-if>
-        <sc-if value="{{ noNotifs }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ noFilteredNotifs }}" hint-placeholder-val="{{ false }}">
           <div style="padding:38px 24px;text-align:center">
-            <p style="font:700 14px Manrope,sans-serif;color:var(--text);margin:0 0 6px">Todavía no hay avisos</p>
-            <p style="font:500 13px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0">Cuando pujes en un lote, aquí te avisamos si alguien te supera o si la subasta está por cerrar.</p>
+            <p style="font:700 14px Manrope,sans-serif;color:var(--text);margin:0 0 6px">No hay avisos en este filtro</p>
+            <p style="font:500 13px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0">Puedes elegir otro filtro para consultar el resto de tus notificaciones.</p>
           </div>
         </sc-if>
       </div>
@@ -962,7 +967,7 @@ class Component extends DCLogic {
     user: null, bidStatus: 'ninguno',
     authOpen: false, authMode: 'registro', authError: '',
     authForm: { nombre: '', whatsapp: '', correo: '', ciudad: '', pass: '' },
-    notifOpen: false, accountOpen: false, notifs: [],
+    notifOpen: false, notifFilter: 'all', accountOpen: false, notifs: [],
     notifPrefs: { superada: true, cierre: true, gane: true, perdi: true, favorita: true },
     bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', watching: {},
     myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [] };
@@ -1802,6 +1807,7 @@ submitAuth = async (e) => {
   toggleNotif = () => this.setState((s) => ({ notifOpen: !s.notifOpen, accountOpen: false }));
   closeNotif = () => this.setState({ notifOpen: false });
   openNotifFromMenu = () => this.setState({ mobileMenuOpen: false, notifOpen: true });
+  setNotifFilter = (filter) => () => this.setState({ notifFilter:filter });
   markAllRead = () => this.setState((s) => ({ notifs: s.notifs.map((n) => ({ ...n, read: true })) }), () => this.persist());
   openNotifItem = (id) => () => {
     this.setState((s) => ({ notifs: s.notifs.map((n) => (n.id === id ? { ...n, read: true } : n)) }), () => this.persist());
@@ -2002,6 +2008,16 @@ submitAuth = async (e) => {
       goTo: () => {},
     };
     const unread = st.notifs.filter((n) => !n.read).length;
+    const isWonNotif = (n) => /ganaste|ganador|ganaste la subasta|eres el ganador/i.test(`${n.title || ''} ${n.body || ''}`);
+    const isLostNotif = (n) => /no ganaste|perdiste|subasta perdida|esta vez no ganaste/i.test(`${n.title || ''} ${n.body || ''}`);
+    const notifFilter = st.notifFilter || 'all';
+    const filteredNotifs = st.notifs.filter((n) => notifFilter === 'all' || (notifFilter === 'unread' && !n.read) || (notifFilter === 'won' && isWonNotif(n)) || (notifFilter === 'lost' && isLostNotif(n)));
+    const notifFilterData = [
+      { id:'all', label:'Todas', count:st.notifs.length },
+      { id:'unread', label:'No leídas', count:unread },
+      { id:'won', label:'Ganadas', count:st.notifs.filter(isWonNotif).length },
+      { id:'lost', label:'No ganadas', count:st.notifs.filter(isLostNotif).length }
+    ];
 
     const bidLot = st.bidLotId ? this.auctionItemsComputed.find((l) => l.id === st.bidLotId) : null;
     let bidMin = 0;
@@ -2087,7 +2103,10 @@ submitAuth = async (e) => {
       hasUnread: unread > 0,
       hasNotifs: st.notifs.length > 0,
       noNotifs: st.notifs.length === 0,
-      notifItems: st.notifs.map((n) => {
+      hasFilteredNotifs: filteredNotifs.length > 0,
+      noFilteredNotifs: filteredNotifs.length === 0,
+      notifFilters: notifFilterData.map((filter) => ({ ...filter, select:this.setNotifFilter(filter.id), bg:filter.id === notifFilter ? accent : 'rgba(255,255,255,.045)', border:filter.id === notifFilter ? accent : 'rgba(255,255,255,.12)', color:filter.id === notifFilter ? '#0a0a0b' : 'rgba(243,241,236,.72)' })),
+      notifItems: filteredNotifs.map((n) => {
         const c = kindColor[n.kind] || kindColor.info;
         return { ...n, when: this.formatNotifTime(n), iconBg: c[0], iconColor: c[1], bg: n.read ? 'transparent' : 'rgba(246,192,42,0.05)', open: this.openNotifItem(n.id) };
       }),
