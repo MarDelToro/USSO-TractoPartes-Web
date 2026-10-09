@@ -5,13 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>USSO Tractopartes — Motores, transmisiones y refacciones diesel en subasta</title>
 <meta name="description" content="Compra motores, transmisiones, diferenciales y estructuras de camión reconstruidos y probados. Subastas activas y financiamiento con garantías.">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<link rel="canonical" href="https://ussotractopartes.com/">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://ussotractopartes.com/">
-<meta property="og:title" content="USSO Tractopartes — Refacciones para camión y subastas">
-<meta property="og:description" content="Motores, transmisiones, diferenciales y tractopartes para camión. Consulta inventario y subastas activas de USSO Tractopartes.">
-<meta property="og:image" content="https://ussotractopartes.com/assets/hero-truck-wide.webp">
 <script src="./support.js"></script>
 <meta name="ext-resource-dependency" content="assets/lot-l1.webp">
 <meta name="ext-resource-dependency" content="assets/lot-l2.webp">
@@ -34,6 +27,18 @@
 <helmet data-dc-atomics>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<script>
+(function(){
+  try {
+    if (location.protocol === 'file:') return;
+    if (localStorage.getItem('usso_acceso_ok') === '1') return;
+    var q = new URLSearchParams(location.search).get('acceso');
+    if (q === 'usso2026') { localStorage.setItem('usso_acceso_ok', '1'); return; }
+    location.replace('index.html');
+  } catch (e) {}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
