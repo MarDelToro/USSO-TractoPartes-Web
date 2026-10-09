@@ -18,6 +18,7 @@
     h1{font:42px/1.08 'Archivo Black',sans-serif;margin:18px 0}.desc{color:#aaa;font-size:16px;line-height:1.7}.meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0}.metric{background:var(--card);border:1px solid #29292e;border-radius:15px;padding:18px}.label{color:#85858d;font-size:12px;font-weight:700}.value{font:25px 'Archivo Black',sans-serif;margin-top:6px}.price{color:var(--yellow)}
     .end-exact{display:block;color:#85858d;font-size:11px;font-weight:700;margin-top:8px}.value.ended{color:#ff5c52}.badge.closed{color:#ff8a80;border-color:rgba(255,92,82,.45);background:rgba(255,92,82,.1)}
     .notice{padding:17px 18px;border:1px solid rgba(246,192,42,.35);background:rgba(246,192,42,.08);border-radius:14px;color:#d8d2c4;line-height:1.5;margin:0 0 16px}.actions{display:grid;gap:12px}.bid-form{display:flex;gap:10px}.bid-form input{min-width:0;flex:1;background:#19191c;border:1px solid #39393f;color:#fff;border-radius:12px;padding:15px;font:700 16px Manrope;outline:none}.bid-form input.invalid{border-color:#ff5c52;box-shadow:0 0 0 3px rgba(255,92,82,.12)}.btn{border:0;border-radius:99px;padding:15px 24px;background:var(--yellow);color:#090909;font:800 15px Manrope;cursor:pointer}.btn:disabled{cursor:not-allowed;opacity:.45}.btn.secondary{display:block;text-align:center;background:transparent;border:1px solid #444;color:#fff}.msg{min-height:22px;color:#ffb5b5;font-weight:700}.hidden{display:none!important}.loading,.not-found{text-align:center;padding:120px 20px}.not-found h1{font-size:36px}
+    .outcome{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:22px;background:rgba(5,5,6,.97);text-align:center;overflow:hidden}.outcome-card{position:relative;z-index:2;width:min(650px,94vw);padding:50px 28px;border-radius:28px;background:linear-gradient(145deg,#28200b,#141416 58%);border:1px solid rgba(246,192,42,.72);box-shadow:0 0 80px rgba(246,192,42,.22);animation:outcomeIn .7s cubic-bezier(.2,.85,.24,1.12)}.outcome.loss .outcome-card{max-width:560px;background:#141416;border-color:#343439;box-shadow:0 30px 80px rgba(0,0,0,.72)}.outcome-icon{font-size:76px;line-height:1}.outcome.loss .outcome-icon{font-size:48px;color:#777}.outcome h2{font:clamp(36px,7vw,68px)/1 'Archivo Black',sans-serif;color:#7ee2a8;margin:18px 0 10px}.outcome.loss h2{font-size:clamp(29px,5vw,45px);color:#f3f1ec}.outcome p{max-width:490px;margin:0 auto 24px;color:#f3f1ec;font:600 17px/1.55 Manrope}.outcome.loss p{color:#999;font-size:15px}.outcome .btn{min-width:190px}.confetti i{position:absolute;top:-30px;width:10px;height:20px;background:var(--yellow);animation:fall 3.2s linear infinite}.confetti i:nth-child(2n){background:#7ee2a8}.confetti i:nth-child(3n){background:#fff}.confetti i:nth-child(1){left:8%}.confetti i:nth-child(2){left:20%;animation-delay:.4s}.confetti i:nth-child(3){left:34%;animation-delay:1s}.confetti i:nth-child(4){left:49%;animation-delay:.2s}.confetti i:nth-child(5){left:63%;animation-delay:1.4s}.confetti i:nth-child(6){left:78%;animation-delay:.7s}.confetti i:nth-child(7){left:92%;animation-delay:1.1s}@keyframes fall{to{transform:translateY(115vh) rotate(720deg)}}@keyframes outcomeIn{from{opacity:0;transform:scale(.75) translateY(30px)}to{opacity:1;transform:scale(1)}}
     @media(max-width:800px){.nav{padding:0 20px}.logo{width:125px}.grid{grid-template-columns:1fr;gap:28px}main{padding-top:30px}h1{font-size:31px}.bid-form{flex-direction:column}}
   </style>
 </head>
@@ -48,6 +49,14 @@
     </section>
   </main>
 
+  <div id="winnerOutcome" class="outcome hidden" role="dialog" aria-modal="true">
+    <div class="confetti"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="outcome-card"><div class="outcome-icon">🏆</div><h2>¡TÚ ERES EL GANADOR!</h2><p id="winnerText"></p><button class="btn" data-close-outcome="winnerOutcome">Ver mi compra</button></div>
+  </div>
+  <div id="lossOutcome" class="outcome loss hidden" role="dialog" aria-modal="true">
+    <div class="outcome-card"><div class="outcome-icon">○</div><h2>Esta vez no ganaste</h2><p id="lossText"></p><button class="btn" data-close-outcome="lossOutcome">Entendido</button></div>
+  </div>
+
   <script>
     const client = window.supabase.createClient(
       "https://ahhlfvjicxylidpmeciw.supabase.co",
@@ -59,6 +68,7 @@
     let currentUser = null;
     let minimumBid = 0;
     let userIsLeading = false;
+    let outcomeChecking = false;
 
     const money = (value) => Number(value || 0).toLocaleString("es-MX", {style:"currency",currency:"MXN",maximumFractionDigits:0});
     const show = (id) => document.getElementById(id).classList.remove("hidden");
@@ -68,6 +78,47 @@
       return current + 1000;
     };
     const isActive = (data) => data?.status === "active" && !!data.ends_at && new Date(data.ends_at).getTime() > Date.now();
+    function playOutcomeSound(type) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = window.ussoOutcomeAudio || (window.ussoOutcomeAudio = new AudioCtx());
+        if (ctx.state === "suspended") ctx.resume();
+        const notes = type === "win" ? [[523,.0,.18],[659,.16,.2],[784,.32,.22],[1047,.52,.5]] : [[330,0,.16],[294,.18,.25]];
+        notes.forEach(([frequency,delay,duration]) => {
+          const oscillator = ctx.createOscillator(), gain = ctx.createGain();
+          oscillator.type = type === "win" ? "triangle" : "sine";
+          oscillator.frequency.value = frequency;
+          gain.gain.setValueAtTime(.0001,ctx.currentTime+delay);
+          gain.gain.exponentialRampToValueAtTime(type === "win" ? .16 : .04,ctx.currentTime+delay+.025);
+          gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+delay+duration);
+          oscillator.connect(gain).connect(ctx.destination); oscillator.start(ctx.currentTime+delay); oscillator.stop(ctx.currentTime+delay+duration+.05);
+        });
+      } catch (error) {}
+    }
+    async function checkOutcome(data) {
+      if (outcomeChecking || !currentUser || data?.status !== "closed" || !data.winner_id) return;
+      outcomeChecking = true;
+      const round = Number(data.auction_round || 1);
+      const { data: ownBid } = await client.from("bids").select("id").eq("listing_id",data.id).eq("auction_round",round).eq("user_id",currentUser.id).limit(1).maybeSingle();
+      if (!ownBid) { outcomeChecking = false; return; }
+      const won = data.winner_id === currentUser.id;
+      const key = `usso_${won ? "winner" : "loss"}_seen_${data.id}_${round}`;
+      if (localStorage.getItem(key) !== "1") {
+        localStorage.setItem(key,"1");
+        const finalPrice = money(data.current_price || data.start_price);
+        if (won) {
+          document.getElementById("winnerText").innerHTML = `¡Lo lograste! <strong>${data.title || "Este lote"}</strong> es tuyo por <strong>${finalPrice}</strong>. USSO se pondrá en contacto contigo.`;
+          show("winnerOutcome"); playOutcomeSound("win");
+          try { if (navigator.vibrate) navigator.vibrate([80,45,110,45,180]); } catch (error) {}
+        } else {
+          document.getElementById("lossText").innerHTML = `<strong>${data.title || "La subasta"}</strong> terminó en <strong>${finalPrice}</strong>. Habrá nuevas oportunidades.`;
+          show("lossOutcome"); playOutcomeSound("loss");
+          setTimeout(() => hide("lossOutcome"),7000);
+        }
+      }
+      outcomeChecking = false;
+    }
     const countdown = (milliseconds) => {
       const total = Math.max(0, Math.floor(milliseconds / 1000));
       const days = Math.floor(total / 86400);
@@ -119,7 +170,7 @@
     async function load() {
       if (!lotId) return renderNotFound();
       const {data, error} = await client.from("listings")
-        .select("id,title,description,image_url,start_price,current_price,status,ends_at,category,auction_round,bid_count")
+        .select("id,title,description,image_url,start_price,current_price,status,ends_at,category,auction_round,bid_count,winner_id")
         .eq("id", lotId).single();
       if (error || !data) return renderNotFound();
       listing = data;
@@ -131,12 +182,13 @@
       renderAuctionTime(data);
       const img = document.getElementById("image");
       if (data.image_url) img.src = data.image_url; else { img.classList.add("hidden"); show("noImage"); }
-      if (!isActive(data)) {
-        document.getElementById("msg").textContent = "Esta subasta finalizó. Puedes consultar sus detalles y precio final.";
-        return;
-      }
       const {data:{user}} = await client.auth.getUser();
       currentUser = user;
+      if (!isActive(data)) {
+        document.getElementById("msg").textContent = "Esta subasta finalizó. Puedes consultar sus detalles y precio final.";
+        await checkOutcome(data);
+        return;
+      }
       if (!user) return show("guest");
       const {data:profile} = await client.from("profiles").select("full_name,phone,city,authorized").eq("id",user.id).single();
       if (!profile?.authorized) return show("pending");
@@ -166,6 +218,7 @@
     });
 
     document.getElementById("amount").addEventListener("input", validateAmount);
+    document.querySelectorAll("[data-close-outcome]").forEach((button) => button.addEventListener("click", () => hide(button.dataset.closeOutcome)));
 
     document.getElementById("requestAuth").addEventListener("click", async () => {
       const msg = document.getElementById("msg");
@@ -187,8 +240,9 @@
     load();
     window.setInterval(async () => {
       if (!listing) return;
+      if (currentUser && listing.status === "active" && listing.ends_at && new Date(listing.ends_at).getTime() <= Date.now()) await client.rpc("expire_listings");
       const { data } = await client.from("listings")
-        .select("current_price,start_price,status,ends_at,auction_round,bid_count")
+        .select("id,title,current_price,start_price,status,ends_at,auction_round,bid_count,winner_id")
         .eq("id", listing.id)
         .single();
       if (!data) return;
@@ -196,6 +250,7 @@
       document.getElementById("price").textContent = money(data.current_price || data.start_price);
       renderAuctionTime(data);
       updateMinimum(data.current_price || data.start_price);
+      await checkOutcome(listing);
       if (currentUser) {
         const { data: ownBid } = await client.from("bids").select("amount")
           .eq("listing_id", listing.id).eq("auction_round", data.auction_round || 1)
