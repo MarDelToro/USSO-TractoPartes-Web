@@ -919,6 +919,7 @@ class Component extends DCLogic {
       }, 6000);
     }
     this.loadUser();
+    this.auctionRefreshTimer = window.setInterval(() => this.loadListingsFromDB(), 3000);
     window.addEventListener('pageshow', this.onPageShow);
     window.addEventListener('scroll', this.onPageScroll, { passive: true });
     window.addEventListener('resize', this.checkOverflow);
@@ -948,6 +949,7 @@ class Component extends DCLogic {
     if (this.observer) this.observer.disconnect();
     if (this.introFallback) clearTimeout(this.introFallback);
     if (this.countdownTimer) clearInterval(this.countdownTimer);
+    if (this.auctionRefreshTimer) clearInterval(this.auctionRefreshTimer);
     window.removeEventListener('scroll', this.onPageScroll);
     window.removeEventListener('resize', this.checkOverflow);
     window.removeEventListener('pageshow', this.onPageShow);
@@ -1735,7 +1737,7 @@ submitAuth = async (e) => {
     const lot = this.rawAuctionItems.find((item) => item.id === lotId);
     if (!lot) return 0;
     const current = Math.max(this.parseMoney(lot.bid), this.parseMoney(this.state.myBids[lotId] || 0));
-    return current + 100;
+    return current + 1000;
   }
 
   startBid = (lotId) => (e) => {
@@ -1847,7 +1849,7 @@ submitAuth = async (e) => {
     if (bidLot) {
       const raw = this.rawAuctionItems.find((l) => l.id === bidLot.id);
       const cur = Math.max(this.parseMoney(raw ? raw.bid : bidLot.bid), this.parseMoney(st.myBids[bidLot.id] || 0));
-      bidMin = cur + 100;
+      bidMin = cur + 1000;
     }
 
     const statusMap = {
