@@ -137,17 +137,16 @@
       msg.textContent = "Enviando solicitud...";
       const text = `Hola, quiero solicitar autorización para pujar en USSO. Mi cuenta es ${currentUser?.email || ""}.`;
       const whatsappUrl = `https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(text)}`;
-      const whatsappWindow = window.open("", "_blank");
-      const {error} = await client.rpc("request_bid_authorization");
+      const request = client.rpc("request_bid_authorization");
+      const whatsappWindow = window.open(whatsappUrl, "_blank");
+      const {error} = await request;
       if (error) {
-        if (whatsappWindow) whatsappWindow.close();
         msg.textContent = error.message;
         return;
       }
       msg.style.color = "#8ee7aa";
       msg.textContent = "Solicitud guardada. Completa el mensaje de WhatsApp para avisarnos también por ese medio.";
-      if (whatsappWindow) whatsappWindow.location.href = whatsappUrl;
-      else window.location.href = whatsappUrl;
+      if (!whatsappWindow) window.location.href = whatsappUrl;
     });
 
     load();

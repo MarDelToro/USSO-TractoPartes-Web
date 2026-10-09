@@ -1429,7 +1429,7 @@ async syncAuthFromSupabase() {
   if (!user) return;
   const { data: profile } = await client
     .from("profiles")
-    .select("full_name, phone, authorized")
+    .select("full_name, phone, city, authorized")
     .eq("id", user.id)
     .single();
   if (!profile) return;
@@ -1437,7 +1437,8 @@ async syncAuthFromSupabase() {
     user: {
       nombre: profile.full_name || "",
       whatsapp: profile.phone || "",
-      correo: user.email
+      correo: user.email,
+      ciudad: profile.city || ""
     },
     bidStatus: profile.authorized ? "autorizado" : "ninguno"
   });
@@ -1624,21 +1625,21 @@ submitAuth = async (e) => {
     const u = this.state.user;
     if (!u) return;
     if (!window.supabase) return;
-    const whatsappUrl = this.waLink('Hola, soy ' + u.nombre + ' (' + u.ciudad + '). Quiero autorización para pujar en las subastas de USSO. Mi WhatsApp es ' + u.whatsapp + '.');
-    const whatsappWindow = window.open('', '_blank');
+    const cityText = u.ciudad ? ' (' + u.ciudad + ')' : '';
+    const whatsappUrl = this.waLink('Hola, soy ' + (u.nombre || 'Usuario') + cityText + '. Quiero autorización para pujar en las subastas de USSO. Mi WhatsApp es ' + (u.whatsapp || 'no registrado') + '.');
     const client = window.supabase.createClient(
       "https://ahhlfvjicxylidpmeciw.supabase.co",
       "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
     );
-    const { error } = await client.rpc("request_bid_authorization");
+    const request = client.rpc("request_bid_authorization");
+    const whatsappWindow = window.open(whatsappUrl, '_blank');
+    const { error } = await request;
     if (error) {
-      if (whatsappWindow) whatsappWindow.close();
       this.pushNotif({ icon: '⚠️', kind: 'alert', title: 'No se pudo enviar', body: error.message });
       return;
     }
     this.setState({ bidStatus: 'pendiente' }, () => this.persist());
-    if (whatsappWindow) whatsappWindow.location.href = whatsappUrl;
-    else window.location.href = whatsappUrl;
+    if (!whatsappWindow) window.location.href = whatsappUrl;
     this.netlifySubmit('usso-autorizacion', {
       nombre: u.nombre, whatsapp: u.whatsapp, correo: u.correo, ciudad: u.ciudad,
       mensaje: 'Solicita autorización para pujar',
