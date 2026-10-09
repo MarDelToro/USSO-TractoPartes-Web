@@ -280,6 +280,9 @@
     </div>
     <div class="usso-nav-cta" style="display:flex;align-items:center;gap:10px">
       <sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+          <a href="admin.html" class="usso-admin-return" style="display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 15px;border-radius:100px;background:rgba(246,192,42,0.11);border:1px solid rgba(246,192,42,0.34);color:{{ accent }};font:800 12px Manrope,sans-serif;text-decoration:none;white-space:nowrap">Panel admin</a>
+        </sc-if>
         <button onClick="{{ toggleNotif }}" aria-label="Notificaciones" style="position:relative;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);cursor:pointer;display:flex;align-items:center;justify-content:center">
           <svg width="17" height="18" viewBox="0 0 18 20" fill="none"><path d="M9 1.5a5.5 5.5 0 0 0-5.5 5.5v3.2L1.8 14h14.4l-1.7-3.8V7A5.5 5.5 0 0 0 9 1.5z" stroke="#f3f1ec" stroke-width="1.6" stroke-linejoin="round"></path><path d="M6.6 16.6a2.5 2.5 0 0 0 4.8 0" stroke="#f3f1ec" stroke-width="1.6" stroke-linecap="round"></path></svg>
           <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ false }}">
@@ -310,6 +313,9 @@
         <a href="{{ link.href }}" onClick="{{ scrollToSection }}" style="font:800 26px 'Archivo Black',sans-serif;color:var(--text);padding:14px 0">{{ link.label }}</a>
       </sc-for>
       <sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+          <a href="admin.html" style="margin-top:16px;display:flex;align-items:center;justify-content:center;background:rgba(246,192,42,0.1);border:1px solid rgba(246,192,42,0.34);color:{{ accent }};font:800 15px Manrope,sans-serif;padding:14px 28px;border-radius:100px;text-decoration:none">Volver al panel admin</a>
+        </sc-if>
         <button onClick="{{ openNotifFromMenu }}" style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.16);color:var(--text);font:800 15px Manrope,sans-serif;padding:14px 28px;border-radius:100px;cursor:pointer">Mis notificaciones <span style="min-width:22px;height:22px;padding:0 6px;border-radius:100px;background:#ff3b30;color:#fff;font:800 11px Manrope,sans-serif;display:flex;align-items:center;justify-content:center">{{ unreadCount }}</span></button>
         <button onClick="{{ openAccountFromMenu }}" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:14px 28px;border-radius:100px;border:0;cursor:pointer">Mi cuenta</button>
       </sc-if>
@@ -440,6 +446,10 @@
 </a>
           </sc-if>
         </div>
+
+        <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+          <a href="admin.html" style="display:flex;align-items:center;justify-content:center;width:100%;margin:-8px 0 22px;background:rgba(246,192,42,0.1);border:1px solid rgba(246,192,42,0.34);color:{{ accent }};font:800 13px Manrope,sans-serif;padding:13px;border-radius:100px;text-decoration:none">Volver al panel administrativo</a>
+        </sc-if>
 
         <h3 style="font:800 15px Manrope,sans-serif;color:var(--text);margin:0 0 5px">Avisos que aceptas recibir por WhatsApp</h3>
         <p style="font:500 13px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0 0 6px">Te escribimos al {{ userWhatsapp }} únicamente sobre lo que dejes encendido aquí. Apaga lo que no quieras y deja de recibirlo.</p>
@@ -1430,7 +1440,7 @@ async syncAuthFromSupabase() {
   if (!user) return;
   const { data: profile } = await client
     .from("profiles")
-    .select("full_name, phone, city, authorized, notification_preferences")
+    .select("full_name, phone, city, role, authorized, notification_preferences")
     .eq("id", user.id)
     .single();
   if (!profile) return;
@@ -1452,7 +1462,8 @@ async syncAuthFromSupabase() {
       nombre: profile.full_name || "",
       whatsapp: profile.phone || "",
       correo: user.email,
-      ciudad: profile.city || ""
+      ciudad: profile.city || "",
+      role: profile.role || "user"
     },
     bidStatus: profile.authorized ? "autorizado" : "ninguno",
     notifPrefs: savedPrefs,
@@ -1836,6 +1847,7 @@ submitAuth = async (e) => {
     return {
       isLogged: !!u,
       isGuest: !u,
+      isAdmin: !!u && u.role === 'admin',
       userInitials: initials,
       userFirstName: u ? u.nombre.trim().split(/\s+/)[0] : '',
       userName: u ? u.nombre : '',
