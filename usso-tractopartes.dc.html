@@ -1480,13 +1480,13 @@ class Component extends DCLogic {
   }
 
   celebrateWinner(listing) {
-    const round = Number(listing.auction_round || 1);
+    const round = Number(listing.auctionRound || listing.auction_round || 1);
     const key = `usso_winner_seen_${listing.id}_${round}`;
     try {
       if (localStorage.getItem(key) === '1') return;
       localStorage.setItem(key, '1');
     } catch (e) {}
-    this.setState({ winnerCelebration:{ title:listing.title || 'la subasta', amount:Number(listing.current_price || listing.start_price || 0) } });
+    this.setState({ winnerCelebration:{ title:listing.title || 'la subasta', amount:Number(listing.bid || listing.current_price || listing.start_price || 0) } });
     if (this.winnerTimer) clearTimeout(this.winnerTimer);
     this.winnerTimer = setTimeout(this.closeWinnerCelebration, 12000);
   }
@@ -1547,9 +1547,9 @@ class Component extends DCLogic {
     .select("id, title, image_url, current_price, start_price, status, ends_at, category, bid_count, auction_round, winner_id")
     .order("created_at", { ascending: false });
 
-  const currentUserId = this.state.user && this.state.user.id;
+  const currentUserId = activeUser ? activeUser.id : (this.state.user && this.state.user.id);
   if (currentUserId) {
-    const won = (data || []).find((p) => p.status === 'closed' && p.winner_id === currentUserId && p.ends_at && Date.now() - new Date(p.ends_at).getTime() >= 0 && Date.now() - new Date(p.ends_at).getTime() < 5 * 60 * 1000);
+    const won = (data || []).find((p) => p.status === 'closed' && p.winner_id === currentUserId);
     if (won) this.celebrateWinner(won);
   }
 
@@ -1621,7 +1621,9 @@ async syncAuthFromSupabase() {
     ? { ...this.state.notifPrefs, ...profile.notification_preferences }
     : this.state.notifPrefs;
   const accountHistory = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && (ownBids || []).some((bid) => bid.listing_id === lot.id && Number(bid.auction_round || 1) === Number(lot.auctionRound || 1))).map((lot) => ({ id:lot.id, title:lot.title, round:lot.auctionRound, finalPrice:lot.bid, outcome:lot.winnerId === user.id ? 'won' : 'lost' }));
-  const recentLost = this.rawAuctionItems.find((lot) => lot.status === 'Finalizada' && lot.winnerId && lot.winnerId !== user.id && lot.closesAt && Date.now() - Number(lot.closesAt) >= 0 && Date.now() - Number(lot.closesAt) < 5 * 60 * 1000 && (ownBids || []).some((bid) => bid.listing_id === lot.id && Number(bid.auction_round || 1) === Number(lot.auctionRound || 1)));
+  const participatedInRound = (lot) => (ownBids || []).some((bid) => bid.listing_id === lot.id && Number(bid.auction_round || 1) === Number(lot.auctionRound || 1));
+  const wonAuction = this.rawAuctionItems.find((lot) => lot.status === 'Finalizada' && lot.winnerId === user.id && participatedInRound(lot));
+  const lostAuction = this.rawAuctionItems.find((lot) => lot.status === 'Finalizada' && lot.winnerId && lot.winnerId !== user.id && participatedInRound(lot));
   const { data: serverNotifs } = await client.from('notifications').select('id,title,message,created_at,user_id').eq('user_id', user.id).order('created_at', { ascending:false }).limit(50);
   const localNotifs = this.state.notifs || [];
   const localById = Object.fromEntries(localNotifs.map((n) => [n.id, n]));
@@ -1642,7 +1644,8 @@ async syncAuthFromSupabase() {
     accountHistory,
     notifs: mergedNotifs
   }, () => {
-    if (recentLost) this.showLostAuction(recentLost);
+    if (wonAuction) this.celebrateWinner(wonAuction);
+    else if (lostAuction) this.showLostAuction(lostAuction);
     const params = new URLSearchParams(window.location.search);
     if (params.get('cuenta') === '1') {
       this.setState({ accountOpen: true, notifOpen: false });
