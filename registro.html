@@ -6,26 +6,21 @@
   <title>Registro · USSO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="usso-app.css">
+  <link rel="stylesheet" href="usso-app.css?v=20261009-2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body { display:grid; place-items:center; }
-    form { width:min(380px, 92vw); padding:28px; display:grid; gap:12px; }
-    form img { width:120px; justify-self:center; }
-    p { margin:0; color:#9aa3ad; text-align:center; }
-  </style>
 </head>
-<body>
-  <form id="registro">
+<body class="auth-page">
+  <form id="registro" class="auth-card">
     <img src="logo-usso-icon.png" alt="USSO">
     <h1>Crear cuenta</h1>
-    <input id="full_name" placeholder="Nombre" required>
-    <input id="phone" placeholder="WhatsApp" required>
-    <input id="email" type="email" placeholder="Correo" required>
-    <input id="password" type="password" placeholder="Contraseña (mínimo 6)" minlength="6" required>
-    <button type="submit">Registrarme</button>
+    <p class="auth-intro">Regístrate para solicitar autorización y participar de forma segura.</p>
+    <div class="auth-field"><label for="full_name">Nombre completo</label><input id="full_name" placeholder="Tu nombre" autocomplete="name" required></div>
+    <div class="auth-field"><label for="phone">WhatsApp</label><input id="phone" inputmode="tel" placeholder="10 dígitos" autocomplete="tel" required></div>
+    <div class="auth-field"><label for="email">Correo electrónico</label><input id="email" type="email" placeholder="nombre@correo.com" autocomplete="email" required></div>
+    <div class="auth-field"><label for="password">Contraseña</label><input id="password" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" minlength="6" required></div>
+    <button class="auth-submit" type="submit">Crear mi cuenta</button>
     <p class="msg" id="msg"></p>
-    <p><a href="login.html">Ya tengo cuenta</a></p>
+    <div class="auth-links"><a class="primary-link" href="login.html">Ya tengo una cuenta</a><a href="subastas.html">Ver subastas</a></div>
   </form>
 
   <script>

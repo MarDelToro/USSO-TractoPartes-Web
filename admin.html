@@ -6,7 +6,7 @@
   <title>Admin · USSO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="usso-app.css">
+  <link rel="stylesheet" href="usso-app.css?v=20261009-2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     .ghost { background:#2a323e; }
@@ -44,6 +44,34 @@
     .pref-on, .pref-off { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:6px 10px; font-size:11px; font-weight:800; white-space:nowrap; }
     .pref-on { color:#7ee2a8; background:rgba(74,222,128,.11); border:1px solid rgba(74,222,128,.28); }
     .pref-off { color:#8f98a3; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); }
+    .admin-hero { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:26px 0 8px; }
+    .admin-identity { display:flex; align-items:center; gap:15px; min-width:0; }
+    .admin-mark { width:46px; height:46px; display:grid; place-items:center; border-radius:14px; background:#f6c02a; color:#0a0a0b; font-weight:900; }
+    .admin-hero h1 { margin:0 0 4px; font-size:31px; }
+    .admin-hero p { margin:0; color:#8f98a3; font-size:13px; }
+    .admin-nav { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin:0; }
+    .admin-nav a { display:inline-flex; align-items:center; min-height:40px; padding:10px 15px; border:1px solid rgba(255,255,255,.12); border-radius:999px; background:#141416; color:#d8d9dc; font-size:12px; font-weight:800; transition:.18s ease; }
+    .admin-nav a:hover { color:#0a0a0b; background:#f6c02a; border-color:#f6c02a; }
+    .admin-ready { display:inline-flex; align-items:center; gap:7px; min-height:31px; padding:7px 11px; border-radius:999px; background:rgba(74,222,128,.09); border:1px solid rgba(74,222,128,.24); color:#7ee2a8; font-size:11px; font-weight:800; }
+    .admin-ready::before { content:""; width:7px; height:7px; border-radius:50%; background:#4ade80; }
+    .section-head { display:flex; align-items:end; justify-content:space-between; gap:16px; margin:38px 0 16px; }
+    .section-head h2 { margin:0; }
+    .section-head p { margin:4px 0 0; color:#8f98a3; font-size:12px; }
+    table { border-radius:16px; }
+    th { color:#a7adb5; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; background:#171719; }
+    td { color:#e5e3df; font-size:13px; }
+    tbody tr { transition:background .16s ease; }
+    tbody tr:hover { background:rgba(255,255,255,.025); }
+    .status-badge { display:inline-flex; align-items:center; border-radius:999px; padding:6px 10px; font-size:11px; font-weight:800; white-space:nowrap; }
+    .status-active, .status-approved { color:#7ee2a8; background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.26); }
+    .status-closed { color:#b7bdc7; background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.1); }
+    .status-pending { color:#ffd45b; background:rgba(246,192,42,.1); border:1px solid rgba(246,192,42,.28); }
+    .actions-cell { display:flex; align-items:center; gap:7px; min-width:max-content; }
+    .action-btn { min-height:38px; padding:9px 14px; border-radius:999px; font-size:12px; white-space:nowrap; }
+    .action-primary { background:#f6c02a; color:#0a0a0b; }
+    .action-secondary { background:#242429; color:#eceae5; border:1px solid rgba(255,255,255,.08); }
+    .action-danger { background:rgba(180,83,9,.16); color:#ffb467; border:1px solid rgba(217,119,6,.32); }
+    .notice-link { display:inline-flex; align-items:center; min-height:34px; padding:8px 12px; border-radius:999px; background:rgba(246,192,42,.1); border:1px solid rgba(246,192,42,.28); font-size:11px; font-weight:800; }
     @media(max-width:700px) {
       main { width:94vw; margin:22px auto; }
       .live-head { align-items:start; flex-direction:column; }
@@ -57,19 +85,20 @@
       .piece-grid { grid-template-columns:1fr; }
       .field.full, .form-actions { grid-column:auto; }
       .form-actions button { width:100%; }
+      .admin-hero { align-items:flex-start; flex-direction:column; padding-top:12px; }
+      .admin-nav { justify-content:flex-start; width:100%; }
+      .admin-nav a { flex:1; justify-content:center; min-width:100px; }
+      .section-head { align-items:flex-start; flex-direction:column; }
     }
   </style>
 </head>
 <body>
   <main>
-    <h1>Panel admin</h1>
-    <p id="who"></p>
-    <p>
-      <a href="usso-tractopartes.dc.html">Inicio</a> ·
-      <a href="perfil.html">Ir a perfil</a> ·
-      <a href="subastas.html">Ver subastas</a>
-    </p>
-    <p class="msg" id="msg">Cargando...</p>
+    <header class="admin-hero">
+      <div class="admin-identity"><span class="admin-mark">U</span><div><h1>Panel administrativo</h1><p id="who">Cargando cuenta...</p></div></div>
+      <nav class="admin-nav"><a href="usso-tractopartes.dc.html">Ver sitio</a><a href="perfil.html">Mi cuenta</a><a href="subastas.html">Ver subastas</a></nav>
+    </header>
+    <p class="msg admin-ready" id="msg">Cargando...</p>
 
     <section class="panel-card">
       <div class="panel-title">
@@ -104,13 +133,13 @@
       <tbody id="liveLots"><tr><td colspan="6">Cargando...</td></tr></tbody>
     </table></div>
 
-    <h2>Historial de ofertas</h2>
+    <div class="section-head"><div><h2>Historial de ofertas</h2><p>Registro cronológico de todas las pujas.</p></div></div>
     <div class="table-wrap"><table>
       <thead><tr><th>Hora</th><th>Lote</th><th>Usuario</th><th>WhatsApp</th><th>Cantidad</th><th>Resultado actual</th></tr></thead>
       <tbody id="bidHistory"><tr><td colspan="6">Cargando...</td></tr></tbody>
     </table></div>
 
-    <h2>Administrar subastas</h2>
+    <div class="section-head"><div><h2>Administrar subastas</h2><p>Controla el estado y las rondas de cada lote.</p></div></div>
     <div class="table-wrap"><table>
       <thead>
         <tr>
@@ -125,7 +154,7 @@
       <tbody id="listings"></tbody>
     </table></div>
 
-    <h2>Usuarios</h2>
+    <div class="section-head"><div><h2>Usuarios</h2><p>Autoriza cuentas y consulta sus datos de contacto.</p></div></div>
     <div class="table-wrap"><table>
       <thead>
         <tr>
@@ -142,14 +171,13 @@
       <tbody id="rows"></tbody>
     </table></div>
 
-    <h2>Preferencias de notificaciones</h2>
-    <p class="muted">Aquí puedes consultar qué avisos de WhatsApp desea recibir cada usuario.</p>
+    <div class="section-head"><div><h2>Preferencias de notificaciones</h2><p>Avisos de WhatsApp aceptados por cada usuario.</p></div></div>
     <div class="table-wrap"><table>
       <thead><tr><th>Usuario</th><th>WhatsApp</th><th>Superaron su puja</th><th>Cierre en 1 hora</th><th>Ganó</th><th>No ganó</th><th>Subastas guardadas</th></tr></thead>
       <tbody id="notificationPrefs"><tr><td colspan="7">Cargando...</td></tr></tbody>
     </table></div>
 
-    <h2>Avisos pendientes</h2>
+    <div class="section-head"><div><h2>Avisos pendientes</h2><p>Mensajes que requieren seguimiento por WhatsApp.</p></div></div>
     <div class="table-wrap"><table>
       <thead>
         <tr>
@@ -280,21 +308,21 @@
         const authBtn = p.role === "admin"
           ? ""
           : p.authorized
-            ? `<button class="warn" data-unauth="${p.id}">Quitar</button>`
-: `<button data-auth="${p.id}" data-phone="${p.phone || ""}">Autorizar</button>`;
+            ? `<button class="action-btn action-danger" data-unauth="${p.id}">Quitar acceso</button>`
+: `<button class="action-btn action-primary" data-auth="${p.id}" data-phone="${p.phone || ""}">Autorizar</button>`;
         const delBtn = p.role === "admin"
           ? ""
-          : `<button class="ghost" data-deluser="${p.id}">Eliminar</button>`;
+          : `<button class="action-btn action-secondary" data-deluser="${p.id}">Eliminar</button>`;
         return `
           <tr>
             <td>${p.full_name || ""}</td>
             <td>${request?.email || ""}</td>
             <td>${p.phone || ""}</td>
             <td>${p.city || ""}</td>
-            <td>${p.role || ""}</td>
-            <td>${p.authorized ? "Autorizada" : "Pendiente"}</td>
+            <td>${p.role === "admin" ? "Administrador" : "Usuario"}</td>
+            <td><span class="status-badge ${p.authorized ? "status-approved" : "status-pending"}">${p.authorized ? "Autorizada" : "Pendiente"}</span></td>
             <td>${requestLabel}</td>
-            <td>${authBtn} ${delBtn}</td>
+            <td><div class="actions-cell">${authBtn}${delBtn}</div></td>
           </tr>
         `;
       }).join("");
@@ -370,17 +398,17 @@
         const cerrada = p.status !== "active" || vencida;
         const estado = p.status === "closed" ? "closed" : (vencida ? "closed" : "active");
         const acciones = cerrada
-          ? `<button class="ghost" data-reopen="${p.id}" data-round="${Number(p.auction_round || 1)}" data-start="${Number(p.start_price || 0)}">Reabrir</button>
-             <button class="warn" data-dellist="${p.id}">Eliminar</button>`
-          : `<button data-close="${p.id}">Cerrar</button>`;
+          ? `<button class="action-btn action-secondary" data-reopen="${p.id}" data-round="${Number(p.auction_round || 1)}" data-start="${Number(p.start_price || 0)}">Reabrir</button>
+             <button class="action-btn action-danger" data-dellist="${p.id}">Eliminar</button>`
+          : `<button class="action-btn action-primary" data-close="${p.id}">Cerrar subasta</button>`;
         return `
           <tr>
             <td>${p.title}</td>
-            <td>${p.current_price || p.start_price}</td>
-            <td>${estado}</td>
+            <td class="money">${money(p.current_price || p.start_price)}</td>
+            <td><span class="status-badge ${estado === "active" ? "status-active" : "status-closed"}">${estado === "active" ? "Activa" : "Cerrada"}</span></td>
             <td>${w ? w.full_name : "-"}</td>
             <td>${w ? w.phone : "-"}</td>
-            <td>${acciones}</td>
+            <td><div class="actions-cell">${acciones}</div></td>
           </tr>
         `;
       }).join("");
@@ -435,8 +463,8 @@
             <td>${n.title || ""}</td>
             <td>${n.phone || "-"}</td>
             <td>${n.message || ""}</td>
-            <td>${n.status}</td>
-            <td>${wa ? `<a href="${wa}" target="_blank" data-sent="${n.id}">Avisar</a>` : "-"}</td>
+            <td><span class="status-badge ${n.status === "sent" ? "status-approved" : "status-pending"}">${n.status === "sent" ? "Enviado" : "Pendiente"}</span></td>
+            <td>${wa ? `<a class="notice-link" href="${wa}" target="_blank" data-sent="${n.id}">Abrir WhatsApp</a>` : `<span class="muted">Sin número</span>`}</td>
           </tr>
         `;
       }).join("") || `<tr><td colspan="5">Sin avisos</td></tr>`;

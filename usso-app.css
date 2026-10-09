@@ -64,3 +64,45 @@ table { width: 100%; border-collapse: collapse; overflow: hidden; }
 th, td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; }
 .msg { color: #c8c2b4; }
 nav { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
+
+.auth-page {
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:28px 16px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(246,192,42,.12), transparent 34%),
+    #09090a;
+  color-scheme:dark;
+}
+.auth-card {
+  width:min(460px, 94vw);
+  margin:0;
+  padding:38px;
+  display:flex;
+  flex-direction:column;
+  gap:17px;
+  background:#141416;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:22px;
+  box-shadow:0 26px 70px rgba(0,0,0,.38);
+}
+.auth-card img { width:138px; height:auto; align-self:center; margin-bottom:4px; }
+.auth-card h1 { margin:5px 0 0; font-size:31px; text-align:center; }
+.auth-card .auth-intro { margin:-8px 0 7px; color:#9298a1; font-size:13px; line-height:1.55; text-align:center; }
+.auth-field { display:flex; flex-direction:column; gap:7px; }
+.auth-field label { color:#c6c9cf; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+.auth-field input { min-height:50px; padding:14px 15px; background:#0e0e10; border:1px solid rgba(255,255,255,.12); border-radius:11px; color:#f3f1ec; outline:none; }
+.auth-field input:focus { border-color:#f6c02a; box-shadow:0 0 0 3px rgba(246,192,42,.11); }
+.auth-field input:-webkit-autofill,
+.auth-field input:-webkit-autofill:hover,
+.auth-field input:-webkit-autofill:focus { -webkit-text-fill-color:#f3f1ec; -webkit-box-shadow:0 0 0 1000px #0e0e10 inset; transition:background-color 9999s ease-out; }
+.auth-submit { min-height:51px; margin-top:4px; border-radius:999px; }
+.auth-links { display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; padding-top:4px; }
+.auth-links a { display:inline-flex; align-items:center; min-height:38px; padding:9px 14px; border:1px solid rgba(255,255,255,.11); border-radius:999px; background:#1b1b1e; color:#e7e4de; font-size:12px; font-weight:800; }
+.auth-links a.primary-link { color:#f6c02a; border-color:rgba(246,192,42,.3); background:rgba(246,192,42,.06); }
+.auth-card .msg { min-height:18px; margin:0; text-align:center; font-size:12px; }
+@media(max-width:600px) {
+  .auth-card { padding:28px 20px; border-radius:18px; }
+  .auth-card h1 { font-size:27px; }
+}

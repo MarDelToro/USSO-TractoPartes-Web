@@ -6,24 +6,19 @@
   <title>Iniciar sesión · USSO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="usso-app.css">
+  <link rel="stylesheet" href="usso-app.css?v=20261009-2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body { display:grid; place-items:center; }
-    form { width:min(380px, 92vw); padding:28px; display:grid; gap:12px; }
-    form img { width:120px; justify-self:center; }
-    p { margin:0; color:#9aa3ad; text-align:center; }
-  </style>
 </head>
-<body>
-  <form id="login">
+<body class="auth-page">
+  <form id="login" class="auth-card">
     <img src="logo-usso-icon.png" alt="USSO">
-    <h1>Entrar</h1>
-    <input id="email" type="email" placeholder="Correo" required>
-    <input id="password" type="password" placeholder="Contraseña" required>
-    <button type="submit">Iniciar sesión</button>
+    <h1>Bienvenido de nuevo</h1>
+    <p class="auth-intro">Ingresa a tu cuenta para consultar tus subastas y administrar tus pujas.</p>
+    <div class="auth-field"><label for="email">Correo electrónico</label><input id="email" type="email" placeholder="nombre@correo.com" autocomplete="email" required></div>
+    <div class="auth-field"><label for="password">Contraseña</label><input id="password" type="password" placeholder="Tu contraseña" autocomplete="current-password" required></div>
+    <button class="auth-submit" type="submit">Iniciar sesión</button>
     <p class="msg" id="msg"></p>
-    <p><a href="registro.html">Crear cuenta</a> · <a href="subastas.html">Ver subastas</a></p>
+    <div class="auth-links"><a class="primary-link" href="registro.html">Crear una cuenta</a><a href="subastas.html">Ver subastas</a></div>
   </form>
 
   <script>
