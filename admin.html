@@ -72,6 +72,26 @@
     .action-secondary { background:#242429; color:#eceae5; border:1px solid rgba(255,255,255,.08); }
     .action-danger { background:rgba(180,83,9,.16); color:#ffb467; border:1px solid rgba(217,119,6,.32); }
     .notice-link { display:inline-flex; align-items:center; min-height:34px; padding:8px 12px; border-radius:999px; background:rgba(246,192,42,.1); border:1px solid rgba(246,192,42,.28); font-size:11px; font-weight:800; }
+    .auction-preview { scroll-margin-top:20px; margin:42px 0 46px; }
+    .auction-preview-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    .auction-card { overflow:hidden; display:grid; grid-template-columns:minmax(220px,42%) 1fr; min-height:330px; border-radius:20px; background:#141416; border:1px solid rgba(246,192,42,.3); box-shadow:0 20px 48px rgba(0,0,0,.2); }
+    .auction-photo { position:relative; min-height:300px; background:#0e0e10; border-right:1px solid rgba(255,255,255,.12); overflow:hidden; }
+    .auction-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+    .auction-photo-empty { height:100%; display:grid; place-items:center; color:#636872; font-weight:800; }
+    .auction-state { position:absolute; top:15px; left:15px; display:inline-flex; align-items:center; gap:7px; padding:7px 11px; border-radius:999px; background:rgba(10,10,11,.9); border:1px solid rgba(246,192,42,.42); color:#f6c02a; font-size:10px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+    .auction-state::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+    .auction-state.closed { color:#a8adb5; border-color:rgba(255,255,255,.18); }
+    .auction-card-body { padding:24px; display:flex; flex-direction:column; }
+    .auction-kicker { color:#8f98a3; font-size:10px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; }
+    .auction-card h3 { margin:8px 0 18px; font-size:25px; line-height:1.1; }
+    .auction-price-label { color:#8f98a3; font-size:12px; font-weight:700; }
+    .auction-price { color:#f6c02a; font-size:31px; font-weight:900; margin:3px 0 14px; }
+    .auction-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:20px; }
+    .auction-meta div { padding:11px; border-radius:11px; background:#0e0e10; border:1px solid rgba(255,255,255,.08); }
+    .auction-meta span { display:block; color:#818791; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+    .auction-meta strong { display:block; margin-top:4px; font-size:12px; }
+    .auction-card-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; }
+    @media(max-width:1100px) { .auction-preview-grid { grid-template-columns:1fr; } }
     @media(max-width:700px) {
       main { width:94vw; margin:22px auto; }
       .live-head { align-items:start; flex-direction:column; }
@@ -89,6 +109,9 @@
       .admin-nav { justify-content:flex-start; width:100%; }
       .admin-nav a { flex:1; justify-content:center; min-width:100px; }
       .section-head { align-items:flex-start; flex-direction:column; }
+      .auction-preview-grid { grid-template-columns:1fr; }
+      .auction-card { grid-template-columns:1fr; }
+      .auction-photo { min-height:250px; border-right:0; border-bottom:1px solid rgba(255,255,255,.12); }
     }
   </style>
 </head>
@@ -96,7 +119,7 @@
   <main>
     <header class="admin-hero">
       <div class="admin-identity"><span class="admin-mark">U</span><div><h1>Panel administrativo</h1><p id="who">Cargando cuenta...</p></div></div>
-      <nav class="admin-nav"><a href="/">Ver sitio</a><a href="/?cuenta=1">Mi cuenta</a><a href="/#subastas">Vista del cliente</a></nav>
+      <nav class="admin-nav"><a href="/">Ver sitio</a><a href="#admin-subastas">Ver subastas</a></nav>
     </header>
     <p class="msg admin-ready" id="msg">Cargando...</p>
 
@@ -117,6 +140,11 @@
         <div class="field"><label for="ends_at">Fecha y hora de cierre</label><input id="ends_at" type="datetime-local"></div>
         <div class="form-actions"><button type="submit">Publicar subasta</button></div>
       </form>
+    </section>
+
+    <section class="auction-preview" id="admin-subastas">
+      <div class="section-head"><div><h2>Vista previa de tus subastas</h2><p>Así se presentan tus lotes, con controles administrativos en la misma tarjeta.</p></div></div>
+      <div class="auction-preview-grid" id="auctionPreview"><div class="panel-card">Cargando subastas...</div></div>
     </section>
 
     <div class="live-head">
@@ -385,12 +413,41 @@
 
       const { data, error } = await client
         .from("listings")
-        .select("id, title, current_price, start_price, bid_count, auction_round, status, winner_id, ends_at")
+        .select("id, title, description, category, image_url, current_price, start_price, bid_count, auction_round, status, winner_id, ends_at")
         .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
 
       const { data: people } = await client.from("profiles").select("id, full_name, phone");
       const byId = Object.fromEntries((people || []).map((p) => [p.id, p]));
+
+      document.getElementById("auctionPreview").innerHTML = (data || []).map((p, index) => {
+        const vencida = p.ends_at && new Date(p.ends_at) < new Date();
+        const cerrada = p.status !== "active" || vencida;
+        const cierre = p.ends_at ? new Date(p.ends_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"short" }) : "Sin fecha límite";
+        const acciones = cerrada
+          ? `<button class="action-btn action-secondary" data-reopen="${p.id}" data-round="${Number(p.auction_round || 1)}" data-start="${Number(p.start_price || 0)}">Reabrir</button>
+             <button class="action-btn action-danger" data-dellist="${p.id}">Eliminar</button>`
+          : `<button class="action-btn action-primary" data-close="${p.id}">Cerrar subasta</button>`;
+        return `<article class="auction-card">
+          <div class="auction-photo">
+            ${p.image_url ? `<img src="${p.image_url}" alt="${p.title || "Pieza USSO"}">` : `<div class="auction-photo-empty">Sin fotografía</div>`}
+            <span class="auction-state ${cerrada ? "closed" : ""}">${cerrada ? "Cerrada" : "Activa"}</span>
+          </div>
+          <div class="auction-card-body">
+            <span class="auction-kicker">Lote ${100 + index} · Ronda ${Number(p.auction_round || 1)}</span>
+            <h3>${p.title || "Pieza sin título"}</h3>
+            <span class="auction-price-label">Precio actual</span>
+            <div class="auction-price">${money(p.current_price || p.start_price)}</div>
+            <div class="auction-meta">
+              <div><span>Precio base</span><strong>${money(p.start_price)}</strong></div>
+              <div><span>Ofertas</span><strong>${Number(p.bid_count || 0)}</strong></div>
+              <div><span>Categoría</span><strong>${p.category || "Sin categoría"}</strong></div>
+              <div><span>Cierre</span><strong>${cierre}</strong></div>
+            </div>
+            <div class="auction-card-actions">${acciones}</div>
+          </div>
+        </article>`;
+      }).join("") || `<div class="panel-card">Todavía no has publicado subastas.</div>`;
 
       document.getElementById("listings").innerHTML = (data || []).map((p) => {
         const w = p.winner_id ? byId[p.winner_id] : null;
