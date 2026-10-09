@@ -820,7 +820,8 @@
         if (saveButton) saveButton.disabled = false;
         return;
       }
-      if (editForm.dataset.reopen === "true") {
+      const isReopening = editForm.dataset.reopen === "true" || (original.status === "closed" && changes.status === "active");
+      if (isReopening) {
         changes.winner_id = null;
         changes.current_price = Number(original.start_price || changes.start_price || 0);
         changes.bid_count = 0;
