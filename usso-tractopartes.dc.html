@@ -1744,12 +1744,10 @@ submitAuth = async (e) => {
     const phase = this.state.phase;
     const accent = this.props.accent ?? '#f6c02a';
     this.auctionItemsComputed = this.rawAuctionItems.map((l) => {
-      const mine = this.state.myBids[l.id];
-      const live = mine ? this.formatMoney(mine) : l.bid;
       const count = l.bidCount;
       return {
         ...l,
-        bid: live,
+        bid: l.bid,
         closesLabel: l.status === 'Activa' ? 'Cierra en' : 'Inicia en',
         closesDisplay: this.formatCountdown(l.closesAt - Date.now()),
         bidLabel: count > 0 ? 'Puja actual · ' + count + ' ofertas' : 'Precio base',
