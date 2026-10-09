@@ -444,13 +444,13 @@
         <h3 style="font:800 15px Manrope,sans-serif;color:var(--text);margin:0 0 5px">Avisos que aceptas recibir por WhatsApp</h3>
         <p style="font:500 13px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0 0 6px">Te escribimos al {{ userWhatsapp }} únicamente sobre lo que dejes encendido aquí. Apaga lo que no quieras y deja de recibirlo.</p>
         <p style="font:600 12px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.4);margin:0 0 14px">Puedes cambiarlo cuando quieras.</p>
-        <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:24px">
-          <sc-for list="{{ notifPrefItems }}" as="p" hint-placeholder-count="5">S
-            <button onClick="{{ p.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:14px;background:transparent;border:0;border-bottom:1px solid rgba(var(--border-rgb),0.06);padding:14px 2px;cursor:pointer;text-align:left;width:100%">
-              <span style="font:600 14px Manrope,sans-serif;color:var(--text)">{{ p.label }}</span>
+        <div style="display:flex;flex-direction:column;margin-bottom:24px;border:1px solid rgba(var(--border-rgb),0.08);border-radius:14px;overflow:hidden">
+          <sc-for list="{{ notifPrefItems }}" as="p" hint-placeholder-count="5">
+            <button onClick="{{ p.toggle }}" style="min-height:56px;display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:center;column-gap:16px;background:transparent;border:0;border-bottom:1px solid rgba(var(--border-rgb),0.07);padding:14px 16px;cursor:pointer;text-align:left;width:100%">
+              <span style="font:600 13.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ p.label }}</span>
               <span style="width:44px;height:26px;border-radius:100px;flex:none;background:{{ p.trackBg }};position:relative;transition:background 0.18s">
                 <span style="position:absolute;top:3px;left:{{ p.knobLeft }};width:20px;height:20px;border-radius:50%;background:{{ p.knobBg }};transition:left 0.18s"></span>
-              </span>S
+              </span>
             </button>
           </sc-for>
         </div>
@@ -1430,7 +1430,7 @@ async syncAuthFromSupabase() {
   if (!user) return;
   const { data: profile } = await client
     .from("profiles")
-    .select("full_name, phone, city, authorized")
+    .select("full_name, phone, city, authorized, notification_preferences")
     .eq("id", user.id)
     .single();
   if (!profile) return;
@@ -1444,6 +1444,9 @@ async syncAuthFromSupabase() {
     result[bid.listing_id] = Math.max(Number(result[bid.listing_id] || 0), Number(bid.amount || 0));
     return result;
   }, {});
+  const savedPrefs = profile.notification_preferences && typeof profile.notification_preferences === "object"
+    ? { ...this.state.notifPrefs, ...profile.notification_preferences }
+    : this.state.notifPrefs;
   this.setState({
     user: {
       nombre: profile.full_name || "",
@@ -1452,6 +1455,7 @@ async syncAuthFromSupabase() {
       ciudad: profile.city || ""
     },
     bidStatus: profile.authorized ? "autorizado" : "ninguno",
+    notifPrefs: savedPrefs,
     myBids
   });
 }
@@ -1610,14 +1614,38 @@ submitAuth = async (e) => {
     this.setState((s) => ({ notifs: s.notifs.map((n) => (n.id === id ? { ...n, read: true } : n)) }), () => this.persist());
   };
   pushNotif = (n) => {
-    this.setState((s) => ({ notifs: [{ ...n, id: 'n-' + Date.now(), when: 'Ahora', read: false }, ...s.notifs] }), () => this.persist());
+    const createdAt = Date.now();
+    this.setState((s) => ({ notifs: [{ ...n, id: 'n-' + createdAt, createdAt, read: false }, ...s.notifs] }), () => this.persist());
   };
+
+  formatNotifTime(n) {
+    const fromId = Number(String(n.id || '').replace(/^n-/, ''));
+    const stamp = Number(n.createdAt || fromId);
+    if (!Number.isFinite(stamp)) return n.when || '';
+    const date = new Date(stamp);
+    const now = new Date();
+    const sameDay = date.toDateString() === now.toDateString();
+    const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const time = date.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit' });
+    if (sameDay) return time;
+    if (date.toDateString() === yesterday.toDateString()) return 'Ayer · ' + time;
+    return date.toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  }
 
   toggleAccount = () => this.setState((s) => ({ accountOpen: !s.accountOpen, notifOpen: false }));
   closeAccount = () => this.setState({ accountOpen: false });
   openAccountFromMenu = () => this.setState({ mobileMenuOpen: false, accountOpen: true });
   togglePref = (key) => () => {
-    this.setState((s) => ({ notifPrefs: { ...s.notifPrefs, [key]: !s.notifPrefs[key] } }), () => this.persist());
+    this.setState((s) => ({ notifPrefs: { ...s.notifPrefs, [key]: !s.notifPrefs[key] } }), async () => {
+      this.persist();
+      if (!window.supabase) return;
+      const client = window.supabase.createClient(
+        "https://ahhlfvjicxylidpmeciw.supabase.co",
+        "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+      );
+      const { data: { user } } = await client.auth.getUser();
+      if (user) await client.rpc('set_notification_preferences', { p_preferences: this.state.notifPrefs });
+    });
   };
 
   WA_NUMBER = '524522822400';
@@ -1849,7 +1877,7 @@ submitAuth = async (e) => {
       noNotifs: st.notifs.length === 0,
       notifItems: st.notifs.map((n) => {
         const c = kindColor[n.kind] || kindColor.info;
-        return { ...n, iconBg: c[0], iconColor: c[1], bg: n.read ? 'transparent' : 'rgba(246,192,42,0.05)', open: this.openNotifItem(n.id) };
+        return { ...n, when: this.formatNotifTime(n), iconBg: c[0], iconColor: c[1], bg: n.read ? 'transparent' : 'rgba(246,192,42,0.05)', open: this.openNotifItem(n.id) };
       }),
 
       accountOpen: st.accountOpen,

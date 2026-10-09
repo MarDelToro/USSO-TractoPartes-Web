@@ -24,6 +24,26 @@
     .money { color:#f6c02a; font-weight:800; white-space:nowrap; }
     .leader { display:inline-flex; padding:5px 10px; border-radius:999px; background:rgba(74,222,128,.12); border:1px solid rgba(74,222,128,.3); color:#7ee2a8; font-size:12px; font-weight:800; white-space:nowrap; }
     .muted { color:#8f98a3; }
+    .panel-card { background:#141416; border:1px solid rgba(255,255,255,.12); border-radius:18px; padding:24px; margin:18px 0 38px; }
+    .panel-title { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:22px; }
+    .panel-title h2 { margin:0 0 5px; }
+    .panel-title p { color:#8f98a3; font-size:13px; margin:0; }
+    .piece-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:17px; width:100%; margin:0; padding:0; background:transparent; border:0; }
+    .field { display:flex; flex-direction:column; gap:8px; }
+    .field.full { grid-column:1 / -1; }
+    .field label { color:#c9cbd0; font-size:12px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; }
+    .field input, .field textarea, .field select { width:100%; min-height:49px; padding:13px 14px; background:#0e0e10; border:1px solid rgba(255,255,255,.12); border-radius:11px; color:#f3f1ec; font:600 14px Manrope,sans-serif; outline:none; }
+    .field textarea { min-height:112px; resize:vertical; }
+    .field input:focus, .field textarea:focus, .field select:focus { border-color:#f6c02a; box-shadow:0 0 0 3px rgba(246,192,42,.1); }
+    .file-field { position:relative; min-height:92px; border:1px dashed rgba(246,192,42,.42); border-radius:12px; background:rgba(246,192,42,.035); display:flex; align-items:center; justify-content:center; text-align:center; padding:18px; overflow:hidden; }
+    .file-field input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+    .file-field strong { display:block; color:#f6c02a; font-size:14px; margin-bottom:3px; }
+    .file-field span { color:#8f98a3; font-size:12px; }
+    .form-actions { display:flex; align-items:center; justify-content:flex-end; grid-column:1 / -1; padding-top:3px; }
+    .form-actions button { min-width:210px; padding:14px 22px; border-radius:999px; }
+    .pref-on, .pref-off { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:6px 10px; font-size:11px; font-weight:800; white-space:nowrap; }
+    .pref-on { color:#7ee2a8; background:rgba(74,222,128,.11); border:1px solid rgba(74,222,128,.28); }
+    .pref-off { color:#8f98a3; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); }
     @media(max-width:700px) {
       main { width:94vw; margin:22px auto; }
       .live-head { align-items:start; flex-direction:column; }
@@ -32,6 +52,11 @@
       .stat span { margin:0; }
       .stat strong { font-size:22px; }
       h1 { font-size:29px; }
+      .panel-card { padding:18px; border-radius:15px; }
+      .panel-title { flex-direction:column; }
+      .piece-grid { grid-template-columns:1fr; }
+      .field.full, .form-actions { grid-column:auto; }
+      .form-actions button { width:100%; }
     }
   </style>
 </head>
@@ -46,23 +71,24 @@
     </p>
     <p class="msg" id="msg">Cargando...</p>
 
-    <h2>Subir pieza</h2>
-    <form id="pieza">
-      <input id="title" placeholder="Título" required>
-      <select id="category" required>
-  <option value="motores">Motores</option>
-  <option value="transmisiones">Transmisiones</option>
-  <option value="diferenciales">Diferenciales</option>
-  <option value="cortes">Cortes completos</option>
-  <option value="suspension">Suspensión</option>
-</select>
-      <textarea id="description" placeholder="Descripción" rows="3"></textarea>
-      <input id="photo" type="file" accept="image/*">
-      <input id="image_url" placeholder="O pega una URL de foto">
-      <input id="start_price" type="number" min="0" step="1" placeholder="Precio inicial" required>
-      <input id="ends_at" type="datetime-local">
-      <button type="submit">Publicar subasta</button>
-    </form>
+    <section class="panel-card">
+      <div class="panel-title">
+        <div><h2>Publicar una pieza</h2><p>Agrega la información y programa la subasta desde un solo lugar.</p></div>
+        <span class="leader">Nueva publicación</span>
+      </div>
+      <form id="pieza" class="piece-grid">
+        <div class="field"><label for="title">Nombre de la pieza</label><input id="title" placeholder="Ej. Transmisión Eaton Fuller" required></div>
+        <div class="field"><label for="category">Categoría</label><select id="category" required>
+          <option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="suspension">Suspensión</option>
+        </select></div>
+        <div class="field full"><label for="description">Descripción</label><textarea id="description" placeholder="Modelo, condición, compatibilidad y cualquier detalle importante"></textarea></div>
+        <div class="field"><label for="photo">Fotografía</label><div class="file-field"><input id="photo" type="file" accept="image/*"><div><strong>Seleccionar fotografía</strong><span id="photoName">JPG, PNG o WEBP</span></div></div></div>
+        <div class="field"><label for="image_url">O dirección de la fotografía</label><input id="image_url" type="url" placeholder="https://..."></div>
+        <div class="field"><label for="start_price">Precio inicial</label><input id="start_price" type="number" min="0" step="1" placeholder="$0 MXN" required></div>
+        <div class="field"><label for="ends_at">Fecha y hora de cierre</label><input id="ends_at" type="datetime-local"></div>
+        <div class="form-actions"><button type="submit">Publicar subasta</button></div>
+      </form>
+    </section>
 
     <div class="live-head">
       <div><h2>Control de pujas en vivo</h2><div class="live-status" id="liveStatus">Preparando seguimiento...</div></div>
@@ -114,6 +140,13 @@
         </tr>
       </thead>
       <tbody id="rows"></tbody>
+    </table></div>
+
+    <h2>Preferencias de notificaciones</h2>
+    <p class="muted">Aquí puedes consultar qué avisos de WhatsApp desea recibir cada usuario.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Usuario</th><th>WhatsApp</th><th>Superaron su puja</th><th>Cierre en 1 hora</th><th>Ganó</th><th>No ganó</th><th>Subastas guardadas</th></tr></thead>
+      <tbody id="notificationPrefs"><tr><td colspan="7">Cargando...</td></tr></tbody>
     </table></div>
 
     <h2>Avisos pendientes</h2>
@@ -231,7 +264,7 @@
 
       const { data, error } = await client
         .from("profiles")
-        .select("id, full_name, phone, city, role, authorized")
+        .select("id, full_name, phone, city, role, authorized, notification_preferences")
         .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
 
@@ -265,6 +298,18 @@
           </tr>
         `;
       }).join("");
+
+      const prefLabels = [
+        ["superada", "Superaron su puja"], ["cierre", "Cierre en 1 hora"],
+        ["gane", "Ganó"], ["perdi", "No ganó"], ["favorita", "Subastas guardadas"]
+      ];
+      const prefBadge = (enabled) => enabled
+        ? `<span class="pref-on">✓ Activado</span>`
+        : `<span class="pref-off">Desactivado</span>`;
+      document.getElementById("notificationPrefs").innerHTML = (data || []).filter((p) => p.role !== "admin").map((p) => {
+        const prefs = p.notification_preferences || {};
+        return `<tr><td><strong>${p.full_name || "Usuario"}</strong></td><td>${p.phone || "—"}</td>${prefLabels.map(([key]) => `<td>${prefBadge(prefs[key] !== false)}</td>`).join("")}</tr>`;
+      }).join("") || `<tr><td colspan="7">Todavía no hay usuarios</td></tr>`;
 
      document.querySelectorAll("[data-auth]").forEach((btn) => {
   btn.addEventListener("click", async () => {
@@ -439,6 +484,10 @@
         loadListings();
         loadLiveBids();
       }
+    });
+
+    document.getElementById("photo").addEventListener("change", (event) => {
+      document.getElementById("photoName").textContent = event.target.files[0]?.name || "JPG, PNG o WEBP";
     });
 
     document.getElementById("refreshLive").addEventListener("click", loadLiveBids);
