@@ -348,7 +348,6 @@
         .select("id, full_name, phone, city, role, authorized, notification_preferences")
         .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
-      currentListings = data || [];
 
       document.getElementById("rows").innerHTML = (data || []).map((p) => {
         const request = requestsByUser[p.id];
@@ -442,6 +441,7 @@
         .select("id, title, description, category, image_url, current_price, start_price, bid_count, auction_round, status, winner_id, ends_at")
         .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
+      currentListings = data || [];
 
       const { data: people } = await client.from("profiles").select("id, full_name, phone");
       const byId = Object.fromEntries((people || []).map((p) => [p.id, p]));
@@ -516,7 +516,9 @@
             date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
             document.getElementById("edit_ends_at").value = date.toISOString().slice(0, 16);
           } else document.getElementById("edit_ends_at").value = "";
-          document.getElementById("editDialog").showModal();
+          const dialog = document.getElementById("editDialog");
+          if (typeof dialog.showModal === "function") dialog.showModal();
+          else { dialog.setAttribute("open", ""); dialog.style.display = "block"; }
         });
       });
 
@@ -625,7 +627,11 @@
       document.getElementById("photoName").textContent = event.target.files[0]?.name || "JPG, PNG o WEBP";
     });
 
-    const closeEditDialog = () => document.getElementById("editDialog").close();
+    const closeEditDialog = () => {
+      const dialog = document.getElementById("editDialog");
+      if (typeof dialog.close === "function") dialog.close();
+      else { dialog.removeAttribute("open"); dialog.style.display = "none"; }
+    };
     document.getElementById("closeEdit").addEventListener("click", closeEditDialog);
     document.getElementById("cancelEdit").addEventListener("click", closeEditDialog);
     document.getElementById("editDialog").addEventListener("click", (event) => {
