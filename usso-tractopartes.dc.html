@@ -1479,6 +1479,14 @@ async syncAuthFromSupabase() {
     bidStatus: profile.authorized ? "autorizado" : "ninguno",
     notifPrefs: savedPrefs,
     myBids
+  }, () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('cuenta') === '1') {
+      this.setState({ accountOpen: true, notifOpen: false });
+      params.delete('cuenta');
+      const query = params.toString();
+      window.history.replaceState({}, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
+    }
   });
 }
 
