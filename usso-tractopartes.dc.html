@@ -483,11 +483,16 @@
         </div>
 
         <form onSubmit="{{ submitBid }}" style="display:flex;flex-direction:column;gap:12px">
-          <input class="usso-field" type="text" inputMode="numeric" placeholder="Tu oferta en pesos" value="{{ bidAmount }}" onChange="{{ onBidAmount }}">
+          <input class="usso-field" type="text" inputMode="numeric" placeholder="Tu oferta en pesos" value="{{ bidAmount }}" onChange="{{ onBidAmount }}" aria-invalid="{{ bidAmountInvalid }}" style="border-color:{{ bidInputBorder }};box-shadow:{{ bidInputShadow }}">
           <sc-if value="{{ hasBidError }}" hint-placeholder-val="{{ false }}">
             <p style="font:600 13px/1.45 Manrope,sans-serif;color:#ff6b5e;margin:2px 0 0">{{ bidError }}</p>
           </sc-if>
-          <button type="submit" style="margin-top:6px;width:100%;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:15px;border-radius:100px;border:0;cursor:pointer">Enviar mi puja</button>
+          <sc-if value="{{ canSubmitBid }}" hint-placeholder-val="{{ true }}">
+            <button type="submit" style="margin-top:6px;width:100%;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:15px;border-radius:100px;border:0;cursor:pointer">Enviar mi puja</button>
+          </sc-if>
+          <sc-if value="{{ cannotSubmitBid }}" hint-placeholder-val="{{ false }}">
+            <button type="button" disabled aria-disabled="true" style="margin-top:6px;width:100%;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:15px;border-radius:100px;border:0;cursor:not-allowed;opacity:.45">Enviar mi puja</button>
+          </sc-if>
         </form>
 
         <p style="font:500 12.5px/1.55 Manrope,sans-serif;color:rgba(var(--text-rgb),0.45);margin:18px 0 0">Tu puja queda registrada y visible en el lote. El cierre, la revisión de la pieza y el pago los coordinamos contigo por WhatsApp.</p>
@@ -1650,6 +1655,14 @@ submitAuth = async (e) => {
     return '$' + n.toLocaleString('es-MX');
   }
 
+  getBidMinimum(lotId) {
+    const lot = this.rawAuctionItems.find((item) => item.id === lotId);
+    if (!lot) return 0;
+    const current = Math.max(this.parseMoney(lot.bid), this.parseMoney(this.state.myBids[lotId] || 0));
+    const step = Math.max(500, Math.round(current * 0.02 / 500) * 500);
+    return current + step;
+  }
+
   startBid = (lotId) => (e) => {
     if (e && e.stopPropagation) e.stopPropagation();
     if (!this.state.user) return this.setState({ authOpen: true, authMode: 'registro', authError: '' });
@@ -1657,7 +1670,15 @@ submitAuth = async (e) => {
     this.setState({ bidOpen: true, bidLotId: lotId, bidAmount: '', bidError: '' });
   };
   closeBid = () => this.setState({ bidOpen: false, bidError: '' });
-  onBidAmount = (e) => { const v = e.target.value; this.setState({ bidAmount: v, bidError: '' }); };
+  onBidAmount = (e) => {
+    const value = e.target.value;
+    const amount = this.parseMoney(value);
+    const minimum = this.getBidMinimum(this.state.bidLotId);
+    this.setState({
+      bidAmount: value,
+      bidError: value && amount < minimum ? `La puja mínima es ${this.formatMoney(minimum)}.` : ''
+    });
+  };
 
  submitBid = async (e) => {
   if (e && e.preventDefault) e.preventDefault();
@@ -1666,6 +1687,11 @@ submitAuth = async (e) => {
   const amount = this.parseMoney(this.state.bidAmount);
   if (!amount) {
     this.setState({ bidError: "Escribe el monto de tu oferta." });
+    return;
+  }
+  const minimum = this.getBidMinimum(lot.id);
+  if (amount < minimum) {
+    this.setState({ bidError: `La puja mínima es ${this.formatMoney(minimum)}.` });
     return;
   }
   if (!window.supabase) {
@@ -1834,6 +1860,11 @@ submitAuth = async (e) => {
       submitBid: this.submitBid,
       bidError: st.bidError,
       hasBidError: !!st.bidError,
+      bidAmountInvalid: !!st.bidError,
+      bidInputBorder: st.bidError ? '#ff5c52' : 'rgba(var(--border-rgb),0.13)',
+      bidInputShadow: st.bidError ? '0 0 0 3px rgba(255,92,82,0.12)' : 'none',
+      canSubmitBid: !!bidMin && this.parseMoney(st.bidAmount) >= bidMin,
+      cannotSubmitBid: !bidMin || this.parseMoney(st.bidAmount) < bidMin,
 
       featuredId: feat.id,
       featuredSrc: feat.src,

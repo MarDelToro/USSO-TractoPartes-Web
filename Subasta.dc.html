@@ -16,7 +16,7 @@
     .photo{background:var(--card);border:1px solid #28282d;border-radius:22px;overflow:hidden;aspect-ratio:1/1;display:grid;place-items:center}.photo img{width:100%;height:100%;object-fit:cover}.photo .empty{color:#777;font-weight:700}
     .badge{display:inline-flex;padding:7px 13px;border-radius:99px;background:rgba(246,192,42,.12);border:1px solid rgba(246,192,42,.4);color:var(--yellow);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
     h1{font:42px/1.08 'Archivo Black',sans-serif;margin:18px 0}.desc{color:#aaa;font-size:16px;line-height:1.7}.meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0}.metric{background:var(--card);border:1px solid #29292e;border-radius:15px;padding:18px}.label{color:#85858d;font-size:12px;font-weight:700}.value{font:25px 'Archivo Black',sans-serif;margin-top:6px}.price{color:var(--yellow)}
-    .notice{padding:17px 18px;border:1px solid rgba(246,192,42,.35);background:rgba(246,192,42,.08);border-radius:14px;color:#d8d2c4;line-height:1.5;margin:0 0 16px}.actions{display:grid;gap:12px}.bid-form{display:flex;gap:10px}.bid-form input{min-width:0;flex:1;background:#19191c;border:1px solid #39393f;color:#fff;border-radius:12px;padding:15px;font:700 16px Manrope}.btn{border:0;border-radius:99px;padding:15px 24px;background:var(--yellow);color:#090909;font:800 15px Manrope;cursor:pointer}.btn.secondary{display:block;text-align:center;background:transparent;border:1px solid #444;color:#fff}.msg{min-height:22px;color:#ffb5b5;font-weight:700}.hidden{display:none!important}.loading,.not-found{text-align:center;padding:120px 20px}.not-found h1{font-size:36px}
+    .notice{padding:17px 18px;border:1px solid rgba(246,192,42,.35);background:rgba(246,192,42,.08);border-radius:14px;color:#d8d2c4;line-height:1.5;margin:0 0 16px}.actions{display:grid;gap:12px}.bid-form{display:flex;gap:10px}.bid-form input{min-width:0;flex:1;background:#19191c;border:1px solid #39393f;color:#fff;border-radius:12px;padding:15px;font:700 16px Manrope;outline:none}.bid-form input.invalid{border-color:#ff5c52;box-shadow:0 0 0 3px rgba(255,92,82,.12)}.btn{border:0;border-radius:99px;padding:15px 24px;background:var(--yellow);color:#090909;font:800 15px Manrope;cursor:pointer}.btn:disabled{cursor:not-allowed;opacity:.45}.btn.secondary{display:block;text-align:center;background:transparent;border:1px solid #444;color:#fff}.msg{min-height:22px;color:#ffb5b5;font-weight:700}.hidden{display:none!important}.loading,.not-found{text-align:center;padding:120px 20px}.not-found h1{font-size:36px}
     @media(max-width:800px){.nav{padding:0 20px}.logo{width:125px}.grid{grid-template-columns:1fr;gap:28px}main{padding-top:30px}h1{font-size:31px}.bid-form{flex-direction:column}}
   </style>
 </head>
@@ -41,7 +41,7 @@
         </div>
         <div id="guest" class="actions hidden"><div class="notice">Inicia sesión para participar en esta subasta.</div><a class="btn secondary" href="login.html">Iniciar sesión</a></div>
         <div id="pending" class="actions hidden"><div class="notice">Tu cuenta todavía necesita autorización de USSO antes de poder pujar.</div><button id="requestAuth" class="btn">Solicitar autorización</button></div>
-        <form id="bidForm" class="actions hidden"><div class="bid-form"><input id="amount" type="number" min="1" step="1" required placeholder="Cantidad de tu puja"><button class="btn" type="submit">Pujar ahora</button></div></form>
+        <form id="bidForm" class="actions hidden"><div id="minimum" class="notice"></div><div class="bid-form"><input id="amount" type="number" min="1" step="1" required placeholder="Cantidad de tu puja"><button id="bidButton" class="btn" type="submit" disabled>Pujar ahora</button></div></form>
         <p id="msg" class="msg"></p>
       </div>
     </section>
@@ -56,10 +56,38 @@
     const lotId = window.location.hash.slice(1);
     let listing = null;
     let currentUser = null;
+    let minimumBid = 0;
 
     const money = (value) => Number(value || 0).toLocaleString("es-MX", {style:"currency",currency:"MXN",maximumFractionDigits:0});
     const show = (id) => document.getElementById(id).classList.remove("hidden");
     const hide = (id) => document.getElementById(id).classList.add("hidden");
+    const calculateMinimum = (value) => {
+      const current = Number(value || 0);
+      const step = Math.max(500, Math.round((current * .02) / 500) * 500);
+      return current + step;
+    };
+
+    function updateMinimum(value) {
+      minimumBid = calculateMinimum(value);
+      const amount = document.getElementById("amount");
+      amount.min = String(minimumBid);
+      document.getElementById("minimum").textContent = `Puja mínima: ${money(minimumBid)}`;
+      validateAmount();
+    }
+
+    function validateAmount() {
+      const input = document.getElementById("amount");
+      const button = document.getElementById("bidButton");
+      const value = Number(input.value);
+      const tooLow = input.value !== "" && value < minimumBid;
+      input.classList.toggle("invalid", tooLow);
+      input.setAttribute("aria-invalid", String(tooLow));
+      button.disabled = !value || value < minimumBid;
+      const msg = document.getElementById("msg");
+      if (tooLow) msg.textContent = `La puja mínima es ${money(minimumBid)}.`;
+      else if (msg.textContent.startsWith("La puja mínima")) msg.textContent = "";
+      return !button.disabled;
+    }
 
     async function load() {
       if (!lotId) return renderNotFound();
@@ -72,6 +100,7 @@
       document.getElementById("title").textContent = data.title || "Pieza USSO";
       document.getElementById("description").textContent = data.description || "Consulta con USSO para conocer todos los detalles y evidencia de esta pieza.";
       document.getElementById("price").textContent = money(data.current_price || data.start_price);
+      updateMinimum(data.current_price || data.start_price);
       document.getElementById("status").textContent = data.status === "active" ? "Subasta activa" : "Subasta cerrada";
       document.getElementById("ends").textContent = data.ends_at ? new Date(data.ends_at).toLocaleString("es-MX", {dateStyle:"medium",timeStyle:"short"}) : "Sin fecha";
       const img = document.getElementById("image");
@@ -89,6 +118,7 @@
 
     document.getElementById("bidForm").addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (!validateAmount()) return;
       const amount = Number(document.getElementById("amount").value);
       const msg = document.getElementById("msg");
       msg.textContent = "Registrando puja...";
@@ -97,7 +127,10 @@
       msg.style.color = "#8ee7aa"; msg.textContent = "Puja registrada correctamente.";
       document.getElementById("price").textContent = money(amount);
       document.getElementById("amount").value = "";
+      updateMinimum(amount);
     });
+
+    document.getElementById("amount").addEventListener("input", validateAmount);
 
     document.getElementById("requestAuth").addEventListener("click", async () => {
       const msg = document.getElementById("msg");
