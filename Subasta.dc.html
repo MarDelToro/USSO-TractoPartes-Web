@@ -16,6 +16,7 @@
     .photo{background:var(--card);border:1px solid #28282d;border-radius:22px;overflow:hidden;aspect-ratio:1/1;display:grid;place-items:center}.photo img{width:100%;height:100%;object-fit:cover}.photo .empty{color:#777;font-weight:700}
     .badge{display:inline-flex;padding:7px 13px;border-radius:99px;background:rgba(246,192,42,.12);border:1px solid rgba(246,192,42,.4);color:var(--yellow);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
     h1{font:42px/1.08 'Archivo Black',sans-serif;margin:18px 0}.desc{color:#aaa;font-size:16px;line-height:1.7}.meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0}.metric{background:var(--card);border:1px solid #29292e;border-radius:15px;padding:18px}.label{color:#85858d;font-size:12px;font-weight:700}.value{font:25px 'Archivo Black',sans-serif;margin-top:6px}.price{color:var(--yellow)}
+    .end-exact{display:block;color:#85858d;font-size:11px;font-weight:700;margin-top:8px}.value.ended{color:#ff5c52}.badge.closed{color:#ff8a80;border-color:rgba(255,92,82,.45);background:rgba(255,92,82,.1)}
     .notice{padding:17px 18px;border:1px solid rgba(246,192,42,.35);background:rgba(246,192,42,.08);border-radius:14px;color:#d8d2c4;line-height:1.5;margin:0 0 16px}.actions{display:grid;gap:12px}.bid-form{display:flex;gap:10px}.bid-form input{min-width:0;flex:1;background:#19191c;border:1px solid #39393f;color:#fff;border-radius:12px;padding:15px;font:700 16px Manrope;outline:none}.bid-form input.invalid{border-color:#ff5c52;box-shadow:0 0 0 3px rgba(255,92,82,.12)}.btn{border:0;border-radius:99px;padding:15px 24px;background:var(--yellow);color:#090909;font:800 15px Manrope;cursor:pointer}.btn:disabled{cursor:not-allowed;opacity:.45}.btn.secondary{display:block;text-align:center;background:transparent;border:1px solid #444;color:#fff}.msg{min-height:22px;color:#ffb5b5;font-weight:700}.hidden{display:none!important}.loading,.not-found{text-align:center;padding:120px 20px}.not-found h1{font-size:36px}
     @media(max-width:800px){.nav{padding:0 20px}.logo{width:125px}.grid{grid-template-columns:1fr;gap:28px}main{padding-top:30px}h1{font-size:31px}.bid-form{flex-direction:column}}
   </style>
@@ -36,8 +37,8 @@
         <h1 id="title"></h1>
         <p id="description" class="desc"></p>
         <div class="meta">
-          <div class="metric"><div class="label">Precio actual</div><div id="price" class="value price"></div></div>
-          <div class="metric"><div class="label">Cierre</div><div id="ends" class="value"></div></div>
+          <div class="metric"><div id="priceLabel" class="label">Precio actual</div><div id="price" class="value price"></div></div>
+          <div class="metric"><div class="label">Cierre</div><div id="ends" class="value"></div><span id="endExact" class="end-exact"></span></div>
         </div>
         <div id="guest" class="actions hidden"><div class="notice">Inicia sesión para participar en esta subasta.</div><a class="btn secondary" href="login.html">Iniciar sesión</a></div>
         <div id="pending" class="actions hidden"><div class="notice">Tu cuenta todavía necesita autorización de USSO antes de poder pujar.</div><button id="requestAuth" class="btn">Solicitar autorización</button></div>
@@ -66,6 +67,28 @@
       const current = Number(value || 0);
       return current + 1000;
     };
+    const isActive = (data) => data?.status === "active" && !!data.ends_at && new Date(data.ends_at).getTime() > Date.now();
+    const countdown = (milliseconds) => {
+      const total = Math.max(0, Math.floor(milliseconds / 1000));
+      const days = Math.floor(total / 86400);
+      const hours = Math.floor((total % 86400) / 3600);
+      const minutes = Math.floor((total % 3600) / 60);
+      const seconds = total % 60;
+      const clock = [hours, minutes, seconds].map((value) => String(value).padStart(2,"0")).join(":");
+      return days ? `${days}d ${clock}` : clock;
+    };
+    function renderAuctionTime(data) {
+      const active = isActive(data);
+      const ends = document.getElementById("ends");
+      const badge = document.getElementById("status");
+      badge.textContent = active ? "Subasta activa" : "Subasta finalizada";
+      badge.classList.toggle("closed", !active);
+      document.getElementById("priceLabel").textContent = active ? "Precio actual" : "Precio final";
+      ends.textContent = data?.ends_at ? countdown(new Date(data.ends_at).getTime() - Date.now()) : "Fecha pendiente";
+      ends.classList.toggle("ended", !active);
+      document.getElementById("endExact").textContent = data?.ends_at ? new Date(data.ends_at).toLocaleString("es-MX", {dateStyle:"medium",timeStyle:"short"}) : "La administración debe asignar el cierre";
+      if (!active) hide("bidForm");
+    }
 
     function updateMinimum(value) {
       minimumBid = calculateMinimum(value);
@@ -101,10 +124,13 @@
       document.getElementById("description").textContent = data.description || "Consulta con USSO para conocer todos los detalles y evidencia de esta pieza.";
       document.getElementById("price").textContent = money(data.current_price || data.start_price);
       updateMinimum(data.current_price || data.start_price);
-      document.getElementById("status").textContent = data.status === "active" ? "Subasta activa" : "Subasta cerrada";
-      document.getElementById("ends").textContent = data.ends_at ? new Date(data.ends_at).toLocaleString("es-MX", {dateStyle:"medium",timeStyle:"short"}) : "Sin fecha";
+      renderAuctionTime(data);
       const img = document.getElementById("image");
       if (data.image_url) img.src = data.image_url; else { img.classList.add("hidden"); show("noImage"); }
+      if (!isActive(data)) {
+        document.getElementById("msg").textContent = "Esta subasta finalizó. Puedes consultar sus detalles y precio final.";
+        return;
+      }
       const {data:{user}} = await client.auth.getUser();
       currentUser = user;
       if (!user) return show("guest");
@@ -113,7 +139,7 @@
       const {data:ownBid} = await client.from("bids").select("amount").eq("listing_id", data.id).eq("auction_round", data.auction_round || 1).eq("user_id", user.id).order("amount", {ascending:false}).limit(1).maybeSingle();
       userIsLeading = Number(ownBid?.amount || 0) >= Number(data.current_price || data.start_price || 0) && Number(ownBid?.amount || 0) > 0;
       if (userIsLeading) document.getElementById("msg").textContent = "Tu puja es la más alta. Podrás volver a pujar cuando alguien la supere.";
-      else if (data.status === "active" && (!data.ends_at || new Date(data.ends_at) > new Date())) show("bidForm");
+      else if (isActive(data)) show("bidForm");
       else document.getElementById("msg").textContent = "Esta subasta ya no acepta pujas.";
     }
 
@@ -164,20 +190,20 @@
       if (!data) return;
       listing = { ...listing, ...data };
       document.getElementById("price").textContent = money(data.current_price || data.start_price);
-      document.getElementById("status").textContent = data.status === "active" ? "Subasta activa" : "Subasta cerrada";
-      document.getElementById("ends").textContent = data.ends_at ? new Date(data.ends_at).toLocaleString("es-MX", {dateStyle:"medium",timeStyle:"short"}) : "Sin fecha";
+      renderAuctionTime(data);
       updateMinimum(data.current_price || data.start_price);
       if (currentUser) {
         const { data: ownBid } = await client.from("bids").select("amount")
           .eq("listing_id", listing.id).eq("auction_round", data.auction_round || 1)
           .eq("user_id", currentUser.id).order("amount", {ascending:false}).limit(1).maybeSingle();
         userIsLeading = Number(ownBid?.amount || 0) >= Number(data.current_price || data.start_price || 0) && Number(ownBid?.amount || 0) > 0;
-        const active = data.status === "active" && (!data.ends_at || new Date(data.ends_at) > new Date());
+        const active = isActive(data);
         if (userIsLeading || !active) hide("bidForm"); else show("bidForm");
         if (userIsLeading) document.getElementById("msg").textContent = "Tu puja es la más alta. Podrás volver a pujar cuando alguien la supere.";
         else if (active && document.getElementById("msg").textContent.includes("más alta")) document.getElementById("msg").textContent = "Tu puja fue superada. Ya puedes volver a participar.";
       }
     }, 3000);
+    window.setInterval(() => { if (listing) renderAuctionTime(listing); }, 1000);
   </script>
 </body>
 </html>

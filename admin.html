@@ -98,6 +98,8 @@
     .edit-dialog-head p { margin:0; color:#8f98a3; font-size:12px; }
     .date-time-row { display:grid; grid-template-columns:minmax(0,1fr) 82px 18px 82px; gap:8px; align-items:center; }
     .date-time-separator { color:#8f98a3; font-weight:900; text-align:center; }
+    .time-shortcuts { display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; }
+    .time-shortcuts button { min-height:36px; padding:8px 13px; border-radius:999px; background:#242429; color:#f3f1ec; border:1px solid rgba(255,255,255,.12); font-size:12px; }
     .dialog-close { width:38px; height:38px; padding:0; border-radius:50%; background:#242429; color:#fff; }
     .edit-form { padding:14px 24px 24px; }
     @media(max-width:1100px) { .auction-preview-grid { grid-template-columns:1fr; } }
@@ -146,7 +148,7 @@
         <div class="field"><label for="photo">Fotografía</label><div class="file-field"><input id="photo" type="file" accept="image/*"><div><strong>Seleccionar fotografía</strong><span id="photoName">JPG, PNG o WEBP</span></div></div></div>
         <div class="field"><label for="image_url">O dirección de la fotografía</label><input id="image_url" type="url" placeholder="https://..."></div>
         <div class="field"><label for="start_price">Precio inicial</label><input id="start_price" type="number" min="0" step="1" placeholder="$0 MXN" required></div>
-        <div class="field"><label for="ends_at">Fecha y hora de cierre</label><input id="ends_at" type="datetime-local"></div>
+        <div class="field"><label for="ends_at">Fecha y hora de cierre</label><input id="ends_at" type="datetime-local" required></div>
         <div class="form-actions"><button type="submit">Publicar subasta</button></div>
       </form>
     </section>
@@ -189,6 +191,12 @@
         </tr>
       </thead>
       <tbody id="listings"></tbody>
+    </table></div>
+
+    <div class="section-head"><div><h2>Historial de subastas finalizadas</h2><p>Estas subastas siguen visibles para los clientes. Puedes reabrirlas, editarlas o eliminarlas definitivamente.</p></div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pieza</th><th>Precio final</th><th>Ofertas</th><th>Ronda</th><th>Ganador</th><th></th></tr></thead>
+      <tbody id="closedListings"></tbody>
     </table></div>
 
     <div class="section-head"><div><h2>Usuarios</h2><p>Autoriza cuentas y consulta sus datos de contacto.</p></div></div>
@@ -240,7 +248,7 @@
       <div class="field"><label for="edit_image_url">Dirección de la fotografía</label><input id="edit_image_url" type="url" placeholder="https://..."></div>
       <div class="field"><label for="edit_start_price">Precio base</label><input id="edit_start_price" type="number" min="0" step="1" required></div>
       <div class="field"><label for="edit_current_price">Precio actual</label><input id="edit_current_price" type="number" min="0" step="1" required></div>
-      <div class="field full"><label for="edit_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="edit_end_date" type="date"><select id="edit_end_hour" aria-label="Hora"></select><span class="date-time-separator">:</span><select id="edit_end_minute" aria-label="Minutos"></select></div></div>
+      <div class="field full"><label for="edit_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="edit_end_date" type="date" required><select id="edit_end_hour" aria-label="Hora"></select><span class="date-time-separator">:</span><select id="edit_end_minute" aria-label="Minutos"></select></div><div class="time-shortcuts"><button type="button" data-duration="5">Desde ahora: 5 min</button><button type="button" data-duration="15">15 min</button><button type="button" data-duration="60">1 hora</button><button type="button" data-duration="1440">1 día</button></div></div>
       <div class="field"><label for="edit_status">Estado</label><select id="edit_status"><option value="active">Activa</option><option value="closed">Cerrada</option></select></div>
       <div class="form-actions"><button class="action-secondary" id="cancelEdit" type="button">Cancelar</button><button type="submit">Guardar cambios</button></div>
     </form>
@@ -261,6 +269,15 @@
     };
     fillTimeSelect("edit_end_hour", 23);
     fillTimeSelect("edit_end_minute", 59);
+    const setEditorEnd = (date) => {
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString();
+      document.getElementById("edit_end_date").value = local.slice(0, 10);
+      document.getElementById("edit_end_hour").value = local.slice(11, 13);
+      document.getElementById("edit_end_minute").value = local.slice(14, 16);
+    };
+    document.querySelectorAll("[data-duration]").forEach((button) => button.addEventListener("click", () => {
+      setEditorEnd(new Date(Date.now() + Number(button.dataset.duration) * 60000));
+    }));
 
     async function loadLiveBids() {
       if (liveLoading) return;
@@ -291,7 +308,7 @@
         }
       });
 
-      const activeLots = (lots || []).filter((lot) => lot.status === "active" && (!lot.ends_at || new Date(lot.ends_at) > new Date()));
+      const activeLots = (lots || []).filter((lot) => lot.status === "active" && !!lot.ends_at && new Date(lot.ends_at) > new Date());
       const totalBids = (lots || []).reduce((sum, lot) => sum + Number(lot.bid_count || 0), 0);
       document.getElementById("statActive").textContent = activeLots.length;
       document.getElementById("statBids").textContent = totalBids;
@@ -454,7 +471,9 @@
       const { data: people } = await client.from("profiles").select("id, full_name, phone");
       const byId = Object.fromEntries((people || []).map((p) => [p.id, p]));
 
-      document.getElementById("auctionPreview").innerHTML = (data || []).map((p, index) => {
+      const activeListings = (data || []).filter((p) => p.status === "active" && !!p.ends_at && new Date(p.ends_at) > new Date());
+      const closedListings = (data || []).filter((p) => !activeListings.some((active) => active.id === p.id));
+      document.getElementById("auctionPreview").innerHTML = activeListings.map((p, index) => {
         const vencida = p.ends_at && new Date(p.ends_at) < new Date();
         const cerrada = p.status !== "active" || vencida;
         const cierre = p.ends_at ? new Date(p.ends_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"short" }) : "Sin fecha límite";
@@ -484,7 +503,7 @@
         </article>`;
       }).join("") || `<div class="panel-card">Todavía no has publicado subastas.</div>`;
 
-      document.getElementById("listings").innerHTML = (data || []).map((p) => {
+      document.getElementById("listings").innerHTML = activeListings.map((p) => {
         const w = p.winner_id ? byId[p.winner_id] : null;
         const vencida = p.ends_at && new Date(p.ends_at) < new Date();
         const cerrada = p.status !== "active" || vencida;
@@ -504,7 +523,19 @@
             <td><div class="actions-cell">${acciones}</div></td>
           </tr>
         `;
-      }).join("");
+      }).join("") || `<tr><td colspan="6">No hay subastas activas en este momento.</td></tr>`;
+
+      document.getElementById("closedListings").innerHTML = closedListings.map((p) => {
+        const w = p.winner_id ? byId[p.winner_id] : null;
+        return `<tr>
+          <td><strong>${p.title || "Sin título"}</strong></td>
+          <td class="money">${money(p.current_price || p.start_price)}</td>
+          <td>${Number(p.bid_count || 0)}</td>
+          <td>Ronda ${Number(p.auction_round || 1)}</td>
+          <td>${w ? `${w.full_name || "Usuario"}<br><span class="muted">${w.phone || ""}</span>` : "Sin ganador"}</td>
+          <td><div class="actions-cell"><button class="action-btn action-secondary" data-edit="${p.id}">Editar</button><button class="action-btn action-primary" data-reopen="${p.id}">Reabrir</button><button class="action-btn action-danger" data-dellist="${p.id}">Eliminar</button></div></td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="6">Todavía no hay subastas finalizadas.</td></tr>`;
 
       document.querySelectorAll("[data-edit]").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -519,6 +550,7 @@
           document.getElementById("edit_current_price").value = Number(listing.current_price || listing.start_price || 0);
           document.getElementById("edit_status").value = listing.status === "active" ? "active" : "closed";
           document.getElementById("edit_photo").value = "";
+          document.getElementById("editForm").dataset.reopen = "false";
           if (listing.ends_at) {
             const date = new Date(listing.ends_at);
             date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
@@ -546,17 +578,24 @@
       });
 
       document.querySelectorAll("[data-reopen]").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const { error } = await client.from("listings").update({
-            status: "active",
-            winner_id: null,
-            ends_at: null,
-            current_price: Number(btn.dataset.start || 0),
-            bid_count: 0,
-            auction_round: Number(btn.dataset.round || 1) + 1
-          }).eq("id", btn.dataset.reopen);
-          msg.textContent = error ? error.message : "Nueva ronda iniciada. El contador y el precio se restablecieron.";
-          if (!error) { loadListings(); loadLiveBids(); }
+        btn.addEventListener("click", () => {
+          const listing = currentListings.find((item) => item.id === btn.dataset.reopen);
+          if (!listing) return;
+          document.getElementById("edit_id").value = listing.id;
+          document.getElementById("edit_title").value = listing.title || "";
+          document.getElementById("edit_category").value = listing.category || "motores";
+          document.getElementById("edit_description").value = listing.description || "";
+          document.getElementById("edit_image_url").value = listing.image_url || "";
+          document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
+          document.getElementById("edit_current_price").value = Number(listing.start_price || 0);
+          document.getElementById("edit_status").value = "active";
+          document.getElementById("edit_photo").value = "";
+          document.getElementById("editForm").dataset.reopen = "true";
+          setEditorEnd(new Date(Date.now() + 60 * 60000));
+          msg.textContent = "Elige cuánto durará la nueva ronda y guarda los cambios.";
+          const dialog = document.getElementById("editDialog");
+          if (typeof dialog.showModal === "function") dialog.showModal();
+          else { dialog.setAttribute("open", ""); dialog.style.display = "block"; }
         });
       });
 
@@ -618,6 +657,10 @@
 
       const start = Number(document.getElementById("start_price").value || 0);
       const ends = document.getElementById("ends_at").value;
+      if (!ends) {
+        msg.textContent = "Selecciona una fecha y hora de cierre.";
+        return;
+      }
       const { error } = await client.from("listings").insert({
         title: document.getElementById("title").value.trim(),
         category: document.getElementById("category").value,
@@ -653,7 +696,8 @@
       if (event.target === event.currentTarget) closeEditDialog();
     });
 
-    document.getElementById("editForm").addEventListener("submit", async (event) => {
+    const editForm = document.getElementById("editForm");
+    editForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const id = document.getElementById("edit_id").value;
       const original = currentListings.find((item) => item.id === id);
@@ -687,10 +731,22 @@
         ends_at: endsAt ? new Date(endsAt).toISOString() : null,
         status: document.getElementById("edit_status").value
       };
+      if (changes.status === "active" && !endsAt) {
+        msg.textContent = "Selecciona una fecha y hora de cierre antes de activar la subasta.";
+        if (saveButton) saveButton.disabled = false;
+        return;
+      }
+      if (editForm.dataset.reopen === "true") {
+        changes.winner_id = null;
+        changes.current_price = Number(original.start_price || changes.start_price || 0);
+        changes.bid_count = 0;
+        changes.auction_round = Number(original.auction_round || 1) + 1;
+      }
       const { error } = await client.from("listings").update(changes).eq("id", id);
       if (saveButton) saveButton.disabled = false;
       msg.textContent = error ? error.message : "Subasta actualizada";
       if (!error) {
+        editForm.dataset.reopen = "false";
         closeEditDialog();
         loadListings();
         loadLiveBids();

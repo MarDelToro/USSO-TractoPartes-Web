@@ -555,7 +555,7 @@
       </div>
 
       <!-- LOTE DESTACADO -->
-      <sc-if value="{{ hasAnyAuction }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
       <div class="usso-featured-lot {{ featuredFinishClass }}">
         <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
          <img src="{{ featuredSrc }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
@@ -712,6 +712,35 @@
           <a href="{{ whatsappLink }}" target="_blank" style="display:inline-flex;background:{{ accent }};color:#0a0a0b;font:800 14px Manrope,sans-serif;padding:13px 26px;border-radius:100px">Pedir esta pieza</a>
         </div>
       </sc-if>
+    </div>
+  </section>
+
+  <!-- HISTORIAL PUBLICO DE SUBASTAS -->
+  <section id="historial-subastas" class="usso-section-pad" style="padding:100px 48px;max-width:1400px;margin:0 auto;border-top:1px solid rgba(var(--border-rgb),0.07)">
+    <div>
+      <div style="margin-bottom:30px">
+        <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Resultados reales</span>
+        <h2 style="font-family:'Archivo Black',sans-serif;font-size:clamp(30px,4.2vw,48px);margin:10px 0 8px;color:var(--text)">Subastas finalizadas</h2>
+        <p style="font:500 14px/1.6 Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0">Consulta los lotes que ya cerraron y su precio final de venta.</p>
+      </div>
+      <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ true }}">
+        <div class="usso-all-grid" style="display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;gap:20px;scrollbar-width:none;padding-bottom:8px">
+          <sc-for list="{{ historyLots }}" as="lot" hint-placeholder-count="3">
+            <article onClick="{{ lot.goTo }}" style="flex:0 0 300px;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.09);border-radius:18px;overflow:hidden;cursor:pointer;scroll-snap-align:start">
+              <div style="height:190px;background:#1a1a1d"><image-slot id="history-{{ lot.id }}" shape="rect" placeholder="{{ lot.placeholder }}" src="{{ lot.src }}" style="width:100%;height:100%"></image-slot></div>
+              <div style="padding:19px">
+                <span style="font:800 10.5px Manrope,sans-serif;color:#ff8a80;text-transform:uppercase;letter-spacing:.09em">Finalizada · Ronda {{ lot.auctionRound }}</span>
+                <h3 style="font:800 18px Manrope,sans-serif;color:var(--text);margin:7px 0 18px">{{ lot.title }}</h3>
+                <div style="border-top:1px solid rgba(var(--border-rgb),.09);padding-top:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px">
+                  <div><span style="display:block;font:600 11px Manrope;color:rgba(var(--text-rgb),.5)">Precio final</span><strong style="font:800 22px 'Archivo Black';color:{{ accent }}">{{ lot.bid }}</strong></div>
+                  <span style="font:700 12px Manrope;color:rgba(var(--text-rgb),.55)">{{ lot.bidCount }} ofertas</span>
+                </div>
+              </div>
+            </article>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noHistory }}" hint-placeholder-val="{{ false }}"><p style="padding:30px;border-radius:16px;background:var(--card-bg);color:rgba(var(--text-rgb),.55)">El historial aparecerá aquí cuando finalice la primera subasta.</p></sc-if>
     </div>
   </section>
 
@@ -1416,7 +1445,7 @@ class Component extends DCLogic {
 
   this.rawAuctionItems = (data || []).map((p, i) => {
     const termina = p.ends_at ? new Date(p.ends_at).getTime() : null;
-    const activa = p.status === "active" && (!termina || termina > Date.now());
+    const activa = p.status === "active" && !!termina && termina > Date.now();
     const precio = Number(p.current_price || p.start_price || 0);
     return {
       id: p.id,
@@ -1839,8 +1868,11 @@ submitAuth = async (e) => {
     const st = this.state;
     const u = st.user;
     const initials = u ? u.nombre.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() : '';
-    const hasAnyAuction = this.auctionItemsComputed.length > 0;
-    const feat = this.auctionItemsComputed[0] || {
+    const active = this.auctionItemsComputed.filter((l) => l.status === 'Activa');
+    const history = this.auctionItemsComputed.filter((l) => l.status === 'Finalizada');
+    const justEnded = history.find((l) => Date.now() - l.closesAt >= 0 && Date.now() - l.closesAt < 12000);
+    const hasAnyAuction = active.length > 0;
+    const feat = justEnded || active[0] || {
       id: '',
       src: '',
       number: '—',
@@ -1881,7 +1913,7 @@ submitAuth = async (e) => {
       ? 'No hay subastas activas'
       : (!u ? 'Crear cuenta para pujar' : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : (featuredIsLeading ? 'Vas ganando' : 'Pujar ahora')));
     const activeFilter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
-    const filtered = this.auctionItemsComputed.filter(activeFilter.test);
+    const filtered = active.filter(activeFilter.test);
 
     return {
       isLogged: !!u,
@@ -2001,7 +2033,8 @@ submitAuth = async (e) => {
       featuredGoTo: feat.goTo,
       bidButtonLabel: bidLabel,
       hasAnyAuction,
-      noAuctions: !hasAnyAuction,
+      hasFeaturedAuction: !!justEnded || hasAnyAuction,
+      noAuctions: !hasAnyAuction && !justEnded,
 
       registerReveal_todas: this.makeReveal('todas'),
       filterChips: this.FILTERS.map((f) => {
@@ -2009,7 +2042,7 @@ submitAuth = async (e) => {
         return {
           id: f.id,
           label: f.label,
-          count: this.auctionItemsComputed.filter(f.test).length,
+          count: active.filter(f.test).length,
           apply: this.setFilter(f.id),
           bg: on ? accent : 'rgba(var(--border-rgb),0.05)',
           border: on ? accent : 'rgba(var(--border-rgb),0.14)',
@@ -2034,6 +2067,9 @@ submitAuth = async (e) => {
       hasFiltered: filtered.length > 0,
       noFiltered: filtered.length === 0,
       filterSummary: filtered.length === 1 ? '1 lote' : filtered.length + ' lotes',
+      historyLots: history,
+      hasHistory: history.length > 0,
+      noHistory: history.length === 0,
 
       registerReveal_confianza: this.makeReveal('trust'),
       trustItems: [
@@ -2149,7 +2185,7 @@ submitAuth = async (e) => {
         { mono: '1-6', showText: true, title: 'Plazos de 1 a 6 meses', desc: 'Pagos flexibles ajustados a tu flujo de caja.' },
         { showShield: true, title: 'Financiamiento con garantías', desc: 'Deja un objeto de valor como garantía y llévate la tractoparte de inmediato; tienes un plazo definido para pagar y recuperarlo.' },
       ],
-      auctionItems: [...this.auctionItemsComputed, ...this.auctionItemsComputed, ...this.auctionItemsComputed].map((l, i) => ({ ...l, uid: `${l.id}-${i}` })),
+      auctionItems: [...active, ...active, ...active].map((l, i) => ({ ...l, uid: `${l.id}-${i}` })),
       heroLoopLots: this.heroLoopLots,
       setHeroCarouselRef: this.setHeroCarouselRef,
       onHeroCarouselScroll: this.onHeroCarouselScroll,
