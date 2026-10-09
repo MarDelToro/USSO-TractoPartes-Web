@@ -57,14 +57,14 @@
     let listing = null;
     let currentUser = null;
     let minimumBid = 0;
+    let userIsLeading = false;
 
     const money = (value) => Number(value || 0).toLocaleString("es-MX", {style:"currency",currency:"MXN",maximumFractionDigits:0});
     const show = (id) => document.getElementById(id).classList.remove("hidden");
     const hide = (id) => document.getElementById(id).classList.add("hidden");
     const calculateMinimum = (value) => {
       const current = Number(value || 0);
-      const step = Math.max(500, Math.round((current * .02) / 500) * 500);
-      return current + step;
+      return current + 100;
     };
 
     function updateMinimum(value) {
@@ -110,7 +110,10 @@
       if (!user) return show("guest");
       const {data:profile} = await client.from("profiles").select("full_name,phone,city,authorized").eq("id",user.id).single();
       if (!profile?.authorized) return show("pending");
-      if (data.status === "active" && (!data.ends_at || new Date(data.ends_at) > new Date())) show("bidForm");
+      const {data:ownBid} = await client.from("bids").select("amount").eq("listing_id", data.id).eq("user_id", user.id).order("amount", {ascending:false}).limit(1).maybeSingle();
+      userIsLeading = Number(ownBid?.amount || 0) >= Number(data.current_price || data.start_price || 0) && Number(ownBid?.amount || 0) > 0;
+      if (userIsLeading) document.getElementById("msg").textContent = "Tu puja es la más alta. Podrás volver a pujar cuando alguien la supere.";
+      else if (data.status === "active" && (!data.ends_at || new Date(data.ends_at) > new Date())) show("bidForm");
       else document.getElementById("msg").textContent = "Esta subasta ya no acepta pujas.";
     }
 
@@ -127,7 +130,9 @@
       msg.style.color = "#8ee7aa"; msg.textContent = "Puja registrada correctamente.";
       document.getElementById("price").textContent = money(amount);
       document.getElementById("amount").value = "";
-      updateMinimum(amount);
+      hide("bidForm");
+      userIsLeading = true;
+      msg.textContent = "Puja registrada correctamente. Ahora vas ganando esta subasta.";
     });
 
     document.getElementById("amount").addEventListener("input", validateAmount);

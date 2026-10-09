@@ -1390,7 +1390,7 @@ class Component extends DCLogic {
   );
   const { data } = await client
     .from("listings")
-    .select("id, title, image_url, current_price, start_price, status, ends_at, category")
+    .select("id, title, image_url, current_price, start_price, status, ends_at, category, bid_count")
     .order("created_at", { ascending: false });
 
   this.rawAuctionItems = (data || []).map((p, i) => {
@@ -1403,7 +1403,7 @@ class Component extends DCLogic {
       title: p.title || "Pieza",
       bid: activa ? ("$" + precio.toLocaleString("es-MX")) : "Cerrada",
       base: "$" + Number(p.start_price || 0).toLocaleString("es-MX"),
-      bidCount: 0,
+      bidCount: Number(p.bid_count || 0),
       evidence: ["Publicada en el sistema"],
       status: activa ? "Activa" : "Próxima",
       statusBg: activa ? "rgba(246,192,42,0.9)" : "rgba(255,255,255,0.12)",
@@ -1433,6 +1433,14 @@ async syncAuthFromSupabase() {
     .eq("id", user.id)
     .single();
   if (!profile) return;
+  const { data: ownBids } = await client
+    .from("bids")
+    .select("listing_id, amount")
+    .eq("user_id", user.id);
+  const myBids = (ownBids || []).reduce((result, bid) => {
+    result[bid.listing_id] = Math.max(Number(result[bid.listing_id] || 0), Number(bid.amount || 0));
+    return result;
+  }, {});
   this.setState({
     user: {
       nombre: profile.full_name || "",
@@ -1440,7 +1448,8 @@ async syncAuthFromSupabase() {
       correo: user.email,
       ciudad: profile.city || ""
     },
-    bidStatus: profile.authorized ? "autorizado" : "ninguno"
+    bidStatus: profile.authorized ? "autorizado" : "ninguno",
+    myBids
   });
 }
 
@@ -1660,14 +1669,20 @@ submitAuth = async (e) => {
     const lot = this.rawAuctionItems.find((item) => item.id === lotId);
     if (!lot) return 0;
     const current = Math.max(this.parseMoney(lot.bid), this.parseMoney(this.state.myBids[lotId] || 0));
-    const step = Math.max(500, Math.round(current * 0.02 / 500) * 500);
-    return current + step;
+    return current + 100;
   }
 
   startBid = (lotId) => (e) => {
     if (e && e.stopPropagation) e.stopPropagation();
     if (!this.state.user) return this.setState({ authOpen: true, authMode: 'registro', authError: '' });
     if (this.state.bidStatus !== 'autorizado') return this.setState({ accountOpen: true });
+    const lot = this.rawAuctionItems.find((item) => item.id === lotId);
+    const ownBid = this.parseMoney(this.state.myBids[lotId] || 0);
+    const current = this.parseMoney(lot ? lot.bid : 0);
+    if (ownBid && ownBid >= current) {
+      this.pushNotif({ icon: '✅', kind: 'ok', title: 'Vas ganando esta subasta', body: 'Podrás volver a pujar si otra persona supera tu oferta.' });
+      return;
+    }
     this.setState({ bidOpen: true, bidLotId: lotId, bidAmount: '', bidError: '' });
   };
   closeBid = () => this.setState({ bidOpen: false, bidError: '' });
@@ -1716,7 +1731,12 @@ submitAuth = async (e) => {
     this.setState({ bidError: error.message });
     return;
   }
-  this.setState({ bidOpen: false, bidAmount: "", bidError: "" });
+  this.setState((state) => ({
+    bidOpen: false,
+    bidAmount: "",
+    bidError: "",
+    myBids: { ...state.myBids, [lot.id]: amount }
+  }), () => this.persist());
   this.loadListingsFromDB();
 };
 
@@ -1726,7 +1746,7 @@ submitAuth = async (e) => {
     this.auctionItemsComputed = this.rawAuctionItems.map((l) => {
       const mine = this.state.myBids[l.id];
       const live = mine ? this.formatMoney(mine) : l.bid;
-      const count = l.bidCount + (mine ? 1 : 0);
+      const count = l.bidCount;
       return {
         ...l,
         bid: live,
@@ -1763,8 +1783,7 @@ submitAuth = async (e) => {
     if (bidLot) {
       const raw = this.rawAuctionItems.find((l) => l.id === bidLot.id);
       const cur = Math.max(this.parseMoney(raw ? raw.bid : bidLot.bid), this.parseMoney(st.myBids[bidLot.id] || 0));
-      const step = Math.max(500, Math.round(cur * 0.02 / 500) * 500);
-      bidMin = cur + step;
+      bidMin = cur + 100;
     }
 
     const statusMap = {
@@ -1776,9 +1795,12 @@ submitAuth = async (e) => {
     const prefLabels = { superada: 'Alguien superó mi puja', cierre: 'Mi subasta cierra en 1 hora', gane: 'Gané la subasta', perdi: 'No gané la subasta', favorita: 'Recordatorio de mis favoritos' };
     const kindColor = { ok: ['rgba(74,222,128,0.14)', '#7ee2a8'], alert: ['rgba(255,59,48,0.14)', '#ff8a80'], info: ['rgba(246,192,42,0.14)', accent] };
 
+    const featuredOwnBid = this.parseMoney(st.myBids[feat.id] || 0);
+    const featuredCurrent = this.parseMoney(feat.bid);
+    const featuredIsLeading = !!featuredOwnBid && featuredOwnBid >= featuredCurrent;
     const bidLabel = !hasAnyAuction
       ? 'No hay subastas activas'
-      : (!u ? 'Crear cuenta para pujar' : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : 'Pujar ahora'));
+      : (!u ? 'Crear cuenta para pujar' : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : (featuredIsLeading ? 'Vas ganando' : 'Pujar ahora')));
     const activeFilter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
     const filtered = this.auctionItemsComputed.filter(activeFilter.test);
 
@@ -1874,16 +1896,16 @@ submitAuth = async (e) => {
       featuredEvidence: feat.evidence,
       featuredBid: feat.bid,
       featuredBase: feat.base,
-      featuredBidCount: feat.bidCount + (st.myBids[feat.id] ? 1 : 0),
+      featuredBidCount: feat.bidCount,
       featuredClock: feat.closesDisplay,
       featuredBidAction: !hasAnyAuction
         ? () => {}
         : (!u
           ? this.startBid(feat.id)
           : (st.bidStatus === 'autorizado' ? this.startBid(feat.id) : this.requestAuth)),
-      featuredBidDisabled: !hasAnyAuction,
-      featuredBidCursor: hasAnyAuction ? 'pointer' : 'not-allowed',
-      featuredBidOpacity: hasAnyAuction ? '1' : '0.55',
+      featuredBidDisabled: !hasAnyAuction || featuredIsLeading,
+      featuredBidCursor: hasAnyAuction && !featuredIsLeading ? 'pointer' : 'not-allowed',
+      featuredBidOpacity: hasAnyAuction && !featuredIsLeading ? '1' : '0.55',
       featuredGoTo: feat.goTo,
       bidButtonLabel: bidLabel,
       hasAnyAuction,
