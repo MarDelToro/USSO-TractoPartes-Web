@@ -102,8 +102,20 @@
     });
 
     document.getElementById("logout").addEventListener("click", async () => {
-      await client.auth.signOut();
-      window.location.href = "login.html";
+      await client.auth.signOut({ scope: "global" });
+      try {
+        localStorage.removeItem("usso_cuenta_v1");
+        Object.keys(localStorage)
+          .filter((key) => key.startsWith("sb-ahhlfvjicxylidpmeciw-"))
+          .forEach((key) => localStorage.removeItem(key));
+      } catch (e) {}
+      window.location.replace("login.html?logged_out=1");
+    });
+
+    window.addEventListener("pageshow", async (event) => {
+      if (!event.persisted) return;
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) window.location.replace("login.html?logged_out=1");
     });
 
     load();

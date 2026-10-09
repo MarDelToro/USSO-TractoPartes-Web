@@ -919,6 +919,7 @@ class Component extends DCLogic {
       }, 6000);
     }
     this.loadUser();
+    window.addEventListener('pageshow', this.onPageShow);
     window.addEventListener('scroll', this.onPageScroll, { passive: true });
     window.addEventListener('resize', this.checkOverflow);
     setTimeout(this.checkOverflow, 300);
@@ -949,7 +950,12 @@ class Component extends DCLogic {
     if (this.countdownTimer) clearInterval(this.countdownTimer);
     window.removeEventListener('scroll', this.onPageScroll);
     window.removeEventListener('resize', this.checkOverflow);
+    window.removeEventListener('pageshow', this.onPageShow);
   }
+
+  onPageShow = (event) => {
+    if (event.persisted) this.syncAuthFromSupabase();
+  };
 
   onPageScroll = () => {
     if (this.state.phase === 'content') {
@@ -1431,7 +1437,18 @@ async syncAuthFromSupabase() {
     "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
   );
   const { data: { user } } = await client.auth.getUser();
-  if (!user) return;
+  if (!user) {
+    try { localStorage.removeItem(this.STORE); } catch (e) {}
+    this.setState({
+      user: null,
+      bidStatus: 'ninguno',
+      myBids: {},
+      accountOpen: false,
+      notifOpen: false,
+      bidOpen: false
+    });
+    return;
+  }
   const { data: profile } = await client
     .from("profiles")
     .select("full_name, phone, city, role, authorized, notification_preferences")
@@ -1599,15 +1616,20 @@ submitAuth = async (e) => {
   });
 };
 
-  logout = () => {
-    if (window.supabase) {
-  window.supabase.createClient(
-    "https://ahhlfvjicxylidpmeciw.supabase.co",
-    "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
-  ).auth.signOut();
-}
-
-    this.setState({ user: null, accountOpen: false, notifOpen: false, bidOpen: false, authForm: { nombre: '', whatsapp: '', correo: '', ciudad: '', pass: '' } });
+  logout = async () => {
+    const client = window.supabase && window.supabase.createClient(
+      "https://ahhlfvjicxylidpmeciw.supabase.co",
+      "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+    );
+    if (client) await client.auth.signOut({ scope: 'global' });
+    try {
+      localStorage.removeItem(this.STORE);
+      Object.keys(localStorage)
+        .filter((key) => key.startsWith('sb-ahhlfvjicxylidpmeciw-'))
+        .forEach((key) => localStorage.removeItem(key));
+    } catch (e) {}
+    this.setState({ user: null, bidStatus: 'ninguno', myBids: {}, accountOpen: false, notifOpen: false, bidOpen: false, authForm: { nombre: '', whatsapp: '', correo: '', ciudad: '', pass: '' } });
+    window.location.replace('/login.html?logged_out=1');
   };
 
   // ---------- NOTIFICACIONES ----------
