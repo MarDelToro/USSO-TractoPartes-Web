@@ -21,6 +21,16 @@
     .stat strong { color:#f6c02a; font-size:27px; }
     .table-wrap { width:100%; overflow-x:auto; border-radius:14px; margin-bottom:34px; -webkit-overflow-scrolling:touch; }
     .table-wrap table { min-width:760px; margin:0; }
+    .table-wrap.compact-history { max-height:460px; overflow:auto; border:1px solid rgba(255,255,255,.09); background:#141416; }
+    .table-wrap.compact-history thead { position:sticky; top:0; z-index:2; }
+    .table-wrap.compact-history th { box-shadow:0 1px 0 rgba(255,255,255,.1); }
+    .section-tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .filter-chip { min-height:36px; padding:8px 13px; border-radius:999px; background:#242429; color:#c7c9ce; border:1px solid rgba(255,255,255,.1); font:800 11px Manrope,sans-serif; cursor:pointer; }
+    .filter-chip.active { background:#f6c02a; color:#0a0a0b; border-color:#f6c02a; }
+    .admin-index { position:sticky; top:10px; z-index:20; display:flex; gap:8px; overflow-x:auto; padding:10px; margin:12px 0 22px; border:1px solid rgba(255,255,255,.1); border-radius:16px; background:rgba(14,14,16,.92); backdrop-filter:blur(12px); scrollbar-width:none; }
+    .admin-index::-webkit-scrollbar { display:none; }
+    .admin-index a { flex:none; color:#c8cbd1; font-size:11px; font-weight:800; padding:9px 12px; border-radius:999px; background:#1d1d21; }
+    .admin-index a:hover { color:#0a0a0b; background:#f6c02a; }
     .money { color:#f6c02a; font-weight:800; white-space:nowrap; }
     .leader { display:inline-flex; padding:5px 10px; border-radius:999px; background:rgba(74,222,128,.12); border:1px solid rgba(74,222,128,.3); color:#7ee2a8; font-size:12px; font-weight:800; white-space:nowrap; }
     .muted { color:#8f98a3; }
@@ -120,6 +130,8 @@
       .admin-nav { justify-content:flex-start; width:100%; }
       .admin-nav a { flex:1; justify-content:center; min-width:100px; }
       .section-head { align-items:flex-start; flex-direction:column; }
+      .section-tools { width:100%; overflow-x:auto; flex-wrap:nowrap; padding-bottom:3px; }
+      .table-wrap.compact-history { max-height:390px; }
       .auction-preview-grid { grid-template-columns:1fr; }
       .auction-card { grid-template-columns:1fr; }
       .auction-photo { min-height:250px; border-right:0; border-bottom:1px solid rgba(255,255,255,.12); }
@@ -134,7 +146,11 @@
     </header>
     <p class="msg admin-ready" id="msg">Cargando...</p>
 
-    <section class="panel-card">
+    <nav class="admin-index" aria-label="Secciones del panel">
+      <a href="#publicar">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
+    </nav>
+
+    <section class="panel-card" id="publicar">
       <div class="panel-title">
         <div><h2>Publicar una pieza</h2><p>Agrega la información y programa la subasta desde un solo lugar.</p></div>
         <span class="leader">Nueva publicación</span>
@@ -158,7 +174,7 @@
       <div class="auction-preview-grid" id="auctionPreview"><div class="panel-card">Cargando subastas...</div></div>
     </section>
 
-    <div class="live-head">
+    <div class="live-head" id="control-vivo">
       <div><h2>Control de pujas en vivo</h2><div class="live-status" id="liveStatus">Preparando seguimiento...</div></div>
       <button class="ghost" id="refreshLive" type="button">Actualizar ahora</button>
     </div>
@@ -167,13 +183,13 @@
       <div class="stat"><span>Ofertas registradas</span><strong id="statBids">0</strong></div>
       <div class="stat"><span>Última oferta</span><strong id="statLatest">$0</strong></div>
     </div>
-    <div class="table-wrap"><table>
+    <div class="table-wrap compact-history"><table>
       <thead><tr><th>Lote</th><th>Precio actual</th><th>Ofertas</th><th>Va ganando</th><th>WhatsApp</th><th>Cierre</th></tr></thead>
       <tbody id="liveLots"><tr><td colspan="6">Cargando...</td></tr></tbody>
     </table></div>
 
     <div class="section-head"><div><h2>Historial de ofertas</h2><p>Registro cronológico de todas las pujas.</p></div></div>
-    <div class="table-wrap"><table>
+    <div class="table-wrap compact-history"><table>
       <thead><tr><th>Hora</th><th>Lote</th><th>Usuario</th><th>WhatsApp</th><th>Cantidad</th><th>Resultado actual</th></tr></thead>
       <tbody id="bidHistory"><tr><td colspan="6">Cargando...</td></tr></tbody>
     </table></div>
@@ -194,13 +210,13 @@
     </table></div>
 
     <div class="section-head"><div><h2>Historial de subastas finalizadas</h2><p>Estas subastas siguen visibles para los clientes. Puedes reabrirlas, editarlas o eliminarlas definitivamente.</p></div></div>
-    <div class="table-wrap"><table>
+    <div class="table-wrap compact-history"><table>
       <thead><tr><th>Pieza</th><th>Precio final</th><th>Ofertas</th><th>Ronda</th><th>Ganador</th><th></th></tr></thead>
       <tbody id="closedListings"></tbody>
     </table></div>
 
-    <div class="section-head"><div><h2>Usuarios</h2><p>Autoriza cuentas y consulta sus datos de contacto.</p></div></div>
-    <div class="table-wrap"><table>
+    <div class="section-head" id="usuarios-admin"><div><h2>Usuarios</h2><p>Autoriza cuentas y consulta sus datos de contacto.</p></div></div>
+    <div class="table-wrap compact-history"><table>
       <thead>
         <tr>
           <th>Nombre</th>
@@ -217,23 +233,24 @@
     </table></div>
 
     <div class="section-head"><div><h2>Preferencias de notificaciones</h2><p>Avisos de WhatsApp aceptados por cada usuario.</p></div></div>
-    <div class="table-wrap"><table>
+    <div class="table-wrap compact-history"><table>
       <thead><tr><th>Usuario</th><th>WhatsApp</th><th>Superaron su puja</th><th>Cierre en 1 hora</th><th>Ganó</th><th>No ganó</th><th>Subastas guardadas</th></tr></thead>
       <tbody id="notificationPrefs"><tr><td colspan="7">Cargando...</td></tr></tbody>
     </table></div>
 
-    <div class="section-head"><div><h2>Avisos pendientes</h2><p>Mensajes que requieren seguimiento por WhatsApp.</p></div></div>
-    <div class="table-wrap"><table>
+    <div class="section-head" id="avisos-admin"><div><h2>Avisos y seguimiento</h2><p>Filtra los mensajes y atiende primero los pendientes.</p></div><div class="section-tools" id="noticeFilters"><button class="filter-chip active" data-notice-filter="pending">Pendientes</button><button class="filter-chip" data-notice-filter="today">Hoy</button><button class="filter-chip" data-notice-filter="week">7 días</button><button class="filter-chip" data-notice-filter="all">Todos</button></div></div>
+    <div class="table-wrap compact-history"><table>
       <thead>
         <tr>
           <th>Pieza</th>
           <th>WhatsApp</th>
           <th>Mensaje</th>
+          <th>Fecha</th>
           <th>Estado</th>
           <th></th>
         </tr>
       </thead>
-      <tbody id="avisos"></tbody>
+      <tbody id="avisos"><tr><td colspan="6">Cargando...</td></tr></tbody>
     </table></div>
   </main>
 
@@ -263,6 +280,15 @@
     const money = (value) => Number(value || 0).toLocaleString("es-MX", { style:"currency", currency:"MXN", maximumFractionDigits:0 });
     let liveLoading = false;
     let currentListings = [];
+    let allNotices = [];
+    let noticeFilter = "pending";
+    let realtimeRefreshTimer = null;
+    const scheduleAdminRefresh = () => {
+      window.clearTimeout(realtimeRefreshTimer);
+      realtimeRefreshTimer = window.setTimeout(() => {
+        loadLiveBids(); loadListings(); loadAvisos(); loadUsers();
+      }, 180);
+    };
     const fillTimeSelect = (id, max) => {
       const select = document.getElementById(id);
       select.innerHTML = Array.from({ length:max + 1 }, (_, value) => `<option value="${String(value).padStart(2,"0")}">${String(value).padStart(2,"0")}</option>`).join("");
@@ -620,35 +646,46 @@
       });
     }
 
+    function renderAvisos() {
+      const now = Date.now();
+      const startToday = new Date();
+      startToday.setHours(0, 0, 0, 0);
+      const visible = allNotices.filter((n) => {
+        const stamp = new Date(n.created_at || 0).getTime();
+        if (noticeFilter === "pending") return n.status !== "sent";
+        if (noticeFilter === "today") return stamp >= startToday.getTime();
+        if (noticeFilter === "week") return stamp >= now - 7 * 86400000;
+        return true;
+      });
+      document.getElementById("avisos").innerHTML = visible.map((n) => {
+        const tel = (n.phone || "").replace(/\D/g, "");
+        const wa = tel ? `https://wa.me/52${tel.slice(-10)}?text=${encodeURIComponent(n.message)}` : "";
+        const created = n.created_at ? new Date(n.created_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"short" }) : "—";
+        return `<tr><td>${n.title || ""}</td><td>${n.phone || "-"}</td><td>${n.message || ""}</td><td>${created}</td><td><span class="status-badge ${n.status === "sent" ? "status-approved" : "status-pending"}">${n.status === "sent" ? "Enviado" : "Pendiente"}</span></td><td>${wa ? `<a class="notice-link" href="${wa}" target="_blank" data-sent="${n.id}">Abrir WhatsApp</a>` : `<span class="muted">Sin número</span>`}</td></tr>`;
+      }).join("") || `<tr><td colspan="6">No hay avisos en este filtro.</td></tr>`;
+      document.querySelectorAll("[data-sent]").forEach((a) => a.addEventListener("click", async () => {
+        await client.from("notifications").update({ status:"sent" }).eq("id", a.dataset.sent);
+        const notice = allNotices.find((item) => item.id === a.dataset.sent);
+        if (notice) notice.status = "sent";
+        window.setTimeout(renderAvisos, 350);
+      }));
+    }
+
     async function loadAvisos() {
       const { data, error } = await client
         .from("notifications")
-        .select("id, title, phone, message, status")
+        .select("id, title, phone, message, status, created_at")
         .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
-
-      document.getElementById("avisos").innerHTML = (data || []).map((n) => {
-        const tel = (n.phone || "").replace(/\D/g, "");
-        const wa = tel
-          ? `https://wa.me/52${tel.slice(-10)}?text=${encodeURIComponent(n.message)}`
-          : "";
-        return `
-          <tr>
-            <td>${n.title || ""}</td>
-            <td>${n.phone || "-"}</td>
-            <td>${n.message || ""}</td>
-            <td><span class="status-badge ${n.status === "sent" ? "status-approved" : "status-pending"}">${n.status === "sent" ? "Enviado" : "Pendiente"}</span></td>
-            <td>${wa ? `<a class="notice-link" href="${wa}" target="_blank" data-sent="${n.id}">Abrir WhatsApp</a>` : `<span class="muted">Sin número</span>`}</td>
-          </tr>
-        `;
-      }).join("") || `<tr><td colspan="5">Sin avisos</td></tr>`;
-
-      document.querySelectorAll("[data-sent]").forEach((a) => {
-        a.addEventListener("click", async () => {
-          await client.from("notifications").update({ status: "sent" }).eq("id", a.dataset.sent);
-        });
-      });
+      allNotices = data || [];
+      renderAvisos();
     }
+
+    document.querySelectorAll("[data-notice-filter]").forEach((button) => button.addEventListener("click", () => {
+      noticeFilter = button.dataset.noticeFilter;
+      document.querySelectorAll("[data-notice-filter]").forEach((item) => item.classList.toggle("active", item === button));
+      renderAvisos();
+    }));
 
     document.getElementById("pieza").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -774,8 +811,17 @@
       loadListings();
       loadAvisos();
       loadLiveBids();
+      client.channel("usso-admin-live")
+        .on("postgres_changes", { event:"*", schema:"public", table:"bids" }, scheduleAdminRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"listings" }, scheduleAdminRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"notifications" }, scheduleAdminRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"profiles" }, scheduleAdminRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"authorization_requests" }, scheduleAdminRefresh)
+        .subscribe();
       window.setInterval(loadLiveBids, 5000);
       window.setInterval(loadListings, 5000);
+      window.setInterval(loadAvisos, 15000);
+      window.setInterval(loadUsers, 15000);
     })();
   </script>
 </body>
