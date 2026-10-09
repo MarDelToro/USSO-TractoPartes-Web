@@ -73,10 +73,11 @@
   .usso-winner-screen h2 { margin:18px 0 8px; color:#7ee2a8; font:900 clamp(36px,7vw,68px)/1 'Archivo Black',sans-serif; }
   .usso-winner-screen p { margin:0 auto 24px; max-width:480px; color:#f3f1ec; font:600 17px/1.55 Manrope,sans-serif; }
   .usso-winner-screen button { border:0; border-radius:999px; padding:14px 24px; background:#f6c02a; color:#0a0a0b; font:800 14px Manrope,sans-serif; cursor:pointer; }
+  .usso-outcome-close { position:absolute;top:16px;right:16px;width:40px;height:40px;min-width:0!important;padding:0!important;display:grid;place-items:center;border-radius:50%!important;background:rgba(255,255,255,.07)!important;border:1px solid rgba(255,255,255,.14)!important;color:#f3f1ec!important;font:400 26px/1 Manrope,sans-serif!important;z-index:4; }
   .usso-loser-screen { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:24px; background:radial-gradient(circle at 50% 38%,rgba(246,192,42,.12),rgba(5,5,6,.97) 58%); text-align:center; }
-  .usso-loser-card { width:min(600px,94vw); padding:44px 30px; border:1px solid rgba(246,192,42,.34); border-radius:28px; background:rgba(20,20,22,.96); box-shadow:0 30px 100px rgba(0,0,0,.72); }
-  .usso-loser-card .icon { font-size:62px; line-height:1; }
-  .usso-loser-card h2 { margin:18px 0 10px; color:#f3f1ec; font:900 clamp(31px,6vw,54px)/1.05 'Archivo Black',sans-serif; }
+  .usso-loser-card { position:relative;width:min(600px,94vw); padding:44px 30px; border:1px solid rgba(255,92,82,.38); border-radius:28px; background:rgba(20,20,22,.96); box-shadow:0 30px 100px rgba(0,0,0,.72); }
+  .usso-loser-card .icon { font-size:62px; line-height:1;color:#ff6b61; }
+  .usso-loser-card h2 { margin:18px 0 10px; color:#ff8a80; font:900 clamp(31px,6vw,54px)/1.05 'Archivo Black',sans-serif; }
   .usso-loser-card p { margin:0 auto 24px; max-width:470px; color:rgba(243,241,236,.72); font:600 16px/1.6 Manrope,sans-serif; }
   .usso-loser-card button { border:0; border-radius:999px; padding:14px 26px; background:#f6c02a; color:#0a0a0b; font:800 14px Manrope,sans-serif; cursor:pointer; }
   .usso-winner-confetti span { position:absolute; top:-10%; width:10px; height:20px; background:#f6c02a; animation:winnerFall 3.5s linear infinite; }
@@ -554,6 +555,7 @@
     <div class="usso-winner-screen" role="dialog" aria-modal="true" aria-label="Ganaste la subasta">
       <div class="usso-winner-confetti"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <div class="usso-winner-card">
+        <button class="usso-outcome-close" onClick="{{ closeWinnerCelebration }}" aria-label="Cerrar resultado">×</button>
         <span class="usso-winner-kicker">Resultado oficial USSO</span>
         <div class="usso-winner-trophy">🏆</div>
         <h2>¡TÚ ERES EL GANADOR!</h2>
@@ -566,6 +568,7 @@
   <sc-if value="{{ lossCelebrationOpen }}" hint-placeholder-val="{{ false }}">
     <div class="usso-loser-screen" role="dialog" aria-modal="true" aria-label="Resultado de la subasta">
       <div class="usso-loser-card">
+        <button class="usso-outcome-close" onClick="{{ closeLossCelebration }}" aria-label="Cerrar resultado">×</button>
         <div class="icon">○</div>
         <h2>ESTA VEZ NO GANASTE</h2>
         <p><strong>{{ lossCelebrationTitle }}</strong> terminó en <strong>{{ lossCelebrationAmount }}</strong>. Tu historial ya fue actualizado. Habrá nuevas oportunidades.</p>
@@ -1509,10 +1512,8 @@ class Component extends DCLogic {
       if (localStorage.getItem(key) === '1') return;
       localStorage.setItem(key, '1');
     } catch (e) {}
-    this.setState({ lossCelebration:{ title:listing.title || 'la subasta', amount:Number(listing.bid || listing.current_price || listing.start_price || 0) } });
+    this.setState({ lossCelebration:{ title:listing.title || 'la subasta', amount:this.parseMoney(listing.bid || listing.current_price || listing.start_price || 0) } });
     this.playOutcomeSound('loss');
-    if (this.lossTimer) clearTimeout(this.lossTimer);
-    this.lossTimer = setTimeout(this.closeLossCelebration, 7000);
   }
 
   celebrateWinner(listing) {
@@ -1522,11 +1523,9 @@ class Component extends DCLogic {
       if (localStorage.getItem(key) === '1') return;
       localStorage.setItem(key, '1');
     } catch (e) {}
-    this.setState({ winnerCelebration:{ title:listing.title || 'la subasta', amount:Number(listing.bid || listing.current_price || listing.start_price || 0) } });
+    this.setState({ winnerCelebration:{ title:listing.title || 'la subasta', amount:this.parseMoney(listing.bid || listing.current_price || listing.start_price || 0) } });
     this.playOutcomeSound('win');
     try { if (navigator.vibrate) navigator.vibrate([80,45,110,45,180]); } catch (e) {}
-    if (this.winnerTimer) clearTimeout(this.winnerTimer);
-    this.winnerTimer = setTimeout(this.closeWinnerCelebration, 12000);
   }
 
   formatCountdown(ms) {
@@ -1665,7 +1664,11 @@ async syncAuthFromSupabase() {
   const { data: serverNotifs } = await client.from('notifications').select('id,title,message,created_at,user_id').eq('user_id', user.id).order('created_at', { ascending:false }).limit(50);
   const localNotifs = this.state.notifs || [];
   const localById = Object.fromEntries(localNotifs.map((n) => [n.id, n]));
-  const persistentNotifs = (serverNotifs || []).map((n) => ({ id:'db-' + n.id, createdAt:new Date(n.created_at).getTime(), icon:/ganaste|ganador/i.test(n.message || '') ? '🏆' : '🔔', kind:/ganaste|ganador/i.test(n.message || '') ? 'ok' : 'info', title:n.title || 'Aviso de subasta', body:n.message || '', read:!!localById['db-' + n.id]?.read }));
+  const persistentNotifs = (serverNotifs || []).map((n) => {
+    const lost = /no ganaste|perdiste|esta vez no/i.test(n.message || '');
+    const won = !lost && /ganaste|ganador/i.test(n.message || '');
+    return { id:'db-' + n.id, createdAt:new Date(n.created_at).getTime(), icon:won ? '🏆' : (lost ? '×' : '🔔'), kind:won ? 'ok' : (lost ? 'alert' : 'info'), title:n.title || 'Aviso de subasta', body:n.message || '', read:!!localById['db-' + n.id]?.read };
+  });
   const mergedNotifs = [...persistentNotifs, ...localNotifs.filter((n) => !String(n.id).startsWith('db-'))].sort((a,b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
   this.setState({
     user: {
