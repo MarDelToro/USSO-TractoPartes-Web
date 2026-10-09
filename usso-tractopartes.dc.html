@@ -729,7 +729,7 @@
             <article onClick="{{ lot.goTo }}" style="flex:0 0 300px;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.09);border-radius:18px;overflow:hidden;cursor:pointer;scroll-snap-align:start">
               <div style="height:190px;background:#1a1a1d"><image-slot id="history-{{ lot.id }}" shape="rect" placeholder="{{ lot.placeholder }}" src="{{ lot.src }}" style="width:100%;height:100%"></image-slot></div>
               <div style="padding:19px">
-                <span style="font:800 10.5px Manrope,sans-serif;color:#ff8a80;text-transform:uppercase;letter-spacing:.09em">Finalizada · Ronda {{ lot.auctionRound }}</span>
+                <span style="font:800 10.5px Manrope,sans-serif;color:{{ lot.resultColor }};text-transform:uppercase;letter-spacing:.09em">{{ lot.resultLabel }} · Ronda {{ lot.auctionRound }}</span>
                 <h3 style="font:800 18px Manrope,sans-serif;color:var(--text);margin:7px 0 18px">{{ lot.title }}</h3>
                 <div style="border-top:1px solid rgba(var(--border-rgb),.09);padding-top:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px">
                   <div><span style="display:block;font:600 11px Manrope;color:rgba(var(--text-rgb),.5)">Precio final</span><strong style="font:800 22px 'Archivo Black';color:{{ accent }}">{{ lot.bid }}</strong></div>
@@ -2016,10 +2016,10 @@ submitAuth = async (e) => {
       featuredIsActive,
       featuredCelebrating,
       featuredFinishClass: featuredCelebrating ? 'usso-finished-lot' : '',
-      featuredBadgeLabel: featuredIsActive ? (featuredEndingSoon ? 'Cerrando pronto' : 'Subasta activa') : 'Subasta finalizada',
-      featuredBadgeColor: featuredIsActive ? accent : '#ff8a80',
-      featuredBadgeBorder: featuredIsActive ? 'rgba(246,192,42,0.45)' : 'rgba(255,92,82,0.55)',
-      featuredBadgeDot: featuredIsActive ? '#ff0000' : '#ff5c52',
+      featuredBadgeLabel: featuredIsActive ? (featuredEndingSoon ? 'Cerrando pronto' : 'Subasta activa') : (feat.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas'),
+      featuredBadgeColor: featuredIsActive ? accent : (feat.bidCount > 0 ? '#7ee2a8' : '#ff8a80'),
+      featuredBadgeBorder: featuredIsActive ? 'rgba(246,192,42,0.45)' : (feat.bidCount > 0 ? 'rgba(74,222,128,0.48)' : 'rgba(255,92,82,0.55)'),
+      featuredBadgeDot: featuredIsActive ? '#ff0000' : (feat.bidCount > 0 ? '#4ade80' : '#ff5c52'),
       featuredBadgeAnimation: featuredIsActive ? 'livePulse 0.8s ease-in-out infinite' : 'none',
       featuredDetailsFlex: featuredIsActive ? '0' : '1',
       featuredBidAction: !hasAnyAuction
@@ -2067,7 +2067,7 @@ submitAuth = async (e) => {
       hasFiltered: filtered.length > 0,
       noFiltered: filtered.length === 0,
       filterSummary: filtered.length === 1 ? '1 lote' : filtered.length + ' lotes',
-      historyLots: history,
+      historyLots: history.map((lot) => ({ ...lot, resultLabel: lot.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas', resultColor: lot.bidCount > 0 ? '#7ee2a8' : '#ff8a80' })),
       hasHistory: history.length > 0,
       noHistory: history.length === 0,
 

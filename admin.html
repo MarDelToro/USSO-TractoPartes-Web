@@ -468,8 +468,17 @@
       if (error) return msg.textContent = error.message;
       currentListings = data || [];
 
-      const { data: people } = await client.from("profiles").select("id, full_name, phone");
+      const [{ data: people }, { data: roundBids }] = await Promise.all([
+        client.from("profiles").select("id, full_name, phone, role"),
+        client.from("bids").select("listing_id,user_id,amount,auction_round,created_at").order("amount", { ascending:false }).order("created_at", { ascending:false })
+      ]);
       const byId = Object.fromEntries((people || []).map((p) => [p.id, p]));
+      const winnerByListing = {};
+      (roundBids || []).forEach((bid) => {
+        const lot = currentListings.find((item) => item.id === bid.listing_id);
+        if (!lot || Number(bid.auction_round || 1) !== Number(lot.auction_round || 1) || winnerByListing[bid.listing_id]) return;
+        winnerByListing[bid.listing_id] = bid.user_id;
+      });
 
       const activeListings = (data || []).filter((p) => p.status === "active" && !!p.ends_at && new Date(p.ends_at) > new Date());
       const closedListings = (data || []).filter((p) => !activeListings.some((active) => active.id === p.id));
@@ -504,7 +513,8 @@
       }).join("") || `<div class="panel-card">Todavía no has publicado subastas.</div>`;
 
       document.getElementById("listings").innerHTML = activeListings.map((p) => {
-        const w = p.winner_id ? byId[p.winner_id] : null;
+        const currentWinnerId = winnerByListing[p.id] || null;
+        const w = currentWinnerId ? byId[currentWinnerId] : null;
         const vencida = p.ends_at && new Date(p.ends_at) < new Date();
         const cerrada = p.status !== "active" || vencida;
         const estado = p.status === "closed" ? "closed" : (vencida ? "closed" : "active");
@@ -518,7 +528,7 @@
             <td>${p.title}</td>
             <td class="money">${money(p.current_price || p.start_price)}</td>
             <td><span class="status-badge ${estado === "active" ? "status-active" : "status-closed"}">${estado === "active" ? "Activa" : "Cerrada"}</span></td>
-            <td>${w ? w.full_name : "-"}</td>
+            <td>${w ? (w.full_name || (w.role === "admin" ? "Administrador USSO" : "Usuario")) : "-"}</td>
             <td>${w ? w.phone : "-"}</td>
             <td><div class="actions-cell">${acciones}</div></td>
           </tr>
@@ -526,13 +536,14 @@
       }).join("") || `<tr><td colspan="6">No hay subastas activas en este momento.</td></tr>`;
 
       document.getElementById("closedListings").innerHTML = closedListings.map((p) => {
-        const w = p.winner_id ? byId[p.winner_id] : null;
+        const currentWinnerId = winnerByListing[p.id] || null;
+        const w = currentWinnerId ? byId[currentWinnerId] : null;
         return `<tr>
           <td><strong>${p.title || "Sin título"}</strong></td>
           <td class="money">${money(p.current_price || p.start_price)}</td>
           <td>${Number(p.bid_count || 0)}</td>
           <td>Ronda ${Number(p.auction_round || 1)}</td>
-          <td>${w ? `${w.full_name || "Usuario"}<br><span class="muted">${w.phone || ""}</span>` : "Sin ganador"}</td>
+          <td>${w ? `${w.full_name || (w.role === "admin" ? "Administrador USSO" : "Usuario")}<br><span class="muted">${w.phone || ""}</span>` : "Sin ganador"}</td>
           <td><div class="actions-cell"><button class="action-btn action-secondary" data-edit="${p.id}">Editar</button><button class="action-btn action-primary" data-reopen="${p.id}">Reabrir</button><button class="action-btn action-danger" data-dellist="${p.id}">Eliminar</button></div></td>
         </tr>`;
       }).join("") || `<tr><td colspan="6">Todavía no hay subastas finalizadas.</td></tr>`;

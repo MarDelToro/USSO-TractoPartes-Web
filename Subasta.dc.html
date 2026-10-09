@@ -81,8 +81,12 @@
       const active = isActive(data);
       const ends = document.getElementById("ends");
       const badge = document.getElementById("status");
-      badge.textContent = active ? "Subasta activa" : "Subasta finalizada";
-      badge.classList.toggle("closed", !active);
+      const sold = !active && Number(data?.bid_count || 0) > 0;
+      badge.textContent = active ? "Subasta activa" : (sold ? "Finalizada · ¡¡VENDIDA!!" : "Finalizada · Sin ofertas");
+      badge.classList.toggle("closed", !active && !sold);
+      badge.style.color = sold ? "#7ee2a8" : "";
+      badge.style.borderColor = sold ? "rgba(74,222,128,.45)" : "";
+      badge.style.background = sold ? "rgba(74,222,128,.1)" : "";
       document.getElementById("priceLabel").textContent = active ? "Precio actual" : "Precio final";
       ends.textContent = data?.ends_at ? countdown(new Date(data.ends_at).getTime() - Date.now()) : "Fecha pendiente";
       ends.classList.toggle("ended", !active);
@@ -115,7 +119,7 @@
     async function load() {
       if (!lotId) return renderNotFound();
       const {data, error} = await client.from("listings")
-        .select("id,title,description,image_url,start_price,current_price,status,ends_at,category,auction_round")
+        .select("id,title,description,image_url,start_price,current_price,status,ends_at,category,auction_round,bid_count")
         .eq("id", lotId).single();
       if (error || !data) return renderNotFound();
       listing = data;
@@ -184,7 +188,7 @@
     window.setInterval(async () => {
       if (!listing) return;
       const { data } = await client.from("listings")
-        .select("current_price,start_price,status,ends_at,auction_round")
+        .select("current_price,start_price,status,ends_at,auction_round,bid_count")
         .eq("id", listing.id)
         .single();
       if (!data) return;
