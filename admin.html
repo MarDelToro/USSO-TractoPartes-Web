@@ -400,6 +400,16 @@
         .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
 
+      const { data: winnerNotices } = await client
+        .from("notifications")
+        .select("user_id, title, amount, auction_round, created_at")
+        .eq("notification_type", "auction_won")
+        .order("created_at", { ascending:false });
+      const latestWinByUser = {};
+      (winnerNotices || []).forEach((win) => {
+        if (win.user_id && !latestWinByUser[win.user_id]) latestWinByUser[win.user_id] = win;
+      });
+
       document.getElementById("rows").innerHTML = (data || []).map((p) => {
         const request = requestsByUser[p.id];
         const requestLabel = request?.status === "pending"
@@ -417,6 +427,13 @@
         const delBtn = p.role === "admin"
           ? ""
           : `<button class="action-btn action-secondary" data-deluser="${p.id}">Eliminar</button>`;
+        const win = latestWinByUser[p.id];
+        const winnerMessage = win
+          ? `¡Felicidades ${p.full_name || ""}! Ganaste la subasta de ${win.title || "tu lote"} con una oferta final de ${money(win.amount)}. Comunícate con USSO Tractopartes para continuar con tu compra.`
+          : "";
+        const winnerBtn = win && p.phone
+          ? `<button class="action-btn action-primary" data-winner-phone="${String(p.phone).replace(/\D/g, "")}" data-winner-message="${encodeURIComponent(winnerMessage)}">Avisar que ganó</button>`
+          : "";
         return `
           <tr>
             <td>${p.full_name || ""}</td>
@@ -426,7 +443,7 @@
             <td>${p.role === "admin" ? "Administrador" : "Usuario"}</td>
             <td><span class="status-badge ${p.authorized ? "status-approved" : "status-pending"}">${p.authorized ? "Autorizada" : "Pendiente"}</span></td>
             <td>${requestLabel}</td>
-            <td><div class="actions-cell">${authBtn}${delBtn}</div></td>
+            <td><div class="actions-cell">${winnerBtn}${authBtn}${delBtn}</div></td>
           </tr>
         `;
       }).join("");
@@ -442,6 +459,13 @@
         const prefs = p.notification_preferences || {};
         return `<tr><td><strong>${p.full_name || "Usuario"}</strong></td><td>${p.phone || "—"}</td>${prefLabels.map(([key]) => `<td>${prefBadge(prefs[key] !== false)}</td>`).join("")}</tr>`;
       }).join("") || `<tr><td colspan="7">Todavía no hay usuarios</td></tr>`;
+
+      document.querySelectorAll("[data-winner-phone]").forEach((button) => button.addEventListener("click", () => {
+        const tel = String(button.dataset.winnerPhone || "").replace(/\D/g, "").slice(-10);
+        if (!tel) return;
+        const message = decodeURIComponent(button.dataset.winnerMessage || "");
+        window.open(`https://wa.me/52${tel}?text=${encodeURIComponent(message)}`, "_blank");
+      }));
 
      document.querySelectorAll("[data-auth]").forEach((btn) => {
   btn.addEventListener("click", async () => {
