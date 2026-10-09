@@ -1390,7 +1390,7 @@ class Component extends DCLogic {
   );
   const { data } = await client
     .from("listings")
-    .select("id, title, image_url, current_price, start_price, status, ends_at, category, bid_count")
+    .select("id, title, image_url, current_price, start_price, status, ends_at, category, bid_count, auction_round")
     .order("created_at", { ascending: false });
 
   this.rawAuctionItems = (data || []).map((p, i) => {
@@ -1404,6 +1404,7 @@ class Component extends DCLogic {
       bid: activa ? ("$" + precio.toLocaleString("es-MX")) : "Cerrada",
       base: "$" + Number(p.start_price || 0).toLocaleString("es-MX"),
       bidCount: Number(p.bid_count || 0),
+      auctionRound: Number(p.auction_round || 1),
       evidence: ["Publicada en el sistema"],
       status: activa ? "Activa" : "Próxima",
       statusBg: activa ? "rgba(246,192,42,0.9)" : "rgba(255,255,255,0.12)",
@@ -1435,9 +1436,11 @@ async syncAuthFromSupabase() {
   if (!profile) return;
   const { data: ownBids } = await client
     .from("bids")
-    .select("listing_id, amount")
+    .select("listing_id, amount, auction_round")
     .eq("user_id", user.id);
   const myBids = (ownBids || []).reduce((result, bid) => {
+    const lot = this.rawAuctionItems.find((item) => item.id === bid.listing_id);
+    if (!lot || Number(bid.auction_round || 1) !== Number(lot.auctionRound || 1)) return result;
     result[bid.listing_id] = Math.max(Number(result[bid.listing_id] || 0), Number(bid.amount || 0));
     return result;
   }, {});

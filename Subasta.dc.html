@@ -92,7 +92,7 @@
     async function load() {
       if (!lotId) return renderNotFound();
       const {data, error} = await client.from("listings")
-        .select("id,title,description,image_url,start_price,current_price,status,ends_at,category")
+        .select("id,title,description,image_url,start_price,current_price,status,ends_at,category,auction_round")
         .eq("id", lotId).single();
       if (error || !data) return renderNotFound();
       listing = data;
@@ -110,7 +110,7 @@
       if (!user) return show("guest");
       const {data:profile} = await client.from("profiles").select("full_name,phone,city,authorized").eq("id",user.id).single();
       if (!profile?.authorized) return show("pending");
-      const {data:ownBid} = await client.from("bids").select("amount").eq("listing_id", data.id).eq("user_id", user.id).order("amount", {ascending:false}).limit(1).maybeSingle();
+      const {data:ownBid} = await client.from("bids").select("amount").eq("listing_id", data.id).eq("auction_round", data.auction_round || 1).eq("user_id", user.id).order("amount", {ascending:false}).limit(1).maybeSingle();
       userIsLeading = Number(ownBid?.amount || 0) >= Number(data.current_price || data.start_price || 0) && Number(ownBid?.amount || 0) > 0;
       if (userIsLeading) document.getElementById("msg").textContent = "Tu puja es la más alta. Podrás volver a pujar cuando alguien la supere.";
       else if (data.status === "active" && (!data.ends_at || new Date(data.ends_at) > new Date())) show("bidForm");

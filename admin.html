@@ -147,8 +147,8 @@
       status.textContent = "Actualizando...";
 
       const [{ data: lots, error: lotsError }, { data: bids, error: bidsError }, { data: people, error: peopleError }] = await Promise.all([
-        client.from("listings").select("id,title,current_price,start_price,bid_count,status,ends_at").order("created_at", { ascending:false }),
-        client.from("bids").select("id,listing_id,user_id,amount,created_at").order("created_at", { ascending:false }).limit(200),
+        client.from("listings").select("id,title,current_price,start_price,bid_count,status,ends_at,auction_round").order("created_at", { ascending:false }),
+        client.from("bids").select("id,listing_id,user_id,amount,created_at,auction_round").order("created_at", { ascending:false }).limit(200),
         client.from("profiles").select("id,full_name,phone")
       ]);
 
@@ -164,7 +164,7 @@
       const leaderByLot = {};
       (bids || []).forEach((bid) => {
         const lot = lotsById[bid.listing_id];
-        if (lot && !leaderByLot[bid.listing_id] && Number(bid.amount) === Number(lot.current_price || lot.start_price)) {
+        if (lot && Number(bid.auction_round || 1) === Number(lot.auction_round || 1) && !leaderByLot[bid.listing_id] && Number(bid.amount) === Number(lot.current_price || lot.start_price)) {
           leaderByLot[bid.listing_id] = bid;
         }
       });
@@ -180,7 +180,7 @@
         const leader = leaderBid ? peopleById[leaderBid.user_id] : null;
         const close = lot.ends_at ? new Date(lot.ends_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"short" }) : "Sin fecha";
         return `<tr>
-          <td><strong>${lot.title || "Sin título"}</strong><br><span class="muted">${lot.status === "active" ? "Activa" : "Cerrada"}</span></td>
+          <td><strong>${lot.title || "Sin título"}</strong><br><span class="muted">Ronda ${lot.auction_round || 1} · ${lot.status === "active" ? "Activa" : "Cerrada"}</span></td>
           <td class="money">${money(lot.current_price || lot.start_price)}</td>
           <td><strong>${Number(lot.bid_count || 0)}</strong></td>
           <td>${leader ? `<span class="leader">${leader.full_name || "Usuario"}</span>` : "—"}</td>
@@ -195,7 +195,7 @@
         const leading = leaderByLot[bid.listing_id]?.id === bid.id;
         return `<tr>
           <td>${new Date(bid.created_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"medium" })}</td>
-          <td>${lot?.title || "Lote eliminado"}</td>
+          <td>${lot?.title || "Lote eliminado"}<br><span class="muted">Ronda ${bid.auction_round || 1}</span></td>
           <td>${person?.full_name || "Usuario"}</td>
           <td>${person?.phone || "—"}</td>
           <td class="money">${money(bid.amount)}</td>
@@ -312,7 +312,7 @@
 
       const { data, error } = await client
         .from("listings")
-        .select("id, title, current_price, start_price, status, winner_id, ends_at")
+        .select("id, title, current_price, start_price, bid_count, auction_round, status, winner_id, ends_at")
         .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
 
@@ -325,7 +325,7 @@
         const cerrada = p.status !== "active" || vencida;
         const estado = p.status === "closed" ? "closed" : (vencida ? "closed" : "active");
         const acciones = cerrada
-          ? `<button class="ghost" data-reopen="${p.id}">Reabrir</button>
+          ? `<button class="ghost" data-reopen="${p.id}" data-round="${Number(p.auction_round || 1)}" data-start="${Number(p.start_price || 0)}">Reabrir</button>
              <button class="warn" data-dellist="${p.id}">Eliminar</button>`
           : `<button data-close="${p.id}">Cerrar</button>`;
         return `
@@ -353,10 +353,13 @@
           const { error } = await client.from("listings").update({
             status: "active",
             winner_id: null,
-            ends_at: null
+            ends_at: null,
+            current_price: Number(btn.dataset.start || 0),
+            bid_count: 0,
+            auction_round: Number(btn.dataset.round || 1) + 1
           }).eq("id", btn.dataset.reopen);
-          msg.textContent = error ? error.message : "Subasta reabierta. Ponle fecha otra vez si quieres límite.";
-          if (!error) loadListings();
+          msg.textContent = error ? error.message : "Nueva ronda iniciada. El contador y el precio se restablecieron.";
+          if (!error) { loadListings(); loadLiveBids(); }
         });
       });
 
