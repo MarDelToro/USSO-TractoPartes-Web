@@ -11,6 +11,28 @@
   <style>
     .ghost { background:#2a323e; }
     .warn { background:#b45309; }
+    main { width:min(1480px, 95vw); }
+    .live-head { display:flex; align-items:end; justify-content:space-between; gap:16px; margin-top:42px; }
+    .live-head h2 { margin-bottom:6px; }
+    .live-status { color:#8f98a3; font-size:13px; }
+    .stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:18px 0; }
+    .stat { background:#141416; border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:18px; }
+    .stat span { display:block; color:#9198a1; font-size:12px; font-weight:700; margin-bottom:6px; }
+    .stat strong { color:#f6c02a; font-size:27px; }
+    .table-wrap { width:100%; overflow-x:auto; border-radius:14px; margin-bottom:34px; -webkit-overflow-scrolling:touch; }
+    .table-wrap table { min-width:760px; margin:0; }
+    .money { color:#f6c02a; font-weight:800; white-space:nowrap; }
+    .leader { display:inline-flex; padding:5px 10px; border-radius:999px; background:rgba(74,222,128,.12); border:1px solid rgba(74,222,128,.3); color:#7ee2a8; font-size:12px; font-weight:800; white-space:nowrap; }
+    .muted { color:#8f98a3; }
+    @media(max-width:700px) {
+      main { width:94vw; margin:22px auto; }
+      .live-head { align-items:start; flex-direction:column; }
+      .stats { grid-template-columns:1fr; gap:9px; }
+      .stat { padding:14px 16px; display:flex; justify-content:space-between; align-items:center; }
+      .stat span { margin:0; }
+      .stat strong { font-size:22px; }
+      h1 { font-size:29px; }
+    }
   </style>
 </head>
 <body>
@@ -42,8 +64,28 @@
       <button type="submit">Publicar subasta</button>
     </form>
 
-    <h2>Subastas</h2>
-    <table>
+    <div class="live-head">
+      <div><h2>Control de pujas en vivo</h2><div class="live-status" id="liveStatus">Preparando seguimiento...</div></div>
+      <button class="ghost" id="refreshLive" type="button">Actualizar ahora</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>Subastas activas</span><strong id="statActive">0</strong></div>
+      <div class="stat"><span>Ofertas registradas</span><strong id="statBids">0</strong></div>
+      <div class="stat"><span>Última oferta</span><strong id="statLatest">$0</strong></div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Lote</th><th>Precio actual</th><th>Ofertas</th><th>Va ganando</th><th>WhatsApp</th><th>Cierre</th></tr></thead>
+      <tbody id="liveLots"><tr><td colspan="6">Cargando...</td></tr></tbody>
+    </table></div>
+
+    <h2>Historial de ofertas</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Hora</th><th>Lote</th><th>Usuario</th><th>WhatsApp</th><th>Cantidad</th><th>Resultado actual</th></tr></thead>
+      <tbody id="bidHistory"><tr><td colspan="6">Cargando...</td></tr></tbody>
+    </table></div>
+
+    <h2>Administrar subastas</h2>
+    <div class="table-wrap"><table>
       <thead>
         <tr>
           <th>Pieza</th>
@@ -55,10 +97,10 @@
         </tr>
       </thead>
       <tbody id="listings"></tbody>
-    </table>
+    </table></div>
 
     <h2>Usuarios</h2>
-    <table>
+    <div class="table-wrap"><table>
       <thead>
         <tr>
           <th>Nombre</th>
@@ -72,10 +114,10 @@
         </tr>
       </thead>
       <tbody id="rows"></tbody>
-    </table>
+    </table></div>
 
     <h2>Avisos pendientes</h2>
-    <table>
+    <div class="table-wrap"><table>
       <thead>
         <tr>
           <th>Pieza</th>
@@ -86,7 +128,7 @@
         </tr>
       </thead>
       <tbody id="avisos"></tbody>
-    </table>
+    </table></div>
   </main>
 
   <script>
@@ -95,6 +137,74 @@
       "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
     );
     const msg = document.getElementById("msg");
+    const money = (value) => Number(value || 0).toLocaleString("es-MX", { style:"currency", currency:"MXN", maximumFractionDigits:0 });
+    let liveLoading = false;
+
+    async function loadLiveBids() {
+      if (liveLoading) return;
+      liveLoading = true;
+      const status = document.getElementById("liveStatus");
+      status.textContent = "Actualizando...";
+
+      const [{ data: lots, error: lotsError }, { data: bids, error: bidsError }, { data: people, error: peopleError }] = await Promise.all([
+        client.from("listings").select("id,title,current_price,start_price,bid_count,status,ends_at").order("created_at", { ascending:false }),
+        client.from("bids").select("id,listing_id,user_id,amount,created_at").order("created_at", { ascending:false }).limit(200),
+        client.from("profiles").select("id,full_name,phone")
+      ]);
+
+      liveLoading = false;
+      const error = lotsError || bidsError || peopleError;
+      if (error) {
+        status.textContent = "No se pudo actualizar: " + error.message;
+        return;
+      }
+
+      const peopleById = Object.fromEntries((people || []).map((person) => [person.id, person]));
+      const lotsById = Object.fromEntries((lots || []).map((lot) => [lot.id, lot]));
+      const leaderByLot = {};
+      (bids || []).forEach((bid) => {
+        const lot = lotsById[bid.listing_id];
+        if (lot && !leaderByLot[bid.listing_id] && Number(bid.amount) === Number(lot.current_price || lot.start_price)) {
+          leaderByLot[bid.listing_id] = bid;
+        }
+      });
+
+      const activeLots = (lots || []).filter((lot) => lot.status === "active" && (!lot.ends_at || new Date(lot.ends_at) > new Date()));
+      const totalBids = (lots || []).reduce((sum, lot) => sum + Number(lot.bid_count || 0), 0);
+      document.getElementById("statActive").textContent = activeLots.length;
+      document.getElementById("statBids").textContent = totalBids;
+      document.getElementById("statLatest").textContent = bids?.length ? money(bids[0].amount) : "$0";
+
+      document.getElementById("liveLots").innerHTML = (lots || []).map((lot) => {
+        const leaderBid = leaderByLot[lot.id];
+        const leader = leaderBid ? peopleById[leaderBid.user_id] : null;
+        const close = lot.ends_at ? new Date(lot.ends_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"short" }) : "Sin fecha";
+        return `<tr>
+          <td><strong>${lot.title || "Sin título"}</strong><br><span class="muted">${lot.status === "active" ? "Activa" : "Cerrada"}</span></td>
+          <td class="money">${money(lot.current_price || lot.start_price)}</td>
+          <td><strong>${Number(lot.bid_count || 0)}</strong></td>
+          <td>${leader ? `<span class="leader">${leader.full_name || "Usuario"}</span>` : "—"}</td>
+          <td>${leader?.phone || "—"}</td>
+          <td>${close}</td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="6">No hay subastas</td></tr>`;
+
+      document.getElementById("bidHistory").innerHTML = (bids || []).map((bid) => {
+        const lot = lotsById[bid.listing_id];
+        const person = peopleById[bid.user_id];
+        const leading = leaderByLot[bid.listing_id]?.id === bid.id;
+        return `<tr>
+          <td>${new Date(bid.created_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"medium" })}</td>
+          <td>${lot?.title || "Lote eliminado"}</td>
+          <td>${person?.full_name || "Usuario"}</td>
+          <td>${person?.phone || "—"}</td>
+          <td class="money">${money(bid.amount)}</td>
+          <td>${leading ? `<span class="leader">Va ganando</span>` : `<span class="muted">Superada</span>`}</td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="6">Todavía no hay ofertas</td></tr>`;
+
+      status.textContent = "Actualizado automáticamente · " + new Date().toLocaleTimeString("es-MX");
+    }
 
     async function requireAdmin() {
       const { data: { user } } = await client.auth.getUser();
@@ -324,8 +434,11 @@
       if (!error) {
         e.target.reset();
         loadListings();
+        loadLiveBids();
       }
     });
+
+    document.getElementById("refreshLive").addEventListener("click", loadLiveBids);
 
     (async () => {
       const user = await requireAdmin();
@@ -334,6 +447,8 @@
       loadUsers();
       loadListings();
       loadAvisos();
+      loadLiveBids();
+      window.setInterval(loadLiveBids, 5000);
     })();
   </script>
 </body>
