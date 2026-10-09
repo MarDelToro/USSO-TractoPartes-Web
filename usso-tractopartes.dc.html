@@ -66,7 +66,9 @@
   .usso-winner-screen { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:24px; background:radial-gradient(circle at 50% 38%,rgba(246,192,42,.24),rgba(5,5,6,.96) 55%); text-align:center; overflow:hidden; }
   .usso-winner-screen::before,.usso-winner-screen::after { content:""; position:absolute; width:75vmax; height:75vmax; border:2px solid rgba(246,192,42,.22); border-radius:50%; animation:winnerPulse 2s ease-out infinite; }
   .usso-winner-screen::after { animation-delay:.65s; }
-  .usso-winner-card { position:relative; z-index:2; width:min(620px,94vw); padding:48px 30px; border:1px solid rgba(246,192,42,.55); border-radius:28px; background:rgba(20,20,22,.92); box-shadow:0 30px 100px rgba(0,0,0,.7); }
+  .usso-winner-card { position:relative; z-index:2; width:min(660px,94vw); padding:52px 30px; border:1px solid rgba(246,192,42,.75); border-radius:28px; background:linear-gradient(145deg,rgba(35,29,12,.97),rgba(20,20,22,.96) 55%); box-shadow:0 0 0 8px rgba(246,192,42,.05),0 30px 120px rgba(246,192,42,.25); animation:winnerCardIn .72s cubic-bezier(.2,.85,.24,1.15) both; }
+  .usso-winner-card::before { content:""; position:absolute; inset:-70%; z-index:-1; background:conic-gradient(from 0deg,transparent 0 8%,rgba(246,192,42,.12) 9% 13%,transparent 14% 24%,rgba(126,226,168,.08) 25% 29%,transparent 30% 100%); animation:winnerRays 12s linear infinite; }
+  .usso-winner-kicker { display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;background:rgba(126,226,168,.11);border:1px solid rgba(126,226,168,.32);color:#7ee2a8;font:800 11px Manrope,sans-serif;letter-spacing:.14em;text-transform:uppercase; }
   .usso-winner-trophy { font-size:74px; line-height:1; animation:winnerBounce 1s ease-in-out infinite alternate; }
   .usso-winner-screen h2 { margin:18px 0 8px; color:#7ee2a8; font:900 clamp(36px,7vw,68px)/1 'Archivo Black',sans-serif; }
   .usso-winner-screen p { margin:0 auto 24px; max-width:480px; color:#f3f1ec; font:600 17px/1.55 Manrope,sans-serif; }
@@ -83,6 +85,9 @@
   @keyframes winnerFall { to { transform:translateY(120vh) rotate(720deg); } }
   @keyframes winnerPulse { from{transform:scale(.2);opacity:.8} to{transform:scale(1.25);opacity:0} }
   @keyframes winnerBounce { from{transform:translateY(0) rotate(-3deg)} to{transform:translateY(-10px) rotate(3deg)} }
+  @keyframes winnerCardIn { from{opacity:0;transform:scale(.76) translateY(35px)} to{opacity:1;transform:scale(1) translateY(0)} }
+  @keyframes winnerRays { to{transform:rotate(360deg)} }
+  @media (prefers-reduced-motion:reduce) { .usso-winner-card,.usso-winner-card::before,.usso-winner-trophy,.usso-winner-confetti span,.usso-winner-screen::before,.usso-winner-screen::after { animation:none !important; } }
   .usso-inventory-grid, .usso-auctions-grid, .usso-videos-grid { display: flex !important; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); scrollbar-width: none; padding-bottom: 4px; }
   .usso-inventory-grid::-webkit-scrollbar, .usso-auctions-grid::-webkit-scrollbar, .usso-videos-grid::-webkit-scrollbar { display: none; }
   .usso-inventory-grid > div, .usso-auctions-grid > div, .usso-videos-grid > div { scroll-snap-align: center; scroll-snap-stop: always; transform-origin: center; transition: transform 0.2s ease-out, opacity 0.2s ease-out; }
@@ -549,10 +554,11 @@
     <div class="usso-winner-screen" role="dialog" aria-modal="true" aria-label="Ganaste la subasta">
       <div class="usso-winner-confetti"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <div class="usso-winner-card">
+        <span class="usso-winner-kicker">Resultado oficial USSO</span>
         <div class="usso-winner-trophy">🏆</div>
         <h2>¡TÚ ERES EL GANADOR!</h2>
-        <p>Felicidades, ganaste <strong>{{ winnerCelebrationTitle }}</strong> con una oferta final de <strong>{{ winnerCelebrationAmount }}</strong>. La compra ya quedó registrada en tu cuenta y USSO se pondrá en contacto contigo.</p>
-        <button onClick="{{ closeWinnerCelebration }}">Continuar</button>
+        <p>¡Lo lograste! <strong>{{ winnerCelebrationTitle }}</strong> es tuyo por <strong>{{ winnerCelebrationAmount }}</strong>. La compra quedó registrada y USSO se pondrá en contacto contigo para continuar.</p>
+        <button onClick="{{ closeWinnerCelebration }}">Ver mi compra</button>
       </div>
     </div>
   </sc-if>
@@ -560,9 +566,9 @@
   <sc-if value="{{ lossCelebrationOpen }}" hint-placeholder-val="{{ false }}">
     <div class="usso-loser-screen" role="dialog" aria-modal="true" aria-label="Resultado de la subasta">
       <div class="usso-loser-card">
-        <div class="icon">🤝</div>
+        <div class="icon">○</div>
         <h2>ESTA VEZ NO GANASTE</h2>
-        <p>La subasta de <strong>{{ lossCelebrationTitle }}</strong> terminó en <strong>{{ lossCelebrationAmount }}</strong>. Gracias por participar; tu historial ya quedó actualizado y pronto habrá nuevas oportunidades.</p>
+        <p><strong>{{ lossCelebrationTitle }}</strong> terminó en <strong>{{ lossCelebrationAmount }}</strong>. Tu historial ya fue actualizado. Habrá nuevas oportunidades.</p>
         <button onClick="{{ closeLossCelebration }}">Entendido</button>
       </div>
     </div>
@@ -1467,7 +1473,34 @@ class Component extends DCLogic {
     this.setState({ winnerCelebration:null });
   };
 
-  closeLossCelebration = () => this.setState({ lossCelebration:null });
+  closeLossCelebration = () => {
+    if (this.lossTimer) clearTimeout(this.lossTimer);
+    this.setState({ lossCelebration:null });
+  };
+
+  playOutcomeSound(type) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = this.outcomeAudioContext || (this.outcomeAudioContext = new AudioCtx());
+      if (ctx.state === 'suspended') ctx.resume();
+      const notes = type === 'win'
+        ? [[523.25,0,.18],[659.25,.16,.2],[783.99,.32,.22],[1046.5,.52,.5]]
+        : [[329.63,0,.18],[293.66,.19,.28]];
+      notes.forEach(([frequency, delay, duration]) => {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        oscillator.type = type === 'win' ? 'triangle' : 'sine';
+        oscillator.frequency.setValueAtTime(frequency, ctx.currentTime + delay);
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(type === 'win' ? 0.16 : 0.045, ctx.currentTime + delay + .025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + duration);
+        oscillator.connect(gain).connect(ctx.destination);
+        oscillator.start(ctx.currentTime + delay);
+        oscillator.stop(ctx.currentTime + delay + duration + .04);
+      });
+    } catch (e) {}
+  }
 
   showLostAuction(listing) {
     const round = Number(listing.auctionRound || listing.auction_round || 1);
@@ -1477,6 +1510,9 @@ class Component extends DCLogic {
       localStorage.setItem(key, '1');
     } catch (e) {}
     this.setState({ lossCelebration:{ title:listing.title || 'la subasta', amount:Number(listing.bid || listing.current_price || listing.start_price || 0) } });
+    this.playOutcomeSound('loss');
+    if (this.lossTimer) clearTimeout(this.lossTimer);
+    this.lossTimer = setTimeout(this.closeLossCelebration, 7000);
   }
 
   celebrateWinner(listing) {
@@ -1487,6 +1523,8 @@ class Component extends DCLogic {
       localStorage.setItem(key, '1');
     } catch (e) {}
     this.setState({ winnerCelebration:{ title:listing.title || 'la subasta', amount:Number(listing.bid || listing.current_price || listing.start_price || 0) } });
+    this.playOutcomeSound('win');
+    try { if (navigator.vibrate) navigator.vibrate([80,45,110,45,180]); } catch (e) {}
     if (this.winnerTimer) clearTimeout(this.winnerTimer);
     this.winnerTimer = setTimeout(this.closeWinnerCelebration, 12000);
   }
