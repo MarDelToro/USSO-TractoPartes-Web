@@ -238,7 +238,7 @@
       <tbody id="notificationPrefs"><tr><td colspan="7">Cargando...</td></tr></tbody>
     </table></div>
 
-    <div class="section-head" id="avisos-admin"><div><h2>Avisos y seguimiento</h2><p>Filtra los mensajes y atiende primero los pendientes.</p></div><div class="section-tools" id="noticeFilters"><button class="filter-chip active" data-notice-filter="pending">Pendientes</button><button class="filter-chip" data-notice-filter="today">Hoy</button><button class="filter-chip" data-notice-filter="week">7 días</button><button class="filter-chip" data-notice-filter="all">Todos</button></div></div>
+    <div class="section-head" id="avisos-admin"><div><h2>Avisos y seguimiento</h2><p>Filtra los mensajes y atiende primero los pendientes.</p></div><div class="section-tools" id="noticeFilters"><button class="filter-chip active" data-notice-filter="pending">Pendientes</button><button class="filter-chip" data-notice-filter="results">Ganadores</button><button class="filter-chip" data-notice-filter="today">Hoy</button><button class="filter-chip" data-notice-filter="week">7 días</button><button class="filter-chip" data-notice-filter="all">Todos</button></div></div>
     <div class="table-wrap compact-history"><table>
       <thead>
         <tr>
@@ -653,6 +653,7 @@
       const visible = allNotices.filter((n) => {
         const stamp = new Date(n.created_at || 0).getTime();
         if (noticeFilter === "pending") return n.status !== "sent";
+        if (noticeFilter === "results") return n.notification_type === "auction_won";
         if (noticeFilter === "today") return stamp >= startToday.getTime();
         if (noticeFilter === "week") return stamp >= now - 7 * 86400000;
         return true;
@@ -661,7 +662,7 @@
         const tel = (n.phone || "").replace(/\D/g, "");
         const wa = tel ? `https://wa.me/52${tel.slice(-10)}?text=${encodeURIComponent(n.message)}` : "";
         const created = n.created_at ? new Date(n.created_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"short" }) : "—";
-        return `<tr><td>${n.title || ""}</td><td>${n.phone || "-"}</td><td>${n.message || ""}</td><td>${created}</td><td><span class="status-badge ${n.status === "sent" ? "status-approved" : "status-pending"}">${n.status === "sent" ? "Enviado" : "Pendiente"}</span></td><td>${wa ? `<a class="notice-link" href="${wa}" target="_blank" data-sent="${n.id}">Abrir WhatsApp</a>` : `<span class="muted">Sin número</span>`}</td></tr>`;
+        return `<tr><td>${n.title || ""}</td><td>${n.phone || "-"}</td><td>${n.message || ""}</td><td>${created}</td><td><span class="status-badge ${n.status === "sent" ? "status-approved" : "status-pending"}">${n.status === "sent" ? "Enviado" : (n.notification_type === "auction_won" ? "Ganador" : "Pendiente")}</span></td><td>${wa ? `<a class="notice-link" href="${wa}" target="_blank" ${n.synthetic ? `data-result-sent="${n.id}"` : `data-sent="${n.id}"`}>Abrir WhatsApp</a>` : `<span class="muted">Sin número</span>`}</td></tr>`;
       }).join("") || `<tr><td colspan="6">No hay avisos en este filtro.</td></tr>`;
       document.querySelectorAll("[data-sent]").forEach((a) => a.addEventListener("click", async () => {
         await client.from("notifications").update({ status:"sent" }).eq("id", a.dataset.sent);
@@ -669,15 +670,50 @@
         if (notice) notice.status = "sent";
         window.setTimeout(renderAvisos, 350);
       }));
+      document.querySelectorAll("[data-result-sent]").forEach((a) => a.addEventListener("click", () => {
+        const ids = JSON.parse(localStorage.getItem("usso_admin_results_sent") || "[]");
+        if (!ids.includes(a.dataset.resultSent)) ids.push(a.dataset.resultSent);
+        localStorage.setItem("usso_admin_results_sent", JSON.stringify(ids));
+        const notice = allNotices.find((item) => item.id === a.dataset.resultSent);
+        if (notice) notice.status = "sent";
+        window.setTimeout(renderAvisos, 350);
+      }));
     }
 
     async function loadAvisos() {
-      const { data, error } = await client
-        .from("notifications")
-        .select("id, title, phone, message, status, created_at")
-        .order("created_at", { ascending: false });
-      if (error) return msg.textContent = error.message;
-      allNotices = data || [];
+      const [noticeResult, profileResult, listingResult] = await Promise.all([
+        client.from("notifications").select("id, user_id, listing_id, title, phone, message, status, created_at, notification_type, auction_round").order("created_at", { ascending:false }),
+        client.from("profiles").select("id, full_name, phone"),
+        client.from("listings").select("id, title, current_price, start_price, status, winner_id, ends_at, auction_round").eq("status", "closed")
+      ]);
+      if (noticeResult.error) return msg.textContent = noticeResult.error.message;
+      const profiles = profileResult.data || [];
+      const profileById = Object.fromEntries(profiles.map((profile) => [profile.id, profile]));
+      const notices = (noticeResult.data || []).map((notice) => ({
+        ...notice,
+        phone: notice.phone || profileById[notice.user_id]?.phone || ""
+      }));
+      const winnerKeys = new Set(notices.filter((notice) => notice.notification_type === "auction_won").map((notice) => `${notice.listing_id}:${Number(notice.auction_round || 1)}`));
+      let sentResults = [];
+      try { sentResults = JSON.parse(localStorage.getItem("usso_admin_results_sent") || "[]"); } catch (e) {}
+      const results = (listingResult.data || []).filter((listing) => listing.winner_id && !winnerKeys.has(`${listing.id}:${Number(listing.auction_round || 1)}`)).map((listing) => {
+        const profile = profileById[listing.winner_id] || {};
+        const id = `winner-${listing.id}-${Number(listing.auction_round || 1)}`;
+        return {
+          id,
+          user_id:listing.winner_id,
+          listing_id:listing.id,
+          title:listing.title,
+          phone:profile.phone || "",
+          message:`Ganador: ${profile.full_name || "Usuario"}. ${listing.title} finalizó en ${money(listing.current_price || listing.start_price)}.`,
+          status:sentResults.includes(id) ? "sent" : "pending",
+          created_at:listing.ends_at,
+          notification_type:"auction_won",
+          auction_round:Number(listing.auction_round || 1),
+          synthetic:true
+        };
+      });
+      allNotices = [...results, ...notices].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
       renderAvisos();
     }
 

@@ -71,6 +71,12 @@
   .usso-winner-screen h2 { margin:18px 0 8px; color:#7ee2a8; font:900 clamp(36px,7vw,68px)/1 'Archivo Black',sans-serif; }
   .usso-winner-screen p { margin:0 auto 24px; max-width:480px; color:#f3f1ec; font:600 17px/1.55 Manrope,sans-serif; }
   .usso-winner-screen button { border:0; border-radius:999px; padding:14px 24px; background:#f6c02a; color:#0a0a0b; font:800 14px Manrope,sans-serif; cursor:pointer; }
+  .usso-loser-screen { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:24px; background:radial-gradient(circle at 50% 38%,rgba(246,192,42,.12),rgba(5,5,6,.97) 58%); text-align:center; }
+  .usso-loser-card { width:min(600px,94vw); padding:44px 30px; border:1px solid rgba(246,192,42,.34); border-radius:28px; background:rgba(20,20,22,.96); box-shadow:0 30px 100px rgba(0,0,0,.72); }
+  .usso-loser-card .icon { font-size:62px; line-height:1; }
+  .usso-loser-card h2 { margin:18px 0 10px; color:#f3f1ec; font:900 clamp(31px,6vw,54px)/1.05 'Archivo Black',sans-serif; }
+  .usso-loser-card p { margin:0 auto 24px; max-width:470px; color:rgba(243,241,236,.72); font:600 16px/1.6 Manrope,sans-serif; }
+  .usso-loser-card button { border:0; border-radius:999px; padding:14px 26px; background:#f6c02a; color:#0a0a0b; font:800 14px Manrope,sans-serif; cursor:pointer; }
   .usso-winner-confetti span { position:absolute; top:-10%; width:10px; height:20px; background:#f6c02a; animation:winnerFall 3.5s linear infinite; }
   .usso-winner-confetti span:nth-child(2n){background:#7ee2a8}.usso-winner-confetti span:nth-child(3n){background:#fff}.usso-winner-confetti span:nth-child(4n){background:#ff5c52}
   .usso-winner-confetti span:nth-child(1){left:8%}.usso-winner-confetti span:nth-child(2){left:17%;animation-delay:.4s}.usso-winner-confetti span:nth-child(3){left:29%;animation-delay:1.1s}.usso-winner-confetti span:nth-child(4){left:41%;animation-delay:.2s}.usso-winner-confetti span:nth-child(5){left:53%;animation-delay:1.5s}.usso-winner-confetti span:nth-child(6){left:64%;animation-delay:.7s}.usso-winner-confetti span:nth-child(7){left:76%;animation-delay:1.8s}.usso-winner-confetti span:nth-child(8){left:88%;animation-delay:.9s}.usso-winner-confetti span:nth-child(9){left:95%;animation-delay:1.3s}
@@ -546,6 +552,17 @@
     </div>
   </sc-if>
 
+  <sc-if value="{{ lossCelebrationOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="usso-loser-screen" role="dialog" aria-modal="true" aria-label="Resultado de la subasta">
+      <div class="usso-loser-card">
+        <div class="icon">🤝</div>
+        <h2>ESTA VEZ NO GANASTE</h2>
+        <p>La subasta de <strong>{{ lossCelebrationTitle }}</strong> terminó en <strong>{{ lossCelebrationAmount }}</strong>. Gracias por participar; tu historial ya quedó actualizado y pronto habrá nuevas oportunidades.</p>
+        <button onClick="{{ closeLossCelebration }}">Entendido</button>
+      </div>
+    </div>
+  </sc-if>
+
   <!-- HERO -->
   <section id="hero" data-screen-label="Hero" class="usso-hero-section" style="min-height:88vh;display:flex;align-items:center;padding:120px 48px 100px;position:relative;background:#0a0a0b;overflow:hidden">
     <img src="assets/hero-truck-wide.webp" alt="Camión USSO Tractopartes" class="usso-hero-truck-photo" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:72% center;z-index:0">
@@ -948,7 +965,7 @@ class Component extends DCLogic {
     notifOpen: false, accountOpen: false, notifs: [],
     notifPrefs: { superada: true, cierre: true, gane: true, perdi: true, favorita: true },
     bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', watching: {},
-    myBids: {}, winnerCelebration: null, accountHistory: [] };
+    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [] };
   videoRef = null;
   observer = null;
 
@@ -1445,6 +1462,18 @@ class Component extends DCLogic {
     this.setState({ winnerCelebration:null });
   };
 
+  closeLossCelebration = () => this.setState({ lossCelebration:null });
+
+  showLostAuction(listing) {
+    const round = Number(listing.auctionRound || listing.auction_round || 1);
+    const key = `usso_loss_seen_${listing.id}_${round}`;
+    try {
+      if (localStorage.getItem(key) === '1') return;
+      localStorage.setItem(key, '1');
+    } catch (e) {}
+    this.setState({ lossCelebration:{ title:listing.title || 'la subasta', amount:Number(listing.bid || listing.current_price || listing.start_price || 0) } });
+  }
+
   celebrateWinner(listing) {
     const round = Number(listing.auction_round || 1);
     const key = `usso_winner_seen_${listing.id}_${round}`;
@@ -1587,6 +1616,7 @@ async syncAuthFromSupabase() {
     ? { ...this.state.notifPrefs, ...profile.notification_preferences }
     : this.state.notifPrefs;
   const accountHistory = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && (ownBids || []).some((bid) => bid.listing_id === lot.id && Number(bid.auction_round || 1) === Number(lot.auctionRound || 1))).map((lot) => ({ id:lot.id, title:lot.title, round:lot.auctionRound, finalPrice:lot.bid, outcome:lot.winnerId === user.id ? 'won' : 'lost' }));
+  const recentLost = this.rawAuctionItems.find((lot) => lot.status === 'Finalizada' && lot.winnerId && lot.winnerId !== user.id && lot.closesAt && Date.now() - Number(lot.closesAt) >= 0 && Date.now() - Number(lot.closesAt) < 5 * 60 * 1000 && (ownBids || []).some((bid) => bid.listing_id === lot.id && Number(bid.auction_round || 1) === Number(lot.auctionRound || 1)));
   const { data: serverNotifs } = await client.from('notifications').select('id,title,message,created_at,user_id').eq('user_id', user.id).order('created_at', { ascending:false }).limit(50);
   const localNotifs = this.state.notifs || [];
   const localById = Object.fromEntries(localNotifs.map((n) => [n.id, n]));
@@ -1607,6 +1637,7 @@ async syncAuthFromSupabase() {
     accountHistory,
     notifs: mergedNotifs
   }, () => {
+    if (recentLost) this.showLostAuction(recentLost);
     const params = new URLSearchParams(window.location.search);
     if (params.get('cuenta') === '1') {
       this.setState({ accountOpen: true, notifOpen: false });
@@ -2018,6 +2049,10 @@ submitAuth = async (e) => {
       winnerCelebrationTitle: st.winnerCelebration ? st.winnerCelebration.title : '',
       winnerCelebrationAmount: st.winnerCelebration ? this.formatMoney(st.winnerCelebration.amount) : '',
       closeWinnerCelebration: this.closeWinnerCelebration,
+      lossCelebrationOpen: !!st.lossCelebration,
+      lossCelebrationTitle: st.lossCelebration ? st.lossCelebration.title : '',
+      lossCelebrationAmount: st.lossCelebration ? this.formatMoney(st.lossCelebration.amount) : '',
+      closeLossCelebration: this.closeLossCelebration,
 
       authOpen: st.authOpen,
       authIsRegistro: st.authOpen && st.authMode === 'registro',
