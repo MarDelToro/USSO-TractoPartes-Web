@@ -1713,7 +1713,13 @@ async syncAuthFromSupabase() {
   const lostCandidates = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && lot.winnerId && lot.winnerId !== user.id && participatedInRound(lot)).sort(newestFirst);
   const wonAuction = wonCandidates.find((lot) => !this.hasSeenOutcome('winner', lot, user.id));
   const lostAuction = lostCandidates.find((lot) => !this.hasSeenOutcome('loss', lot, user.id));
-  const { data: serverNotifs } = await client.from('notifications').select('id,title,message,created_at,user_id').eq('user_id', user.id).order('created_at', { ascending:false }).limit(50);
+  const { data: serverNotifs } = await client.from('notifications').select('id,title,message,amount,created_at,user_id,listing_id,notification_type,auction_round').eq('user_id', user.id).order('created_at', { ascending:false }).limit(50);
+  const resultNotices = (serverNotifs || []).filter((notice) => notice.notification_type === 'auction_won' || notice.notification_type === 'auction_lost');
+  const unseenResultNotice = resultNotices.find((notice) => {
+    const type = notice.notification_type === 'auction_won' ? 'winner' : 'loss';
+    const pseudoListing = { id:notice.listing_id || notice.id, auctionRound:Number(notice.auction_round || 1) };
+    return !this.hasSeenOutcome(type, pseudoListing, user.id);
+  });
   const localNotifs = this.state.notifs || [];
   const localById = Object.fromEntries(localNotifs.map((n) => [n.id, n]));
   const persistentNotifs = (serverNotifs || []).map((n) => {
@@ -1739,9 +1745,24 @@ async syncAuthFromSupabase() {
   }, () => {
     if (wonAuction) this.celebrateWinner(wonAuction, user.id);
     else if (lostAuction) this.showLostAuction(lostAuction, user.id);
+    else if (unseenResultNotice) {
+      const type = unseenResultNotice.notification_type === 'auction_won' ? 'winner' : 'loss';
+      const noticeListing = {
+        id:unseenResultNotice.listing_id || unseenResultNotice.id,
+        auctionRound:Number(unseenResultNotice.auction_round || 1),
+        title:unseenResultNotice.title || 'La subasta',
+        current_price:Number(unseenResultNotice.amount || 0)
+      };
+      if (type === 'winner') this.celebrateWinner(noticeListing, user.id);
+      else this.showLostAuction(noticeListing, user.id);
+    }
     [...wonCandidates, ...lostCandidates].forEach((lot) => {
       const type = lot.winnerId === user.id ? 'winner' : 'loss';
       this.markOutcomeSeen(type, lot, user.id);
+    });
+    resultNotices.forEach((notice) => {
+      const type = notice.notification_type === 'auction_won' ? 'winner' : 'loss';
+      this.markOutcomeSeen(type, { id:notice.listing_id || notice.id, auctionRound:Number(notice.auction_round || 1) }, user.id);
     });
     const params = new URLSearchParams(window.location.search);
     if (params.get('cuenta') === '1') {
