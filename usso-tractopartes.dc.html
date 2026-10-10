@@ -558,7 +558,7 @@
         <div style="margin:0 0 26px">
           <div style="display:flex;align-items:end;justify-content:space-between;gap:14px;margin-bottom:12px"><div><h3 style="font:800 15px Manrope,sans-serif;color:var(--text);margin:0 0 4px">Mis compras y subastas</h3><p style="font:500 12px Manrope,sans-serif;color:rgba(var(--text-rgb),.48);margin:0">Tu registro se actualiza automáticamente.</p></div><span style="font:800 11px Manrope,sans-serif;color:#7ee2a8;white-space:nowrap">{{ wonAuctionsCount }} ganadas</span></div>
           <sc-if value="{{ hasWonAuctions }}" hint-placeholder-val="{{ true }}"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px"><div style="padding:13px 14px;border-radius:13px;background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.2)"><span style="display:block;color:rgba(var(--text-rgb),.48);font:700 10px Manrope,sans-serif;text-transform:uppercase;letter-spacing:.08em">Total gastado</span><strong style="display:block;color:#7ee2a8;font:800 17px Manrope,sans-serif;margin-top:4px">{{ totalSpent }}</strong></div><div style="padding:13px 14px;border-radius:13px;background:rgba(246,192,42,.06);border:1px solid rgba(246,192,42,.18)"><span style="display:block;color:rgba(var(--text-rgb),.48);font:700 10px Manrope,sans-serif;text-transform:uppercase;letter-spacing:.08em">Compras</span><strong style="display:block;color:{{ accent }};font:800 17px Manrope,sans-serif;margin-top:4px">{{ wonAuctionsCount }}</strong></div></div><a href="MisCompras.html" style="display:flex;align-items:center;justify-content:center;width:100%;margin-bottom:12px;background:{{ accent }};color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:12px;border-radius:100px;text-decoration:none">Ver historial completo de compras</a></sc-if>
-          <sc-if value="{{ hasAccountHistory }}" hint-placeholder-val="{{ true }}"><div style="max-height:230px;overflow:auto;border:1px solid rgba(var(--border-rgb),.09);border-radius:14px"><sc-for list="{{ accountHistory }}" as="h" hint-placeholder-count="3"><button onClick="{{ h.open }}" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:13px 15px;border:0;border-bottom:1px solid rgba(var(--border-rgb),.07);background:transparent;width:100%;text-align:left;cursor:{{ h.cursor }}"><div style="min-width:0"><strong style="display:block;color:var(--text);font:800 13px Manrope,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.title }}</strong><span style="color:rgba(var(--text-rgb),.46);font:600 11px Manrope,sans-serif">Ronda {{ h.round }} · Final {{ h.finalPrice }}</span></div><span style="align-self:center;padding:6px 9px;border-radius:999px;background:{{ h.bg }};border:1px solid {{ h.border }};color:{{ h.color }};font:800 10px Manrope,sans-serif;white-space:nowrap">{{ h.label }}</span></button></sc-for></div></sc-if>
+          <sc-if value="{{ hasAccountHistory }}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:7px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none"><sc-for list="{{ historyFilters }}" as="f" hint-placeholder-count="3"><button onClick="{{ f.select }}" style="flex:none;padding:7px 10px;border-radius:999px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.color }};font:800 10px Manrope,sans-serif;cursor:pointer">{{ f.label }} · {{ f.count }}</button></sc-for></div><div style="max-height:230px;overflow:auto;border:1px solid rgba(var(--border-rgb),.09);border-radius:14px"><sc-for list="{{ accountHistory }}" as="h" hint-placeholder-count="3"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto 30px;align-items:center;gap:10px;padding:13px 12px 13px 15px;border-bottom:1px solid rgba(var(--border-rgb),.07);background:transparent;width:100%"><button onClick="{{ h.open }}" style="min-width:0;border:0;background:transparent;padding:0;text-align:left;cursor:{{ h.cursor }}"><strong style="display:block;color:var(--text);font:800 13px Manrope,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.title }}</strong><span style="color:rgba(var(--text-rgb),.46);font:600 11px Manrope,sans-serif">Ronda {{ h.round }} · Final {{ h.finalPrice }}</span></button><span style="padding:6px 9px;border-radius:999px;background:{{ h.bg }};border:1px solid {{ h.border }};color:{{ h.color }};font:800 10px Manrope,sans-serif;white-space:nowrap">{{ h.label }}</span><button onClick="{{ h.dismiss }}" aria-label="Ocultar del historial" title="Ocultar" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(var(--border-rgb),.1);background:rgba(var(--border-rgb),.035);color:rgba(var(--text-rgb),.48);font:700 17px/1 Manrope,sans-serif;cursor:pointer">×</button></div></sc-for><sc-if value="{{ noFilteredAccountHistory }}" hint-placeholder-val="{{ false }}"><div style="padding:18px;text-align:center;color:rgba(var(--text-rgb),.45);font:600 12px Manrope,sans-serif">No hay registros en este filtro.</div></sc-if></div></sc-if>
           <sc-if value="{{ noAccountHistory }}" hint-placeholder-val="{{ false }}"><div style="padding:18px;border:1px dashed rgba(var(--border-rgb),.12);border-radius:14px;color:rgba(var(--text-rgb),.48);font:600 12px/1.5 Manrope,sans-serif;text-align:center">Aquí aparecerán las subastas en las que participes y las compras que ganes.</div></sc-if>
         </div>
 
@@ -1069,7 +1069,7 @@ class Component extends DCLogic {
     notifOpen: false, notifFilter: 'all', accountOpen: false, notifs: [],
     notifPrefs: { superada: true, cierre: true, gane: true, perdi: true, favorita: true },
     bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', watching: {},
-    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [] };
+    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all' };
   videoRef = null;
   observer = null;
   // La ventana grande solo corresponde a resultados ocurridos mientras esta
@@ -1558,6 +1558,14 @@ class Component extends DCLogic {
     if (v && this._settled[key] === true) {
       return { opacity: 1, transform: 'none', filter: 'none', transition };
     }
+    const historyAll = st.accountHistory || [];
+    const historyFiltered = historyAll.filter((item) => st.historyFilter === 'all' || item.outcome === st.historyFilter);
+    const historyFilterOptions = [
+      { id:'all', label:'Todas', count:historyAll.length },
+      { id:'won', label:'Ganadas', count:historyAll.filter((item) => item.outcome === 'won').length },
+      { id:'lost', label:'No ganadas', count:historyAll.filter((item) => item.outcome === 'lost').length }
+    ];
+
     return {
       opacity: v ? 1 : 0,
       transform: `translateY(${v ? 0 : y * mult}px) scale(${v ? 1 : 1 - (1 - scale) * mult})`,
@@ -1881,9 +1889,10 @@ async syncAuthFromSupabase() {
   }
   const profile = profileResult.data;
   if (!profile) return;
-  const [{ data: ownBids }, watchResult] = await Promise.all([
+  const [{ data: ownBids }, watchResult, hiddenHistoryResult] = await Promise.all([
     client.from("bids").select("listing_id, amount, auction_round, created_at").eq("user_id", user.id),
-    client.from("auction_watchers").select("listing_id").eq("user_id", user.id)
+    client.from("auction_watchers").select("listing_id").eq("user_id", user.id),
+    client.from("auction_history_preferences").select("listing_id,auction_round").eq("user_id", user.id).not("hidden_at", "is", null)
   ]);
   const myBids = (ownBids || []).reduce((result, bid) => {
     const lot = this.rawAuctionItems.find((item) => item.id === bid.listing_id);
@@ -1894,7 +1903,8 @@ async syncAuthFromSupabase() {
   const savedPrefs = profile.notification_preferences && typeof profile.notification_preferences === "object"
     ? { ...this.state.notifPrefs, ...profile.notification_preferences }
     : this.state.notifPrefs;
-  const accountHistory = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && (ownBids || []).some((bid) => bid.listing_id === lot.id && Number(bid.auction_round || 1) === Number(lot.auctionRound || 1))).map((lot) => ({ id:lot.id, title:lot.title, round:lot.auctionRound, finalPrice:lot.bid, outcome:lot.winnerId === user.id ? 'won' : 'lost' }));
+  const hiddenHistory = new Set((hiddenHistoryResult.data || []).map((item) => `${item.listing_id}:${Number(item.auction_round || 1)}`));
+  const accountHistory = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && !hiddenHistory.has(`${lot.id}:${Number(lot.auctionRound || 1)}`) && (ownBids || []).some((bid) => bid.listing_id === lot.id && Number(bid.auction_round || 1) === Number(lot.auctionRound || 1))).map((lot) => ({ id:lot.id, title:lot.title, round:lot.auctionRound, finalPrice:lot.bid, outcome:lot.winnerId === user.id ? 'won' : 'lost' }));
   const participatedInRound = (lot) => (ownBids || []).some((bid) => bid.listing_id === lot.id && Number(bid.auction_round || 1) === Number(lot.auctionRound || 1));
   const newestFirst = (a, b) => Number(b.closesAt || 0) - Number(a.closesAt || 0);
   const wonCandidates = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && lot.winnerId === user.id && participatedInRound(lot)).sort(newestFirst);
@@ -2203,6 +2213,14 @@ submitAuth = async (e) => {
   toggleAccount = () => this.setState((s) => ({ accountOpen: !s.accountOpen, notifOpen: false }));
   closeAccount = () => this.setState({ accountOpen: false });
   openAccountFromMenu = () => this.setState({ mobileMenuOpen: false, accountOpen: true });
+  setHistoryFilter = (filter) => () => this.setState({ historyFilter:filter });
+  dismissHistoryItem = (item) => async (event) => {
+    if (event && event.stopPropagation) event.stopPropagation();
+    this.setState((s) => ({ accountHistory:(s.accountHistory || []).filter((history) => !(history.id === item.id && Number(history.round || 1) === Number(item.round || 1))) }));
+    const client = this.notificationClient();
+    if (!client || !this.state.user) return;
+    await client.from('auction_history_preferences').upsert({ user_id:this.state.user.id, listing_id:item.id, auction_round:Number(item.round || 1), hidden_at:new Date().toISOString() }, { onConflict:'user_id,listing_id,auction_round' });
+  };
   togglePref = (key) => () => {
     this.setState((s) => ({ notifPrefs: { ...s.notifPrefs, [key]: !s.notifPrefs[key] } }), async () => {
       this.persist();
@@ -2437,12 +2455,14 @@ submitAuth = async (e) => {
       userCiudad: u ? u.ciudad : '',
       userWhatsapp: u ? u.whatsapp : '',
       userMemberNumber: u && u.memberNumber ? `USSO-${String(u.memberNumber).padStart(6, '0')}` : 'Pendiente de asignar',
-      accountHistory: (st.accountHistory || []).map((item) => item.outcome === 'won' ? { ...item, label:'GANADA · COMPRA', color:'#7ee2a8', bg:'rgba(74,222,128,.1)', border:'rgba(74,222,128,.3)', cursor:'pointer', open:() => { window.location.href = `Compra.dc.html#${encodeURIComponent(item.id)}`; } } : { ...item, label:'PERDIDA', color:'#ff9a91', bg:'rgba(255,92,82,.09)', border:'rgba(255,92,82,.26)', cursor:'default', open:() => {} }),
-      hasAccountHistory: (st.accountHistory || []).length > 0,
-      noAccountHistory: (st.accountHistory || []).length === 0,
-      wonAuctionsCount: (st.accountHistory || []).filter((item) => item.outcome === 'won').length,
-      hasWonAuctions: (st.accountHistory || []).some((item) => item.outcome === 'won'),
-      totalSpent: this.formatMoney((st.accountHistory || []).filter((item) => item.outcome === 'won').reduce((sum,item) => sum + this.parseMoney(item.finalPrice), 0)),
+      accountHistory: historyFiltered.map((item) => item.outcome === 'won' ? { ...item, finalPrice:this.formatMoney(this.parseMoney(item.finalPrice)), label:'GANADA · COMPRA', color:'#7ee2a8', bg:'rgba(74,222,128,.1)', border:'rgba(74,222,128,.3)', cursor:'pointer', open:() => { window.location.href = `Compra.dc.html#${encodeURIComponent(item.id)}`; }, dismiss:this.dismissHistoryItem(item) } : { ...item, finalPrice:this.formatMoney(this.parseMoney(item.finalPrice)), label:'PERDIDA', color:'#ff9a91', bg:'rgba(255,92,82,.09)', border:'rgba(255,92,82,.26)', cursor:'default', open:() => {}, dismiss:this.dismissHistoryItem(item) }),
+      historyFilters:historyFilterOptions.map((filter) => ({ ...filter, select:this.setHistoryFilter(filter.id), bg:st.historyFilter === filter.id ? accent : 'rgba(255,255,255,.035)', border:st.historyFilter === filter.id ? accent : 'rgba(255,255,255,.1)', color:st.historyFilter === filter.id ? '#0a0a0b' : 'rgba(243,241,236,.65)' })),
+      hasAccountHistory: historyAll.length > 0,
+      noAccountHistory: historyAll.length === 0,
+      noFilteredAccountHistory:historyFiltered.length === 0,
+      wonAuctionsCount: historyAll.filter((item) => item.outcome === 'won').length,
+      hasWonAuctions: historyAll.some((item) => item.outcome === 'won'),
+      totalSpent: this.formatMoney(historyAll.filter((item) => item.outcome === 'won').reduce((sum,item) => sum + this.parseMoney(item.finalPrice), 0)),
       winnerCelebrationOpen: !!st.winnerCelebration,
       winnerCelebrationTitle: st.winnerCelebration ? st.winnerCelebration.title : '',
       winnerCelebrationAmount: st.winnerCelebration ? this.formatMoney(st.winnerCelebration.amount) : '',
