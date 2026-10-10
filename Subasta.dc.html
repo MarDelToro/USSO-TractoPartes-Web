@@ -226,9 +226,20 @@
 
     async function load() {
       if (!lotId) return renderNotFound();
-      const {data, error} = await client.from("listings")
+      let listingResult = await client.from("listings")
         .select("id,title,description,image_url,media_urls,product_details,start_price,current_price,status,starts_at,ends_at,category,auction_round,bid_count,winner_id")
         .eq("id", lotId).single();
+      if (listingResult.error) {
+        listingResult = await client.from("listings")
+          .select("id,title,description,image_url,start_price,current_price,status,starts_at,ends_at,category,auction_round,bid_count,winner_id")
+          .eq("id", lotId).single();
+      }
+      const {data:rawListing, error} = listingResult;
+      const data = rawListing ? {
+        ...rawListing,
+        media_urls: Array.isArray(rawListing.media_urls) ? rawListing.media_urls : (rawListing.image_url ? [{ type:"image", url:rawListing.image_url }] : []),
+        product_details: Array.isArray(rawListing.product_details) ? rawListing.product_details : []
+      } : null;
       if (error || !data) return renderNotFound();
       listing = data;
       hide("loading"); show("detail");

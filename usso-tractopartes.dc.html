@@ -528,6 +528,11 @@
           </div>
         </div>
 
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-10px 0 18px;padding:12px 14px;border:1px solid rgba(var(--border-rgb),.1);border-radius:13px;background:rgba(var(--border-rgb),.025)">
+          <span style="font:700 11px Manrope,sans-serif;color:rgba(var(--text-rgb),.48);text-transform:uppercase;letter-spacing:.08em">Número de miembro</span>
+          <strong style="font:800 13px Manrope,sans-serif;color:{{ accent }};letter-spacing:.05em">{{ userMemberNumber }}</strong>
+        </div>
+
         <div style="background:{{ bidStatusBg }};border:1px solid {{ bidStatusBorder }};border-radius:14px;padding:18px;margin-bottom:26px">
           <p style="font:800 13px Manrope,sans-serif;color:{{ bidStatusColor }};margin:0 0 5px;letter-spacing:0.04em;text-transform:uppercase">{{ bidStatusTitle }}</p>
           <p style="font:500 13.5px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.68);margin:0">{{ bidStatusDesc }}</p>
@@ -1840,11 +1845,19 @@ async syncAuthFromSupabase() {
     });
     return;
   }
-  const { data: profile } = await client
+  let profileResult = await client
     .from("profiles")
-    .select("full_name, phone, city, role, authorized, notification_preferences")
+    .select("full_name, phone, city, role, authorized, notification_preferences, member_number")
     .eq("id", user.id)
     .single();
+  if (profileResult.error) {
+    profileResult = await client
+      .from("profiles")
+      .select("full_name, phone, city, role, authorized, notification_preferences")
+      .eq("id", user.id)
+      .single();
+  }
+  const profile = profileResult.data;
   if (!profile) return;
   const { data: ownBids } = await client
     .from("bids")
@@ -1904,6 +1917,7 @@ async syncAuthFromSupabase() {
       whatsapp: profile.phone || "",
       correo: user.email,
       ciudad: profile.city || "",
+      memberNumber: profile.member_number || null,
       role: profile.role || "user"
     },
     bidStatus: profile.authorized ? "autorizado" : "ninguno",
@@ -2355,6 +2369,7 @@ submitAuth = async (e) => {
       userName: u ? u.nombre : '',
       userCiudad: u ? u.ciudad : '',
       userWhatsapp: u ? u.whatsapp : '',
+      userMemberNumber: u && u.memberNumber ? `USSO-${String(u.memberNumber).padStart(6, '0')}` : 'Pendiente de asignar',
       accountHistory: (st.accountHistory || []).map((item) => item.outcome === 'won' ? { ...item, label:'GANADA · COMPRA', color:'#7ee2a8', bg:'rgba(74,222,128,.1)', border:'rgba(74,222,128,.3)', cursor:'pointer', open:() => { window.location.href = `Compra.dc.html#${encodeURIComponent(item.id)}`; } } : { ...item, label:'PERDIDA', color:'#ff9a91', bg:'rgba(255,92,82,.09)', border:'rgba(255,92,82,.26)', cursor:'default', open:() => {} }),
       hasAccountHistory: (st.accountHistory || []).length > 0,
       noAccountHistory: (st.accountHistory || []).length === 0,

@@ -27,6 +27,7 @@
     <div class="box card">
       <h1>Mi perfil</h1>
       <p id="email"></p>
+      <p id="memberNumber"></p>
       <p id="estado"></p>
       <input id="full_name" placeholder="Nombre">
       <input id="phone" placeholder="WhatsApp">
@@ -55,11 +56,19 @@
 
       document.getElementById("email").textContent = user.email;
 
-      const { data, error } = await client
+      let profileResult = await client
         .from("profiles")
-        .select("full_name, phone, city, role, authorized")
+        .select("full_name, phone, city, role, authorized, member_number")
         .eq("id", user.id)
         .single();
+      if (profileResult.error) {
+        profileResult = await client
+          .from("profiles")
+          .select("full_name, phone, city, role, authorized")
+          .eq("id", user.id)
+          .single();
+      }
+      const { data, error } = profileResult;
 
       if (error) {
         msg.textContent = error.message;
@@ -67,6 +76,7 @@
       }
 
       document.getElementById("full_name").value = data.full_name || "";
+      document.getElementById("memberNumber").innerHTML = `<strong>Número de miembro:</strong> ${data.member_number ? `USSO-${String(data.member_number).padStart(6, "0")}` : "Pendiente de asignar"}`;
       document.getElementById("phone").value = data.phone || "";
       document.getElementById("city").value = data.city || "";
       msg.textContent = "Rol: " + data.role;

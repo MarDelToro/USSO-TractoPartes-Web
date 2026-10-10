@@ -151,16 +151,8 @@
     <p class="msg admin-ready" id="msg">Cargando...</p>
 
     <nav class="admin-index" aria-label="Secciones del panel">
-      <a href="#publicar">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#ganadores-contacto">Ganadores</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
+      <a href="#publicar">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#historial-admin">Historial</a><a href="#ganadores-contacto">Ganadores</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
     </nav>
-
-    <section class="panel-card priority-panel" id="ganadores-contacto">
-      <div class="panel-title"><div><h2>Ganadores por avisar</h2><p>Primero aparecen los ganadores más recientes que todavía necesitan tu mensaje.</p></div><span class="status-badge status-pending">Prioridad diaria</span></div>
-      <div class="table-wrap compact-history"><table>
-        <thead><tr><th>Ganador</th><th>Subasta</th><th>Ronda</th><th>Precio final</th><th>WhatsApp</th><th>Fecha</th><th>Estado</th><th></th></tr></thead>
-        <tbody id="winnerFollowup"><tr><td colspan="8">Cargando ganadores...</td></tr></tbody>
-      </table></div>
-    </section>
 
     <section class="panel-card" id="publicar">
       <div class="panel-title">
@@ -224,17 +216,26 @@
       <tbody id="listings"></tbody>
     </table></div>
 
-    <div class="section-head"><div><h2>Historial de subastas finalizadas</h2><p>Estas subastas siguen visibles para los clientes. Puedes reabrirlas, editarlas o eliminarlas definitivamente.</p></div></div>
+    <div class="section-head" id="historial-admin"><div><h2>Historial de subastas finalizadas</h2><p>Estas subastas siguen visibles para los clientes. Puedes reabrirlas, editarlas o eliminarlas definitivamente.</p></div></div>
     <div class="table-wrap compact-history"><table>
       <thead><tr><th>Pieza</th><th>Precio final</th><th>Ofertas</th><th>Ronda</th><th>Ganador</th><th></th></tr></thead>
       <tbody id="closedListings"></tbody>
     </table></div>
+
+    <section class="panel-card priority-panel" id="ganadores-contacto">
+      <div class="panel-title"><div><h2>Ganadores por avisar</h2><p>Primero aparecen los ganadores más recientes que todavía necesitan tu mensaje.</p></div><span class="status-badge status-pending">Seguimiento</span></div>
+      <div class="table-wrap compact-history"><table>
+        <thead><tr><th>Ganador</th><th>Subasta</th><th>Ronda</th><th>Precio final</th><th>WhatsApp</th><th>Fecha</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="winnerFollowup"><tr><td colspan="8">Cargando ganadores...</td></tr></tbody>
+      </table></div>
+    </section>
 
     <div class="section-head" id="usuarios-admin"><div><h2>Usuarios</h2><p>Autoriza cuentas y consulta sus datos de contacto.</p></div></div>
     <div class="table-wrap compact-history"><table>
       <thead>
         <tr>
           <th>Nombre</th>
+          <th>N.º miembro</th>
           <th>Correo</th>
           <th>WhatsApp</th>
           <th>Ciudad</th>
@@ -433,10 +434,17 @@
         ? {}
         : Object.fromEntries((requests || []).map((r) => [r.user_id, r]));
 
-      const { data, error } = await client
+      let profileResult = await client
         .from("profiles")
-        .select("id, full_name, phone, city, role, authorized, notification_preferences")
+        .select("id, member_number, full_name, phone, city, role, authorized, notification_preferences")
         .order("created_at", { ascending: false });
+      if (profileResult.error) {
+        profileResult = await client
+          .from("profiles")
+          .select("id, full_name, phone, city, role, authorized, notification_preferences")
+          .order("created_at", { ascending: false });
+      }
+      const { data, error } = profileResult;
       if (error) return msg.textContent = error.message;
 
       const { data: winnerNotices } = await client
@@ -498,6 +506,7 @@
         return `
           <tr>
             <td>${p.full_name || ""}</td>
+            <td><strong>${p.member_number ? `USSO-${String(p.member_number).padStart(6, "0")}` : "Pendiente de asignar"}</strong></td>
             <td>${request?.email || ""}</td>
             <td>${p.phone || ""}</td>
             <td>${p.city || ""}</td>
@@ -587,11 +596,23 @@
     async function loadListings() {
       await client.rpc("expire_listings");
 
-      const { data, error } = await client
+      let listingResult = await client
         .from("listings")
         .select("id, title, description, category, image_url, media_urls, product_details, current_price, start_price, bid_count, auction_round, status, winner_id, starts_at, ends_at")
         .order("created_at", { ascending: false });
+      if (listingResult.error) {
+        listingResult = await client
+          .from("listings")
+          .select("id, title, description, category, image_url, current_price, start_price, bid_count, auction_round, status, winner_id, starts_at, ends_at")
+          .order("created_at", { ascending: false });
+      }
+      const { data: rawListings, error } = listingResult;
       if (error) return msg.textContent = error.message;
+      const data = (rawListings || []).map((listing) => ({
+        ...listing,
+        media_urls: Array.isArray(listing.media_urls) ? listing.media_urls : (listing.image_url ? [{ type:"image", url:listing.image_url }] : []),
+        product_details: Array.isArray(listing.product_details) ? listing.product_details : []
+      }));
       currentListings = data || [];
 
       const [{ data: people }, { data: roundBids }] = await Promise.all([
@@ -634,7 +655,7 @@
               <div><span>Categoría</span><strong>${p.category || "Sin categoría"}</strong></div>
               <div><span>Cierre</span><strong>${cierre}</strong></div>
             </div>
-            <div class="auction-card-actions">${acciones}</div>
+            <div class="auction-card-actions"><a class="action-btn action-secondary" href="Subasta.dc.html#${encodeURIComponent(p.id)}">Ver detalles</a>${acciones}</div>
           </div>
         </article>`;
       }).join("") || `<div class="panel-card">Todavía no has publicado subastas.</div>`;
@@ -671,7 +692,7 @@
           <td>${Number(p.bid_count || 0)}</td>
           <td>Ronda ${Number(p.auction_round || 1)}</td>
           <td>${w ? `${w.full_name || (w.role === "admin" ? "Administrador USSO" : "Usuario")}<br><span class="muted">${w.phone || ""}</span>` : "Sin ganador"}</td>
-          <td><div class="actions-cell"><button class="action-btn action-secondary" data-edit="${p.id}">Editar</button><button class="action-btn action-primary" data-reopen="${p.id}">Reabrir</button><button class="action-btn action-danger" data-dellist="${p.id}">Eliminar</button></div></td>
+          <td><div class="actions-cell"><a class="action-btn action-secondary" href="Subasta.dc.html#${encodeURIComponent(p.id)}">Detalles</a><button class="action-btn action-secondary" data-edit="${p.id}">Editar</button><button class="action-btn action-primary" data-reopen="${p.id}">Reabrir</button><button class="action-btn action-danger" data-dellist="${p.id}">Eliminar</button></div></td>
         </tr>`;
       }).join("") || `<tr><td colspan="6">Todavía no hay subastas finalizadas.</td></tr>`;
 
