@@ -568,7 +568,7 @@
         <div class="usso-winner-trophy">🏆</div>
         <h2>¡TÚ ERES EL GANADOR!</h2>
         <p>¡Lo lograste! <strong>{{ winnerCelebrationTitle }}</strong> es tuyo por <strong>{{ winnerCelebrationAmount }}</strong>. La compra quedó registrada y USSO se pondrá en contacto contigo para continuar.</p>
-        <button onClick="{{ closeWinnerCelebration }}">Ver mi compra</button>
+        <button onClick="{{ viewWinnerPurchase }}">Ver mi compra</button>
       </div>
     </div>
   </sc-if>
@@ -1494,6 +1494,12 @@ class Component extends DCLogic {
     this.setState({ winnerCelebration:null });
   };
 
+  viewWinnerPurchase = () => {
+    const listing = this.state.winnerCelebration;
+    this.closeWinnerCelebration();
+    if (listing && listing.id) window.location.href = `Subasta.dc.html#${encodeURIComponent(listing.id)}`;
+  };
+
   closeLossCelebration = () => {
     if (this.lossTimer) clearTimeout(this.lossTimer);
     this.setState({ lossCelebration:null });
@@ -1549,7 +1555,7 @@ class Component extends DCLogic {
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-label', type === 'win' ? 'Ganaste la subasta' : 'Resultado de la subasta');
     overlay.innerHTML = type === 'win'
-      ? `<div class="usso-winner-confetti"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="usso-winner-card"><button class="usso-outcome-close" data-close-outcome aria-label="Cerrar resultado">×</button><span class="usso-winner-kicker">Resultado oficial USSO</span><div class="usso-winner-trophy">🏆</div><h2>¡TÚ ERES EL GANADOR!</h2><p>¡Lo lograste! <strong data-outcome-title></strong> es tuyo por <strong data-outcome-amount></strong>. La compra quedó registrada y USSO se pondrá en contacto contigo para continuar.</p><button data-close-outcome>Ver mi compra</button></div>`
+      ? `<div class="usso-winner-confetti"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="usso-winner-card"><button class="usso-outcome-close" data-close-outcome aria-label="Cerrar resultado">×</button><span class="usso-winner-kicker">Resultado oficial USSO</span><div class="usso-winner-trophy">🏆</div><h2>¡TÚ ERES EL GANADOR!</h2><p>¡Lo lograste! <strong data-outcome-title></strong> es tuyo por <strong data-outcome-amount></strong>. La compra quedó registrada y USSO se pondrá en contacto contigo para continuar.</p><button data-view-purchase>Ver mi compra</button></div>`
       : `<div class="usso-loser-card"><button class="usso-outcome-close" data-close-outcome aria-label="Cerrar resultado">×</button><div class="icon">○</div><h2>ESTA VEZ NO GANASTE</h2><p><strong data-outcome-title></strong> terminó en <strong data-outcome-amount></strong>. Tu historial ya fue actualizado. Habrá nuevas oportunidades.</p><button data-close-outcome>Entendido</button></div>`;
     overlay.querySelector('[data-outcome-title]').textContent = listing.title || 'La subasta';
     overlay.querySelector('[data-outcome-amount]').textContent = amount;
@@ -1592,6 +1598,12 @@ class Component extends DCLogic {
       else this.setState({ lossCelebration:null });
     };
     overlay.querySelectorAll('[data-close-outcome]').forEach((button) => button.addEventListener('click', close));
+    const purchaseButton = overlay.querySelector('[data-view-purchase]');
+    if (purchaseButton) purchaseButton.addEventListener('click', () => {
+      const listingId = listing && listing.id;
+      close();
+      if (listingId) window.location.href = `Subasta.dc.html#${encodeURIComponent(listingId)}`;
+    });
     document.body.appendChild(overlay);
   }
 
@@ -2221,6 +2233,7 @@ submitAuth = async (e) => {
       winnerCelebrationTitle: st.winnerCelebration ? st.winnerCelebration.title : '',
       winnerCelebrationAmount: st.winnerCelebration ? this.formatMoney(st.winnerCelebration.amount) : '',
       closeWinnerCelebration: this.closeWinnerCelebration,
+      viewWinnerPurchase: this.viewWinnerPurchase,
       lossCelebrationOpen: !!st.lossCelebration,
       lossCelebrationTitle: st.lossCelebration ? st.lossCelebration.title : '',
       lossCelebrationAmount: st.lossCelebration ? this.formatMoney(st.lossCelebration.amount) : '',
