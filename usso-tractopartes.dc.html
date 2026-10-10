@@ -80,6 +80,7 @@
   .usso-loser-card h2 { margin:18px 0 10px; color:#ff8a80; font:900 clamp(31px,6vw,54px)/1.05 'Archivo Black',sans-serif; }
   .usso-loser-card p { margin:0 auto 24px; max-width:470px; color:rgba(243,241,236,.72); font:600 16px/1.6 Manrope,sans-serif; }
   .usso-loser-card button { border:0; border-radius:999px; padding:14px 26px; background:#f6c02a; color:#0a0a0b; font:800 14px Manrope,sans-serif; cursor:pointer; }
+  .usso-native-outcome { position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; height:100dvh!important; z-index:2147483647!important; isolation:isolate; overflow-y:auto!important; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; padding-top:max(18px,env(safe-area-inset-top))!important; padding-bottom:max(18px,env(safe-area-inset-bottom))!important; }
   .usso-winner-confetti span { position:absolute; top:-10%; width:10px; height:20px; background:#f6c02a; animation:winnerFall 3.5s linear infinite; }
   .usso-winner-confetti span:nth-child(2n){background:#7ee2a8}.usso-winner-confetti span:nth-child(3n){background:#fff}.usso-winner-confetti span:nth-child(4n){background:#ff5c52}
   .usso-winner-confetti span:nth-child(1){left:8%}.usso-winner-confetti span:nth-child(2){left:17%;animation-delay:.4s}.usso-winner-confetti span:nth-child(3){left:29%;animation-delay:1.1s}.usso-winner-confetti span:nth-child(4){left:41%;animation-delay:.2s}.usso-winner-confetti span:nth-child(5){left:53%;animation-delay:1.5s}.usso-winner-confetti span:nth-child(6){left:64%;animation-delay:.7s}.usso-winner-confetti span:nth-child(7){left:76%;animation-delay:1.8s}.usso-winner-confetti span:nth-child(8){left:88%;animation-delay:.9s}.usso-winner-confetti span:nth-child(9){left:95%;animation-delay:1.3s}
@@ -89,6 +90,13 @@
   @keyframes winnerCardIn { from{opacity:0;transform:scale(.76) translateY(35px)} to{opacity:1;transform:scale(1) translateY(0)} }
   @keyframes winnerRays { to{transform:rotate(360deg)} }
   @media (prefers-reduced-motion:reduce) { .usso-winner-card,.usso-winner-card::before,.usso-winner-trophy,.usso-winner-confetti span,.usso-winner-screen::before,.usso-winner-screen::after { animation:none !important; } }
+  @media (max-width:860px) {
+    .usso-native-outcome { place-items:center!important; padding-left:14px!important; padding-right:14px!important; }
+    .usso-native-outcome .usso-winner-card,.usso-native-outcome .usso-loser-card { width:100%!important; max-height:calc(100dvh - 36px); overflow-y:auto; padding:46px 20px 28px!important; border-radius:22px!important; }
+    .usso-native-outcome .usso-winner-trophy { font-size:58px!important; }
+    .usso-native-outcome h2 { font-size:clamp(30px,10vw,45px)!important; }
+    .usso-native-outcome p { font-size:15px!important; }
+  }
   .usso-inventory-grid, .usso-auctions-grid, .usso-videos-grid { display: flex !important; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); scrollbar-width: none; padding-bottom: 4px; }
   .usso-inventory-grid::-webkit-scrollbar, .usso-auctions-grid::-webkit-scrollbar, .usso-videos-grid::-webkit-scrollbar { display: none; }
   .usso-inventory-grid > div, .usso-auctions-grid > div, .usso-videos-grid > div { scroll-snap-align: center; scroll-snap-stop: always; transform-origin: center; transition: transform 0.2s ease-out, opacity 0.2s ease-out; }
@@ -1514,7 +1522,7 @@ class Component extends DCLogic {
 
   outcomeSeenKey(type, listing, userId) {
     const round = Number(listing.auctionRound || listing.auction_round || 1);
-    return `usso_${type}_seen_${userId || 'anonymous'}_${listing.id}_${round}`;
+    return `usso_outcome_v2_${type}_${userId || 'anonymous'}_${listing.id}_${round}`;
   }
 
   hasSeenOutcome(type, listing, userId) {
@@ -1527,13 +1535,40 @@ class Component extends DCLogic {
     try { localStorage.setItem(this.outcomeSeenKey(type, listing, userId), '1'); } catch (e) {}
   }
 
+  showNativeOutcome(type, listing) {
+    const previous = document.getElementById('usso-native-auction-outcome');
+    if (previous) previous.remove();
+    const amount = this.formatMoney(this.parseMoney(listing.bid || listing.current_price || listing.start_price || 0));
+    const overlay = document.createElement('div');
+    overlay.id = 'usso-native-auction-outcome';
+    overlay.className = `${type === 'win' ? 'usso-winner-screen' : 'usso-loser-screen'} usso-native-outcome`;
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', type === 'win' ? 'Ganaste la subasta' : 'Resultado de la subasta');
+    overlay.innerHTML = type === 'win'
+      ? `<div class="usso-winner-confetti"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="usso-winner-card"><button class="usso-outcome-close" data-close-outcome aria-label="Cerrar resultado">×</button><span class="usso-winner-kicker">Resultado oficial USSO</span><div class="usso-winner-trophy">🏆</div><h2>¡TÚ ERES EL GANADOR!</h2><p>¡Lo lograste! <strong data-outcome-title></strong> es tuyo por <strong data-outcome-amount></strong>. La compra quedó registrada y USSO se pondrá en contacto contigo para continuar.</p><button data-close-outcome>Ver mi compra</button></div>`
+      : `<div class="usso-loser-card"><button class="usso-outcome-close" data-close-outcome aria-label="Cerrar resultado">×</button><div class="icon">○</div><h2>ESTA VEZ NO GANASTE</h2><p><strong data-outcome-title></strong> terminó en <strong data-outcome-amount></strong>. Tu historial ya fue actualizado. Habrá nuevas oportunidades.</p><button data-close-outcome>Entendido</button></div>`;
+    overlay.querySelector('[data-outcome-title]').textContent = listing.title || 'La subasta';
+    overlay.querySelector('[data-outcome-amount]').textContent = amount;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const close = () => {
+      overlay.remove();
+      document.body.style.overflow = previousOverflow;
+      if (type === 'win') this.setState({ winnerCelebration:null });
+      else this.setState({ lossCelebration:null });
+    };
+    overlay.querySelectorAll('[data-close-outcome]').forEach((button) => button.addEventListener('click', close));
+    document.body.appendChild(overlay);
+  }
+
   showLostAuction(listing, userId) {
     const key = this.outcomeSeenKey('loss', listing, userId);
     try {
       if (localStorage.getItem(key) === '1') return;
       localStorage.setItem(key, '1');
     } catch (e) {}
-    this.setState({ lossCelebration:{ title:listing.title || 'la subasta', amount:this.parseMoney(listing.bid || listing.current_price || listing.start_price || 0) } });
+    this.showNativeOutcome('loss', listing);
     this.playOutcomeSound('loss');
   }
 
@@ -1543,7 +1578,7 @@ class Component extends DCLogic {
       if (localStorage.getItem(key) === '1') return;
       localStorage.setItem(key, '1');
     } catch (e) {}
-    this.setState({ winnerCelebration:{ title:listing.title || 'la subasta', amount:this.parseMoney(listing.bid || listing.current_price || listing.start_price || 0) } });
+    this.showNativeOutcome('win', listing);
     this.playOutcomeSound('win');
     try { if (navigator.vibrate) navigator.vibrate([80,45,110,45,180]); } catch (e) {}
   }
