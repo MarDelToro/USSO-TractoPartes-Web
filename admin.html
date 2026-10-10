@@ -165,6 +165,7 @@
         <div class="field"><label for="photo">Fotografía</label><div class="file-field"><input id="photo" type="file" accept="image/*"><div><strong>Seleccionar fotografía</strong><span id="photoName">JPG, PNG o WEBP</span></div></div></div>
         <div class="field"><label for="image_url">O dirección de la fotografía</label><input id="image_url" type="url" placeholder="https://..."></div>
         <div class="field"><label for="start_price">Precio inicial</label><input id="start_price" type="number" min="0" step="1" placeholder="$0 MXN" required></div>
+        <div class="field"><label for="starts_at">Fecha y hora de inicio</label><input id="starts_at" type="datetime-local"><span class="field-help">Déjalo vacío para activarla inmediatamente.</span></div>
         <div class="field"><label for="ends_at">Fecha y hora de cierre</label><input id="ends_at" type="datetime-local" required></div>
         <div class="form-actions"><button type="submit">Publicar subasta</button></div>
       </form>
@@ -272,6 +273,7 @@
       <div class="field"><label for="edit_image_url">Dirección de la fotografía</label><input id="edit_image_url" type="url" placeholder="https://..."></div>
       <div class="field"><label for="edit_start_price">Precio base</label><input id="edit_start_price" type="number" min="0" step="1" required></div>
       <div class="field"><label for="edit_current_price">Precio actual</label><input id="edit_current_price" type="number" min="0" step="1" required></div>
+      <div class="field full"><label for="edit_starts_at">Fecha y hora de inicio</label><input id="edit_starts_at" type="datetime-local"><span class="field-help">Si la fecha todavía no llega, aparecerá como próxima.</span></div>
       <div class="field full"><label for="edit_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="edit_end_date" type="date" required><select id="edit_end_hour" aria-label="Hora"></select><span class="date-time-separator">:</span><select id="edit_end_minute" aria-label="Minutos"></select></div><div class="time-shortcuts"><button type="button" data-duration="5">Desde ahora: 5 min</button><button type="button" data-duration="15">15 min</button><button type="button" data-duration="60">1 hora</button><button type="button" data-duration="1440">1 día</button></div></div>
       <div class="field"><label for="edit_status">Estado</label><select id="edit_status"><option value="active">Activa</option><option value="closed">Cerrada</option></select></div>
       <div class="form-actions"><button class="action-secondary" id="cancelEdit" type="button">Cancelar</button><button type="submit">Guardar cambios</button></div>
@@ -285,6 +287,11 @@
     );
     const msg = document.getElementById("msg");
     const money = (value) => Number(value || 0).toLocaleString("es-MX", { style:"currency", currency:"MXN", maximumFractionDigits:0 });
+    const toLocalInputValue = (value) => {
+      const date = new Date(value);
+      date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+      return date.toISOString().slice(0, 16);
+    };
     let liveLoading = false;
     let currentListings = [];
     let allNotices = [];
@@ -556,7 +563,7 @@
 
       const { data, error } = await client
         .from("listings")
-        .select("id, title, description, category, image_url, current_price, start_price, bid_count, auction_round, status, winner_id, ends_at")
+        .select("id, title, description, category, image_url, current_price, start_price, bid_count, auction_round, status, winner_id, starts_at, ends_at")
         .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
       currentListings = data || [];
@@ -576,6 +583,7 @@
       const activeListings = (data || []).filter((p) => p.status === "active" && !!p.ends_at && new Date(p.ends_at) > new Date());
       const closedListings = (data || []).filter((p) => !activeListings.some((active) => active.id === p.id));
       document.getElementById("auctionPreview").innerHTML = activeListings.map((p, index) => {
+        const proxima = !!p.starts_at && new Date(p.starts_at) > new Date();
         const vencida = p.ends_at && new Date(p.ends_at) < new Date();
         const cerrada = p.status !== "active" || vencida;
         const cierre = p.ends_at ? new Date(p.ends_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"short" }) : "Sin fecha límite";
@@ -587,7 +595,7 @@
         return `<article class="auction-card">
           <div class="auction-photo">
             ${p.image_url ? `<img src="${p.image_url}" alt="${p.title || "Pieza USSO"}">` : `<div class="auction-photo-empty">Sin fotografía</div>`}
-            <span class="auction-state ${cerrada ? "closed" : ""}">${cerrada ? "Cerrada" : "Activa"}</span>
+            <span class="auction-state ${cerrada ? "closed" : ""}">${cerrada ? "Cerrada" : (proxima ? "Próxima" : "Activa")}</span>
           </div>
           <div class="auction-card-body">
             <span class="auction-kicker">Lote ${100 + index} · Ronda ${Number(p.auction_round || 1)}</span>
@@ -655,6 +663,7 @@
           document.getElementById("edit_status").value = listing.status === "active" ? "active" : "closed";
           document.getElementById("edit_photo").value = "";
           document.getElementById("editForm").dataset.reopen = "false";
+          document.getElementById("edit_starts_at").value = listing.starts_at ? toLocalInputValue(listing.starts_at) : "";
           if (listing.ends_at) {
             const date = new Date(listing.ends_at);
             date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
@@ -695,6 +704,7 @@
           document.getElementById("edit_status").value = "active";
           document.getElementById("edit_photo").value = "";
           document.getElementById("editForm").dataset.reopen = "true";
+          document.getElementById("edit_starts_at").value = "";
           setEditorEnd(new Date(Date.now() + 60 * 60000));
           msg.textContent = "Elige cuánto durará la nueva ronda y guarda los cambios.";
           const dialog = document.getElementById("editDialog");
@@ -807,9 +817,14 @@
       }
 
       const start = Number(document.getElementById("start_price").value || 0);
+      const starts = document.getElementById("starts_at").value;
       const ends = document.getElementById("ends_at").value;
       if (!ends) {
         msg.textContent = "Selecciona una fecha y hora de cierre.";
+        return;
+      }
+      if (starts && new Date(starts) >= new Date(ends)) {
+        msg.textContent = "La fecha de inicio debe ser anterior al cierre.";
         return;
       }
       const { error } = await client.from("listings").insert({
@@ -820,6 +835,7 @@
         start_price: start,
         current_price: start,
         status: "active",
+        starts_at: starts ? new Date(starts).toISOString() : new Date().toISOString(),
         ends_at: ends ? new Date(ends).toISOString() : null,
         created_by: user.id
       });
@@ -879,11 +895,17 @@
         image_url: imageUrl || null,
         start_price: Number(document.getElementById("edit_start_price").value || 0),
         current_price: Number(document.getElementById("edit_current_price").value || 0),
+        starts_at: document.getElementById("edit_starts_at").value ? new Date(document.getElementById("edit_starts_at").value).toISOString() : new Date().toISOString(),
         ends_at: endsAt ? new Date(endsAt).toISOString() : null,
         status: document.getElementById("edit_status").value
       };
       if (changes.status === "active" && !endsAt) {
         msg.textContent = "Selecciona una fecha y hora de cierre antes de activar la subasta.";
+        if (saveButton) saveButton.disabled = false;
+        return;
+      }
+      if (changes.status === "active" && changes.starts_at && changes.ends_at && new Date(changes.starts_at) >= new Date(changes.ends_at)) {
+        msg.textContent = "La fecha de inicio debe ser anterior al cierre.";
         if (saveButton) saveButton.disabled = false;
         return;
       }

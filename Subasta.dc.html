@@ -88,7 +88,8 @@
       const current = Number(value || 0);
       return current + 1000;
     };
-    const isActive = (data) => data?.status === "active" && !!data.ends_at && new Date(data.ends_at).getTime() > Date.now();
+    const isUpcoming = (data) => data?.status === "active" && !!data.starts_at && new Date(data.starts_at).getTime() > Date.now();
+    const isActive = (data) => data?.status === "active" && !isUpcoming(data) && !!data.ends_at && new Date(data.ends_at).getTime() > Date.now();
     function playOutcomeSound(type) {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -204,7 +205,7 @@
     async function load() {
       if (!lotId) return renderNotFound();
       const {data, error} = await client.from("listings")
-        .select("id,title,description,image_url,start_price,current_price,status,ends_at,category,auction_round,bid_count,winner_id")
+        .select("id,title,description,image_url,start_price,current_price,status,starts_at,ends_at,category,auction_round,bid_count,winner_id")
         .eq("id", lotId).single();
       if (error || !data) return renderNotFound();
       listing = data;
@@ -218,6 +219,10 @@
       if (data.image_url) img.src = data.image_url; else { img.classList.add("hidden"); show("noImage"); }
       const {data:{user}} = await client.auth.getUser();
       currentUser = user;
+      if (isUpcoming(data)) {
+        document.getElementById("msg").textContent = `Esta subasta inicia el ${new Date(data.starts_at).toLocaleString("es-MX", { dateStyle:"long", timeStyle:"short" })}. Todavía no acepta pujas.`;
+        return;
+      }
       if (!isActive(data)) {
         document.getElementById("msg").textContent = "Esta subasta finalizó. Puedes consultar sus detalles y precio final.";
         await checkOutcome(data);
@@ -278,7 +283,7 @@
       if (!listing) return;
       if (currentUser && listing.status === "active" && listing.ends_at && new Date(listing.ends_at).getTime() <= Date.now()) await client.rpc("expire_listings");
       const { data } = await client.from("listings")
-        .select("id,title,current_price,start_price,status,ends_at,auction_round,bid_count,winner_id")
+        .select("id,title,current_price,start_price,status,starts_at,ends_at,auction_round,bid_count,winner_id")
         .eq("id", listing.id)
         .single();
       if (!data) return;

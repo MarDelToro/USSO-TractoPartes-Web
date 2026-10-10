@@ -1774,16 +1774,17 @@ class Component extends DCLogic {
     "https://ahhlfvjicxylidpmeciw.supabase.co",
     "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
   );
-  const { data: { user: activeUser } } = await client.auth.getUser();
-  if (activeUser) await client.rpc('expire_listings');
+  await client.rpc('expire_listings');
   const { data } = await client
     .from("listings")
-    .select("id, title, image_url, current_price, start_price, status, ends_at, category, bid_count, auction_round, winner_id")
+    .select("id, title, image_url, current_price, start_price, status, starts_at, ends_at, category, bid_count, auction_round, winner_id")
     .order("created_at", { ascending: false });
 
   this.rawAuctionItems = (data || []).map((p, i) => {
+    const inicia = p.starts_at ? new Date(p.starts_at).getTime() : null;
     const termina = p.ends_at ? new Date(p.ends_at).getTime() : null;
-    const activa = p.status === "active" && !!termina && termina > Date.now();
+    const proxima = p.status === "active" && !!inicia && inicia > Date.now();
+    const activa = p.status === "active" && !proxima && !!termina && termina > Date.now();
     const precio = Number(p.current_price || p.start_price || 0);
     return {
       id: p.id,
@@ -1796,11 +1797,12 @@ class Component extends DCLogic {
       auctionRound: Number(p.auction_round || 1),
       winnerId: p.winner_id || null,
       evidence: ["Publicada en el sistema"],
-      status: activa ? "Activa" : "Finalizada",
-      statusBg: activa ? "rgba(246,192,42,0.9)" : "rgba(255,255,255,0.12)",
-      statusColor: activa ? "#0a0a0b" : "#f3f1ec",
+      status: proxima ? "Próxima" : (activa ? "Activa" : "Finalizada"),
+      statusBg: proxima ? "rgba(92,160,255,0.9)" : (activa ? "rgba(246,192,42,0.9)" : "rgba(255,255,255,0.12)"),
+      statusColor: proxima || activa ? "#0a0a0b" : "#f3f1ec",
       placeholder: "Foto del lote",
       src: p.image_url || "",
+      startsAt: inicia,
       closesAt: termina || Date.now() + 7 * 86400000
     };
   });
@@ -2260,10 +2262,10 @@ submitAuth = async (e) => {
       return {
         ...l,
         bid: l.bid,
-        closesLabel: l.status === 'Activa' ? 'Cierra en' : 'Finalizó',
-        closesDisplay: l.status === 'Activa' ? this.formatCountdown(l.closesAt - Date.now()) : '00:00:00',
-        clockColor: l.status === 'Activa' ? 'var(--text)' : '#ff5c52',
-        bidLabel: l.status === 'Activa' ? (count > 0 ? 'Puja actual · ' + count + ' ofertas' : 'Precio base') : (count > 0 ? 'Precio final · ' + count + ' ofertas' : 'Sin ofertas'),
+        closesLabel: l.status === 'Próxima' ? 'Inicia en' : (l.status === 'Activa' ? 'Cierra en' : 'Finalizó'),
+        closesDisplay: l.status === 'Próxima' ? this.formatCountdown(l.startsAt - Date.now()) : (l.status === 'Activa' ? this.formatCountdown(l.closesAt - Date.now()) : '00:00:00'),
+        clockColor: l.status === 'Próxima' ? '#8dbbff' : (l.status === 'Activa' ? 'var(--text)' : '#ff5c52'),
+        bidLabel: l.status === 'Próxima' ? 'Precio base' : (l.status === 'Activa' ? (count > 0 ? 'Puja actual · ' + count + ' ofertas' : 'Precio base') : (count > 0 ? 'Precio final · ' + count + ' ofertas' : 'Sin ofertas')),
         evidenceLabel: l.evidence[0],
         goTo: this.goToLot(l.id),
       };
@@ -2273,11 +2275,13 @@ submitAuth = async (e) => {
     const st = this.state;
     const u = st.user;
     const initials = u ? u.nombre.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() : '';
-    const active = this.auctionItemsComputed.filter((l) => l.status === 'Activa');
-    const history = this.auctionItemsComputed.filter((l) => l.status === 'Finalizada');
+    const active = this.auctionItemsComputed.filter((l) => l.status === 'Activa').sort((a, b) => a.closesAt - b.closesAt);
+    const upcoming = this.auctionItemsComputed.filter((l) => l.status === 'Próxima').sort((a, b) => a.startsAt - b.startsAt);
+    const history = this.auctionItemsComputed.filter((l) => l.status === 'Finalizada').sort((a, b) => b.closesAt - a.closesAt);
     const justEnded = history.find((l) => Date.now() - l.closesAt >= 0 && Date.now() - l.closesAt < 12000);
     const hasAnyAuction = active.length > 0;
-    const feat = justEnded || active[0] || {
+    const hasCurrentOrUpcoming = active.length > 0 || upcoming.length > 0;
+    const feat = justEnded || active[0] || upcoming[0] || {
       id: '',
       src: '',
       number: '—',
@@ -2322,13 +2326,15 @@ submitAuth = async (e) => {
     const featuredCurrent = this.parseMoney(feat.bid);
     const featuredIsLeading = !!featuredOwnBid && featuredOwnBid >= featuredCurrent;
     const featuredIsActive = feat.status === 'Activa';
+    const featuredIsUpcoming = feat.status === 'Próxima';
     const featuredEndingSoon = featuredIsActive && feat.closesAt - Date.now() <= 60 * 60 * 1000;
     const featuredCelebrating = !featuredIsActive && !!feat.closesAt && Date.now() - feat.closesAt >= 0 && Date.now() - feat.closesAt < 12000;
     const bidLabel = !hasAnyAuction
       ? 'No hay subastas activas'
       : (!u ? 'Crear cuenta para pujar' : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : (featuredIsLeading ? 'Vas ganando' : 'Pujar ahora')));
     const activeFilter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
-    const filtered = active.filter(activeFilter.test);
+    const publicAuctions = [...active, ...upcoming];
+    const filtered = publicAuctions.filter(activeFilter.test);
 
     return {
       isLogged: !!u,
@@ -2443,16 +2449,16 @@ submitAuth = async (e) => {
       featuredBase: feat.base,
       featuredBidCount: feat.bidCount,
       featuredClock: feat.closesDisplay,
-      featuredClockLabel: featuredIsActive ? 'Cierra en' : 'Finalizó',
-      featuredClockColor: featuredIsActive ? 'var(--text)' : '#ff5c52',
-      featuredPriceLabel: featuredIsActive ? `Puja actual · ${feat.bidCount} ofertas` : (feat.bidCount ? `Precio final · ${feat.bidCount} ofertas` : 'Finalizada sin ofertas'),
+      featuredClockLabel: featuredIsUpcoming ? 'Inicia en' : (featuredIsActive ? 'Cierra en' : 'Finalizó'),
+      featuredClockColor: featuredIsUpcoming ? '#8dbbff' : (featuredIsActive ? 'var(--text)' : '#ff5c52'),
+      featuredPriceLabel: featuredIsUpcoming ? 'Precio base' : (featuredIsActive ? `Puja actual · ${feat.bidCount} ofertas` : (feat.bidCount ? `Precio final · ${feat.bidCount} ofertas` : 'Finalizada sin ofertas')),
       featuredIsActive,
       featuredCelebrating,
       featuredFinishClass: featuredCelebrating ? 'usso-finished-lot' : '',
-      featuredBadgeLabel: featuredIsActive ? (featuredEndingSoon ? 'Cerrando pronto' : 'Subasta activa') : (feat.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas'),
-      featuredBadgeColor: featuredIsActive ? accent : (feat.bidCount > 0 ? '#7ee2a8' : '#ff8a80'),
-      featuredBadgeBorder: featuredIsActive ? 'rgba(246,192,42,0.45)' : (feat.bidCount > 0 ? 'rgba(74,222,128,0.48)' : 'rgba(255,92,82,0.55)'),
-      featuredBadgeDot: featuredIsActive ? '#ff0000' : (feat.bidCount > 0 ? '#4ade80' : '#ff5c52'),
+      featuredBadgeLabel: featuredIsUpcoming ? 'Próxima subasta' : (featuredIsActive ? (featuredEndingSoon ? 'Cerrando pronto' : 'Subasta activa') : (feat.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas')),
+      featuredBadgeColor: featuredIsUpcoming ? '#8dbbff' : (featuredIsActive ? accent : (feat.bidCount > 0 ? '#7ee2a8' : '#ff8a80')),
+      featuredBadgeBorder: featuredIsUpcoming ? 'rgba(92,160,255,.5)' : (featuredIsActive ? 'rgba(246,192,42,0.45)' : (feat.bidCount > 0 ? 'rgba(74,222,128,0.48)' : 'rgba(255,92,82,0.55)')),
+      featuredBadgeDot: featuredIsUpcoming ? '#5ca0ff' : (featuredIsActive ? '#ff0000' : (feat.bidCount > 0 ? '#4ade80' : '#ff5c52')),
       featuredBadgeAnimation: featuredIsActive ? 'livePulse 0.8s ease-in-out infinite' : 'none',
       featuredDetailsFlex: featuredIsActive ? '0' : '1',
       featuredBidAction: !hasAnyAuction
@@ -2466,8 +2472,8 @@ submitAuth = async (e) => {
       featuredGoTo: feat.goTo,
       bidButtonLabel: bidLabel,
       hasAnyAuction,
-      hasFeaturedAuction: !!justEnded || hasAnyAuction,
-      noAuctions: !hasAnyAuction && !justEnded,
+      hasFeaturedAuction: !!justEnded || hasCurrentOrUpcoming,
+      noAuctions: !hasCurrentOrUpcoming && !justEnded,
 
       registerReveal_todas: this.makeReveal('todas'),
       filterChips: this.FILTERS.map((f) => {
@@ -2475,7 +2481,7 @@ submitAuth = async (e) => {
         return {
           id: f.id,
           label: f.label,
-          count: active.filter(f.test).length,
+          count: publicAuctions.filter(f.test).length,
           apply: this.setFilter(f.id),
           bg: on ? accent : 'rgba(var(--border-rgb),0.05)',
           border: on ? accent : 'rgba(var(--border-rgb),0.14)',
@@ -2633,7 +2639,7 @@ submitAuth = async (e) => {
       ],
       // La primera subasta activa ya aparece en la tarjeta principal.
       // Debajo mostramos solamente los otros lotes, una vez cada uno.
-      auctionItems: active.slice(1).map((l) => ({ ...l, uid: l.id })),
+      auctionItems: (active.length ? [...active.slice(1), ...upcoming] : upcoming.slice(1)).map((l) => ({ ...l, uid: l.id })),
       heroLoopLots: this.heroLoopLots,
       setHeroCarouselRef: this.setHeroCarouselRef,
       onHeroCarouselScroll: this.onHeroCarouselScroll,
