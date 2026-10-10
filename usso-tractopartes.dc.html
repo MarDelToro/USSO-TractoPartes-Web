@@ -1040,7 +1040,8 @@ class Component extends DCLogic {
     window.addEventListener('resize', this.checkOverflow);
     setTimeout(this.checkOverflow, 300);
     setTimeout(this.initTouchDrag, 400);
-    this.countdownTimer = setInterval(() => this.forceUpdate(), 1000);
+    this.scheduleCountdownTick();
+    document.addEventListener('pointerdown', this.primeAlertAudio, { once:true, passive:true });
     this.observer = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -1063,7 +1064,7 @@ class Component extends DCLogic {
     document.body.style.overflow = '';
     if (this.observer) this.observer.disconnect();
     if (this.introFallback) clearTimeout(this.introFallback);
-    if (this.countdownTimer) clearInterval(this.countdownTimer);
+    if (this.countdownTimer) clearTimeout(this.countdownTimer);
     if (this.auctionRefreshTimer) clearInterval(this.auctionRefreshTimer);
     if (this.winnerTimer) clearTimeout(this.winnerTimer);
     if (this.auctionRealtimeClient && this.auctionRealtimeChannel) this.auctionRealtimeClient.removeChannel(this.auctionRealtimeChannel);
@@ -1072,6 +1073,27 @@ class Component extends DCLogic {
     window.removeEventListener('pageshow', this.onPageShow);
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
+
+  scheduleCountdownTick = () => {
+    if (this.countdownTimer) clearTimeout(this.countdownTimer);
+    const tick = () => {
+      if (typeof this.forceUpdate === 'function') this.forceUpdate();
+      // Se alinea al siguiente segundo real para evitar deriva o saltos visuales.
+      const delay = Math.max(80, 1000 - (Date.now() % 1000) + 16);
+      this.countdownTimer = window.setTimeout(tick, delay);
+    };
+    const firstDelay = Math.max(80, 1000 - (Date.now() % 1000) + 16);
+    this.countdownTimer = window.setTimeout(tick, firstDelay);
+  };
+
+  primeAlertAudio = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = this.outcomeAudioContext || (this.outcomeAudioContext = new AudioCtx());
+      if (ctx.state === 'suspended') ctx.resume();
+    } catch (e) {}
+  };
 
   onPageShow = () => {
     this.loadListingsFromDB();
@@ -1530,6 +1552,27 @@ class Component extends DCLogic {
     } catch (e) {}
   }
 
+  playOutbidAlertSound() {
+    try {
+      this.primeAlertAudio();
+      const ctx = this.outcomeAudioContext;
+      if (!ctx || ctx.state !== 'running') return;
+      [[880,0,.13],[660,.16,.13],[880,.32,.16],[660,.51,.2]].forEach(([frequency,delay,duration]) => {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(frequency, ctx.currentTime + delay);
+        gain.gain.setValueAtTime(.0001, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(.085, ctx.currentTime + delay + .02);
+        gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + delay + duration);
+        oscillator.connect(gain).connect(ctx.destination);
+        oscillator.start(ctx.currentTime + delay);
+        oscillator.stop(ctx.currentTime + delay + duration + .03);
+      });
+      try { if (navigator.vibrate) navigator.vibrate([180,80,180,80,260]); } catch (e) {}
+    } catch (e) {}
+  }
+
   outcomeSeenKey(type, listing, userId) {
     const round = Number(listing.auctionRound || listing.auction_round || 1);
     return `usso_outcome_v2_${type}_${userId || 'anonymous'}_${listing.id}_${round}`;
@@ -1762,6 +1805,15 @@ async syncAuthFromSupabase() {
   const lostAuction = lostCandidates.find((lot) => happenedThisSession(lot) && !this.hasSeenOutcome('loss', lot, user.id));
   const { data: serverNotifs } = await client.from('notifications').select('id,title,message,amount,created_at,user_id,listing_id,notification_type,auction_round').eq('user_id', user.id).order('created_at', { ascending:false }).limit(50);
   const resultNotices = (serverNotifs || []).filter((notice) => notice.notification_type === 'auction_won' || notice.notification_type === 'auction_lost');
+  const newOutbidNotice = (serverNotifs || []).find((notice) => {
+    const createdAt = new Date(notice.created_at).getTime();
+    if (createdAt < this.outcomeSessionStartedAt || !/nueva puja|super(ó|aron)|precio actual/i.test(notice.message || '')) return false;
+    try { return localStorage.getItem(`usso_outbid_sound_${notice.id}`) !== '1'; } catch (e) { return true; }
+  });
+  if (newOutbidNotice) {
+    try { localStorage.setItem(`usso_outbid_sound_${newOutbidNotice.id}`, '1'); } catch (e) {}
+    this.playOutbidAlertSound();
+  }
   const unseenResultNotice = resultNotices.find((notice) => {
     const type = notice.notification_type === 'auction_won' ? 'winner' : 'loss';
     const pseudoListing = { id:notice.listing_id || notice.id, auctionRound:Number(notice.auction_round || 1) };

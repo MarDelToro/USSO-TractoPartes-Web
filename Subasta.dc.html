@@ -69,6 +69,7 @@
     let minimumBid = 0;
     let userIsLeading = false;
     let outcomeChecking = false;
+    let countdownTimer = null;
 
     function saveAccountNotification(notification) {
       try {
@@ -105,6 +106,30 @@
           oscillator.connect(gain).connect(ctx.destination); oscillator.start(ctx.currentTime+delay); oscillator.stop(ctx.currentTime+delay+duration+.05);
         });
       } catch (error) {}
+    }
+    function primeAlertAudio() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = window.ussoOutcomeAudio || (window.ussoOutcomeAudio = new AudioCtx());
+        if (ctx.state === "suspended") ctx.resume();
+      } catch (error) {}
+    }
+    function playOutbidAlertSound() {
+      try {
+        primeAlertAudio();
+        const ctx = window.ussoOutcomeAudio;
+        if (!ctx || ctx.state !== "running") return;
+        [[880,0,.13],[660,.16,.13],[880,.32,.16],[660,.51,.2]].forEach(([frequency,delay,duration]) => {
+          const oscillator=ctx.createOscillator(),gain=ctx.createGain();oscillator.type="square";oscillator.frequency.setValueAtTime(frequency,ctx.currentTime+delay);gain.gain.setValueAtTime(.0001,ctx.currentTime+delay);gain.gain.exponentialRampToValueAtTime(.085,ctx.currentTime+delay+.02);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+delay+duration);oscillator.connect(gain).connect(ctx.destination);oscillator.start(ctx.currentTime+delay);oscillator.stop(ctx.currentTime+delay+duration+.03);
+        });
+        try { if(navigator.vibrate) navigator.vibrate([180,80,180,80,260]); } catch(error) {}
+      } catch(error) {}
+    }
+    function scheduleCountdownTick() {
+      if (countdownTimer) clearTimeout(countdownTimer);
+      const tick=()=>{if(listing)renderAuctionTime(listing);const delay=Math.max(80,1000-(Date.now()%1000)+16);countdownTimer=setTimeout(tick,delay)};
+      countdownTimer=setTimeout(tick,Math.max(80,1000-(Date.now()%1000)+16));
     }
     async function checkOutcome(data) {
       if (outcomeChecking || !currentUser || data?.status !== "closed" || !data.winner_id) return;
@@ -212,6 +237,7 @@
 
     document.getElementById("bidForm").addEventListener("submit", async (event) => {
       event.preventDefault();
+      primeAlertAudio();
       if (!validateAmount()) return;
       const amount = Number(document.getElementById("amount").value);
       const msg = document.getElementById("msg");
@@ -273,10 +299,11 @@
         else if (active && wasLeading) {
           document.getElementById("msg").textContent = "😱 ¡OH, OH! ¡ALGUIEN SUPERÓ TU PUJA! Todavía puedes recuperarla.";
           saveAccountNotification({icon:"🚨",kind:"alert",title:"😱 ¡OH, OH! ¡SUPERARON TU PUJA!",body:`Alguien tomó la delantera en ${listing.title || "tu subasta"}. ¡Todavía puedes recuperarla! La puja va en ${money(data.current_price || data.start_price)}.`});
+          playOutbidAlertSound();
         }
       }
     }, 3000);
-    window.setInterval(() => { if (listing) renderAuctionTime(listing); }, 1000);
+    scheduleCountdownTick();
   </script>
 </body>
 </html>
