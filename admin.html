@@ -16,6 +16,9 @@
     .live-head h2 { margin-bottom:6px; }
     .live-status { color:#8f98a3; font-size:13px; }
     .stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:18px 0; }
+    .finance-stats { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    .finance-stats .stat strong.paid { color:#7ee2a8; }
+    .finance-stats .stat strong.pending { color:#ffd45b; }
     .stat { background:#141416; border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:18px; }
     .stat span { display:block; color:#9198a1; font-size:12px; font-weight:700; margin-bottom:6px; }
     .stat strong { color:#f6c02a; font-size:27px; }
@@ -76,6 +79,7 @@
     .status-active, .status-approved { color:#7ee2a8; background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.26); }
     .status-closed { color:#b7bdc7; background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.1); }
     .status-pending { color:#ffd45b; background:rgba(246,192,42,.1); border:1px solid rgba(246,192,42,.28); }
+    .status-paid { color:#7ee2a8; background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.26); }
     .actions-cell { display:flex; align-items:center; gap:7px; min-width:max-content; }
     .action-btn { min-height:38px; padding:9px 14px; border-radius:999px; font-size:12px; white-space:nowrap; }
     .action-btn:disabled { opacity:.58; cursor:not-allowed; filter:saturate(.45); }
@@ -128,11 +132,12 @@
     .details-heading { grid-column:1 / -1; display:flex; align-items:center; gap:12px; margin-top:4px; padding-top:15px; border-top:1px solid rgba(255,255,255,.09); }
     .details-heading strong { font-size:15px; }
     .details-heading span { color:#858c96; font-size:11px; }
-    @media(max-width:1100px) { .auction-preview-grid { grid-template-columns:1fr; } }
+    @media(max-width:1100px) { .auction-preview-grid { grid-template-columns:1fr; } .finance-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     @media(max-width:700px) {
       main { width:94vw; margin:22px auto; }
       .live-head { align-items:start; flex-direction:column; }
       .stats { grid-template-columns:1fr; gap:9px; }
+      .finance-stats { grid-template-columns:1fr; }
       .stat { padding:14px 16px; display:flex; justify-content:space-between; align-items:center; }
       .stat span { margin:0; }
       .stat strong { font-size:22px; }
@@ -169,7 +174,7 @@
     <p class="msg admin-ready" id="msg">Cargando...</p>
 
     <nav class="admin-index" aria-label="Secciones del panel">
-      <a href="#admin-subastas" id="publishIndex">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#historial-admin">Historial</a><a href="#ganadores-contacto">Ganadores</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
+      <a href="#admin-subastas" id="publishIndex">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#finanzas-admin">Finanzas</a><a href="#historial-admin">Historial</a><a href="#ganadores-contacto">Ganadores</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
     </nav>
 
     <section class="auction-preview" id="admin-subastas">
@@ -190,6 +195,14 @@
       <thead><tr><th>Lote</th><th>Precio actual</th><th>Ofertas</th><th>Va ganando</th><th>WhatsApp</th><th>Cierre</th></tr></thead>
       <tbody id="liveLots"><tr><td colspan="6">Cargando...</td></tr></tbody>
     </table></div>
+
+    <div class="section-head" id="finanzas-admin"><div><h2>Resumen financiero</h2><p>Distingue lo vendido en subasta del dinero que realmente ya recibiste.</p></div></div>
+    <div class="stats finance-stats">
+      <div class="stat"><span>Total adjudicado</span><strong id="financeAwarded">$0</strong></div>
+      <div class="stat"><span>Total cobrado</span><strong class="paid" id="financePaid">$0</strong></div>
+      <div class="stat"><span>Pendiente de cobro</span><strong class="pending" id="financePending">$0</strong></div>
+      <div class="stat"><span>Ventas pagadas</span><strong id="financePaidCount">0</strong></div>
+    </div>
 
     <div class="section-head"><div><h2>Historial de ofertas</h2><p>Registro cronológico de todas las pujas.</p></div></div>
     <div class="table-wrap compact-history"><table>
@@ -214,7 +227,7 @@
 
     <div class="section-head" id="historial-admin"><div><h2>Historial de subastas finalizadas</h2><p>Estas subastas siguen visibles para los clientes. Puedes reabrirlas, editarlas o eliminarlas definitivamente.</p></div></div>
     <div class="table-wrap compact-history"><table>
-      <thead><tr><th>Pieza</th><th>Precio final</th><th>Ofertas</th><th>Ronda</th><th>Ganador</th><th></th></tr></thead>
+      <thead><tr><th>Pieza</th><th>Precio final</th><th>Ofertas</th><th>Ronda</th><th>Ganador</th><th>Pago</th><th></th></tr></thead>
       <tbody id="closedListings"></tbody>
     </table></div>
 
@@ -709,12 +722,12 @@
 
       let listingResult = await client
         .from("listings")
-        .select("id, title, description, category, image_url, media_urls, product_details, current_price, start_price, bid_count, auction_round, status, winner_id, starts_at, ends_at")
+        .select("id, title, description, category, image_url, media_urls, product_details, current_price, start_price, bid_count, auction_round, status, winner_id, starts_at, ends_at, payment_status, paid_amount, paid_at")
         .order("created_at", { ascending: false });
       if (listingResult.error) {
         listingResult = await client
           .from("listings")
-          .select("id, title, description, category, image_url, current_price, start_price, bid_count, auction_round, status, winner_id, starts_at, ends_at")
+          .select("id, title, description, category, image_url, media_urls, product_details, current_price, start_price, bid_count, auction_round, status, winner_id, starts_at, ends_at")
           .order("created_at", { ascending: false });
       }
       const { data: rawListings, error } = listingResult;
@@ -722,7 +735,9 @@
       const data = (rawListings || []).map((listing) => ({
         ...listing,
         media_urls: Array.isArray(listing.media_urls) ? listing.media_urls : (listing.image_url ? [{ type:"image", url:listing.image_url }] : []),
-        product_details: Array.isArray(listing.product_details) ? listing.product_details : []
+        product_details: Array.isArray(listing.product_details) ? listing.product_details : [],
+        payment_status: listing.payment_status || "pending",
+        paid_amount: Number(listing.paid_amount || 0)
       }));
       currentListings = data || [];
 
@@ -740,6 +755,14 @@
 
       const activeListings = (data || []).filter((p) => p.status === "active" && !!p.ends_at && new Date(p.ends_at) > new Date());
       const closedListings = (data || []).filter((p) => !activeListings.some((active) => active.id === p.id));
+      const completedSales = closedListings.filter((p) => p.winner_id || winnerByListing[p.id]);
+      const totalAwarded = completedSales.reduce((sum, p) => sum + Number(p.current_price || p.start_price || 0), 0);
+      const paidSales = completedSales.filter((p) => p.payment_status === "paid");
+      const totalPaid = paidSales.reduce((sum, p) => sum + Number(p.paid_amount || p.current_price || p.start_price || 0), 0);
+      document.getElementById("financeAwarded").textContent = money(totalAwarded);
+      document.getElementById("financePaid").textContent = money(totalPaid);
+      document.getElementById("financePending").textContent = money(Math.max(0, totalAwarded - totalPaid));
+      document.getElementById("financePaidCount").textContent = paidSales.length;
       document.getElementById("auctionPreview").innerHTML = activeListings.map((p, index) => {
         const proxima = !!p.starts_at && new Date(p.starts_at) > new Date();
         const vencida = p.ends_at && new Date(p.ends_at) < new Date();
@@ -776,7 +799,7 @@
       updateAdminPreviewClocks();
 
       document.getElementById("listings").innerHTML = activeListings.map((p) => {
-        const currentWinnerId = winnerByListing[p.id] || null;
+        const currentWinnerId = p.winner_id || winnerByListing[p.id] || null;
         const w = currentWinnerId ? byId[currentWinnerId] : null;
         const vencida = p.ends_at && new Date(p.ends_at) < new Date();
         const cerrada = p.status !== "active" || vencida;
@@ -800,17 +823,40 @@
       }).join("") || `<tr><td colspan="6">No hay subastas activas en este momento.</td></tr>`;
 
       document.getElementById("closedListings").innerHTML = closedListings.map((p) => {
-        const currentWinnerId = winnerByListing[p.id] || null;
+        const currentWinnerId = p.winner_id || winnerByListing[p.id] || null;
         const w = currentWinnerId ? byId[currentWinnerId] : null;
+        const hasWinner = !!currentWinnerId;
+        const isPaid = hasWinner && p.payment_status === "paid";
+        const paymentControl = hasWinner
+          ? `<div class="actions-cell"><span class="status-badge ${isPaid ? "status-paid" : "status-pending"}">${isPaid ? `Pagada · ${money(p.paid_amount || p.current_price || p.start_price)}` : "Pendiente"}</span><button class="action-btn ${isPaid ? "action-secondary" : "action-primary"}" data-payment="${p.id}" data-payment-status="${isPaid ? "pending" : "paid"}" data-payment-amount="${Number(p.current_price || p.start_price || 0)}">${isPaid ? "Marcar pendiente" : "Marcar pagada"}</button></div>`
+          : `<span class="muted">Sin venta</span>`;
         return `<tr>
           <td><strong>${p.title || "Sin título"}</strong></td>
           <td class="money">${money(p.current_price || p.start_price)}</td>
           <td>${Number(p.bid_count || 0)}</td>
           <td>Ronda ${Number(p.auction_round || 1)}</td>
           <td>${w ? `${w.full_name || (w.role === "admin" ? "Administrador USSO" : "Usuario")}<br><span class="muted">${w.phone || ""}</span>` : "Sin ganador"}</td>
+          <td>${paymentControl}</td>
           <td><div class="actions-cell"><a class="action-btn action-secondary" href="Subasta.dc.html#${encodeURIComponent(p.id)}">Detalles</a><button class="action-btn action-secondary" data-edit="${p.id}">Editar</button><button class="action-btn action-primary" data-reopen="${p.id}">Reabrir</button><button class="action-btn action-danger" data-dellist="${p.id}">Eliminar</button></div></td>
         </tr>`;
-      }).join("") || `<tr><td colspan="6">Todavía no hay subastas finalizadas.</td></tr>`;
+      }).join("") || `<tr><td colspan="7">Todavía no hay subastas finalizadas.</td></tr>`;
+
+      document.querySelectorAll("[data-payment]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const nextStatus = btn.dataset.paymentStatus;
+          const question = nextStatus === "paid" ? "¿Confirmas que ya recibiste el pago completo de esta subasta?" : "¿Quieres volver a marcar esta venta como pendiente de cobro?";
+          if (!confirm(question)) return;
+          btn.disabled = true;
+          const { error } = await client.rpc("admin_set_auction_payment", {
+            p_listing_id: btn.dataset.payment,
+            p_status: nextStatus,
+            p_paid_amount: nextStatus === "paid" ? Number(btn.dataset.paymentAmount || 0) : null
+          });
+          msg.textContent = error ? error.message : (nextStatus === "paid" ? "Pago registrado" : "Venta marcada como pendiente");
+          if (error) btn.disabled = false;
+          else loadListings();
+        });
+      });
 
       document.querySelectorAll("[data-edit]").forEach((btn) => {
         btn.addEventListener("click", () => {
