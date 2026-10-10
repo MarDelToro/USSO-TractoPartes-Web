@@ -815,10 +815,16 @@
               </div>
 
               <div class="usso-all-actions" style="display:flex;flex-direction:column;gap:8px;padding:0 18px 18px">
+                <sc-if value="{{ lot.isActive }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;gap:8px">
+                    <button onClick="{{ lot.goTo }}" style="flex:1;background:transparent;border:1px solid rgba(var(--border-rgb),0.24);color:var(--text);font:700 13px Manrope,sans-serif;padding:12px 14px;border-radius:100px;cursor:pointer">Ver detalles</button>
+                    <button onClick="{{ lot.bidAction }}" aria-disabled="{{ lot.bidDisabled }}" style="flex:1;background:{{ accent }};border:1px solid {{ accent }};color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:12px 14px;border-radius:100px;cursor:{{ lot.bidCursor }};opacity:{{ lot.bidOpacity }}">{{ lot.bidButtonLabel }}</button>
+                  </div>
+                </sc-if>
                 <sc-if value="{{ lot.isUpcoming }}" hint-placeholder-val="{{ false }}">
                   <button onClick="{{ lot.buyNow }}" style="width:100%;background:{{ accent }};color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:12px 16px;border-radius:100px;border:0;cursor:pointer">Comprar ahora · {{ lot.buyPrice }}</button>
+                  <button onClick="{{ lot.notify }}" style="width:100%;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:700 13px Manrope,sans-serif;padding:11px 16px;border-radius:100px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px">{{ lot.notifyLabel }}</button>
                 </sc-if>
-                <button onClick="{{ lot.notify }}" style="width:100%;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:700 13px Manrope,sans-serif;padding:11px 16px;border-radius:100px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px">{{ lot.notifyLabel }}</button>
               </div>
             </div>
           </sc-for>
@@ -2478,10 +2484,23 @@ submitAuth = async (e) => {
       }),
       filteredLots: filtered.map((l) => {
         const on = !!st.watching[l.id];
+        const ownBid = this.parseMoney(st.myBids[l.id] || 0);
+        const currentBid = this.parseMoney(l.bid);
+        const isLeading = !!ownBid && ownBid >= currentBid;
+        const isActive = l.status === 'Activa';
+        const lotBidLabel = !u
+          ? 'Crear cuenta para pujar'
+          : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : (isLeading ? 'Vas ganando' : 'Pujar ahora'));
         return {
           ...l,
           categoryLabel: this.CATS[l.cat] || '',
+          isActive,
           isUpcoming: l.status === 'Próxima',
+          bidAction: !u ? this.startBid(l.id) : (st.bidStatus === 'autorizado' ? this.startBid(l.id) : this.requestAuth),
+          bidDisabled: isLeading,
+          bidCursor: isLeading ? 'not-allowed' : 'pointer',
+          bidOpacity: isLeading ? '0.55' : '1',
+          bidButtonLabel: lotBidLabel,
           buyPrice: l.buyNowPrice,
           buyNow: this.buyNow(l.id),
           notify: this.toggleWatch(l.id),
