@@ -2262,7 +2262,7 @@ submitAuth = async (e) => {
         goTo: this.goToLot(l.id),
       };
     });
-    this.heroLoopLots = [...this.auctionItemsComputed, ...this.auctionItemsComputed, ...this.auctionItemsComputed].map((l, i) => ({ ...l, uid: `${l.id}-${i}` }));
+    this.heroLoopLots = this.auctionItemsComputed.map((l) => ({ ...l, uid: l.id }));
 
     const st = this.state;
     const u = st.user;
@@ -2612,7 +2612,9 @@ submitAuth = async (e) => {
         { mono: '1-6', showText: true, title: 'Plazos de 1 a 6 meses', desc: 'Pagos flexibles ajustados a tu flujo de caja.' },
         { showShield: true, title: 'Financiamiento con garantías', desc: 'Deja un objeto de valor como garantía y llévate la tractoparte de inmediato; tienes un plazo definido para pagar y recuperarlo.' },
       ],
-      auctionItems: [...active, ...active, ...active].map((l, i) => ({ ...l, uid: `${l.id}-${i}` })),
+      // La primera subasta activa ya aparece en la tarjeta principal.
+      // Debajo mostramos solamente los otros lotes, una vez cada uno.
+      auctionItems: active.slice(1).map((l) => ({ ...l, uid: l.id })),
       heroLoopLots: this.heroLoopLots,
       setHeroCarouselRef: this.setHeroCarouselRef,
       onHeroCarouselScroll: this.onHeroCarouselScroll,
