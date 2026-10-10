@@ -122,6 +122,9 @@
     .publish-trigger { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:12px 20px; border-radius:999px; background:#f6c02a; color:#09090a; font-size:13px; font-weight:900; white-space:nowrap; box-shadow:0 10px 30px rgba(246,192,42,.16); }
     .publish-trigger::before { content:"+"; display:grid; place-items:center; width:25px; height:25px; border-radius:50%; background:#09090a; color:#f6c02a; font-size:20px; line-height:1; }
     .publish-trigger:hover { transform:translateY(-1px); filter:brightness(1.04); }
+    .details-heading { grid-column:1 / -1; display:flex; align-items:center; gap:12px; margin-top:4px; padding-top:15px; border-top:1px solid rgba(255,255,255,.09); }
+    .details-heading strong { font-size:15px; }
+    .details-heading span { color:#858c96; font-size:11px; }
     @media(max-width:1100px) { .auction-preview-grid { grid-template-columns:1fr; } }
     @media(max-width:700px) {
       main { width:94vw; margin:22px auto; }
@@ -263,7 +266,14 @@
       <div class="field"><label for="title">Nombre de la pieza</label><input id="title" placeholder="Ej. Transmisión Eaton Fuller" required></div>
       <div class="field"><label for="category">Categoría</label><select id="category" required><option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="estructuras">Estructuras</option><option value="suspension">Suspensión</option></select></div>
       <div class="field full"><label for="description">Descripción</label><textarea id="description" placeholder="Modelo, condición, compatibilidad y cualquier detalle importante"></textarea></div>
-      <div class="field full"><label for="product_details">Ficha detallada del producto</label><textarea id="product_details" placeholder="Escribe un detalle por línea. Ej.&#10;Modelo: 2006&#10;Condición: usada&#10;Incluye: cabina y chasis&#10;Detalle visible: golpe lateral"></textarea><span class="field-help">Cada línea se mostrará como un punto separado y fácil de revisar.</span></div>
+      <div class="details-heading"><strong>Ficha del producto</strong><span>Completa cada dato en su casilla.</span></div>
+      <div class="field"><label for="detail_brand">Marca</label><input id="detail_brand" placeholder="Ej. International"></div>
+      <div class="field"><label for="detail_model">Modelo</label><input id="detail_model" placeholder="Ej. 9400i"></div>
+      <div class="field"><label for="detail_year">Año</label><input id="detail_year" inputmode="numeric" placeholder="Ej. 2006"></div>
+      <div class="field"><label for="detail_condition">Condición</label><select id="detail_condition"><option value="">Seleccionar</option><option>Usado</option><option>Reconstruido</option><option>Para reparar</option><option>Nuevo</option></select></div>
+      <div class="field"><label for="detail_compatibility">Compatibilidad</label><input id="detail_compatibility" placeholder="Camiones o modelos compatibles"></div>
+      <div class="field"><label for="detail_includes">¿Qué incluye?</label><input id="detail_includes" placeholder="Ej. Cabina, chasis y suspensión"></div>
+      <div class="field full"><label for="product_details">Otros detalles importantes</label><textarea id="product_details" placeholder="Escribe un detalle adicional por línea: kilometraje, golpes visibles, piezas faltantes, ubicación, etc."></textarea><span class="field-help">Cada línea adicional se mostrará como un punto separado.</span></div>
       <div class="field"><label for="photo">Fotos y videos de evidencia</label><div class="file-field"><input id="photo" type="file" accept="image/*,video/*" multiple><div><strong>Seleccionar varios archivos</strong><span id="photoName">Imágenes y videos</span></div></div></div>
       <div class="field"><label for="image_url">Portada por dirección web</label><input id="image_url" type="url" placeholder="https://..."><span class="field-help">Opcional. La primera foto subida será la portada si lo dejas vacío.</span></div>
       <div class="field full"><label for="media_urls">Más evidencia por dirección web</label><textarea id="media_urls" placeholder="Pega una dirección de foto o video por línea"></textarea></div>
@@ -283,7 +293,14 @@
       <div class="field"><label for="edit_title">Nombre de la pieza</label><input id="edit_title" required></div>
       <div class="field"><label for="edit_category">Categoría</label><select id="edit_category"><option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="estructuras">Estructuras</option><option value="suspension">Suspensión</option></select></div>
       <div class="field full"><label for="edit_description">Descripción</label><textarea id="edit_description"></textarea></div>
-      <div class="field full"><label for="edit_product_details">Ficha detallada</label><textarea id="edit_product_details" placeholder="Un detalle por línea"></textarea></div>
+      <div class="details-heading"><strong>Ficha del producto</strong><span>Edita cada dato en su casilla.</span></div>
+      <div class="field"><label for="edit_detail_brand">Marca</label><input id="edit_detail_brand"></div>
+      <div class="field"><label for="edit_detail_model">Modelo</label><input id="edit_detail_model"></div>
+      <div class="field"><label for="edit_detail_year">Año</label><input id="edit_detail_year" inputmode="numeric"></div>
+      <div class="field"><label for="edit_detail_condition">Condición</label><select id="edit_detail_condition"><option value="">Seleccionar</option><option>Usado</option><option>Reconstruido</option><option>Para reparar</option><option>Nuevo</option></select></div>
+      <div class="field"><label for="edit_detail_compatibility">Compatibilidad</label><input id="edit_detail_compatibility"></div>
+      <div class="field"><label for="edit_detail_includes">¿Qué incluye?</label><input id="edit_detail_includes"></div>
+      <div class="field full"><label for="edit_product_details">Otros detalles importantes</label><textarea id="edit_product_details" placeholder="Un detalle adicional por línea"></textarea></div>
       <div class="field"><label for="edit_photo">Agregar fotos o videos</label><input id="edit_photo" type="file" accept="image/*,video/*" multiple><span class="field-help">Los nuevos archivos se agregarán a la evidencia existente.</span></div>
       <div class="field"><label for="edit_image_url">Fotografía de portada</label><input id="edit_image_url" type="url" placeholder="https://..."></div>
       <div class="field full"><label for="edit_media_urls">Galería actual y direcciones adicionales</label><textarea id="edit_media_urls" placeholder="Una dirección por línea"></textarea><span class="field-help">Puedes reordenar o borrar direcciones. La portada se controla en el campo anterior.</span></div>
@@ -310,6 +327,29 @@
       return date.toISOString().slice(0, 16);
     };
     const parseLines = (value) => String(value || "").split("\n").map((line) => line.trim()).filter(Boolean);
+    const detailDefinitions = [
+      ["brand", "Marca"], ["model", "Modelo"], ["year", "Año"], ["condition", "Condición"],
+      ["compatibility", "Compatibilidad"], ["includes", "Incluye"]
+    ];
+    const buildProductDetails = (prefix = "") => {
+      const structured = detailDefinitions.map(([key, label]) => {
+        const value = document.getElementById(`${prefix}detail_${key}`).value.trim();
+        return value ? `${label}: ${value}` : "";
+      }).filter(Boolean);
+      return [...structured, ...parseLines(document.getElementById(`${prefix}product_details`).value)];
+    };
+    const populateProductDetails = (details, prefix = "edit_") => {
+      const remaining = [];
+      const values = Object.fromEntries(detailDefinitions.map(([key]) => [key, ""]));
+      for (const raw of Array.isArray(details) ? details : parseLines(details)) {
+        const line = String(raw || "").trim();
+        const match = detailDefinitions.find(([, label]) => line.toLocaleLowerCase("es").startsWith(`${label.toLocaleLowerCase("es")}:`));
+        if (!match) remaining.push(line);
+        else values[match[0]] = line.slice(line.indexOf(":") + 1).trim();
+      }
+      detailDefinitions.forEach(([key]) => { document.getElementById(`${prefix}detail_${key}`).value = values[key]; });
+      document.getElementById(`${prefix}product_details`).value = remaining.filter(Boolean).join("\n");
+    };
     const mediaTypeFor = (url, mime = "") => mime.startsWith("video/") || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url) ? "video" : "image";
     const mediaFromLines = (value) => parseLines(value).map((url) => ({ type:mediaTypeFor(url), url }));
     const uniqueMedia = (items) => Array.from(new Map((items || []).filter((item) => item?.url).map((item) => [item.url, { type:item.type || mediaTypeFor(item.url), url:item.url }])).values());
@@ -722,7 +762,7 @@
           document.getElementById("edit_title").value = listing.title || "";
           document.getElementById("edit_category").value = listing.category || "motores";
           document.getElementById("edit_description").value = listing.description || "";
-          document.getElementById("edit_product_details").value = (listing.product_details || []).join("\n");
+          populateProductDetails(listing.product_details || []);
           document.getElementById("edit_image_url").value = listing.image_url || "";
           document.getElementById("edit_media_urls").value = (listing.media_urls || []).map((item) => typeof item === "string" ? item : item.url).filter(Boolean).join("\n");
           document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
@@ -771,7 +811,7 @@
           document.getElementById("edit_title").value = listing.title || "";
           document.getElementById("edit_category").value = listing.category || "motores";
           document.getElementById("edit_description").value = listing.description || "";
-          document.getElementById("edit_product_details").value = (listing.product_details || []).join("\n");
+          populateProductDetails(listing.product_details || []);
           document.getElementById("edit_image_url").value = listing.image_url || "";
           document.getElementById("edit_media_urls").value = (listing.media_urls || []).map((item) => typeof item === "string" ? item : item.url).filter(Boolean).join("\n");
           document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
@@ -940,7 +980,7 @@
         title: document.getElementById("title").value.trim(),
         category: document.getElementById("category").value,
         description: document.getElementById("description").value.trim(),
-        product_details: parseLines(document.getElementById("product_details").value),
+        product_details: buildProductDetails(),
         image_url: imageUrl,
         media_urls: mediaUrls,
         start_price: start,
@@ -1018,7 +1058,7 @@
         title,
         category: document.getElementById("edit_category").value,
         description: document.getElementById("edit_description").value.trim(),
-        product_details: parseLines(document.getElementById("edit_product_details").value),
+        product_details: buildProductDetails("edit_"),
         image_url: imageUrl || null,
         media_urls: mediaUrls,
         start_price: Number(document.getElementById("edit_start_price").value || 0),
