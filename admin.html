@@ -110,7 +110,7 @@
     .edit-dialog-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:22px 24px 10px; }
     .edit-dialog-head h2 { margin:0 0 4px; }
     .edit-dialog-head p { margin:0; color:#8f98a3; font-size:12px; }
-    .date-time-row { display:grid; grid-template-columns:minmax(0,1fr) 82px 18px 82px; gap:8px; align-items:center; }
+    .date-time-row { display:grid; grid-template-columns:minmax(0,1fr) 74px 16px 74px 84px; gap:8px; align-items:center; }
     .date-time-separator { color:#8f98a3; font-weight:900; text-align:center; }
     .time-shortcuts { display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; }
     .time-shortcuts button { min-height:36px; padding:8px 13px; border-radius:999px; background:#242429; color:#f3f1ec; border:1px solid rgba(255,255,255,.12); font-size:12px; }
@@ -151,6 +151,9 @@
       .publish-trigger { width:100%; }
       .publish-dialog { width:96vw; max-height:94vh; }
       .publish-dialog .piece-grid { padding:10px 18px 22px; }
+      .date-time-row { grid-template-columns:68px 14px 68px 76px; justify-content:start; }
+      .date-time-row > input[type="date"] { grid-column:1 / -1; }
+      .date-time-row input, .date-time-row select { padding-left:9px; padding-right:9px; }
     }
   </style>
 </head>
@@ -279,8 +282,8 @@
       <div class="field full"><label for="media_urls">Más evidencia por dirección web</label><textarea id="media_urls" placeholder="Pega una dirección de foto o video por línea"></textarea></div>
       <div class="field"><label for="start_price">Precio inicial</label><input id="start_price" type="number" min="0" step="1" placeholder="$0 MXN" required></div>
       <div class="field"><label for="create_status">Estado inicial</label><select id="create_status"><option value="active">Activa ahora</option><option value="upcoming">Próxima / programada</option></select><span class="field-help">Para “Próxima”, elige abajo una fecha futura.</span></div>
-      <div class="field"><label for="starts_at">Fecha y hora de inicio</label><input id="starts_at" type="datetime-local"><span class="field-help">Déjalo vacío para activarla ahora. Si eliges una fecha futura, se publicará como “Próxima”.</span></div>
-      <div class="field"><label for="ends_at">Fecha y hora de cierre</label><input id="ends_at" type="datetime-local" required></div>
+      <div class="field full"><label for="create_start_date">Fecha y hora de inicio</label><div class="date-time-row"><input id="create_start_date" type="date"><select id="create_start_hour" aria-label="Hora de inicio"></select><span class="date-time-separator">:</span><select id="create_start_minute" aria-label="Minutos de inicio"></select><select id="create_start_period" aria-label="Periodo de inicio"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div><span class="field-help">Déjalo sin fecha para activarla ahora. Para programarla, selecciona una fecha futura.</span></div>
+      <div class="field full"><label for="create_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="create_end_date" type="date" required><select id="create_end_hour" aria-label="Hora de cierre"></select><span class="date-time-separator">:</span><select id="create_end_minute" aria-label="Minutos de cierre"></select><select id="create_end_period" aria-label="Periodo de cierre"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div></div>
       <p class="field-help full" id="publish_feedback" role="status" style="min-height:22px;margin:0;color:#f6c02a;font-weight:800"></p>
       <div class="form-actions"><button class="action-secondary" id="cancelPublish" type="button">Cancelar</button><button id="publishSave" type="submit">Publicar subasta</button></div>
     </form>
@@ -306,8 +309,8 @@
       <div class="field full"><label for="edit_media_urls">Galería actual y direcciones adicionales</label><textarea id="edit_media_urls" placeholder="Una dirección por línea"></textarea><span class="field-help">Puedes reordenar o borrar direcciones. La portada se controla en el campo anterior.</span></div>
       <div class="field"><label for="edit_start_price">Precio base</label><input id="edit_start_price" type="number" min="0" step="1" required></div>
       <div class="field"><label for="edit_current_price">Precio actual</label><input id="edit_current_price" type="number" min="0" step="1" required></div>
-      <div class="field full"><label for="edit_start_date">Fecha y hora de inicio</label><div class="date-time-row"><input id="edit_start_date" type="date"><select id="edit_start_hour" aria-label="Hora de inicio"></select><span class="date-time-separator">:</span><select id="edit_start_minute" aria-label="Minutos de inicio"></select></div><span class="field-help">Para una subasta próxima, elige aquí el día y la hora exactos en que comenzará.</span></div>
-      <div class="field full"><label for="edit_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="edit_end_date" type="date" required><select id="edit_end_hour" aria-label="Hora"></select><span class="date-time-separator">:</span><select id="edit_end_minute" aria-label="Minutos"></select></div><div class="time-shortcuts"><button type="button" data-duration="5">Desde ahora: 5 min</button><button type="button" data-duration="15">15 min</button><button type="button" data-duration="60">1 hora</button><button type="button" data-duration="1440">1 día</button></div></div>
+      <div class="field full"><label for="edit_start_date">Fecha y hora de inicio</label><div class="date-time-row"><input id="edit_start_date" type="date"><select id="edit_start_hour" aria-label="Hora de inicio"></select><span class="date-time-separator">:</span><select id="edit_start_minute" aria-label="Minutos de inicio"></select><select id="edit_start_period" aria-label="Periodo de inicio"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div><span class="field-help">Para una subasta próxima, elige aquí el día y la hora exactos en que comenzará.</span></div>
+      <div class="field full"><label for="edit_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="edit_end_date" type="date" required><select id="edit_end_hour" aria-label="Hora"></select><span class="date-time-separator">:</span><select id="edit_end_minute" aria-label="Minutos"></select><select id="edit_end_period" aria-label="Periodo de cierre"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div><div class="time-shortcuts"><button type="button" data-duration="5">Desde ahora: 5 min</button><button type="button" data-duration="15">15 min</button><button type="button" data-duration="60">1 hora</button><button type="button" data-duration="1440">1 día</button></div></div>
       <div class="field"><label for="edit_status">Estado</label><select id="edit_status"><option value="active">Activa ahora</option><option value="upcoming">Próxima / programada</option><option value="closed">Cerrada</option></select><span class="field-help">“Próxima” requiere una fecha de inicio futura.</span></div>
       <p class="field-help full" id="edit_feedback" role="status" style="min-height:22px;margin:0;color:#f6c02a;font-weight:800"></p>
       <div class="form-actions"><button class="action-secondary" id="cancelEdit" type="button">Cancelar</button><button id="editSave" type="submit">Guardar cambios</button></div>
@@ -380,21 +383,37 @@
       const select = document.getElementById(id);
       select.innerHTML = Array.from({ length:max + 1 }, (_, value) => `<option value="${String(value).padStart(2,"0")}">${String(value).padStart(2,"0")}</option>`).join("");
     };
-    fillTimeSelect("edit_end_hour", 23);
+    const fillHourSelect = (id) => {
+      document.getElementById(id).innerHTML = Array.from({ length:12 }, (_, index) => `<option value="${index + 1}">${index + 1}</option>`).join("");
+    };
+    ["create_start_hour", "create_end_hour", "edit_start_hour", "edit_end_hour"].forEach(fillHourSelect);
+    fillTimeSelect("create_start_minute", 59);
+    fillTimeSelect("create_end_minute", 59);
     fillTimeSelect("edit_end_minute", 59);
-    fillTimeSelect("edit_start_hour", 23);
     fillTimeSelect("edit_start_minute", 59);
+    const setDateTimeFields = (prefix, date) => {
+      const value = new Date(date);
+      const local = new Date(value.getTime() - value.getTimezoneOffset() * 60000).toISOString();
+      const hour24 = value.getHours();
+      document.getElementById(`${prefix}_date`).value = local.slice(0, 10);
+      document.getElementById(`${prefix}_hour`).value = String(hour24 % 12 || 12);
+      document.getElementById(`${prefix}_minute`).value = local.slice(14, 16);
+      document.getElementById(`${prefix}_period`).value = hour24 >= 12 ? "PM" : "AM";
+    };
+    const dateTimeFromFields = (prefix) => {
+      const date = document.getElementById(`${prefix}_date`).value;
+      if (!date) return "";
+      const hour12 = Number(document.getElementById(`${prefix}_hour`).value || 12);
+      const minute = document.getElementById(`${prefix}_minute`).value || "00";
+      const period = document.getElementById(`${prefix}_period`).value;
+      const hour24 = hour12 % 12 + (period === "PM" ? 12 : 0);
+      return `${date}T${String(hour24).padStart(2,"0")}:${minute}`;
+    };
     const setEditorStart = (date) => {
-      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString();
-      document.getElementById("edit_start_date").value = local.slice(0, 10);
-      document.getElementById("edit_start_hour").value = local.slice(11, 13);
-      document.getElementById("edit_start_minute").value = local.slice(14, 16);
+      setDateTimeFields("edit_start", date);
     };
     const setEditorEnd = (date) => {
-      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString();
-      document.getElementById("edit_end_date").value = local.slice(0, 10);
-      document.getElementById("edit_end_hour").value = local.slice(11, 13);
-      document.getElementById("edit_end_minute").value = local.slice(14, 16);
+      setDateTimeFields("edit_end", date);
     };
     document.querySelectorAll("[data-duration]").forEach((button) => button.addEventListener("click", () => {
       setEditorEnd(new Date(Date.now() + Number(button.dataset.duration) * 60000));
@@ -776,18 +795,15 @@
             document.getElementById("edit_start_date").value = "";
             document.getElementById("edit_start_hour").value = "12";
             document.getElementById("edit_start_minute").value = "00";
+            document.getElementById("edit_start_period").value = "PM";
           }
           if (listing.ends_at) {
-            const date = new Date(listing.ends_at);
-            date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-            const local = date.toISOString();
-            document.getElementById("edit_end_date").value = local.slice(0, 10);
-            document.getElementById("edit_end_hour").value = local.slice(11, 13);
-            document.getElementById("edit_end_minute").value = local.slice(14, 16);
+            setEditorEnd(new Date(listing.ends_at));
           } else {
             document.getElementById("edit_end_date").value = "";
             document.getElementById("edit_end_hour").value = "12";
             document.getElementById("edit_end_minute").value = "00";
+            document.getElementById("edit_end_period").value = "PM";
           }
           const dialog = document.getElementById("editDialog");
           if (typeof dialog.showModal === "function") dialog.showModal();
@@ -823,6 +839,7 @@
           document.getElementById("edit_start_date").value = "";
           document.getElementById("edit_start_hour").value = "12";
           document.getElementById("edit_start_minute").value = "00";
+          document.getElementById("edit_start_period").value = "PM";
           setEditorEnd(new Date(Date.now() + 60 * 60000));
           msg.textContent = "Elige cuánto durará la nueva ronda y guarda los cambios.";
           const dialog = document.getElementById("editDialog");
@@ -922,6 +939,7 @@
     const publishFeedback = document.getElementById("publish_feedback");
     const openPublishDialog = () => {
       publishFeedback.textContent = "";
+      if (!document.getElementById("create_end_date").value) setDateTimeFields("create_end", new Date(Date.now() + 60 * 60000));
       if (typeof publishDialog.showModal === "function") publishDialog.showModal();
       else { publishDialog.setAttribute("open", ""); publishDialog.style.display = "block"; }
     };
@@ -952,8 +970,8 @@
 
       const start = Number(document.getElementById("start_price").value || 0);
       const createStatus = document.getElementById("create_status").value;
-      const starts = document.getElementById("starts_at").value;
-      const ends = document.getElementById("ends_at").value;
+      const starts = dateTimeFromFields("create_start");
+      const ends = dateTimeFromFields("create_end");
       if (!document.getElementById("title").value.trim()) {
         showPublishFeedback("Escribe el nombre de la pieza.");
         return;
@@ -1007,8 +1025,9 @@
       const count = event.target.files.length;
       document.getElementById("photoName").textContent = count ? `${count} archivo${count === 1 ? "" : "s"} seleccionado${count === 1 ? "" : "s"}` : "Imágenes y videos";
     });
-    document.getElementById("starts_at").addEventListener("change", (event) => {
-      document.getElementById("create_status").value = event.target.value && new Date(event.target.value) > new Date() ? "upcoming" : "active";
+    document.getElementById("create_start_date").addEventListener("change", () => {
+      const starts = dateTimeFromFields("create_start");
+      document.getElementById("create_status").value = starts && new Date(starts) > new Date() ? "upcoming" : "active";
     });
 
     const closeEditDialog = () => {
@@ -1043,13 +1062,8 @@
       const mediaUrls = uniqueMedia([...mediaFromLines(document.getElementById("edit_media_urls").value), ...uploadedMedia, ...(imageUrl ? [{ type:"image", url:imageUrl }] : [])]);
       if (!imageUrl) imageUrl = mediaUrls.find((item) => item.type === "image")?.url || null;
       const endDate = document.getElementById("edit_end_date").value;
-      const endHour = document.getElementById("edit_end_hour").value;
-      const endMinute = document.getElementById("edit_end_minute").value;
-      const endsAt = endDate ? `${endDate}T${endHour}:${endMinute}` : "";
-      const startDate = document.getElementById("edit_start_date").value;
-      const startHour = document.getElementById("edit_start_hour").value;
-      const startMinute = document.getElementById("edit_start_minute").value;
-      const startsAt = startDate ? `${startDate}T${startHour}:${startMinute}` : "";
+      const endsAt = dateTimeFromFields("edit_end");
+      const startsAt = dateTimeFromFields("edit_start");
       const selectedStatus = document.getElementById("edit_status").value;
       const title = document.getElementById("edit_title").value.trim();
       if (!title) return showEditFeedback("Escribe el nombre de la pieza antes de guardar.");
