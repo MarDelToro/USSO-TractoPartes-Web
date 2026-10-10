@@ -116,6 +116,12 @@
     .time-shortcuts button { min-height:36px; padding:8px 13px; border-radius:999px; background:#242429; color:#f3f1ec; border:1px solid rgba(255,255,255,.12); font-size:12px; }
     .dialog-close { width:38px; height:38px; padding:0; border-radius:50%; background:#242429; color:#fff; }
     .edit-form { padding:14px 24px 24px; }
+    .publish-dialog { width:min(920px,94vw); max-height:92vh; overflow:auto; padding:0; border:1px solid rgba(255,255,255,.15); border-radius:22px; color:#f3f1ec; background:#141416; box-shadow:0 30px 100px rgba(0,0,0,.72); }
+    .publish-dialog::backdrop { background:rgba(0,0,0,.82); backdrop-filter:blur(6px); }
+    .publish-dialog .piece-grid { padding:14px 24px 26px; }
+    .publish-trigger { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:12px 20px; border-radius:999px; background:#f6c02a; color:#09090a; font-size:13px; font-weight:900; white-space:nowrap; box-shadow:0 10px 30px rgba(246,192,42,.16); }
+    .publish-trigger::before { content:"+"; display:grid; place-items:center; width:25px; height:25px; border-radius:50%; background:#09090a; color:#f6c02a; font-size:20px; line-height:1; }
+    .publish-trigger:hover { transform:translateY(-1px); filter:brightness(1.04); }
     @media(max-width:1100px) { .auction-preview-grid { grid-template-columns:1fr; } }
     @media(max-width:700px) {
       main { width:94vw; margin:22px auto; }
@@ -139,6 +145,9 @@
       .auction-preview-grid { grid-template-columns:1fr; }
       .auction-card { grid-template-columns:1fr; }
       .auction-photo { min-height:250px; border-right:0; border-bottom:1px solid rgba(255,255,255,.12); }
+      .publish-trigger { width:100%; }
+      .publish-dialog { width:96vw; max-height:94vh; }
+      .publish-dialog .piece-grid { padding:10px 18px 22px; }
     }
   </style>
 </head>
@@ -151,34 +160,11 @@
     <p class="msg admin-ready" id="msg">Cargando...</p>
 
     <nav class="admin-index" aria-label="Secciones del panel">
-      <a href="#publicar">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#historial-admin">Historial</a><a href="#ganadores-contacto">Ganadores</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
+      <a href="#admin-subastas" id="publishIndex">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#historial-admin">Historial</a><a href="#ganadores-contacto">Ganadores</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
     </nav>
 
-    <section class="panel-card" id="publicar">
-      <div class="panel-title">
-        <div><h2>Publicar una pieza</h2><p>Agrega la información y programa la subasta desde un solo lugar.</p></div>
-        <span class="leader">Nueva publicación</span>
-      </div>
-      <form id="pieza" class="piece-grid">
-        <div class="field"><label for="title">Nombre de la pieza</label><input id="title" placeholder="Ej. Transmisión Eaton Fuller" required></div>
-        <div class="field"><label for="category">Categoría</label><select id="category" required>
-          <option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="estructuras">Estructuras</option><option value="suspension">Suspensión</option>
-        </select></div>
-        <div class="field full"><label for="description">Descripción</label><textarea id="description" placeholder="Modelo, condición, compatibilidad y cualquier detalle importante"></textarea></div>
-        <div class="field full"><label for="product_details">Ficha detallada del producto</label><textarea id="product_details" placeholder="Escribe un detalle por línea. Ej.&#10;Modelo: 2006&#10;Condición: usada&#10;Incluye: cabina y chasis&#10;Detalle visible: golpe lateral"></textarea><span class="field-help">Cada línea se mostrará como un punto separado y fácil de revisar.</span></div>
-        <div class="field"><label for="photo">Fotos y videos de evidencia</label><div class="file-field"><input id="photo" type="file" accept="image/*,video/*" multiple><div><strong>Seleccionar varios archivos</strong><span id="photoName">Imágenes y videos</span></div></div></div>
-        <div class="field"><label for="image_url">Portada por dirección web</label><input id="image_url" type="url" placeholder="https://..."><span class="field-help">Opcional. La primera foto subida será la portada si lo dejas vacío.</span></div>
-        <div class="field full"><label for="media_urls">Más evidencia por dirección web</label><textarea id="media_urls" placeholder="Pega una dirección de foto o video por línea"></textarea></div>
-        <div class="field"><label for="start_price">Precio inicial</label><input id="start_price" type="number" min="0" step="1" placeholder="$0 MXN" required></div>
-        <div class="field"><label for="create_status">Estado inicial</label><select id="create_status"><option value="active">Activa ahora</option><option value="upcoming">Próxima / programada</option></select><span class="field-help">Para “Próxima”, elige abajo una fecha futura.</span></div>
-        <div class="field"><label for="starts_at">Fecha y hora de inicio</label><input id="starts_at" type="datetime-local"><span class="field-help">Déjalo vacío para activarla ahora. Si eliges una fecha futura, se publicará como “Próxima”.</span></div>
-        <div class="field"><label for="ends_at">Fecha y hora de cierre</label><input id="ends_at" type="datetime-local" required></div>
-        <div class="form-actions"><button type="submit">Publicar subasta</button></div>
-      </form>
-    </section>
-
     <section class="auction-preview" id="admin-subastas">
-      <div class="section-head"><div><h2>Vista previa de tus subastas</h2><p>Así se presentan tus lotes, con controles administrativos en la misma tarjeta.</p></div></div>
+      <div class="section-head"><div><h2>Vista previa de tus subastas</h2><p>Así se presentan tus lotes, con controles administrativos en la misma tarjeta.</p></div><button class="publish-trigger" id="openPublish" type="button">Publicar pieza</button></div>
       <div class="auction-preview-grid" id="auctionPreview"><div class="panel-card">Cargando subastas...</div></div>
     </section>
 
@@ -270,6 +256,25 @@
       <tbody id="avisos"><tr><td colspan="6">Cargando...</td></tr></tbody>
     </table></div>
   </main>
+
+  <dialog class="publish-dialog" id="publishDialog">
+    <div class="edit-dialog-head"><div><h2>Publicar una pieza</h2><p>Crea una subasta nueva y agrega toda la evidencia del producto.</p></div><button class="dialog-close" id="closePublish" type="button" aria-label="Cerrar">×</button></div>
+    <form id="pieza" class="piece-grid" novalidate>
+      <div class="field"><label for="title">Nombre de la pieza</label><input id="title" placeholder="Ej. Transmisión Eaton Fuller" required></div>
+      <div class="field"><label for="category">Categoría</label><select id="category" required><option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="estructuras">Estructuras</option><option value="suspension">Suspensión</option></select></div>
+      <div class="field full"><label for="description">Descripción</label><textarea id="description" placeholder="Modelo, condición, compatibilidad y cualquier detalle importante"></textarea></div>
+      <div class="field full"><label for="product_details">Ficha detallada del producto</label><textarea id="product_details" placeholder="Escribe un detalle por línea. Ej.&#10;Modelo: 2006&#10;Condición: usada&#10;Incluye: cabina y chasis&#10;Detalle visible: golpe lateral"></textarea><span class="field-help">Cada línea se mostrará como un punto separado y fácil de revisar.</span></div>
+      <div class="field"><label for="photo">Fotos y videos de evidencia</label><div class="file-field"><input id="photo" type="file" accept="image/*,video/*" multiple><div><strong>Seleccionar varios archivos</strong><span id="photoName">Imágenes y videos</span></div></div></div>
+      <div class="field"><label for="image_url">Portada por dirección web</label><input id="image_url" type="url" placeholder="https://..."><span class="field-help">Opcional. La primera foto subida será la portada si lo dejas vacío.</span></div>
+      <div class="field full"><label for="media_urls">Más evidencia por dirección web</label><textarea id="media_urls" placeholder="Pega una dirección de foto o video por línea"></textarea></div>
+      <div class="field"><label for="start_price">Precio inicial</label><input id="start_price" type="number" min="0" step="1" placeholder="$0 MXN" required></div>
+      <div class="field"><label for="create_status">Estado inicial</label><select id="create_status"><option value="active">Activa ahora</option><option value="upcoming">Próxima / programada</option></select><span class="field-help">Para “Próxima”, elige abajo una fecha futura.</span></div>
+      <div class="field"><label for="starts_at">Fecha y hora de inicio</label><input id="starts_at" type="datetime-local"><span class="field-help">Déjalo vacío para activarla ahora. Si eliges una fecha futura, se publicará como “Próxima”.</span></div>
+      <div class="field"><label for="ends_at">Fecha y hora de cierre</label><input id="ends_at" type="datetime-local" required></div>
+      <p class="field-help full" id="publish_feedback" role="status" style="min-height:22px;margin:0;color:#f6c02a;font-weight:800"></p>
+      <div class="form-actions"><button class="action-secondary" id="cancelPublish" type="button">Cancelar</button><button id="publishSave" type="submit">Publicar subasta</button></div>
+    </form>
+  </dialog>
 
   <dialog class="edit-dialog" id="editDialog">
     <div class="edit-dialog-head"><div><h2>Editar subasta</h2><p>Los cambios aparecerán automáticamente en las cuentas de los usuarios.</p></div><button class="dialog-close" id="closeEdit" type="button" aria-label="Cerrar">×</button></div>
@@ -873,13 +878,35 @@
       renderAvisos();
     }));
 
+    const publishDialog = document.getElementById("publishDialog");
+    const publishFeedback = document.getElementById("publish_feedback");
+    const openPublishDialog = () => {
+      publishFeedback.textContent = "";
+      if (typeof publishDialog.showModal === "function") publishDialog.showModal();
+      else { publishDialog.setAttribute("open", ""); publishDialog.style.display = "block"; }
+    };
+    const closePublishDialog = () => {
+      if (typeof publishDialog.close === "function") publishDialog.close();
+      else { publishDialog.removeAttribute("open"); publishDialog.style.display = "none"; }
+    };
+    const showPublishFeedback = (message, isError = true) => {
+      publishFeedback.textContent = message;
+      publishFeedback.style.color = isError ? "#ff8a80" : "#7ee2a8";
+    };
+    document.getElementById("openPublish").addEventListener("click", openPublishDialog);
+    document.getElementById("publishIndex").addEventListener("click", (event) => { event.preventDefault(); openPublishDialog(); });
+    document.getElementById("closePublish").addEventListener("click", closePublishDialog);
+    document.getElementById("cancelPublish").addEventListener("click", closePublishDialog);
+    publishDialog.addEventListener("click", (event) => { if (event.target === publishDialog) closePublishDialog(); });
+
     document.getElementById("pieza").addEventListener("submit", async (e) => {
       e.preventDefault();
+      const publishButton = document.getElementById("publishSave");
       const { data: { user } } = await client.auth.getUser();
       let imageUrl = document.getElementById("image_url").value.trim();
       let uploadedMedia = [];
       try { uploadedMedia = await uploadEvidence(document.getElementById("photo").files); }
-      catch (error) { msg.textContent = error.message; return; }
+      catch (error) { showPublishFeedback(error.message); return; }
       const mediaUrls = uniqueMedia([...uploadedMedia, ...mediaFromLines(document.getElementById("media_urls").value), ...(imageUrl ? [{ type:"image", url:imageUrl }] : [])]);
       if (!imageUrl) imageUrl = mediaUrls.find((item) => item.type === "image")?.url || null;
 
@@ -887,18 +914,28 @@
       const createStatus = document.getElementById("create_status").value;
       const starts = document.getElementById("starts_at").value;
       const ends = document.getElementById("ends_at").value;
+      if (!document.getElementById("title").value.trim()) {
+        showPublishFeedback("Escribe el nombre de la pieza.");
+        return;
+      }
+      if (!start) {
+        showPublishFeedback("Escribe el precio inicial.");
+        return;
+      }
       if (!ends) {
-        msg.textContent = "Selecciona una fecha y hora de cierre.";
+        showPublishFeedback("Selecciona una fecha y hora de cierre.");
         return;
       }
       if (starts && new Date(starts) >= new Date(ends)) {
-        msg.textContent = "La fecha de inicio debe ser anterior al cierre.";
+        showPublishFeedback("La fecha de inicio debe ser anterior al cierre.");
         return;
       }
       if (createStatus === "upcoming" && (!starts || new Date(starts) <= new Date())) {
-        msg.textContent = "Para publicarla como próxima, selecciona una fecha de inicio futura.";
+        showPublishFeedback("Para publicarla como próxima, selecciona una fecha de inicio futura.");
         return;
       }
+      publishButton.disabled = true;
+      showPublishFeedback("Publicando pieza...", false);
       const { error } = await client.from("listings").insert({
         title: document.getElementById("title").value.trim(),
         category: document.getElementById("category").value,
@@ -914,9 +951,13 @@
         created_by: user.id
       });
 
+      publishButton.disabled = false;
       msg.textContent = error ? error.message : "Pieza publicada";
+      showPublishFeedback(error ? error.message : "Pieza publicada correctamente.", Boolean(error));
       if (!error) {
         e.target.reset();
+        document.getElementById("photoName").textContent = "Imágenes y videos";
+        closePublishDialog();
         loadListings();
         loadLiveBids();
       }
