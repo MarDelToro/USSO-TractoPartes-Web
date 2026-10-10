@@ -102,6 +102,7 @@
     .auction-price { color:#f6c02a; font-size:31px; font-weight:900; margin:3px 0 14px; }
     .auction-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:20px; }
     .auction-meta div { padding:11px; border-radius:11px; background:#0e0e10; border:1px solid rgba(255,255,255,.08); }
+    .auction-meta .auction-category { grid-column:1 / -1; }
     .auction-meta span { display:block; color:#818791; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
     .auction-meta strong { display:block; margin-top:4px; font-size:12px; }
     .auction-card-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; }
@@ -709,7 +710,8 @@
         const proxima = !!p.starts_at && new Date(p.starts_at) > new Date();
         const vencida = p.ends_at && new Date(p.ends_at) < new Date();
         const cerrada = p.status !== "active" || vencida;
-        const cierre = p.ends_at ? new Date(p.ends_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"short" }) : "Sin fecha límite";
+        const inicio = p.starts_at ? new Date(p.starts_at).toLocaleString("es-MX", { dateStyle:"medium", timeStyle:"short", hour12:true }) : "Por definir";
+        const cierre = p.ends_at ? new Date(p.ends_at).toLocaleString("es-MX", { dateStyle:"medium", timeStyle:"short", hour12:true }) : "Sin fecha límite";
         const acciones = cerrada
           ? `<button class="action-btn action-primary" data-edit="${p.id}">Editar</button>
              <button class="action-btn action-secondary" data-reopen="${p.id}" data-round="${Number(p.auction_round || 1)}" data-start="${Number(p.start_price || 0)}">Reabrir</button>
@@ -728,7 +730,8 @@
             <div class="auction-meta">
               <div><span>Precio base</span><strong>${money(p.start_price)}</strong></div>
               <div><span>Ofertas</span><strong>${Number(p.bid_count || 0)}</strong></div>
-              <div><span>Categoría</span><strong>${p.category || "Sin categoría"}</strong></div>
+              <div class="auction-category"><span>Categoría</span><strong>${p.category || "Sin categoría"}</strong></div>
+              <div><span>Inicio</span><strong>${inicio}</strong></div>
               <div><span>Cierre</span><strong>${cierre}</strong></div>
             </div>
             <div class="auction-card-actions"><a class="action-btn action-secondary" href="Subasta.dc.html#${encodeURIComponent(p.id)}">Ver detalles</a>${acciones}</div>
