@@ -711,6 +711,11 @@
             </sc-for>
           </div>
 
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px">
+            <div style="padding:10px 12px;border-radius:11px;background:rgba(var(--border-rgb),.045);border:1px solid rgba(var(--border-rgb),.09)"><span style="display:block;font:700 9.5px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--text-rgb),.42);margin-bottom:4px">Inicio</span><strong style="font:700 11.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ featuredStartsDate }}</strong></div>
+            <div style="padding:10px 12px;border-radius:11px;background:rgba(var(--border-rgb),.045);border:1px solid rgba(var(--border-rgb),.09)"><span style="display:block;font:700 9.5px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--text-rgb),.42);margin-bottom:4px">Cierre</span><strong style="font:700 11.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ featuredClosesDate }}</strong></div>
+          </div>
+
           <div class="usso-featured-meta" style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(var(--border-rgb),0.09);border-bottom:1px solid rgba(var(--border-rgb),0.09);margin-bottom:22px">
             <div>
               <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">{{ featuredPriceLabel }}</p>
@@ -767,6 +772,7 @@
               <span style="display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.28);border-radius:100px;padding:5px 11px;font:700 11px Manrope,sans-serif;color:#7ee2a8;margin-bottom:14px">
                 <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="flex:none"><path d="M1.5 6.2l3 3L10.5 2.8" stroke="#7ee2a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{ lot.evidenceLabel }}
               </span>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px"><div style="padding:8px;border-radius:9px;background:rgba(var(--border-rgb),.045)"><span style="display:block;font:700 8px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Inicio</span><strong style="font:700 9.5px/1.3 Manrope;color:var(--text)">{{ lot.startsDateDisplay }}</strong></div><div style="padding:8px;border-radius:9px;background:rgba(var(--border-rgb),.045)"><span style="display:block;font:700 8px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Cierre</span><strong style="font:700 9.5px/1.3 Manrope;color:var(--text)">{{ lot.closesDateDisplay }}</strong></div></div>
               <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(var(--border-rgb),0.08);padding-top:14px;margin-top:auto">
                 <div>
                   <div style="font:600 11px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5)">{{ lot.bidLabel }}</div>
@@ -819,6 +825,7 @@
                 <span style="display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.28);border-radius:100px;padding:4px 10px;font:700 10.5px Manrope,sans-serif;color:#7ee2a8;margin-bottom:14px">
                   <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="flex:none"><path d="M1.5 6.2l3 3L10.5 2.8" stroke="#7ee2a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{ lot.evidenceLabel }}
                 </span>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px"><div style="padding:8px;border-radius:9px;background:rgba(var(--border-rgb),.045)"><span style="display:block;font:700 8px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Inicio</span><strong style="font:700 9.5px/1.3 Manrope;color:var(--text)">{{ lot.startsDateDisplay }}</strong></div><div style="padding:8px;border-radius:9px;background:rgba(var(--border-rgb),.045)"><span style="display:block;font:700 8px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Cierre</span><strong style="font:700 9.5px/1.3 Manrope;color:var(--text)">{{ lot.closesDateDisplay }}</strong></div></div>
                 <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(var(--border-rgb),0.08);padding-top:13px;margin-top:auto">
                   <div>
                     <div style="font:600 10.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5)">{{ lot.bidLabel }}</div>
@@ -872,6 +879,7 @@
               <div class="usso-history-body">
                 <span style="font:800 10.5px Manrope,sans-serif;color:{{ lot.resultColor }};text-transform:uppercase;letter-spacing:.09em">{{ lot.resultLabel }} · Ronda {{ lot.auctionRound }}</span>
                 <h3 style="font:800 18px Manrope,sans-serif;color:var(--text);margin:7px 0 18px">{{ lot.title }}</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px"><div><span style="display:block;font:700 8.5px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Inició</span><strong style="font:700 10px/1.35 Manrope;color:var(--text)">{{ lot.startsDateDisplay }}</strong></div><div><span style="display:block;font:700 8.5px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Finalizó</span><strong style="font:700 10px/1.35 Manrope;color:var(--text)">{{ lot.closesDateDisplay }}</strong></div></div>
                 <div class="usso-history-result">
                   <div><span style="display:block;font:600 11px Manrope;color:rgba(var(--text-rgb),.5)">Precio final</span><strong style="font:800 22px 'Archivo Black';color:{{ accent }}">{{ lot.bid }}</strong></div>
                   <span style="font:700 12px Manrope;color:rgba(var(--text-rgb),.55)">{{ lot.bidCount }} ofertas</span>
@@ -1752,6 +1760,13 @@ class Component extends DCLogic {
     return d > 0 ? `${d}d ${pad(h)}:${pad(m)}:${pad(sec)}` : `${pad(h)}:${pad(m)}:${pad(sec)}`;
   }
 
+  formatAuctionDate(timestamp) {
+    if (!timestamp || !Number.isFinite(Number(timestamp))) return 'Por definir';
+    return new Date(Number(timestamp)).toLocaleString('es-MX', {
+      day:'2-digit', month:'short', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true
+    });
+  }
+
   hexToRgba(hex, a) {
     const h = hex.replace('#', '');
     const r = parseInt(h.substring(0, 2), 16), g = parseInt(h.substring(2, 4), 16), b = parseInt(h.substring(4, 6), 16);
@@ -2302,6 +2317,8 @@ submitAuth = async (e) => {
         bid: l.bid,
         closesLabel: l.status === 'Próxima' ? 'Inicia en' : (l.status === 'Activa' ? 'Cierra en' : 'Finalizó'),
         closesDisplay: l.status === 'Próxima' ? this.formatCountdown(l.startsAt - Date.now()) : (l.status === 'Activa' ? this.formatCountdown(l.closesAt - Date.now()) : '00:00:00'),
+        startsDateDisplay: this.formatAuctionDate(l.startsAt),
+        closesDateDisplay: this.formatAuctionDate(l.closesAt),
         clockColor: l.status === 'Próxima' ? '#8dbbff' : (l.status === 'Activa' ? 'var(--text)' : '#ff5c52'),
         bidLabel: l.status === 'Próxima' ? 'Precio base' : (l.status === 'Activa' ? (count > 0 ? 'Puja actual · ' + count + ' ofertas' : 'Precio base') : (count > 0 ? 'Precio final · ' + count + ' ofertas' : 'Sin ofertas')),
         evidenceLabel: l.evidence[0],
@@ -2491,6 +2508,8 @@ submitAuth = async (e) => {
       featuredClock: feat.closesDisplay,
       featuredClockLabel: featuredIsUpcoming ? 'Inicia en' : (featuredIsActive ? 'Cierra en' : 'Finalizó'),
       featuredClockColor: featuredIsUpcoming ? '#8dbbff' : (featuredIsActive ? 'var(--text)' : '#ff5c52'),
+      featuredStartsDate: this.formatAuctionDate(feat.startsAt),
+      featuredClosesDate: this.formatAuctionDate(feat.closesAt),
       featuredPriceLabel: featuredIsUpcoming ? 'Precio base' : (featuredIsActive ? `Puja actual · ${feat.bidCount} ofertas` : (feat.bidCount ? `Precio final · ${feat.bidCount} ofertas` : 'Finalizada sin ofertas')),
       featuredIsActive,
       featuredIsUpcoming,
