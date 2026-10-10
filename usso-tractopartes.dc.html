@@ -80,7 +80,7 @@
   .usso-loser-card h2 { margin:18px 0 10px; color:#ff8a80; font:900 clamp(31px,6vw,54px)/1.05 'Archivo Black',sans-serif; }
   .usso-loser-card p { margin:0 auto 24px; max-width:470px; color:rgba(243,241,236,.72); font:600 16px/1.6 Manrope,sans-serif; }
   .usso-loser-card button { border:0; border-radius:999px; padding:14px 26px; background:#f6c02a; color:#0a0a0b; font:800 14px Manrope,sans-serif; cursor:pointer; }
-  .usso-native-outcome { position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; height:100dvh!important; z-index:2147483647!important; isolation:isolate; overflow-y:auto!important; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; padding-top:max(18px,env(safe-area-inset-top))!important; padding-bottom:max(18px,env(safe-area-inset-bottom))!important; }
+  .usso-native-outcome { position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; height:100dvh!important; z-index:2147483647!important; isolation:isolate; overflow:hidden!important; overscroll-behavior:none!important; touch-action:none!important; padding-top:max(18px,env(safe-area-inset-top))!important; padding-bottom:max(18px,env(safe-area-inset-bottom))!important; }
   .usso-winner-confetti span { position:absolute; top:-10%; width:10px; height:20px; background:#f6c02a; animation:winnerFall 3.5s linear infinite; }
   .usso-winner-confetti span:nth-child(2n){background:#7ee2a8}.usso-winner-confetti span:nth-child(3n){background:#fff}.usso-winner-confetti span:nth-child(4n){background:#ff5c52}
   .usso-winner-confetti span:nth-child(1){left:8%}.usso-winner-confetti span:nth-child(2){left:17%;animation-delay:.4s}.usso-winner-confetti span:nth-child(3){left:29%;animation-delay:1.1s}.usso-winner-confetti span:nth-child(4){left:41%;animation-delay:.2s}.usso-winner-confetti span:nth-child(5){left:53%;animation-delay:1.5s}.usso-winner-confetti span:nth-child(6){left:64%;animation-delay:.7s}.usso-winner-confetti span:nth-child(7){left:76%;animation-delay:1.8s}.usso-winner-confetti span:nth-child(8){left:88%;animation-delay:.9s}.usso-winner-confetti span:nth-child(9){left:95%;animation-delay:1.3s}
@@ -92,7 +92,7 @@
   @media (prefers-reduced-motion:reduce) { .usso-winner-card,.usso-winner-card::before,.usso-winner-trophy,.usso-winner-confetti span,.usso-winner-screen::before,.usso-winner-screen::after { animation:none !important; } }
   @media (max-width:860px) {
     .usso-native-outcome { place-items:center!important; padding-left:14px!important; padding-right:14px!important; }
-    .usso-native-outcome .usso-winner-card,.usso-native-outcome .usso-loser-card { width:100%!important; max-height:calc(100dvh - 36px); overflow-y:auto; padding:46px 20px 28px!important; border-radius:22px!important; }
+    .usso-native-outcome .usso-winner-card,.usso-native-outcome .usso-loser-card { width:100%!important; max-height:calc(100dvh - 36px); overflow:hidden!important; touch-action:none!important; padding:46px 20px 28px!important; border-radius:22px!important; }
     .usso-native-outcome .usso-winner-trophy { font-size:58px!important; }
     .usso-native-outcome h2 { font-size:clamp(30px,10vw,45px)!important; }
     .usso-native-outcome p { font-size:15px!important; }
@@ -990,6 +990,9 @@ class Component extends DCLogic {
     myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [] };
   videoRef = null;
   observer = null;
+  // La ventana grande solo corresponde a resultados ocurridos mientras esta
+  // página estaba abierta. Los resultados anteriores permanecen en avisos.
+  outcomeSessionStartedAt = Date.now();
 
   setupVideo = (v) => {
     if (!v || v === this.videoRef) return;
@@ -1550,11 +1553,41 @@ class Component extends DCLogic {
       : `<div class="usso-loser-card"><button class="usso-outcome-close" data-close-outcome aria-label="Cerrar resultado">×</button><div class="icon">○</div><h2>ESTA VEZ NO GANASTE</h2><p><strong data-outcome-title></strong> terminó en <strong data-outcome-amount></strong>. Tu historial ya fue actualizado. Habrá nuevas oportunidades.</p><button data-close-outcome>Entendido</button></div>`;
     overlay.querySelector('[data-outcome-title]').textContent = listing.title || 'La subasta';
     overlay.querySelector('[data-outcome-amount]').textContent = amount;
-    const previousOverflow = document.body.style.overflow;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const html = document.documentElement;
+    const previousStyles = {
+      htmlOverflow: html.style.overflow,
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyOverflow: document.body.style.overflow,
+      bodyPosition: document.body.style.position,
+      bodyTop: document.body.style.top,
+      bodyLeft: document.body.style.left,
+      bodyRight: document.body.style.right,
+      bodyWidth: document.body.style.width,
+      bodyTouchAction: document.body.style.touchAction
+    };
+    html.style.overflow = 'hidden';
+    html.style.overscrollBehavior = 'none';
     document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = `-${scrollX}px`;
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.style.touchAction = 'none';
     const close = () => {
       overlay.remove();
-      document.body.style.overflow = previousOverflow;
+      html.style.overflow = previousStyles.htmlOverflow;
+      html.style.overscrollBehavior = previousStyles.htmlOverscroll;
+      document.body.style.overflow = previousStyles.bodyOverflow;
+      document.body.style.position = previousStyles.bodyPosition;
+      document.body.style.top = previousStyles.bodyTop;
+      document.body.style.left = previousStyles.bodyLeft;
+      document.body.style.right = previousStyles.bodyRight;
+      document.body.style.width = previousStyles.bodyWidth;
+      document.body.style.touchAction = previousStyles.bodyTouchAction;
+      window.scrollTo(scrollX, scrollY);
       if (type === 'win') this.setState({ winnerCelebration:null });
       else this.setState({ lossCelebration:null });
     };
@@ -1711,14 +1744,16 @@ async syncAuthFromSupabase() {
   const newestFirst = (a, b) => Number(b.closesAt || 0) - Number(a.closesAt || 0);
   const wonCandidates = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && lot.winnerId === user.id && participatedInRound(lot)).sort(newestFirst);
   const lostCandidates = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && lot.winnerId && lot.winnerId !== user.id && participatedInRound(lot)).sort(newestFirst);
-  const wonAuction = wonCandidates.find((lot) => !this.hasSeenOutcome('winner', lot, user.id));
-  const lostAuction = lostCandidates.find((lot) => !this.hasSeenOutcome('loss', lot, user.id));
+  const happenedThisSession = (lot) => Number(lot.closesAt || 0) >= this.outcomeSessionStartedAt;
+  const wonAuction = wonCandidates.find((lot) => happenedThisSession(lot) && !this.hasSeenOutcome('winner', lot, user.id));
+  const lostAuction = lostCandidates.find((lot) => happenedThisSession(lot) && !this.hasSeenOutcome('loss', lot, user.id));
   const { data: serverNotifs } = await client.from('notifications').select('id,title,message,amount,created_at,user_id,listing_id,notification_type,auction_round').eq('user_id', user.id).order('created_at', { ascending:false }).limit(50);
   const resultNotices = (serverNotifs || []).filter((notice) => notice.notification_type === 'auction_won' || notice.notification_type === 'auction_lost');
   const unseenResultNotice = resultNotices.find((notice) => {
     const type = notice.notification_type === 'auction_won' ? 'winner' : 'loss';
     const pseudoListing = { id:notice.listing_id || notice.id, auctionRound:Number(notice.auction_round || 1) };
-    return !this.hasSeenOutcome(type, pseudoListing, user.id);
+    const createdAt = new Date(notice.created_at).getTime();
+    return createdAt >= this.outcomeSessionStartedAt && !this.hasSeenOutcome(type, pseudoListing, user.id);
   });
   const localNotifs = this.state.notifs || [];
   const localById = Object.fromEntries(localNotifs.map((n) => [n.id, n]));
