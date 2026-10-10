@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Mi compra · USSO Tractopartes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{box-sizing:border-box} :root{--yellow:#f6c02a;--green:#7ee2a8;--bg:#09090a;--card:#151517;--text:#f3f1ec;--muted:#92929a}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-serif}a{color:inherit;text-decoration:none}
+    .nav{height:82px;padding:0 5vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #252528;background:rgba(9,9,10,.94);backdrop-filter:blur(12px)}
+    .logo{width:160px;max-height:58px;object-fit:contain}.back{font-weight:800;border-bottom:2px solid var(--yellow);padding-bottom:5px}
+    main{width:min(1180px,92vw);margin:auto;padding:58px 0 90px}.eyebrow{color:var(--green);font-weight:800;letter-spacing:.16em;text-transform:uppercase;font-size:12px}
+    h1{font:clamp(34px,5vw,62px)/1.04 'Archivo Black',sans-serif;margin:13px 0 34px}.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:48px}
+    .photo{aspect-ratio:1/1;background:var(--card);border:1px solid #2b2b30;border-radius:24px;overflow:hidden;display:grid;place-items:center}.photo img{width:100%;height:100%;object-fit:cover}.empty{color:#777;font-weight:700}
+    .panel{background:var(--card);border:1px solid #2b2b30;border-radius:24px;padding:34px}.sold{display:inline-flex;align-items:center;gap:8px;color:var(--green);background:rgba(74,222,128,.09);border:1px solid rgba(74,222,128,.35);padding:8px 13px;border-radius:99px;font-size:11px;font-weight:800;letter-spacing:.1em}.sold:before{content:'✓';font-size:15px}
+    h2{font:clamp(28px,4vw,43px)/1.08 'Archivo Black',sans-serif;margin:20px 0 12px}.description{color:#aaa;line-height:1.7;margin:0 0 28px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric{background:#101012;border:1px solid #29292e;border-radius:15px;padding:18px}.label{color:var(--muted);font-size:12px;font-weight:700}.value{font:23px 'Archivo Black',sans-serif;margin-top:6px}.price{color:var(--yellow)}
+    .notice{margin:22px 0;padding:17px;border-radius:14px;background:rgba(246,192,42,.08);border:1px solid rgba(246,192,42,.28);color:#d8d2c4;line-height:1.55}.btn{display:block;text-align:center;border-radius:99px;background:var(--yellow);color:#09090a;padding:15px 22px;font-weight:800}.state{text-align:center;padding:120px 20px}.hidden{display:none!important}
+    @media(max-width:800px){.nav{height:74px;padding:0 18px}.logo{width:118px}.back{font-size:13px}main{padding:34px 0 70px}.grid{grid-template-columns:1fr;gap:20px}.panel{padding:24px}.metrics{grid-template-columns:1fr}h1{margin-bottom:24px}}
+  </style>
+</head>
+<body>
+  <nav class="nav"><a href="usso-tractopartes.dc.html"><img class="logo" src="assets/logo-usso-v2-transparent.png" alt="USSO Tractopartes"></a><a class="back" href="usso-tractopartes.dc.html?cuenta=1">← Mis compras</a></nav>
+  <main>
+    <div id="loading" class="state">Cargando tu compra...</div>
+    <div id="unavailable" class="state hidden"><h1>Compra no disponible</h1><p>Inicia sesión con la cuenta ganadora para consultar este producto.</p><a class="back" href="login.html">Iniciar sesión</a></div>
+    <section id="purchase" class="hidden">
+      <span class="eyebrow">Compra registrada</span><h1>¡Este lote es tuyo!</h1>
+      <div class="grid">
+        <div class="photo"><img id="image" alt="Producto comprado"><div id="noImage" class="empty hidden">Foto próximamente</div></div>
+        <div class="panel"><span class="sold">Subasta ganada · Vendida</span><h2 id="title"></h2><p id="description" class="description"></p>
+          <div class="metrics"><div class="metric"><div class="label">Precio final</div><div id="price" class="value price"></div></div><div class="metric"><div class="label">Fecha de cierre</div><div id="date" class="value"></div></div></div>
+          <div class="notice">Tu compra está registrada. USSO confirmará contigo por WhatsApp el pago, la entrega y los siguientes pasos.</div>
+          <a id="whatsapp" class="btn" target="_blank">Hablar con USSO sobre mi compra</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const client=window.supabase.createClient('https://ahhlfvjicxylidpmeciw.supabase.co','sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e');
+    const id=decodeURIComponent(location.hash.slice(1));
+    const money=v=>Number(v||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0});
+    const show=id=>document.getElementById(id).classList.remove('hidden'); const hide=id=>document.getElementById(id).classList.add('hidden');
+    async function load(){
+      const {data:{user}}=await client.auth.getUser(); if(!user||!id)return unavailable();
+      const {data:profile}=await client.from('profiles').select('role').eq('id',user.id).maybeSingle();
+      const {data,error}=await client.from('listings').select('id,title,description,image_url,start_price,current_price,status,ends_at,winner_id,auction_round').eq('id',id).maybeSingle();
+      if(error||!data||data.status!=='closed'||(data.winner_id!==user.id&&profile?.role!=='admin'))return unavailable();
+      hide('loading');show('purchase');document.getElementById('title').textContent=data.title||'Pieza USSO';document.getElementById('description').textContent=data.description||'Producto adquirido mediante subasta USSO.';document.getElementById('price').textContent=money(data.current_price||data.start_price);document.getElementById('date').textContent=data.ends_at?new Date(data.ends_at).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'}):'Cierre registrado';
+      const img=document.getElementById('image');if(data.image_url)img.src=data.image_url;else{img.classList.add('hidden');show('noImage')}
+      const text=`Hola, gané la subasta de ${data.title||'un lote'} por ${money(data.current_price||data.start_price)}. Quiero continuar con mi compra.`;document.getElementById('whatsapp').href='https://wa.me/524522822400?text='+encodeURIComponent(text);
+    }
+    function unavailable(){hide('loading');show('unavailable')} load();
+  </script>
+</body>
+</html>

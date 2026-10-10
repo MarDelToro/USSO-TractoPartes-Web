@@ -70,6 +70,16 @@
     let userIsLeading = false;
     let outcomeChecking = false;
 
+    function saveAccountNotification(notification) {
+      try {
+        const key = "usso_cuenta_v1";
+        const saved = JSON.parse(localStorage.getItem(key) || "{}");
+        const createdAt = Date.now();
+        saved.notifs = [{...notification,id:`n-${createdAt}`,createdAt,read:false},...(saved.notifs || [])].slice(0,100);
+        localStorage.setItem(key,JSON.stringify(saved));
+      } catch (error) {}
+    }
+
     const money = (value) => Number(value || 0).toLocaleString("es-MX", {style:"currency",currency:"MXN",maximumFractionDigits:0});
     const show = (id) => document.getElementById(id).classList.remove("hidden");
     const hide = (id) => document.getElementById(id).classList.add("hidden");
@@ -213,7 +223,8 @@
       document.getElementById("amount").value = "";
       hide("bidForm");
       userIsLeading = true;
-      msg.textContent = "Puja registrada correctamente. Ahora vas ganando esta subasta.";
+      msg.textContent = "🔥 ¡YA CASI ES TUYAAAA! Ahora vas ganando esta subasta.";
+      saveAccountNotification({icon:"🔥",kind:"ok",title:"¡YA CASI ES TUYAAAA!",body:`Vas ganando ${listing.title || "esta subasta"} con ${money(amount)}. Mantente pendiente: si alguien te supera, te avisaremos de inmediato.`});
     });
 
     document.getElementById("amount").addEventListener("input", validateAmount);
@@ -251,14 +262,18 @@
       updateMinimum(data.current_price || data.start_price);
       await checkOutcome(listing);
       if (currentUser) {
+        const wasLeading = userIsLeading;
         const { data: ownBid } = await client.from("bids").select("amount")
           .eq("listing_id", listing.id).eq("auction_round", data.auction_round || 1)
           .eq("user_id", currentUser.id).order("amount", {ascending:false}).limit(1).maybeSingle();
         userIsLeading = Number(ownBid?.amount || 0) >= Number(data.current_price || data.start_price || 0) && Number(ownBid?.amount || 0) > 0;
         const active = isActive(data);
         if (userIsLeading || !active) hide("bidForm"); else show("bidForm");
-        if (userIsLeading) document.getElementById("msg").textContent = "Tu puja es la más alta. Podrás volver a pujar cuando alguien la supere.";
-        else if (active && document.getElementById("msg").textContent.includes("más alta")) document.getElementById("msg").textContent = "Tu puja fue superada. Ya puedes volver a participar.";
+        if (userIsLeading) document.getElementById("msg").textContent = "🔥 ¡YA CASI ES TUYAAAA! Tu puja sigue siendo la más alta.";
+        else if (active && wasLeading) {
+          document.getElementById("msg").textContent = "😱 ¡OH, OH! ¡ALGUIEN SUPERÓ TU PUJA! Todavía puedes recuperarla.";
+          saveAccountNotification({icon:"🚨",kind:"alert",title:"😱 ¡OH, OH! ¡SUPERARON TU PUJA!",body:`Alguien tomó la delantera en ${listing.title || "tu subasta"}. ¡Todavía puedes recuperarla! La puja va en ${money(data.current_price || data.start_price)}.`});
+        }
       }
     }, 3000);
     window.setInterval(() => { if (listing) renderAuctionTime(listing); }, 1000);

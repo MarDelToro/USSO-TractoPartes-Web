@@ -1497,7 +1497,7 @@ class Component extends DCLogic {
   viewWinnerPurchase = () => {
     const listing = this.state.winnerCelebration;
     this.closeWinnerCelebration();
-    if (listing && listing.id) window.location.href = `Subasta.dc.html#${encodeURIComponent(listing.id)}`;
+    if (listing && listing.id) window.location.href = `Compra.dc.html#${encodeURIComponent(listing.id)}`;
   };
 
   closeLossCelebration = () => {
@@ -1602,7 +1602,7 @@ class Component extends DCLogic {
     if (purchaseButton) purchaseButton.addEventListener('click', () => {
       const listingId = listing && listing.id;
       close();
-      if (listingId) window.location.href = `Subasta.dc.html#${encodeURIComponent(listingId)}`;
+      if (listingId) window.location.href = `Compra.dc.html#${encodeURIComponent(listingId)}`;
     });
     document.body.appendChild(overlay);
   }
@@ -1772,7 +1772,12 @@ async syncAuthFromSupabase() {
   const persistentNotifs = (serverNotifs || []).map((n) => {
     const lost = /no ganaste|perdiste|esta vez no/i.test(n.message || '');
     const won = !lost && /ganaste|ganador/i.test(n.message || '');
-    return { id:'db-' + n.id, createdAt:new Date(n.created_at).getTime(), icon:won ? '🏆' : (lost ? '×' : '🔔'), kind:won ? 'ok' : (lost ? 'alert' : 'info'), title:n.title || 'Aviso de subasta', body:n.message || '', read:!!localById['db-' + n.id]?.read };
+    const outbid = !won && !lost && /nueva puja|super(ó|aron)|precio actual/i.test(n.message || '');
+    const title = outbid ? '😱 ¡OH, OH! ¡SUPERARON TU PUJA!' : (n.title || 'Aviso de subasta');
+    const body = outbid
+      ? `Alguien tomó la delantera en ${n.title || 'tu subasta'}. ¡Todavía puedes recuperarla! ${n.amount ? 'La puja va en ' + this.formatMoney(Number(n.amount)) + '.' : ''}`
+      : (n.message || '');
+    return { id:'db-' + n.id, createdAt:new Date(n.created_at).getTime(), icon:won ? '🏆' : (lost ? '×' : (outbid ? '🚨' : '🔔')), kind:won ? 'ok' : (lost || outbid ? 'alert' : 'info'), title, body, read:!!localById['db-' + n.id]?.read };
   });
   const mergedNotifs = [...persistentNotifs, ...localNotifs.filter((n) => !String(n.id).startsWith('db-'))].sort((a,b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
   this.setState({
@@ -2134,7 +2139,10 @@ submitAuth = async (e) => {
     bidAmount: "",
     bidError: "",
     myBids: { ...state.myBids, [lot.id]: amount }
-  }), () => this.persist());
+  }), () => {
+    this.pushNotif({ icon: '🔥', kind: 'ok', title: '¡YA CASI ES TUYAAAA!', body: `Vas ganando ${lot.title} con ${this.formatMoney(amount)}. Mantente pendiente: si alguien te supera, te avisaremos de inmediato.` });
+    this.persist();
+  });
   this.loadListingsFromDB();
 };
 
