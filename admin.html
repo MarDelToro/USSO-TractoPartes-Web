@@ -284,7 +284,7 @@
       <div class="field full"><label for="edit_media_urls">Galería actual y direcciones adicionales</label><textarea id="edit_media_urls" placeholder="Una dirección por línea"></textarea><span class="field-help">Puedes reordenar o borrar direcciones. La portada se controla en el campo anterior.</span></div>
       <div class="field"><label for="edit_start_price">Precio base</label><input id="edit_start_price" type="number" min="0" step="1" required></div>
       <div class="field"><label for="edit_current_price">Precio actual</label><input id="edit_current_price" type="number" min="0" step="1" required></div>
-      <div class="field full"><label for="edit_starts_at">Fecha y hora de inicio</label><input id="edit_starts_at" type="datetime-local"><span class="field-help">Si la fecha todavía no llega, aparecerá como próxima.</span></div>
+      <div class="field full"><label for="edit_start_date">Fecha y hora de inicio</label><div class="date-time-row"><input id="edit_start_date" type="date"><select id="edit_start_hour" aria-label="Hora de inicio"></select><span class="date-time-separator">:</span><select id="edit_start_minute" aria-label="Minutos de inicio"></select></div><span class="field-help">Para una subasta próxima, elige aquí el día y la hora exactos en que comenzará.</span></div>
       <div class="field full"><label for="edit_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="edit_end_date" type="date" required><select id="edit_end_hour" aria-label="Hora"></select><span class="date-time-separator">:</span><select id="edit_end_minute" aria-label="Minutos"></select></div><div class="time-shortcuts"><button type="button" data-duration="5">Desde ahora: 5 min</button><button type="button" data-duration="15">15 min</button><button type="button" data-duration="60">1 hora</button><button type="button" data-duration="1440">1 día</button></div></div>
       <div class="field"><label for="edit_status">Estado</label><select id="edit_status"><option value="active">Activa ahora</option><option value="upcoming">Próxima / programada</option><option value="closed">Cerrada</option></select><span class="field-help">“Próxima” requiere una fecha de inicio futura.</span></div>
       <p class="field-help full" id="edit_feedback" role="status" style="min-height:22px;margin:0;color:#f6c02a;font-weight:800"></p>
@@ -337,6 +337,14 @@
     };
     fillTimeSelect("edit_end_hour", 23);
     fillTimeSelect("edit_end_minute", 59);
+    fillTimeSelect("edit_start_hour", 23);
+    fillTimeSelect("edit_start_minute", 59);
+    const setEditorStart = (date) => {
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString();
+      document.getElementById("edit_start_date").value = local.slice(0, 10);
+      document.getElementById("edit_start_hour").value = local.slice(11, 13);
+      document.getElementById("edit_start_minute").value = local.slice(14, 16);
+    };
     const setEditorEnd = (date) => {
       const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString();
       document.getElementById("edit_end_date").value = local.slice(0, 10);
@@ -718,7 +726,12 @@
           document.getElementById("edit_photo").value = "";
           document.getElementById("edit_feedback").textContent = "";
           document.getElementById("editForm").dataset.reopen = "false";
-          document.getElementById("edit_starts_at").value = listing.starts_at ? toLocalInputValue(listing.starts_at) : "";
+          if (listing.starts_at) setEditorStart(new Date(listing.starts_at));
+          else {
+            document.getElementById("edit_start_date").value = "";
+            document.getElementById("edit_start_hour").value = "12";
+            document.getElementById("edit_start_minute").value = "00";
+          }
           if (listing.ends_at) {
             const date = new Date(listing.ends_at);
             date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
@@ -762,7 +775,9 @@
           document.getElementById("edit_photo").value = "";
           document.getElementById("edit_feedback").textContent = "";
           document.getElementById("editForm").dataset.reopen = "true";
-          document.getElementById("edit_starts_at").value = "";
+          document.getElementById("edit_start_date").value = "";
+          document.getElementById("edit_start_hour").value = "12";
+          document.getElementById("edit_start_minute").value = "00";
           setEditorEnd(new Date(Date.now() + 60 * 60000));
           msg.textContent = "Elige cuánto durará la nueva ronda y guarda los cambios.";
           const dialog = document.getElementById("editDialog");
@@ -950,6 +965,10 @@
       const endHour = document.getElementById("edit_end_hour").value;
       const endMinute = document.getElementById("edit_end_minute").value;
       const endsAt = endDate ? `${endDate}T${endHour}:${endMinute}` : "";
+      const startDate = document.getElementById("edit_start_date").value;
+      const startHour = document.getElementById("edit_start_hour").value;
+      const startMinute = document.getElementById("edit_start_minute").value;
+      const startsAt = startDate ? `${startDate}T${startHour}:${startMinute}` : "";
       const selectedStatus = document.getElementById("edit_status").value;
       const title = document.getElementById("edit_title").value.trim();
       if (!title) return showEditFeedback("Escribe el nombre de la pieza antes de guardar.");
@@ -963,11 +982,11 @@
         media_urls: mediaUrls,
         start_price: Number(document.getElementById("edit_start_price").value || 0),
         current_price: Number(document.getElementById("edit_current_price").value || 0),
-        starts_at: document.getElementById("edit_starts_at").value ? new Date(document.getElementById("edit_starts_at").value).toISOString() : new Date().toISOString(),
+        starts_at: startsAt ? new Date(startsAt).toISOString() : new Date().toISOString(),
         ends_at: endsAt ? new Date(endsAt).toISOString() : null,
         status: selectedStatus === "upcoming" ? "active" : selectedStatus
       };
-      if (selectedStatus === "upcoming" && (!changes.starts_at || new Date(changes.starts_at) <= new Date())) {
+      if (selectedStatus === "upcoming" && (!startsAt || new Date(changes.starts_at) <= new Date())) {
         return showEditFeedback("Para programarla como próxima, selecciona una fecha y hora de inicio futuras.");
       }
       if (changes.status === "active" && !endsAt) {
