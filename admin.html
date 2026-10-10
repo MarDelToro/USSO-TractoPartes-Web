@@ -83,6 +83,9 @@
     .action-secondary { background:#242429; color:#eceae5; border:1px solid rgba(255,255,255,.08); }
     .action-danger { background:rgba(180,83,9,.16); color:#ffb467; border:1px solid rgba(217,119,6,.32); }
     .notice-link { display:inline-flex; align-items:center; min-height:34px; padding:8px 12px; border-radius:999px; background:rgba(246,192,42,.1); border:1px solid rgba(246,192,42,.28); font-size:11px; font-weight:800; }
+    .priority-panel { border-color:rgba(246,192,42,.3); background:linear-gradient(145deg,rgba(246,192,42,.055),#141416 42%); margin-top:14px; }
+    .priority-panel .panel-title { margin-bottom:16px; }
+    .field-help { color:#838993; font-size:11px; line-height:1.45; }
     .auction-preview { scroll-margin-top:20px; margin:42px 0 46px; }
     .auction-preview-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
     .auction-card { overflow:hidden; display:grid; grid-template-columns:minmax(220px,42%) 1fr; min-height:330px; border-radius:20px; background:#141416; border:1px solid rgba(246,192,42,.3); box-shadow:0 20px 48px rgba(0,0,0,.2); }
@@ -151,6 +154,14 @@
       <a href="#publicar">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#ganadores-contacto">Ganadores</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
     </nav>
 
+    <section class="panel-card priority-panel" id="ganadores-contacto">
+      <div class="panel-title"><div><h2>Ganadores por avisar</h2><p>Primero aparecen los ganadores más recientes que todavía necesitan tu mensaje.</p></div><span class="status-badge status-pending">Prioridad diaria</span></div>
+      <div class="table-wrap compact-history"><table>
+        <thead><tr><th>Ganador</th><th>Subasta</th><th>Ronda</th><th>Precio final</th><th>WhatsApp</th><th>Fecha</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="winnerFollowup"><tr><td colspan="8">Cargando ganadores...</td></tr></tbody>
+      </table></div>
+    </section>
+
     <section class="panel-card" id="publicar">
       <div class="panel-title">
         <div><h2>Publicar una pieza</h2><p>Agrega la información y programa la subasta desde un solo lugar.</p></div>
@@ -159,11 +170,13 @@
       <form id="pieza" class="piece-grid">
         <div class="field"><label for="title">Nombre de la pieza</label><input id="title" placeholder="Ej. Transmisión Eaton Fuller" required></div>
         <div class="field"><label for="category">Categoría</label><select id="category" required>
-          <option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="suspension">Suspensión</option>
+          <option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="estructuras">Estructuras</option><option value="suspension">Suspensión</option>
         </select></div>
         <div class="field full"><label for="description">Descripción</label><textarea id="description" placeholder="Modelo, condición, compatibilidad y cualquier detalle importante"></textarea></div>
-        <div class="field"><label for="photo">Fotografía</label><div class="file-field"><input id="photo" type="file" accept="image/*"><div><strong>Seleccionar fotografía</strong><span id="photoName">JPG, PNG o WEBP</span></div></div></div>
-        <div class="field"><label for="image_url">O dirección de la fotografía</label><input id="image_url" type="url" placeholder="https://..."></div>
+        <div class="field full"><label for="product_details">Ficha detallada del producto</label><textarea id="product_details" placeholder="Escribe un detalle por línea. Ej.&#10;Modelo: 2006&#10;Condición: usada&#10;Incluye: cabina y chasis&#10;Detalle visible: golpe lateral"></textarea><span class="field-help">Cada línea se mostrará como un punto separado y fácil de revisar.</span></div>
+        <div class="field"><label for="photo">Fotos y videos de evidencia</label><div class="file-field"><input id="photo" type="file" accept="image/*,video/*" multiple><div><strong>Seleccionar varios archivos</strong><span id="photoName">Imágenes y videos</span></div></div></div>
+        <div class="field"><label for="image_url">Portada por dirección web</label><input id="image_url" type="url" placeholder="https://..."><span class="field-help">Opcional. La primera foto subida será la portada si lo dejas vacío.</span></div>
+        <div class="field full"><label for="media_urls">Más evidencia por dirección web</label><textarea id="media_urls" placeholder="Pega una dirección de foto o video por línea"></textarea></div>
         <div class="field"><label for="start_price">Precio inicial</label><input id="start_price" type="number" min="0" step="1" placeholder="$0 MXN" required></div>
         <div class="field"><label for="starts_at">Fecha y hora de inicio</label><input id="starts_at" type="datetime-local"><span class="field-help">Déjalo vacío para activarla inmediatamente.</span></div>
         <div class="field"><label for="ends_at">Fecha y hora de cierre</label><input id="ends_at" type="datetime-local" required></div>
@@ -217,12 +230,6 @@
       <tbody id="closedListings"></tbody>
     </table></div>
 
-    <div class="section-head" id="ganadores-contacto"><div><h2>Ganadores por avisar</h2><p>Los avisos pendientes aparecen primero y cambian automáticamente a “Avisado” cuando abres el mensaje.</p></div></div>
-    <div class="table-wrap compact-history"><table>
-      <thead><tr><th>Ganador</th><th>Subasta</th><th>Ronda</th><th>Precio final</th><th>WhatsApp</th><th>Estado</th><th></th></tr></thead>
-      <tbody id="winnerFollowup"><tr><td colspan="7">Cargando ganadores...</td></tr></tbody>
-    </table></div>
-
     <div class="section-head" id="usuarios-admin"><div><h2>Usuarios</h2><p>Autoriza cuentas y consulta sus datos de contacto.</p></div></div>
     <div class="table-wrap compact-history"><table>
       <thead>
@@ -267,10 +274,12 @@
     <form class="piece-grid edit-form" id="editForm">
       <input id="edit_id" type="hidden">
       <div class="field"><label for="edit_title">Nombre de la pieza</label><input id="edit_title" required></div>
-      <div class="field"><label for="edit_category">Categoría</label><select id="edit_category"><option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="suspension">Suspensión</option></select></div>
+      <div class="field"><label for="edit_category">Categoría</label><select id="edit_category"><option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="estructuras">Estructuras</option><option value="suspension">Suspensión</option></select></div>
       <div class="field full"><label for="edit_description">Descripción</label><textarea id="edit_description"></textarea></div>
-      <div class="field"><label for="edit_photo">Cambiar fotografía</label><input id="edit_photo" type="file" accept="image/*"></div>
-      <div class="field"><label for="edit_image_url">Dirección de la fotografía</label><input id="edit_image_url" type="url" placeholder="https://..."></div>
+      <div class="field full"><label for="edit_product_details">Ficha detallada</label><textarea id="edit_product_details" placeholder="Un detalle por línea"></textarea></div>
+      <div class="field"><label for="edit_photo">Agregar fotos o videos</label><input id="edit_photo" type="file" accept="image/*,video/*" multiple><span class="field-help">Los nuevos archivos se agregarán a la evidencia existente.</span></div>
+      <div class="field"><label for="edit_image_url">Fotografía de portada</label><input id="edit_image_url" type="url" placeholder="https://..."></div>
+      <div class="field full"><label for="edit_media_urls">Galería actual y direcciones adicionales</label><textarea id="edit_media_urls" placeholder="Una dirección por línea"></textarea><span class="field-help">Puedes reordenar o borrar direcciones. La portada se controla en el campo anterior.</span></div>
       <div class="field"><label for="edit_start_price">Precio base</label><input id="edit_start_price" type="number" min="0" step="1" required></div>
       <div class="field"><label for="edit_current_price">Precio actual</label><input id="edit_current_price" type="number" min="0" step="1" required></div>
       <div class="field full"><label for="edit_starts_at">Fecha y hora de inicio</label><input id="edit_starts_at" type="datetime-local"><span class="field-help">Si la fecha todavía no llega, aparecerá como próxima.</span></div>
@@ -292,6 +301,22 @@
       date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
       return date.toISOString().slice(0, 16);
     };
+    const parseLines = (value) => String(value || "").split("\n").map((line) => line.trim()).filter(Boolean);
+    const mediaTypeFor = (url, mime = "") => mime.startsWith("video/") || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url) ? "video" : "image";
+    const mediaFromLines = (value) => parseLines(value).map((url) => ({ type:mediaTypeFor(url), url }));
+    const uniqueMedia = (items) => Array.from(new Map((items || []).filter((item) => item?.url).map((item) => [item.url, { type:item.type || mediaTypeFor(item.url), url:item.url }])).values());
+    async function uploadEvidence(files) {
+      const uploaded = [];
+      for (const file of Array.from(files || [])) {
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-");
+        const path = `${Date.now()}-${crypto.randomUUID?.() || Math.random().toString(36).slice(2)}-${safeName}`;
+        const { error } = await client.storage.from("listings").upload(path, file);
+        if (error) throw error;
+        const url = client.storage.from("listings").getPublicUrl(path).data.publicUrl;
+        uploaded.push({ type:mediaTypeFor(url, file.type), url });
+      }
+      return uploaded;
+    }
     let liveLoading = false;
     let currentListings = [];
     let allNotices = [];
@@ -445,10 +470,11 @@
           <td>Ronda ${win.auction_round || 1}</td>
           <td><span class="money">${money(win.amount)}</span></td>
           <td>${profile?.phone || "—"}</td>
+          <td>${win.created_at ? new Date(win.created_at).toLocaleString("es-MX", { dateStyle:"short", timeStyle:"short" }) : "—"}</td>
           <td><span class="status-badge ${win.status === "sent" ? "status-approved" : "status-pending"}">${win.status === "sent" ? "Avisado" : "Pendiente"}</span></td>
           <td><div class="actions-cell">${winnerButtonFor(win, profile)}</div></td>
         </tr>`;
-      }).join("") || `<tr><td colspan="7">No hay ganadores pendientes de seguimiento.</td></tr>`;
+      }).join("") || `<tr><td colspan="8">No hay ganadores pendientes de seguimiento.</td></tr>`;
 
       document.getElementById("rows").innerHTML = (data || []).map((p) => {
         const request = requestsByUser[p.id];
@@ -563,7 +589,7 @@
 
       const { data, error } = await client
         .from("listings")
-        .select("id, title, description, category, image_url, current_price, start_price, bid_count, auction_round, status, winner_id, starts_at, ends_at")
+        .select("id, title, description, category, image_url, media_urls, product_details, current_price, start_price, bid_count, auction_round, status, winner_id, starts_at, ends_at")
         .order("created_at", { ascending: false });
       if (error) return msg.textContent = error.message;
       currentListings = data || [];
@@ -657,7 +683,9 @@
           document.getElementById("edit_title").value = listing.title || "";
           document.getElementById("edit_category").value = listing.category || "motores";
           document.getElementById("edit_description").value = listing.description || "";
+          document.getElementById("edit_product_details").value = (listing.product_details || []).join("\n");
           document.getElementById("edit_image_url").value = listing.image_url || "";
+          document.getElementById("edit_media_urls").value = (listing.media_urls || []).map((item) => typeof item === "string" ? item : item.url).filter(Boolean).join("\n");
           document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
           document.getElementById("edit_current_price").value = Number(listing.current_price || listing.start_price || 0);
           document.getElementById("edit_status").value = listing.status === "active" ? "active" : "closed";
@@ -698,7 +726,9 @@
           document.getElementById("edit_title").value = listing.title || "";
           document.getElementById("edit_category").value = listing.category || "motores";
           document.getElementById("edit_description").value = listing.description || "";
+          document.getElementById("edit_product_details").value = (listing.product_details || []).join("\n");
           document.getElementById("edit_image_url").value = listing.image_url || "";
+          document.getElementById("edit_media_urls").value = (listing.media_urls || []).map((item) => typeof item === "string" ? item : item.url).filter(Boolean).join("\n");
           document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
           document.getElementById("edit_current_price").value = Number(listing.start_price || 0);
           document.getElementById("edit_status").value = "active";
@@ -803,18 +833,12 @@
     document.getElementById("pieza").addEventListener("submit", async (e) => {
       e.preventDefault();
       const { data: { user } } = await client.auth.getUser();
-      const file = document.getElementById("photo").files[0];
       let imageUrl = document.getElementById("image_url").value.trim();
-
-      if (file) {
-        const path = Date.now() + "-" + file.name.replace(/\s+/g, "-");
-        const { error: upErr } = await client.storage.from("listings").upload(path, file);
-        if (upErr) {
-          msg.textContent = upErr.message;
-          return;
-        }
-        imageUrl = client.storage.from("listings").getPublicUrl(path).data.publicUrl;
-      }
+      let uploadedMedia = [];
+      try { uploadedMedia = await uploadEvidence(document.getElementById("photo").files); }
+      catch (error) { msg.textContent = error.message; return; }
+      const mediaUrls = uniqueMedia([...uploadedMedia, ...mediaFromLines(document.getElementById("media_urls").value), ...(imageUrl ? [{ type:"image", url:imageUrl }] : [])]);
+      if (!imageUrl) imageUrl = mediaUrls.find((item) => item.type === "image")?.url || null;
 
       const start = Number(document.getElementById("start_price").value || 0);
       const starts = document.getElementById("starts_at").value;
@@ -831,7 +855,9 @@
         title: document.getElementById("title").value.trim(),
         category: document.getElementById("category").value,
         description: document.getElementById("description").value.trim(),
+        product_details: parseLines(document.getElementById("product_details").value),
         image_url: imageUrl,
+        media_urls: mediaUrls,
         start_price: start,
         current_price: start,
         status: "active",
@@ -849,7 +875,8 @@
     });
 
     document.getElementById("photo").addEventListener("change", (event) => {
-      document.getElementById("photoName").textContent = event.target.files[0]?.name || "JPG, PNG o WEBP";
+      const count = event.target.files.length;
+      document.getElementById("photoName").textContent = count ? `${count} archivo${count === 1 ? "" : "s"} seleccionado${count === 1 ? "" : "s"}` : "Imágenes y videos";
     });
 
     const closeEditDialog = () => {
@@ -873,17 +900,11 @@
       if (saveButton) saveButton.disabled = true;
       msg.textContent = "Guardando cambios...";
       let imageUrl = document.getElementById("edit_image_url").value.trim();
-      const file = document.getElementById("edit_photo").files[0];
-      if (file) {
-        const path = Date.now() + "-" + file.name.replace(/\s+/g, "-");
-        const { error: uploadError } = await client.storage.from("listings").upload(path, file);
-        if (uploadError) {
-          msg.textContent = uploadError.message;
-          if (saveButton) saveButton.disabled = false;
-          return;
-        }
-        imageUrl = client.storage.from("listings").getPublicUrl(path).data.publicUrl;
-      }
+      let uploadedMedia = [];
+      try { uploadedMedia = await uploadEvidence(document.getElementById("edit_photo").files); }
+      catch (error) { msg.textContent = error.message; if (saveButton) saveButton.disabled = false; return; }
+      const mediaUrls = uniqueMedia([...mediaFromLines(document.getElementById("edit_media_urls").value), ...uploadedMedia, ...(imageUrl ? [{ type:"image", url:imageUrl }] : [])]);
+      if (!imageUrl) imageUrl = mediaUrls.find((item) => item.type === "image")?.url || null;
       const endDate = document.getElementById("edit_end_date").value;
       const endHour = document.getElementById("edit_end_hour").value;
       const endMinute = document.getElementById("edit_end_minute").value;
@@ -892,7 +913,9 @@
         title: document.getElementById("edit_title").value.trim(),
         category: document.getElementById("edit_category").value,
         description: document.getElementById("edit_description").value.trim(),
+        product_details: parseLines(document.getElementById("edit_product_details").value),
         image_url: imageUrl || null,
+        media_urls: mediaUrls,
         start_price: Number(document.getElementById("edit_start_price").value || 0),
         current_price: Number(document.getElementById("edit_current_price").value || 0),
         starts_at: document.getElementById("edit_starts_at").value ? new Date(document.getElementById("edit_starts_at").value).toISOString() : new Date().toISOString(),

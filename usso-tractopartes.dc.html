@@ -283,6 +283,15 @@
   }
   .usso-all-grid::-webkit-scrollbar { display: none; }
   .usso-all-grid > div { flex: 0 0 300px; scroll-snap-align: center; scroll-snap-stop: always; }
+  .usso-history-grid { display:flex; flex-wrap:nowrap; overflow-x:auto; scroll-snap-type:x mandatory; gap:20px; scrollbar-width:none; padding:2px 2px 10px; align-items:stretch; }
+  .usso-history-grid::-webkit-scrollbar { display:none; }
+  .usso-history-card { flex:0 0 300px; min-height:390px; display:grid; grid-template-rows:190px minmax(0,1fr); overflow:hidden; border-radius:18px; background:var(--card-bg); border:1px solid rgba(var(--border-rgb),0.09); cursor:pointer; scroll-snap-align:start; }
+  .usso-history-photo { min-height:190px; background:#1a1a1d; overflow:hidden; }
+  .usso-history-photo image-slot { width:100%; height:100%; }
+  .usso-history-body { padding:19px; display:flex; flex-direction:column; min-width:0; }
+  .usso-history-body h3 { min-height:46px; }
+  .usso-history-result { margin-top:auto; border-top:1px solid rgba(var(--border-rgb),.09); padding-top:14px; display:flex; justify-content:space-between; align-items:flex-end; gap:12px; }
+  @media(max-width:700px){.usso-history-grid{margin:0 -20px;padding:2px 20px 10px;gap:12px}.usso-history-card{flex-basis:84vw;min-height:360px;grid-template-rows:180px minmax(0,1fr)}}
   .usso-trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
   .usso-evidence-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .usso-modal-scroll { max-height: 86vh; overflow-y: auto; scrollbar-width: none; }
@@ -849,14 +858,14 @@
         <p style="font:500 14px/1.6 Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0">Consulta los lotes que ya cerraron y su precio final de venta.</p>
       </div>
       <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ true }}">
-        <div class="usso-all-grid" style="display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;gap:20px;scrollbar-width:none;padding-bottom:8px">
+        <div class="usso-history-grid">
           <sc-for list="{{ historyLots }}" as="lot" hint-placeholder-count="3">
-            <article onClick="{{ lot.goTo }}" style="flex:0 0 300px;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.09);border-radius:18px;overflow:hidden;cursor:pointer;scroll-snap-align:start">
-              <div style="height:190px;background:#1a1a1d"><image-slot id="history-{{ lot.id }}" shape="rect" placeholder="{{ lot.placeholder }}" src="{{ lot.src }}" style="width:100%;height:100%"></image-slot></div>
-              <div style="padding:19px">
+            <article class="usso-history-card" onClick="{{ lot.goTo }}">
+              <div class="usso-history-photo"><image-slot id="history-{{ lot.id }}" shape="rect" placeholder="{{ lot.placeholder }}" src="{{ lot.src }}" style="width:100%;height:100%"></image-slot></div>
+              <div class="usso-history-body">
                 <span style="font:800 10.5px Manrope,sans-serif;color:{{ lot.resultColor }};text-transform:uppercase;letter-spacing:.09em">{{ lot.resultLabel }} · Ronda {{ lot.auctionRound }}</span>
                 <h3 style="font:800 18px Manrope,sans-serif;color:var(--text);margin:7px 0 18px">{{ lot.title }}</h3>
-                <div style="border-top:1px solid rgba(var(--border-rgb),.09);padding-top:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px">
+                <div class="usso-history-result">
                   <div><span style="display:block;font:600 11px Manrope;color:rgba(var(--text-rgb),.5)">Precio final</span><strong style="font:800 22px 'Archivo Black';color:{{ accent }}">{{ lot.bid }}</strong></div>
                   <span style="font:700 12px Manrope;color:rgba(var(--text-rgb),.55)">{{ lot.bidCount }} ofertas</span>
                 </div>
@@ -1964,13 +1973,14 @@ async syncAuthFromSupabase() {
     el.style.objectPosition = '62% center';
   };
 
-  CATS = { motores: 'Motores', transmisiones: 'Transmisiones', diferenciales: 'Diferenciales', cortes: 'Cortes completos', suspension: 'Suspensión' };
+  CATS = { motores: 'Motores', transmisiones: 'Transmisiones', diferenciales: 'Diferenciales', cortes: 'Cortes completos', estructuras: 'Estructuras', suspension: 'Suspensión' };
   FILTERS = [
     { id: 'todas', label: 'Todas', test: () => true },
     { id: 'motores', label: 'Motores', test: (l) => l.cat === 'motores' },
     { id: 'transmisiones', label: 'Transmisiones', test: (l) => l.cat === 'transmisiones' },
     { id: 'diferenciales', label: 'Diferenciales', test: (l) => l.cat === 'diferenciales' },
     { id: 'cortes', label: 'Cortes completos', test: (l) => l.cat === 'cortes' },
+    { id: 'estructuras', label: 'Estructuras', test: (l) => l.cat === 'estructuras' },
     { id: 'terminar', label: 'Por terminar', test: (l) => l.status === 'Activa' && l.closesAt - Date.now() < 3 * 86400000 },
     { id: 'semana', label: 'Esta semana', test: (l) => l.closesAt - Date.now() < 7 * 86400000 },
     { id: 'proximas', label: 'Próximas', test: (l) => l.status === 'Próxima' },

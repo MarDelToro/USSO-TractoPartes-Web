@@ -13,13 +13,13 @@
     a{color:inherit;text-decoration:none}.nav{height:82px;padding:0 5vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #242428;position:sticky;top:0;background:rgba(10,10,11,.94);backdrop-filter:blur(12px);z-index:5}
     .logo{width:165px;max-height:58px;object-fit:contain}.back{font-weight:800;border-bottom:2px solid var(--yellow);padding-bottom:5px}
     main{width:min(1180px,92vw);margin:0 auto;padding:64px 0 90px}.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:54px;align-items:start}
-    .photo{background:var(--card);border:1px solid #28282d;border-radius:22px;overflow:hidden;aspect-ratio:1/1;display:grid;place-items:center}.photo img{width:100%;height:100%;object-fit:cover}.photo .empty{color:#777;font-weight:700}
+    .gallery{display:grid;gap:12px}.photo{background:var(--card);border:1px solid #28282d;border-radius:22px;overflow:hidden;aspect-ratio:1/1;display:grid;place-items:center}.photo img,.photo video{width:100%;height:100%;object-fit:contain;background:#101012}.photo .empty{color:#777;font-weight:700}.thumbs{display:flex;gap:10px;overflow-x:auto;padding:2px}.thumb{flex:0 0 78px;width:78px;height:64px;border:1px solid #303036;border-radius:10px;background:#171719;color:#aaa;overflow:hidden;padding:0;cursor:pointer}.thumb.active{border-color:var(--yellow);box-shadow:0 0 0 2px rgba(246,192,42,.14)}.thumb img,.thumb video{width:100%;height:100%;object-fit:cover;pointer-events:none}.thumb-video{display:grid;place-items:center;font-weight:900;color:var(--yellow)}
     .badge{display:inline-flex;padding:7px 13px;border-radius:99px;background:rgba(246,192,42,.12);border:1px solid rgba(246,192,42,.4);color:var(--yellow);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
-    h1{font:42px/1.08 'Archivo Black',sans-serif;margin:18px 0}.desc{color:#aaa;font-size:16px;line-height:1.7}.meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0}.metric{background:var(--card);border:1px solid #29292e;border-radius:15px;padding:18px}.label{color:#85858d;font-size:12px;font-weight:700}.value{font:25px 'Archivo Black',sans-serif;margin-top:6px}.price{color:var(--yellow)}
+    h1{font:42px/1.08 'Archivo Black',sans-serif;margin:18px 0}.desc{color:#aaa;font-size:16px;line-height:1.7}.details-card{margin:22px 0;background:var(--card);border:1px solid #29292e;border-radius:16px;padding:20px}.details-card h2{font-size:17px;margin:0 0 14px}.details-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.details-list li{position:relative;padding:12px 12px 12px 32px;border-radius:10px;background:#0e0e10;color:#d8d8db;font-size:13px;line-height:1.45}.details-list li::before{content:"✓";position:absolute;left:12px;color:var(--yellow);font-weight:900}.meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0}.metric{background:var(--card);border:1px solid #29292e;border-radius:15px;padding:18px}.label{color:#85858d;font-size:12px;font-weight:700}.value{font:25px 'Archivo Black',sans-serif;margin-top:6px}.price{color:var(--yellow)}
     .end-exact{display:block;color:#85858d;font-size:11px;font-weight:700;margin-top:8px}.value.ended{color:#ff5c52}.badge.closed{color:#ff8a80;border-color:rgba(255,92,82,.45);background:rgba(255,92,82,.1)}
     .notice{padding:17px 18px;border:1px solid rgba(246,192,42,.35);background:rgba(246,192,42,.08);border-radius:14px;color:#d8d2c4;line-height:1.5;margin:0 0 16px}.actions{display:grid;gap:12px}.bid-form{display:flex;gap:10px}.bid-form input{min-width:0;flex:1;background:#19191c;border:1px solid #39393f;color:#fff;border-radius:12px;padding:15px;font:700 16px Manrope;outline:none}.bid-form input.invalid{border-color:#ff5c52;box-shadow:0 0 0 3px rgba(255,92,82,.12)}.btn{border:0;border-radius:99px;padding:15px 24px;background:var(--yellow);color:#090909;font:800 15px Manrope;cursor:pointer}.btn:disabled{cursor:not-allowed;opacity:.45}.btn.secondary{display:block;text-align:center;background:transparent;border:1px solid #444;color:#fff}.msg{min-height:22px;color:#ffb5b5;font-weight:700}.hidden{display:none!important}.loading,.not-found{text-align:center;padding:120px 20px}.not-found h1{font-size:36px}
     .outcome{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:22px;background:rgba(5,5,6,.97);text-align:center;overflow:hidden}.outcome-card{position:relative;z-index:2;width:min(650px,94vw);padding:50px 28px;border-radius:28px;background:linear-gradient(145deg,#28200b,#141416 58%);border:1px solid rgba(246,192,42,.72);box-shadow:0 0 80px rgba(246,192,42,.22);animation:outcomeIn .7s cubic-bezier(.2,.85,.24,1.12)}.outcome.loss .outcome-card{max-width:560px;background:#141416;border-color:rgba(255,92,82,.38);box-shadow:0 30px 80px rgba(0,0,0,.72)}.outcome-icon{font-size:76px;line-height:1}.outcome.loss .outcome-icon{font-size:48px;color:#ff6b61}.outcome h2{font:clamp(36px,7vw,68px)/1 'Archivo Black',sans-serif;color:#7ee2a8;margin:18px 0 10px}.outcome.loss h2{font-size:clamp(29px,5vw,45px);color:#ff8a80}.outcome p{max-width:490px;margin:0 auto 24px;color:#f3f1ec;font:600 17px/1.55 Manrope}.outcome.loss p{color:#aaa;font-size:15px}.outcome .btn{min-width:190px}.outcome-close{position:absolute;top:15px;right:15px;width:40px;height:40px;border:1px solid #3b3b40;border-radius:50%;background:#202024;color:#fff;font-size:26px;line-height:1;cursor:pointer}.confetti i{position:absolute;top:-30px;width:10px;height:20px;background:var(--yellow);animation:fall 3.2s linear infinite}.confetti i:nth-child(2n){background:#7ee2a8}.confetti i:nth-child(3n){background:#fff}.confetti i:nth-child(1){left:8%}.confetti i:nth-child(2){left:20%;animation-delay:.4s}.confetti i:nth-child(3){left:34%;animation-delay:1s}.confetti i:nth-child(4){left:49%;animation-delay:.2s}.confetti i:nth-child(5){left:63%;animation-delay:1.4s}.confetti i:nth-child(6){left:78%;animation-delay:.7s}.confetti i:nth-child(7){left:92%;animation-delay:1.1s}@keyframes fall{to{transform:translateY(115vh) rotate(720deg)}}@keyframes outcomeIn{from{opacity:0;transform:scale(.75) translateY(30px)}to{opacity:1;transform:scale(1)}}
-    @media(max-width:800px){.nav{padding:0 20px}.logo{width:125px}.grid{grid-template-columns:1fr;gap:28px}main{padding-top:30px}h1{font-size:31px}.bid-form{flex-direction:column}}
+    @media(max-width:800px){.nav{padding:0 20px}.logo{width:125px}.grid{grid-template-columns:1fr;gap:28px}main{padding-top:30px}h1{font-size:31px}.bid-form{flex-direction:column}.details-list{grid-template-columns:1fr}.photo{aspect-ratio:4/3}}
   </style>
 </head>
 <body>
@@ -32,11 +32,12 @@
     <div id="loading" class="loading">Cargando lote...</div>
     <div id="notFound" class="not-found hidden"><h1>Lote no encontrado</h1><a class="back" href="usso-tractopartes.dc.html#subastas">← Volver a subastas</a></div>
     <section id="detail" class="grid hidden">
-      <div class="photo"><img id="image" alt=""><div id="noImage" class="empty hidden">Foto próximamente</div></div>
+      <div class="gallery"><div class="photo" id="mediaStage"><img id="image" alt=""><div id="noImage" class="empty hidden">Evidencia próximamente</div></div><div class="thumbs hidden" id="mediaThumbs" aria-label="Fotos y videos del producto"></div></div>
       <div>
         <span id="status" class="badge"></span>
         <h1 id="title"></h1>
         <p id="description" class="desc"></p>
+        <section class="details-card hidden" id="detailsCard"><h2>Detalles del producto</h2><ul class="details-list" id="productDetails"></ul></section>
         <div class="meta">
           <div class="metric"><div id="priceLabel" class="label">Precio actual</div><div id="price" class="value price"></div></div>
           <div class="metric"><div class="label">Cierre</div><div id="ends" class="value"></div><span id="endExact" class="end-exact"></span></div>
@@ -90,6 +91,27 @@
     };
     const isUpcoming = (data) => data?.status === "active" && !!data.starts_at && new Date(data.starts_at).getTime() > Date.now();
     const isActive = (data) => data?.status === "active" && !isUpcoming(data) && !!data.ends_at && new Date(data.ends_at).getTime() > Date.now();
+    const escapeHtml = (value) => String(value || "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+    const mediaTypeFor = (item) => item?.type === "video" || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(item?.url || item || "") ? "video" : "image";
+    function renderEvidence(data) {
+      const raw = Array.isArray(data.media_urls) ? data.media_urls : [];
+      const media = raw.map((item) => typeof item === "string" ? { url:item, type:mediaTypeFor(item) } : { url:item.url, type:mediaTypeFor(item) }).filter((item) => item.url);
+      if (data.image_url && !media.some((item) => item.url === data.image_url)) media.unshift({ url:data.image_url, type:"image" });
+      const stage = document.getElementById("mediaStage");
+      const thumbs = document.getElementById("mediaThumbs");
+      const setActive = (index) => {
+        const item = media[index];
+        stage.innerHTML = item.type === "video"
+          ? `<video src="${escapeHtml(item.url)}" controls playsinline preload="metadata"></video>`
+          : `<img src="${escapeHtml(item.url)}" alt="Evidencia de ${escapeHtml(data.title || "pieza USSO")}">`;
+        thumbs.querySelectorAll(".thumb").forEach((button, buttonIndex) => button.classList.toggle("active", buttonIndex === index));
+      };
+      if (!media.length) { stage.innerHTML = `<div id="noImage" class="empty">Evidencia próximamente</div>`; return; }
+      thumbs.innerHTML = media.map((item, index) => `<button class="thumb ${index === 0 ? "active" : ""}" type="button" data-media-index="${index}" aria-label="Ver ${item.type === "video" ? "video" : "foto"} ${index + 1}">${item.type === "video" ? `<span class="thumb-video">▶ VIDEO</span>` : `<img src="${escapeHtml(item.url)}" alt="">`}</button>`).join("");
+      if (media.length > 1) show("mediaThumbs");
+      thumbs.querySelectorAll("[data-media-index]").forEach((button) => button.addEventListener("click", () => setActive(Number(button.dataset.mediaIndex))));
+      setActive(0);
+    }
     function playOutcomeSound(type) {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -205,7 +227,7 @@
     async function load() {
       if (!lotId) return renderNotFound();
       const {data, error} = await client.from("listings")
-        .select("id,title,description,image_url,start_price,current_price,status,starts_at,ends_at,category,auction_round,bid_count,winner_id")
+        .select("id,title,description,image_url,media_urls,product_details,start_price,current_price,status,starts_at,ends_at,category,auction_round,bid_count,winner_id")
         .eq("id", lotId).single();
       if (error || !data) return renderNotFound();
       listing = data;
@@ -215,8 +237,12 @@
       document.getElementById("price").textContent = money(data.current_price || data.start_price);
       updateMinimum(data.current_price || data.start_price);
       renderAuctionTime(data);
-      const img = document.getElementById("image");
-      if (data.image_url) img.src = data.image_url; else { img.classList.add("hidden"); show("noImage"); }
+      renderEvidence(data);
+      const details = Array.isArray(data.product_details) ? data.product_details.filter(Boolean) : [];
+      if (details.length) {
+        document.getElementById("productDetails").innerHTML = details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("");
+        show("detailsCard");
+      }
       const {data:{user}} = await client.auth.getUser();
       currentUser = user;
       if (isUpcoming(data)) {
