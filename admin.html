@@ -103,6 +103,8 @@
     .auction-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:20px; }
     .auction-meta div { padding:11px; border-radius:11px; background:#0e0e10; border:1px solid rgba(255,255,255,.08); }
     .auction-meta .auction-category { grid-column:1 / -1; }
+    .auction-meta .auction-live-time { grid-column:1 / -1; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; border-color:rgba(246,192,42,.24); background:rgba(246,192,42,.055); }
+    .auction-live-time strong { color:#f6c02a; font-size:20px; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
     .auction-meta span { display:block; color:#818791; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
     .auction-meta strong { display:block; margin-top:4px; font-size:12px; }
     .auction-card-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; }
@@ -379,6 +381,38 @@
       realtimeRefreshTimer = window.setTimeout(() => {
         loadLiveBids(); loadListings(); loadAvisos(); loadUsers();
       }, 180);
+    };
+    const formatAdminCountdown = (milliseconds) => {
+      const total = Math.max(0, Math.floor(milliseconds / 1000));
+      const pad = (value) => String(value).padStart(2, "0");
+      const days = Math.floor(total / 86400);
+      const hours = Math.floor((total % 86400) / 3600);
+      const minutes = Math.floor((total % 3600) / 60);
+      const seconds = total % 60;
+      return days > 0 ? `${days}d ${pad(hours)}:${pad(minutes)}:${pad(seconds)}` : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    };
+    const updateAdminPreviewClocks = () => {
+      const now = Date.now();
+      document.querySelectorAll("[data-auction-clock]").forEach((clock) => {
+        const startsAt = Number(clock.dataset.startsAt || 0);
+        const endsAt = Number(clock.dataset.endsAt || 0);
+        const label = clock.querySelector("[data-clock-label]");
+        const value = clock.querySelector("[data-clock-value]");
+        if (!label || !value) return;
+        if (startsAt > now) {
+          label.textContent = "Inicia en";
+          value.textContent = formatAdminCountdown(startsAt - now);
+          value.style.color = "#8dbbff";
+        } else if (endsAt > now) {
+          label.textContent = "Cierra en";
+          value.textContent = formatAdminCountdown(endsAt - now);
+          value.style.color = "#f6c02a";
+        } else {
+          label.textContent = "Finalizada";
+          value.textContent = "00:00:00";
+          value.style.color = "#ff6b63";
+        }
+      });
     };
     const fillTimeSelect = (id, max) => {
       const select = document.getElementById(id);
@@ -733,11 +767,13 @@
               <div class="auction-category"><span>Categoría</span><strong>${p.category || "Sin categoría"}</strong></div>
               <div><span>Inicio</span><strong>${inicio}</strong></div>
               <div><span>Cierre</span><strong>${cierre}</strong></div>
+              <div class="auction-live-time" data-auction-clock data-starts-at="${p.starts_at ? new Date(p.starts_at).getTime() : 0}" data-ends-at="${p.ends_at ? new Date(p.ends_at).getTime() : 0}"><span data-clock-label>${proxima ? "Inicia en" : "Cierra en"}</span><strong data-clock-value>--:--:--</strong></div>
             </div>
             <div class="auction-card-actions"><a class="action-btn action-secondary" href="Subasta.dc.html#${encodeURIComponent(p.id)}">Ver detalles</a>${acciones}</div>
           </div>
         </article>`;
       }).join("") || `<div class="panel-card">Todavía no has publicado subastas.</div>`;
+      updateAdminPreviewClocks();
 
       document.getElementById("listings").innerHTML = activeListings.map((p) => {
         const currentWinnerId = winnerByListing[p.id] || null;
@@ -1135,6 +1171,7 @@
       window.setInterval(loadListings, 5000);
       window.setInterval(loadAvisos, 15000);
       window.setInterval(loadUsers, 15000);
+      window.setInterval(updateAdminPreviewClocks, 1000);
     })();
   </script>
 </body>
