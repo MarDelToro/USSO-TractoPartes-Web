@@ -273,7 +273,7 @@
 
   <dialog class="edit-dialog" id="editDialog">
     <div class="edit-dialog-head"><div><h2>Editar subasta</h2><p>Los cambios aparecerán automáticamente en las cuentas de los usuarios.</p></div><button class="dialog-close" id="closeEdit" type="button" aria-label="Cerrar">×</button></div>
-    <form class="piece-grid edit-form" id="editForm">
+    <form class="piece-grid edit-form" id="editForm" novalidate>
       <input id="edit_id" type="hidden">
       <div class="field"><label for="edit_title">Nombre de la pieza</label><input id="edit_title" required></div>
       <div class="field"><label for="edit_category">Categoría</label><select id="edit_category"><option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="estructuras">Estructuras</option><option value="suspension">Suspensión</option></select></div>
@@ -287,7 +287,8 @@
       <div class="field full"><label for="edit_starts_at">Fecha y hora de inicio</label><input id="edit_starts_at" type="datetime-local"><span class="field-help">Si la fecha todavía no llega, aparecerá como próxima.</span></div>
       <div class="field full"><label for="edit_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="edit_end_date" type="date" required><select id="edit_end_hour" aria-label="Hora"></select><span class="date-time-separator">:</span><select id="edit_end_minute" aria-label="Minutos"></select></div><div class="time-shortcuts"><button type="button" data-duration="5">Desde ahora: 5 min</button><button type="button" data-duration="15">15 min</button><button type="button" data-duration="60">1 hora</button><button type="button" data-duration="1440">1 día</button></div></div>
       <div class="field"><label for="edit_status">Estado</label><select id="edit_status"><option value="active">Activa ahora</option><option value="upcoming">Próxima / programada</option><option value="closed">Cerrada</option></select><span class="field-help">“Próxima” requiere una fecha de inicio futura.</span></div>
-      <div class="form-actions"><button class="action-secondary" id="cancelEdit" type="button">Cancelar</button><button type="submit">Guardar cambios</button></div>
+      <p class="field-help full" id="edit_feedback" role="status" style="min-height:22px;margin:0;color:#f6c02a;font-weight:800"></p>
+      <div class="form-actions"><button class="action-secondary" id="cancelEdit" type="button">Cancelar</button><button id="editSave" type="submit">Guardar cambios</button></div>
     </form>
   </dialog>
 
@@ -715,6 +716,7 @@
           document.getElementById("edit_current_price").value = Number(listing.current_price || listing.start_price || 0);
           document.getElementById("edit_status").value = listing.status === "active" ? (listing.starts_at && new Date(listing.starts_at) > new Date() ? "upcoming" : "active") : "closed";
           document.getElementById("edit_photo").value = "";
+          document.getElementById("edit_feedback").textContent = "";
           document.getElementById("editForm").dataset.reopen = "false";
           document.getElementById("edit_starts_at").value = listing.starts_at ? toLocalInputValue(listing.starts_at) : "";
           if (listing.ends_at) {
@@ -758,6 +760,7 @@
           document.getElementById("edit_current_price").value = Number(listing.start_price || 0);
           document.getElementById("edit_status").value = "active";
           document.getElementById("edit_photo").value = "";
+          document.getElementById("edit_feedback").textContent = "";
           document.getElementById("editForm").dataset.reopen = "true";
           document.getElementById("edit_starts_at").value = "";
           setEditorEnd(new Date(Date.now() + 60 * 60000));
@@ -924,18 +927,23 @@
     });
 
     const editForm = document.getElementById("editForm");
+    const editFeedback = document.getElementById("edit_feedback");
+    const showEditFeedback = (message, isError = true) => {
+      editFeedback.textContent = message;
+      editFeedback.style.color = isError ? "#ff8a80" : "#7ee2a8";
+    };
     editForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const id = document.getElementById("edit_id").value;
       const original = currentListings.find((item) => item.id === id);
-      if (!original) return;
-      const saveButton = event.submitter;
-      if (saveButton) saveButton.disabled = true;
+      const saveButton = document.getElementById("editSave");
+      showEditFeedback("");
+      if (!original) return showEditFeedback("No encontramos esta subasta. Cierra la ventana y vuelve a abrirla.");
       msg.textContent = "Guardando cambios...";
       let imageUrl = document.getElementById("edit_image_url").value.trim();
       let uploadedMedia = [];
       try { uploadedMedia = await uploadEvidence(document.getElementById("edit_photo").files); }
-      catch (error) { msg.textContent = error.message; if (saveButton) saveButton.disabled = false; return; }
+      catch (error) { msg.textContent = error.message; showEditFeedback(error.message); return; }
       const mediaUrls = uniqueMedia([...mediaFromLines(document.getElementById("edit_media_urls").value), ...uploadedMedia, ...(imageUrl ? [{ type:"image", url:imageUrl }] : [])]);
       if (!imageUrl) imageUrl = mediaUrls.find((item) => item.type === "image")?.url || null;
       const endDate = document.getElementById("edit_end_date").value;
@@ -943,8 +951,11 @@
       const endMinute = document.getElementById("edit_end_minute").value;
       const endsAt = endDate ? `${endDate}T${endHour}:${endMinute}` : "";
       const selectedStatus = document.getElementById("edit_status").value;
+      const title = document.getElementById("edit_title").value.trim();
+      if (!title) return showEditFeedback("Escribe el nombre de la pieza antes de guardar.");
+      if (!endDate) return showEditFeedback("Selecciona la fecha de cierre antes de guardar.");
       const changes = {
-        title: document.getElementById("edit_title").value.trim(),
+        title,
         category: document.getElementById("edit_category").value,
         description: document.getElementById("edit_description").value.trim(),
         product_details: parseLines(document.getElementById("edit_product_details").value),
@@ -957,20 +968,16 @@
         status: selectedStatus === "upcoming" ? "active" : selectedStatus
       };
       if (selectedStatus === "upcoming" && (!changes.starts_at || new Date(changes.starts_at) <= new Date())) {
-        msg.textContent = "Para programarla como próxima, selecciona una fecha de inicio futura.";
-        if (saveButton) saveButton.disabled = false;
-        return;
+        return showEditFeedback("Para programarla como próxima, selecciona una fecha y hora de inicio futuras.");
       }
       if (changes.status === "active" && !endsAt) {
-        msg.textContent = "Selecciona una fecha y hora de cierre antes de activar la subasta.";
-        if (saveButton) saveButton.disabled = false;
-        return;
+        return showEditFeedback("Selecciona una fecha y hora de cierre antes de guardar.");
       }
       if (changes.status === "active" && changes.starts_at && changes.ends_at && new Date(changes.starts_at) >= new Date(changes.ends_at)) {
-        msg.textContent = "La fecha de inicio debe ser anterior al cierre.";
-        if (saveButton) saveButton.disabled = false;
-        return;
+        return showEditFeedback("La fecha de cierre debe ser posterior al inicio de la subasta.");
       }
+      saveButton.disabled = true;
+      showEditFeedback("Guardando cambios...", false);
       const isReopening = editForm.dataset.reopen === "true" || (original.status === "closed" && changes.status === "active");
       if (isReopening) {
         changes.winner_id = null;
@@ -979,8 +986,9 @@
         changes.auction_round = Number(original.auction_round || 1) + 1;
       }
       const { error } = await client.from("listings").update(changes).eq("id", id);
-      if (saveButton) saveButton.disabled = false;
+      saveButton.disabled = false;
       msg.textContent = error ? error.message : "Subasta actualizada";
+      showEditFeedback(error ? error.message : "Cambios guardados correctamente.", !error);
       if (!error) {
         editForm.dataset.reopen = "false";
         closeEditDialog();
