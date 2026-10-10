@@ -1023,6 +1023,7 @@ class Component extends DCLogic {
     this.setupAuctionRealtime();
     this.auctionRefreshTimer = window.setInterval(() => this.loadListingsFromDB(), 3000);
     window.addEventListener('pageshow', this.onPageShow);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
     window.addEventListener('scroll', this.onPageScroll, { passive: true });
     window.addEventListener('resize', this.checkOverflow);
     setTimeout(this.checkOverflow, 300);
@@ -1057,10 +1058,15 @@ class Component extends DCLogic {
     window.removeEventListener('scroll', this.onPageScroll);
     window.removeEventListener('resize', this.checkOverflow);
     window.removeEventListener('pageshow', this.onPageShow);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
 
-  onPageShow = (event) => {
-    if (event.persisted) this.syncAuthFromSupabase();
+  onPageShow = () => {
+    this.loadListingsFromDB();
+  };
+
+  onVisibilityChange = () => {
+    if (document.visibilityState === 'visible') this.loadListingsFromDB();
   };
 
   onPageScroll = () => {
@@ -1468,6 +1474,7 @@ class Component extends DCLogic {
     this.auctionRealtimeChannel = this.auctionRealtimeClient.channel('usso-auctions-live')
       .on('postgres_changes', { event:'*', schema:'public', table:'listings' }, refresh)
       .on('postgres_changes', { event:'*', schema:'public', table:'bids' }, refresh)
+      .on('postgres_changes', { event:'*', schema:'public', table:'notifications' }, refresh)
       .subscribe();
   }
 
@@ -1505,9 +1512,23 @@ class Component extends DCLogic {
     } catch (e) {}
   }
 
-  showLostAuction(listing) {
+  outcomeSeenKey(type, listing, userId) {
     const round = Number(listing.auctionRound || listing.auction_round || 1);
-    const key = `usso_loss_seen_${listing.id}_${round}`;
+    return `usso_${type}_seen_${userId || 'anonymous'}_${listing.id}_${round}`;
+  }
+
+  hasSeenOutcome(type, listing, userId) {
+    try {
+      return localStorage.getItem(this.outcomeSeenKey(type, listing, userId)) === '1';
+    } catch (e) { return false; }
+  }
+
+  markOutcomeSeen(type, listing, userId) {
+    try { localStorage.setItem(this.outcomeSeenKey(type, listing, userId), '1'); } catch (e) {}
+  }
+
+  showLostAuction(listing, userId) {
+    const key = this.outcomeSeenKey('loss', listing, userId);
     try {
       if (localStorage.getItem(key) === '1') return;
       localStorage.setItem(key, '1');
@@ -1516,9 +1537,8 @@ class Component extends DCLogic {
     this.playOutcomeSound('loss');
   }
 
-  celebrateWinner(listing) {
-    const round = Number(listing.auctionRound || listing.auction_round || 1);
-    const key = `usso_winner_seen_${listing.id}_${round}`;
+  celebrateWinner(listing, userId) {
+    const key = this.outcomeSeenKey('winner', listing, userId);
     try {
       if (localStorage.getItem(key) === '1') return;
       localStorage.setItem(key, '1');
@@ -1583,12 +1603,6 @@ class Component extends DCLogic {
     .from("listings")
     .select("id, title, image_url, current_price, start_price, status, ends_at, category, bid_count, auction_round, winner_id")
     .order("created_at", { ascending: false });
-
-  const currentUserId = activeUser ? activeUser.id : (this.state.user && this.state.user.id);
-  if (currentUserId) {
-    const won = (data || []).find((p) => p.status === 'closed' && p.winner_id === currentUserId);
-    if (won) this.celebrateWinner(won);
-  }
 
   this.rawAuctionItems = (data || []).map((p, i) => {
     const termina = p.ends_at ? new Date(p.ends_at).getTime() : null;
@@ -1659,8 +1673,11 @@ async syncAuthFromSupabase() {
     : this.state.notifPrefs;
   const accountHistory = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && (ownBids || []).some((bid) => bid.listing_id === lot.id && Number(bid.auction_round || 1) === Number(lot.auctionRound || 1))).map((lot) => ({ id:lot.id, title:lot.title, round:lot.auctionRound, finalPrice:lot.bid, outcome:lot.winnerId === user.id ? 'won' : 'lost' }));
   const participatedInRound = (lot) => (ownBids || []).some((bid) => bid.listing_id === lot.id && Number(bid.auction_round || 1) === Number(lot.auctionRound || 1));
-  const wonAuction = this.rawAuctionItems.find((lot) => lot.status === 'Finalizada' && lot.winnerId === user.id && participatedInRound(lot));
-  const lostAuction = this.rawAuctionItems.find((lot) => lot.status === 'Finalizada' && lot.winnerId && lot.winnerId !== user.id && participatedInRound(lot));
+  const newestFirst = (a, b) => Number(b.closesAt || 0) - Number(a.closesAt || 0);
+  const wonCandidates = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && lot.winnerId === user.id && participatedInRound(lot)).sort(newestFirst);
+  const lostCandidates = this.rawAuctionItems.filter((lot) => lot.status === 'Finalizada' && lot.winnerId && lot.winnerId !== user.id && participatedInRound(lot)).sort(newestFirst);
+  const wonAuction = wonCandidates.find((lot) => !this.hasSeenOutcome('winner', lot, user.id));
+  const lostAuction = lostCandidates.find((lot) => !this.hasSeenOutcome('loss', lot, user.id));
   const { data: serverNotifs } = await client.from('notifications').select('id,title,message,created_at,user_id').eq('user_id', user.id).order('created_at', { ascending:false }).limit(50);
   const localNotifs = this.state.notifs || [];
   const localById = Object.fromEntries(localNotifs.map((n) => [n.id, n]));
@@ -1685,8 +1702,12 @@ async syncAuthFromSupabase() {
     accountHistory,
     notifs: mergedNotifs
   }, () => {
-    if (wonAuction) this.celebrateWinner(wonAuction);
-    else if (lostAuction) this.showLostAuction(lostAuction);
+    if (wonAuction) this.celebrateWinner(wonAuction, user.id);
+    else if (lostAuction) this.showLostAuction(lostAuction, user.id);
+    [...wonCandidates, ...lostCandidates].forEach((lot) => {
+      const type = lot.winnerId === user.id ? 'winner' : 'loss';
+      this.markOutcomeSeen(type, lot, user.id);
+    });
     const params = new URLSearchParams(window.location.search);
     if (params.get('cuenta') === '1') {
       this.setState({ accountOpen: true, notifOpen: false });
