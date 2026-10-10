@@ -739,6 +739,9 @@
             </sc-if>
             <button onClick="{{ featuredGoTo }}" style="flex:{{ featuredDetailsFlex }};background:transparent;border:1.5px solid rgba(var(--text-rgb),0.25);color:var(--text);font:700 14px Manrope,sans-serif;padding:13px 22px;border-radius:100px;cursor:pointer">Ver detalles</button>
           </div>
+          <sc-if value="{{ featuredIsUpcoming }}">
+            <button onClick="{{ featuredNotify }}" style="width:100%;background:{{ featuredNotifyBg }};border:1px solid {{ featuredNotifyBorder }};color:{{ featuredNotifyColor }};font:800 13px Manrope,sans-serif;padding:13px 18px;border-radius:100px;cursor:pointer">{{ featuredNotifyLabel }}</button>
+          </sc-if>
         </div>
       </div>
       </sc-if>
@@ -836,7 +839,6 @@
                   </div>
                 </sc-if>
                 <sc-if value="{{ lot.isUpcoming }}" hint-placeholder-val="{{ false }}">
-                  <button onClick="{{ lot.buyNow }}" style="width:100%;background:{{ accent }};color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:12px 16px;border-radius:100px;border:0;cursor:pointer">Comprar ahora · {{ lot.buyPrice }}</button>
                   <button onClick="{{ lot.notify }}" style="width:100%;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:700 13px Manrope,sans-serif;padding:11px 16px;border-radius:100px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px">{{ lot.notifyLabel }}</button>
                 </sc-if>
               </div>
@@ -1789,6 +1791,7 @@ class Component extends DCLogic {
     "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
   );
   await client.rpc('expire_listings');
+  await client.rpc('dispatch_upcoming_auction_reminders');
   const { data } = await client
     .from("listings")
     .select("id, title, image_url, current_price, start_price, status, starts_at, ends_at, category, bid_count, auction_round, winner_id")
@@ -1859,10 +1862,10 @@ async syncAuthFromSupabase() {
   }
   const profile = profileResult.data;
   if (!profile) return;
-  const { data: ownBids } = await client
-    .from("bids")
-    .select("listing_id, amount, auction_round, created_at")
-    .eq("user_id", user.id);
+  const [{ data: ownBids }, watchResult] = await Promise.all([
+    client.from("bids").select("listing_id, amount, auction_round, created_at").eq("user_id", user.id),
+    client.from("auction_watchers").select("listing_id").eq("user_id", user.id)
+  ]);
   const myBids = (ownBids || []).reduce((result, bid) => {
     const lot = this.rawAuctionItems.find((item) => item.id === bid.listing_id);
     if (!lot || Number(bid.auction_round || 1) !== Number(lot.auctionRound || 1)) return result;
@@ -1923,6 +1926,7 @@ async syncAuthFromSupabase() {
     bidStatus: profile.authorized ? "autorizado" : "ninguno",
     notifPrefs: savedPrefs,
     myBids,
+    watching: watchResult.error ? this.state.watching : Object.fromEntries((watchResult.data || []).map((watch) => [watch.listing_id, true])),
     accountHistory,
     notifs: mergedNotifs
   }, () => {
@@ -2002,11 +2006,21 @@ async syncAuthFromSupabase() {
 
   setFilter = (id) => () => this.setState({ lotFilter: id });
 
-  toggleWatch = (lotId) => (e) => {
+  toggleWatch = (lotId) => async (e) => {
     if (e && e.stopPropagation) e.stopPropagation();
     if (!this.state.user) return this.setState({ authOpen: true, authMode: 'registro', authError: '' });
     const on = !!this.state.watching[lotId];
     const lot = this.rawAuctionItems.find((l) => l.id === lotId);
+    if (!window.supabase) return;
+    const client = window.supabase.createClient(
+      "https://ahhlfvjicxylidpmeciw.supabase.co",
+      "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+    );
+    const { error } = await client.rpc('toggle_auction_watch', { p_listing_id:lotId, p_enabled:!on });
+    if (error) {
+      this.pushNotif({ icon:'⚠️', kind:'alert', title:'No se pudo guardar el aviso', body:error.message });
+      return;
+    }
     this.setState((s) => {
       const w = { ...s.watching };
       if (on) delete w[lotId]; else w[lotId] = true;
@@ -2351,6 +2365,7 @@ submitAuth = async (e) => {
     const featuredIsLeading = !!featuredOwnBid && featuredOwnBid >= featuredCurrent;
     const featuredIsActive = feat.status === 'Activa';
     const featuredIsUpcoming = feat.status === 'Próxima';
+    const featuredWatchOn = !!st.watching[feat.id];
     const featuredEndingSoon = featuredIsActive && feat.closesAt - Date.now() <= 60 * 60 * 1000;
     const featuredCelebrating = !featuredIsActive && !!feat.closesAt && Date.now() - feat.closesAt >= 0 && Date.now() - feat.closesAt < 12000;
     const bidLabel = !hasAnyAuction
@@ -2478,6 +2493,12 @@ submitAuth = async (e) => {
       featuredClockColor: featuredIsUpcoming ? '#8dbbff' : (featuredIsActive ? 'var(--text)' : '#ff5c52'),
       featuredPriceLabel: featuredIsUpcoming ? 'Precio base' : (featuredIsActive ? `Puja actual · ${feat.bidCount} ofertas` : (feat.bidCount ? `Precio final · ${feat.bidCount} ofertas` : 'Finalizada sin ofertas')),
       featuredIsActive,
+      featuredIsUpcoming,
+      featuredNotify: this.toggleWatch(feat.id),
+      featuredNotifyLabel: featuredWatchOn ? '✓ Te avisaremos 24 horas antes' : 'Avisarme cuando comience',
+      featuredNotifyBg: featuredWatchOn ? 'rgba(74,222,128,0.1)' : 'transparent',
+      featuredNotifyBorder: featuredWatchOn ? 'rgba(74,222,128,0.35)' : 'rgba(var(--border-rgb),0.25)',
+      featuredNotifyColor: featuredWatchOn ? '#7ee2a8' : 'var(--text)',
       featuredCelebrating,
       featuredFinishClass: featuredCelebrating ? 'usso-finished-lot' : '',
       featuredBadgeLabel: featuredIsUpcoming ? 'Próxima subasta' : (featuredIsActive ? (featuredEndingSoon ? 'Cerrando pronto' : 'Subasta activa') : (feat.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas')),
@@ -2535,7 +2556,7 @@ submitAuth = async (e) => {
           buyPrice: l.buyNowPrice,
           buyNow: this.buyNow(l.id),
           notify: this.toggleWatch(l.id),
-          notifyLabel: on ? '✓ Te avisaremos' : (l.status === 'Próxima' ? 'Avisarme cuando inicie' : 'Avisarme de esta subasta'),
+          notifyLabel: on ? '✓ Te avisaremos 24 horas antes' : (l.status === 'Próxima' ? 'Avisarme cuando comience' : 'Avisarme de esta subasta'),
           notifyBg: on ? 'rgba(74,222,128,0.1)' : 'transparent',
           notifyBorder: on ? 'rgba(74,222,128,0.35)' : 'rgba(var(--border-rgb),0.2)',
           notifyColor: on ? '#7ee2a8' : 'rgba(243,241,236,0.78)',
