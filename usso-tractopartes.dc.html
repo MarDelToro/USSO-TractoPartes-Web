@@ -1558,14 +1558,6 @@ class Component extends DCLogic {
     if (v && this._settled[key] === true) {
       return { opacity: 1, transform: 'none', filter: 'none', transition };
     }
-    const historyAll = st.accountHistory || [];
-    const historyFiltered = historyAll.filter((item) => st.historyFilter === 'all' || item.outcome === st.historyFilter);
-    const historyFilterOptions = [
-      { id:'all', label:'Todas', count:historyAll.length },
-      { id:'won', label:'Ganadas', count:historyAll.filter((item) => item.outcome === 'won').length },
-      { id:'lost', label:'No ganadas', count:historyAll.filter((item) => item.outcome === 'lost').length }
-    ];
-
     return {
       opacity: v ? 1 : 0,
       transform: `translateY(${v ? 0 : y * mult}px) scale(${v ? 1 : 1 - (1 - scale) * mult})`,
@@ -2444,6 +2436,13 @@ submitAuth = async (e) => {
     const activeFilter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
     const publicAuctions = [...active, ...upcoming];
     const filtered = publicAuctions.filter(activeFilter.test);
+    const historyAll = st.accountHistory || [];
+    const historyFiltered = historyAll.filter((item) => st.historyFilter === 'all' || item.outcome === st.historyFilter);
+    const historyFilterOptions = [
+      { id:'all', label:'Todas', count:historyAll.length },
+      { id:'won', label:'Ganadas', count:historyAll.filter((item) => item.outcome === 'won').length },
+      { id:'lost', label:'No ganadas', count:historyAll.filter((item) => item.outcome === 'lost').length }
+    ];
 
     return {
       isLogged: !!u,
