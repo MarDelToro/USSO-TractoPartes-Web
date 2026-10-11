@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script src="/access-guard.js"></script>
+<script src="/youtube-stats.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
 </head>
@@ -82,6 +83,7 @@
           <div style="padding:20px;display:flex;flex-direction:column;flex:1">
             <h3 style="font:800 17px Manrope,sans-serif;color:#f3f1ec;margin:0 0 8px;min-height:44px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ v.title }}</h3>
             <p style="font:500 14px/1.55 Manrope,sans-serif;color:rgba(243,241,236,0.6);margin:0">{{ v.desc }}</p>
+            <span style="font:700 12px Manrope,sans-serif;color:rgba(243,241,236,0.45);margin-top:12px">{{ v.viewsLabel }}</span>
           </div>
         </div>
       </sc-for>
@@ -92,12 +94,23 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { pageOpacity: 0, searchValue: '' };
+  state = { pageOpacity: 0, searchValue: '', youtubeViews: {} };
   accent = '#f6c02a';
 
   componentDidMount() {
     requestAnimationFrame(() => this.setState({ pageOpacity: 1 }));
+    this.loadYouTubeViews();
   }
+
+  loadYouTubeViews = async () => {
+    if (!window.USSOYouTubeStats) return;
+    try {
+      const youtubeViews = await window.USSOYouTubeStats.getViews(this.rawVideoItems.map((video) => video.youtubeId));
+      this.setState({ youtubeViews });
+    } catch (error) {
+      console.warn(error.message);
+    }
+  };
 
   onSearchChange = (e) => this.setState({ searchValue: e.target.value });
   onSearchKeyDown = (e) => {
@@ -142,6 +155,7 @@ class Component extends DCLogic {
           setThumbEl: v.youtubeId ? (el) => { if (el) el.style.backgroundImage = `url(https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg)`; } : null,
           cursor: v.youtubeId && !playing ? 'pointer' : 'default',
           play: v.youtubeId && !playing ? this.playVideo(v.id) : null,
+          viewsLabel: window.USSOYouTubeStats ? window.USSOYouTubeStats.formatViews(this.state.youtubeViews[v.youtubeId]) : '',
         };
       }),
     };
