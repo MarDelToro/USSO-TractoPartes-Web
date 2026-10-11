@@ -1293,6 +1293,7 @@ class Component extends DCLogic {
       el.addEventListener('touchstart', () => { el.dataset.touching = '1'; }, { passive: true });
       const release = () => {
         el.dataset.touching = '0';
+        if (this.isTouchLayout()) return;
         if (this['_wrapT_' + key]) clearTimeout(this['_wrapT_' + key]);
         this['_wrapT_' + key] = setTimeout(() => this.wrapCarousel(key), 220);
       };
@@ -1300,6 +1301,7 @@ class Component extends DCLogic {
       el.addEventListener('touchcancel', release, { passive: true });
       const settle = () => {
         this.applyCoverflow(key);
+        if (this.isTouchLayout()) return;
         const single = this.measurePeriod(el);
         if (single) {
           this['_' + key + 'Single'] = single;
@@ -1325,12 +1327,14 @@ class Component extends DCLogic {
   }
   onCarouselScroll = (key) => {
     this.scheduleCoverflow(key);
+    if (this.isTouchLayout()) return;
     if (this['_wrapT_' + key]) clearTimeout(this['_wrapT_' + key]);
     this['_wrapT_' + key] = setTimeout(() => this.wrapCarousel(key), 170);
   };
   // El salto del loop infinito solo se hace cuando el dedo ya soltó y la
   // inercia terminó: en iOS escribir scrollLeft a media inercia la cancela.
   wrapCarousel = (key) => {
+    if (this.isTouchLayout()) return;
     const el = this['_' + key + 'Ref'];
     const single = this['_' + key + 'Single'];
     if (!el || !single || el.dataset.touching === '1') return;
@@ -1462,7 +1466,7 @@ class Component extends DCLogic {
     const key = el.classList.contains('usso-auctions-grid') ? 'auctions'
       : el.classList.contains('usso-videos-grid') ? 'videos'
       : el.classList.contains('usso-inventory-grid') ? 'inv' : null;
-    if (key) setTimeout(() => this.wrapCarousel(key), 360);
+    if (key && !this.isTouchLayout()) setTimeout(() => this.wrapCarousel(key), 360);
   };
   isTouchLayout() {
     return window.matchMedia('(max-width: 860px)').matches;
