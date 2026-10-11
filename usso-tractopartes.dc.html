@@ -150,7 +150,7 @@
   .usso-inventory-grid::-webkit-scrollbar, .usso-auctions-grid::-webkit-scrollbar, .usso-videos-grid::-webkit-scrollbar { display: none; }
   .usso-inventory-grid > div, .usso-auctions-grid > div, .usso-videos-grid > div { scroll-snap-align: center; scroll-snap-stop: always; transform-origin: center; transition: transform 0.2s ease-out, opacity 0.2s ease-out; }
   .usso-inventory-grid, .usso-auctions-grid, .usso-videos-grid { touch-action: pan-x pan-y; }
-  .usso-filter-row, .usso-trust-grid, .usso-financing-cards { touch-action: pan-y; }
+  .usso-filter-row, .usso-trust-grid, .usso-financing-cards, .usso-finance-route { touch-action: pan-y; }
   .usso-carousel-nav { display: flex !important; }
   @media (max-width: 860px) { .usso-carousel-nav { display: none !important; } }
   .usso-hero-carousel { display: none; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; gap: 12px; }
@@ -312,12 +312,13 @@
   .usso-finance-route { position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0; }
   .usso-finance-step { position:relative;padding:17px 12px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(var(--border-rgb),.08); }
   .usso-finance-step:not(:last-child)::after { content:"";position:absolute;top:27px;right:-11px;width:12px;height:2px;background:#f6c02a;z-index:2; }
+  .usso-finance-check { width:74px;height:74px;min-width:74px;flex:0 0 74px;aspect-ratio:1/1;border-radius:50%;border:7px solid rgba(246,192,42,.15);border-top-color:#f6c02a;display:grid;place-items:center;color:#f6c02a;font:900 19px Manrope;box-sizing:border-box; }
   .usso-financing-cards { position:relative;z-index:1;display:grid!important;grid-template-columns:1fr 1fr;gap:10px!important; }
   .usso-financing-cards > div { min-height:112px;box-sizing:border-box; }
   @media(max-width:1000px){.usso-trust-layout{grid-template-columns:1fr;gap:34px}.usso-proof-stage{min-height:470px}.usso-finance-visual{min-height:auto}.usso-financing-grid{grid-template-columns:1fr!important}}
   @media(max-width:860px){
-    .usso-trust-layout{display:flex;flex-direction:column;gap:28px}.usso-proof-stage{width:100%;min-height:440px;border-radius:22px}.usso-proof-engine{left:12px;right:12px;top:12px;height:235px}.usso-proof-photo-label{left:12px;top:12px;font-size:8px;padding:7px 9px}.usso-proof-seal{width:70px;height:70px;right:24px;top:24px;font-size:8px;z-index:3;background:rgba(12,12,13,.82)}.usso-proof-screen{padding:17px;left:14px;right:14px;bottom:14px}.usso-trust-grid{display:grid!important;grid-template-columns:1fr!important;overflow:visible!important;margin:18px 0 0!important;padding:0!important}.usso-trust-grid>div{width:auto!important;min-width:0!important;flex:none!important}
-    .usso-finance-visual{padding:20px;border-radius:22px}.usso-finance-kpi{padding:22px}.usso-finance-route{gap:7px}.usso-finance-step{padding:14px 9px}.usso-finance-step strong{font-size:11px!important}.usso-financing-cards{display:grid!important;grid-template-columns:1fr!important;overflow:visible!important;margin:0!important;padding:0!important}.usso-financing-cards>div{width:auto!important;min-width:0!important;flex:none!important;min-height:0}
+    .usso-trust-layout{display:flex;flex-direction:column;gap:28px}.usso-proof-stage{width:100%;min-height:440px;border-radius:22px}.usso-proof-engine{left:12px;right:12px;top:12px;height:235px}.usso-proof-photo-label{left:12px;top:12px;font-size:8px;padding:7px 9px}.usso-proof-seal{width:70px;height:70px;right:24px;top:24px;font-size:8px;z-index:3;background:rgba(12,12,13,.82)}.usso-proof-screen{padding:17px;left:14px;right:14px;bottom:14px}.usso-trust-grid{display:flex!important;grid-template-columns:none!important;flex-wrap:nowrap!important;overflow-x:auto!important;scroll-snap-type:none!important;margin:18px -20px 0!important;padding:2px 20px 8px!important;gap:12px!important}.usso-trust-grid>div{width:auto!important;min-width:0!important;flex:0 0 78%!important;scroll-snap-align:center}
+    .usso-finance-visual{padding:20px;border-radius:22px}.usso-finance-kpi{padding:22px}.usso-finance-check{width:62px;height:62px;min-width:62px;flex-basis:62px}.usso-finance-route{display:flex;grid-template-columns:none;overflow-x:auto;margin:18px -20px;padding:2px 20px 8px;gap:10px;scrollbar-width:none}.usso-finance-route::-webkit-scrollbar{display:none}.usso-finance-step{flex:0 0 68%;padding:18px 16px;scroll-snap-align:center}.usso-finance-step:not(:last-child)::after{display:none}.usso-finance-step strong{font-size:12px!important}.usso-financing-cards{display:flex!important;grid-template-columns:none!important;flex-wrap:nowrap!important;overflow-x:auto!important;margin:0 -20px!important;padding:2px 20px 8px!important;gap:12px!important}.usso-financing-cards>div{width:auto!important;min-width:0!important;flex:0 0 78%!important;min-height:118px;scroll-snap-align:center}
   }
   .usso-evidence-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .usso-modal-scroll { max-height: 86vh; overflow-y: auto; scrollbar-width: none; }
@@ -960,8 +961,8 @@
   <section id="financiamiento" data-screen-label="Financiamiento" ref="{{ registerReveal_financiamiento }}" class="usso-section-pad" style="padding:120px 48px;background:var(--bg-alt)">
     <div class="usso-financing-grid" style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:0.8fr 1.2fr;gap:64px;align-items:center;opacity:{{ styles.financing.opacity }};transform:{{ styles.financing.transform }};filter:{{ styles.financing.filter }};transition:{{ styles.financing.transition }}">
       <div>
-        <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Capital que sí trabaja</span>
-        <h2 style="font-family:'Archivo Black',sans-serif;font-size:clamp(34px,4.5vw,58px);line-height:1.02;margin:12px 0 22px;color:var(--text)">La pieza hoy.<br>El pago a tu ritmo.</h2>
+        <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Financiamiento USSO</span>
+        <h2 style="font-family:'Archivo Black',sans-serif;font-size:clamp(34px,4.5vw,58px);line-height:1.02;margin:12px 0 22px;color:var(--text)">Financiamiento<br>para tu tractoparte.</h2>
         <p style="font:500 17px/1.65 Manrope,sans-serif;color:rgba(var(--text-rgb),0.65);max-width:470px;margin:0 0 24px">Haz que tu camión vuelva a trabajar sin detener el flujo de tu negocio. Revisamos contigo una opción clara, rápida y a tu medida.</p>
         <div style="display:flex;gap:18px;margin:0 0 30px"><div><strong style="display:block;font:900 27px 'Archivo Black';color:{{ accent }}">24–48h</strong><span style="font:600 11px Manrope;color:rgba(var(--text-rgb),.5)">Respuesta estimada</span></div><div style="width:1px;background:rgba(var(--border-rgb),.1)"></div><div><strong style="display:block;font:900 27px 'Archivo Black';color:{{ accent }}">1–6</strong><span style="font:600 11px Manrope;color:rgba(var(--text-rgb),.5)">Meses disponibles</span></div></div>
         <a href="{{ whatsappLinkFinanciamiento }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:17px 29px;border-radius:100px;box-shadow:0 14px 32px rgba(246,192,42,.18)">Cotizar mi financiamiento →</a>
@@ -969,7 +970,7 @@
       <div class="usso-finance-visual">
         <div class="usso-finance-kpi">
           <span style="font:800 10px Manrope;color:{{ accent }};letter-spacing:.14em;text-transform:uppercase">Ruta de financiamiento</span>
-          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-top:13px"><div><strong style="font:900 clamp(30px,4vw,48px)/1 'Archivo Black';color:var(--text)">Tu unidad<br>en movimiento</strong></div><div style="width:74px;height:74px;border-radius:50%;border:7px solid rgba(246,192,42,.15);border-top-color:{{ accent }};display:grid;place-items:center;color:{{ accent }};font:900 19px Manrope">✓</div></div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-top:13px"><div><strong style="font:900 clamp(30px,4vw,48px)/1 'Archivo Black';color:var(--text)">Tu unidad<br>en movimiento</strong></div><div class="usso-finance-check">✓</div></div>
         </div>
         <div class="usso-finance-route">
           <div class="usso-finance-step"><span style="display:block;font:900 10px Manrope;color:{{ accent }};margin-bottom:8px">01</span><strong style="font:800 13px Manrope;color:var(--text)">Elige tu pieza</strong></div>
@@ -1347,7 +1348,7 @@ class Component extends DCLogic {
       this.applyCoverflow(key);
     });
   };
-  CAROUSEL_SEL = '.usso-inventory-grid, .usso-auctions-grid, .usso-videos-grid, .usso-all-grid, .usso-filter-row, .usso-trust-grid, .usso-financing-cards';
+  CAROUSEL_SEL = '.usso-inventory-grid, .usso-auctions-grid, .usso-videos-grid, .usso-all-grid, .usso-filter-row, .usso-trust-grid, .usso-financing-cards, .usso-finance-route';
 
   // Arrastre horizontal manejado por nosotros: el scroll nativo horizontal de
   // iOS Safari no responde de forma confiable dentro de esta página, así que en
@@ -2790,7 +2791,8 @@ submitAuth = async (e) => {
         { id: 'v4', title: '¿Cómo construir un chasis mexicano?', desc: 'Conoce paso a paso cómo se construye un chasis mexicano.', placeholder: 'Video: Chasis mexicano', youtubeId: 'SUR8zGxWx2A' },
         { id: 'v5', title: 'Qué chasis le deberías de poner a tu camión', desc: 'Te explicamos qué chasis elegir para tu camión según el uso que le vas a dar.', placeholder: 'Video: Chasis para tu camión', youtubeId: '7tmOiFH2MXI' },
         ];
-        return [...base, ...base, ...base].map((v, i) => {
+        const carouselItems = this.isTouchLayout() ? base : [...base, ...base, ...base];
+        return carouselItems.map((v, i) => {
           const uid = `${v.id}-${i}`;
           const playing = this.playingVideo === uid;
           return {
