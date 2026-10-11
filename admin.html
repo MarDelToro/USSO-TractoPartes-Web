@@ -31,11 +31,18 @@
     .section-tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     .filter-chip { min-height:36px; padding:8px 13px; border-radius:999px; background:#242429; color:#c7c9ce; border:1px solid rgba(255,255,255,.1); font:800 11px Manrope,sans-serif; cursor:pointer; }
     .filter-chip.active { background:#f6c02a; color:#0a0a0b; border-color:#f6c02a; }
-    .admin-index { position:sticky; top:10px; z-index:20; display:flex; gap:8px; overflow-x:auto; padding:10px; margin:12px 0 22px; border:1px solid rgba(255,255,255,.1); border-radius:16px; background:rgba(14,14,16,.92); backdrop-filter:blur(12px); scrollbar-width:none; transform:translateY(0); opacity:1; transition:transform .24s ease,opacity .2s ease; box-shadow:0 12px 34px rgba(0,0,0,.24); }
+    .admin-index { position:sticky; top:10px; z-index:20; display:flex; align-items:center; gap:10px; padding:9px; margin:12px 0 22px; border:1px solid rgba(255,255,255,.11); border-radius:18px; background:rgba(14,14,16,.94); backdrop-filter:blur(16px); transform:translateY(0); opacity:1; transition:transform .24s ease,opacity .2s ease; box-shadow:0 15px 42px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.035); }
     .admin-index.nav-hidden { transform:translateY(calc(-100% - 22px)); opacity:0; pointer-events:none; }
-    .admin-index::-webkit-scrollbar { display:none; }
-    .admin-index a { flex:none; color:#c8cbd1; font-size:11px; font-weight:800; padding:9px 12px; border-radius:999px; background:#1d1d21; }
-    .admin-index a:hover { color:#0a0a0b; background:#f6c02a; }
+    .admin-index-publish { flex:none; display:inline-flex; align-items:center; gap:9px; min-height:42px; padding:9px 16px 9px 10px; border:0; border-radius:12px; background:#f6c02a; color:#09090a; font:900 12px Manrope,sans-serif; cursor:pointer; box-shadow:0 8px 22px rgba(246,192,42,.14); }
+    .admin-index-publish:hover { transform:translateY(-1px); filter:brightness(1.04); }
+    .admin-index-plus { display:grid; place-items:center; width:24px; height:24px; border-radius:8px; background:#09090a; color:#f6c02a; font-size:19px; line-height:1; }
+    .admin-index-rule { flex:none; width:1px; height:28px; background:rgba(255,255,255,.1); }
+    .admin-index-links { display:grid; grid-template-columns:repeat(7,minmax(92px,1fr)); gap:5px; width:100%; overflow-x:auto; scrollbar-width:none; }
+    .admin-index-links::-webkit-scrollbar { display:none; }
+    .admin-index a { position:relative; display:flex; align-items:center; justify-content:center; min-height:42px; padding:9px 12px; border-radius:12px; color:#aeb2ba; font-size:11px; font-weight:800; text-align:center; white-space:nowrap; transition:color .18s ease,background .18s ease,transform .18s ease; }
+    .admin-index a:hover { color:#f3f1ec; background:#202024; transform:translateY(-1px); }
+    .admin-index a.active { color:#f6c02a; background:rgba(246,192,42,.09); }
+    .admin-index a.active::after { content:""; position:absolute; left:50%; bottom:4px; width:18px; height:2px; border-radius:999px; background:#f6c02a; transform:translateX(-50%); box-shadow:0 0 12px rgba(246,192,42,.45); }
     #admin-subastas, #control-vivo, #finanzas-admin, #historial-admin, #ganadores-contacto, #usuarios-admin, #avisos-admin { scroll-margin-top:92px; }
     .attention-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:0 0 28px; }
     .attention-card { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:82px; padding:16px 18px; border-radius:15px; background:#141416; border:1px solid rgba(255,255,255,.11); color:#e9e7e2; transition:.18s ease; }
@@ -186,6 +193,12 @@
       .date-time-row { grid-template-columns:68px 14px 68px 76px; justify-content:start; }
       .date-time-row > input[type="date"] { grid-column:1 / -1; }
       .date-time-row input, .date-time-row select { padding-left:9px; padding-right:9px; }
+      .admin-index { gap:7px; padding:7px; border-radius:15px; }
+      .admin-index-publish { min-height:40px; padding:8px 12px 8px 8px; border-radius:10px; }
+      .admin-index-plus { width:23px; height:23px; }
+      .admin-index-rule { height:25px; }
+      .admin-index-links { display:flex; gap:4px; }
+      .admin-index a { flex:none; min-height:40px; padding:8px 11px; border-radius:10px; }
     }
   </style>
 </head>
@@ -198,7 +211,17 @@
     <p class="msg admin-ready" id="msg">Cargando...</p>
 
     <nav class="admin-index" aria-label="Secciones del panel">
-      <a href="#admin-subastas" id="publishIndex">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#finanzas-admin">Finanzas</a><a href="#historial-admin">Historial</a><a href="#ganadores-contacto">Ganadores</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
+      <button class="admin-index-publish" id="publishIndex" type="button"><span class="admin-index-plus" aria-hidden="true">+</span><span>Publicar</span></button>
+      <span class="admin-index-rule" aria-hidden="true"></span>
+      <div class="admin-index-links">
+        <a class="active" href="#admin-subastas" data-admin-section="admin-subastas" aria-current="page">Subastas</a>
+        <a href="#control-vivo" data-admin-section="control-vivo">Pujas en vivo</a>
+        <a href="#finanzas-admin" data-admin-section="finanzas-admin">Finanzas</a>
+        <a href="#historial-admin" data-admin-section="historial-admin">Historial</a>
+        <a href="#ganadores-contacto" data-admin-section="ganadores-contacto">Ganadores</a>
+        <a href="#usuarios-admin" data-admin-section="usuarios-admin">Usuarios</a>
+        <a href="#avisos-admin" data-admin-section="avisos-admin">Avisos</a>
+      </div>
     </nav>
 
     <section aria-labelledby="attentionTitle">
@@ -480,6 +503,32 @@
       adminIndex.classList.remove("nav-hidden");
       window.setTimeout(() => { previousAdminScroll = window.scrollY; }, 350);
     }));
+    const adminSectionLinks = [...adminIndex.querySelectorAll("[data-admin-section]")];
+    const setActiveAdminSection = (sectionId) => {
+      adminSectionLinks.forEach((link) => {
+        const isActive = link.dataset.adminSection === sectionId;
+        link.classList.toggle("active", isActive);
+        if (isActive) {
+          link.setAttribute("aria-current", "page");
+          const rail = link.parentElement;
+          const targetLeft = link.offsetLeft - (rail.clientWidth - link.offsetWidth) / 2;
+          rail.scrollTo({ left:Math.max(0, targetLeft), behavior:"smooth" });
+        } else link.removeAttribute("aria-current");
+      });
+    };
+    const observedAdminSections = adminSectionLinks
+      .map((link) => document.getElementById(link.dataset.adminSection))
+      .filter(Boolean);
+    if ("IntersectionObserver" in window) {
+      const sectionObserver = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActiveAdminSection(visible[0].target.id);
+      }, { rootMargin:"-18% 0px -68% 0px", threshold:0 });
+      observedAdminSections.forEach((section) => sectionObserver.observe(section));
+    }
+    adminSectionLinks.forEach((link) => link.addEventListener("click", () => setActiveAdminSection(link.dataset.adminSection)));
     const scheduleAdminRefresh = () => {
       window.clearTimeout(realtimeRefreshTimer);
       realtimeRefreshTimer = window.setTimeout(() => {
