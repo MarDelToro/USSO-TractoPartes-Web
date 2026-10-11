@@ -529,7 +529,7 @@
       await uploadAdminAvatar(adminAvatarInput.files?.[0]);
       adminAvatarInput.value = "";
     });
-    const applyPreviewFilter = () => {
+    const applyPreviewFilter = (resetPosition = false) => {
       const cards = Array.from(document.querySelectorAll("#auctionPreview .auction-card"));
       let visible = 0;
       cards.forEach((card) => {
@@ -541,7 +541,7 @@
       const oldEmpty = document.getElementById("previewEmpty");
       if (oldEmpty) oldEmpty.remove();
       if (cards.length && !visible) document.getElementById("auctionPreview").insertAdjacentHTML("beforeend", `<div class="panel-card" id="previewEmpty">No hay subastas en este filtro.</div>`);
-      document.getElementById("auctionPreview").scrollTo({ left:0, behavior:"smooth" });
+      if (resetPosition) document.getElementById("auctionPreview").scrollTo({ left:0, behavior:"smooth" });
     };
     const adminAttention = { payments:0, winners:0, requests:0, closing:0 };
     const renderAdminAttention = () => {
@@ -612,12 +612,14 @@
     };
     const formatAdminCountdown = (milliseconds) => {
       const total = Math.max(0, Math.floor(milliseconds / 1000));
-      const pad = (value) => String(value).padStart(2, "0");
       const days = Math.floor(total / 86400);
       const hours = Math.floor((total % 86400) / 3600);
       const minutes = Math.floor((total % 3600) / 60);
       const seconds = total % 60;
-      return days > 0 ? `${days}d ${pad(hours)}:${pad(minutes)}:${pad(seconds)}` : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+      if (days > 0) return `${days} d ${hours} hrs`;
+      if (hours > 0) return `${hours} hrs ${minutes} min`;
+      if (minutes > 0) return `${minutes} min ${seconds} seg`;
+      return `${seconds} seg`;
     };
     const updateAdminPreviewClocks = () => {
       const now = Date.now();
@@ -972,7 +974,18 @@
         winnerByListing[bid.listing_id] = bid.user_id;
       });
 
-      const activeListings = (data || []).filter((p) => p.status === "active" && !!p.ends_at && new Date(p.ends_at) > new Date());
+      const activeListings = (data || [])
+        .filter((p) => p.status === "active" && !!p.ends_at && new Date(p.ends_at) > new Date())
+        .sort((a, b) => {
+          const now = Date.now();
+          const aStart = a.starts_at ? new Date(a.starts_at).getTime() : 0;
+          const bStart = b.starts_at ? new Date(b.starts_at).getTime() : 0;
+          const aUpcoming = aStart > now;
+          const bUpcoming = bStart > now;
+          if (aUpcoming !== bUpcoming) return aUpcoming ? 1 : -1;
+          if (aUpcoming) return aStart - bStart;
+          return new Date(a.ends_at).getTime() - new Date(b.ends_at).getTime();
+        });
       const closedListings = (data || []).filter((p) => !activeListings.some((active) => active.id === p.id));
       const completedSales = closedListings.filter((p) => p.winner_id || winnerByListing[p.id]);
       const totalAwarded = completedSales.reduce((sum, p) => sum + Number(p.current_price || p.start_price || 0), 0);
@@ -988,7 +1001,9 @@
       document.getElementById("financePaid").textContent = money(totalPaid);
       document.getElementById("financePending").textContent = money(Math.max(0, totalAwarded - totalPaid));
       document.getElementById("financePaidCount").textContent = paidSales.length;
-      document.getElementById("auctionPreview").innerHTML = activeListings.map((p, index) => {
+      const previewRail = document.getElementById("auctionPreview");
+      const previousPreviewPosition = previewRail.scrollLeft;
+      previewRail.innerHTML = activeListings.map((p, index) => {
         const proxima = !!p.starts_at && new Date(p.starts_at) > new Date();
         const vencida = p.ends_at && new Date(p.ends_at) < new Date();
         const cerrada = p.status !== "active" || vencida;
@@ -1022,6 +1037,7 @@
         </article>`;
       }).join("") || `<div class="panel-card">Todavía no has publicado subastas.</div>`;
       applyPreviewFilter();
+      previewRail.scrollLeft = Math.min(previousPreviewPosition, Math.max(0, previewRail.scrollWidth - previewRail.clientWidth));
       updateAdminPreviewClocks();
 
       document.getElementById("listings").innerHTML = activeListings.map((p) => {
@@ -1425,7 +1441,7 @@
     document.getElementById("refreshLive").addEventListener("click", loadLiveBids);
     document.querySelectorAll("[data-preview-filter]").forEach((button) => button.addEventListener("click", () => {
       previewFilter = button.dataset.previewFilter;
-      applyPreviewFilter();
+      applyPreviewFilter(true);
     }));
     const scrollPreview = (direction) => {
       const track = document.getElementById("auctionPreview");
