@@ -299,8 +299,10 @@
   .usso-proof-stage { position:relative;min-height:520px;border:1px solid rgba(var(--border-rgb),.11);border-radius:28px;overflow:hidden;background:radial-gradient(circle at 84% 12%,rgba(246,192,42,.16),transparent 35%),linear-gradient(145deg,#09090a,#171719);box-shadow:0 34px 80px rgba(0,0,0,.42); }
   .usso-proof-stage::before { content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:38px 38px;mask-image:linear-gradient(to bottom,black,transparent 80%); }
   .usso-proof-seal { position:absolute;right:28px;top:26px;width:94px;height:94px;border-radius:50%;display:grid;place-items:center;text-align:center;border:1px solid rgba(246,192,42,.4);background:rgba(246,192,42,.1);color:#f6c02a;font:900 11px/1.2 Manrope,sans-serif;letter-spacing:.09em;text-transform:uppercase;box-shadow:0 0 0 8px rgba(246,192,42,.035); }
-  .usso-proof-engine { position:absolute;left:8%;right:25%;top:15%;height:210px;display:grid;place-items:center; }
-  .usso-proof-engine svg { width:100%;height:100%;filter:drop-shadow(0 25px 25px rgba(0,0,0,.48)); }
+  .usso-proof-engine { position:absolute;left:4%;right:4%;top:4%;height:300px;border-radius:22px;overflow:hidden;background:#dedede; }
+  .usso-proof-engine::after { content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 46%,rgba(8,8,9,.78) 100%);pointer-events:none; }
+  .usso-proof-engine img { width:100%;height:100%;display:block;object-fit:cover;object-position:center 48%;filter:saturate(.82) contrast(1.06); }
+  .usso-proof-photo-label { position:absolute;left:20px;top:20px;z-index:2;padding:8px 12px;border-radius:999px;background:rgba(8,8,9,.82);border:1px solid rgba(246,192,42,.42);color:#f6c02a;font:900 10px Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;backdrop-filter:blur(8px); }
   .usso-proof-screen { position:absolute;left:6%;right:6%;bottom:6%;padding:22px;border:1px solid rgba(var(--border-rgb),.1);border-radius:20px;background:rgba(18,18,20,.9);backdrop-filter:blur(12px); }
   .usso-proof-meter { height:7px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden; }
   .usso-proof-meter span { display:block;width:88%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#a87900,#f6c02a);box-shadow:0 0 18px rgba(246,192,42,.4); }
@@ -314,7 +316,7 @@
   .usso-financing-cards > div { min-height:112px;box-sizing:border-box; }
   @media(max-width:1000px){.usso-trust-layout{grid-template-columns:1fr;gap:34px}.usso-proof-stage{min-height:470px}.usso-finance-visual{min-height:auto}.usso-financing-grid{grid-template-columns:1fr!important}}
   @media(max-width:860px){
-    .usso-trust-layout{display:flex;flex-direction:column;gap:28px}.usso-proof-stage{width:100%;min-height:420px;border-radius:22px}.usso-proof-engine{left:2%;right:18%;top:13%;height:180px}.usso-proof-seal{width:76px;height:76px;right:16px;top:16px;font-size:9px}.usso-proof-screen{padding:17px;left:14px;right:14px;bottom:14px}.usso-trust-grid{display:grid!important;grid-template-columns:1fr!important;overflow:visible!important;margin:18px 0 0!important;padding:0!important}.usso-trust-grid>div{width:auto!important;min-width:0!important;flex:none!important}
+    .usso-trust-layout{display:flex;flex-direction:column;gap:28px}.usso-proof-stage{width:100%;min-height:440px;border-radius:22px}.usso-proof-engine{left:12px;right:12px;top:12px;height:235px}.usso-proof-photo-label{left:12px;top:12px;font-size:8px;padding:7px 9px}.usso-proof-seal{width:70px;height:70px;right:24px;top:24px;font-size:8px;z-index:3;background:rgba(12,12,13,.82)}.usso-proof-screen{padding:17px;left:14px;right:14px;bottom:14px}.usso-trust-grid{display:grid!important;grid-template-columns:1fr!important;overflow:visible!important;margin:18px 0 0!important;padding:0!important}.usso-trust-grid>div{width:auto!important;min-width:0!important;flex:none!important}
     .usso-finance-visual{padding:20px;border-radius:22px}.usso-finance-kpi{padding:22px}.usso-finance-route{gap:7px}.usso-finance-step{padding:14px 9px}.usso-finance-step strong{font-size:11px!important}.usso-financing-cards{display:grid!important;grid-template-columns:1fr!important;overflow:visible!important;margin:0!important;padding:0!important}.usso-financing-cards>div{width:auto!important;min-width:0!important;flex:none!important;min-height:0}
   }
   .usso-evidence-row { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -942,13 +944,8 @@
       <div class="usso-proof-stage" aria-label="Representación de la evidencia técnica de una pieza">
         <div class="usso-proof-seal">Evidencia<br>USSO</div>
         <div class="usso-proof-engine">
-          <svg viewBox="0 0 520 240" fill="none" aria-hidden="true">
-            <path d="M82 78h86l25-34h154l24 31h52v111H91L62 157V98l20-20z" fill="#242428" stroke="#5b5b61" stroke-width="2"/>
-            <path d="M205 63h132v62H205z" fill="#111113" stroke="#76767d" stroke-width="2"/><path d="M223 78h25v34h-25zm39 0h25v34h-25zm39 0h25v34h-25z" fill="#f6c02a" opacity=".7"/>
-            <path d="M112 96h64v68h-64zm267 4h62v58h-62z" fill="#171719" stroke="#707077" stroke-width="2"/>
-            <circle cx="135" cy="184" r="31" fill="#0a0a0b" stroke="#86868d" stroke-width="8"/><circle cx="390" cy="184" r="31" fill="#0a0a0b" stroke="#86868d" stroke-width="8"/>
-            <path d="M178 145h181M179 162h180" stroke="#f6c02a" stroke-width="5" opacity=".8"/><path d="M95 74l-24-25m306 25 25-29" stroke="#8d8d94" stroke-width="7" stroke-linecap="round"/>
-          </svg>
+          <img src="/assets/motores-cover.webp" alt="Motor Cummins fotografiado para documentar su condición real">
+          <span class="usso-proof-photo-label">Fotografía real del inventario</span>
         </div>
         <div class="usso-proof-screen">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><span style="display:block;font:800 10px Manrope;color:{{ accent }};letter-spacing:.14em;text-transform:uppercase">Inspección documentada</span><strong style="display:block;font:800 19px Manrope;color:var(--text);margin-top:4px">Estado real del lote</strong></div><span style="font:900 12px Manrope;color:#72dfa2;padding:7px 11px;border:1px solid rgba(114,223,162,.32);border-radius:999px;background:rgba(114,223,162,.08)">VERIFICADO</span></div>
