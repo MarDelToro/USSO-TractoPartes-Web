@@ -30,10 +30,12 @@
     .section-tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     .filter-chip { min-height:36px; padding:8px 13px; border-radius:999px; background:#242429; color:#c7c9ce; border:1px solid rgba(255,255,255,.1); font:800 11px Manrope,sans-serif; cursor:pointer; }
     .filter-chip.active { background:#f6c02a; color:#0a0a0b; border-color:#f6c02a; }
-    .admin-index { position:sticky; top:10px; z-index:20; display:flex; gap:8px; overflow-x:auto; padding:10px; margin:12px 0 22px; border:1px solid rgba(255,255,255,.1); border-radius:16px; background:rgba(14,14,16,.92); backdrop-filter:blur(12px); scrollbar-width:none; }
+    .admin-index { position:sticky; top:10px; z-index:20; display:flex; gap:8px; overflow-x:auto; padding:10px; margin:12px 0 22px; border:1px solid rgba(255,255,255,.1); border-radius:16px; background:rgba(14,14,16,.92); backdrop-filter:blur(12px); scrollbar-width:none; transform:translateY(0); opacity:1; transition:transform .24s ease,opacity .2s ease; box-shadow:0 12px 34px rgba(0,0,0,.24); }
+    .admin-index.nav-hidden { transform:translateY(calc(-100% - 22px)); opacity:0; pointer-events:none; }
     .admin-index::-webkit-scrollbar { display:none; }
     .admin-index a { flex:none; color:#c8cbd1; font-size:11px; font-weight:800; padding:9px 12px; border-radius:999px; background:#1d1d21; }
     .admin-index a:hover { color:#0a0a0b; background:#f6c02a; }
+    #admin-subastas, #control-vivo, #finanzas-admin, #historial-admin, #ganadores-contacto, #usuarios-admin, #avisos-admin { scroll-margin-top:92px; }
     .attention-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:0 0 28px; }
     .attention-card { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:82px; padding:16px 18px; border-radius:15px; background:#141416; border:1px solid rgba(255,255,255,.11); color:#e9e7e2; transition:.18s ease; }
     .attention-card:hover { transform:translateY(-2px); border-color:rgba(246,192,42,.42); }
@@ -422,6 +424,26 @@
       });
     };
     let realtimeRefreshTimer = null;
+    const adminIndex = document.querySelector(".admin-index");
+    let previousAdminScroll = window.scrollY;
+    let adminNavFrame = null;
+    const updateAdminNavVisibility = () => {
+      const currentScroll = Math.max(0, window.scrollY);
+      const difference = currentScroll - previousAdminScroll;
+      if (currentScroll < 150) adminIndex.classList.remove("nav-hidden");
+      else if (difference > 7) adminIndex.classList.add("nav-hidden");
+      else if (difference < -7) adminIndex.classList.remove("nav-hidden");
+      previousAdminScroll = currentScroll;
+      adminNavFrame = null;
+    };
+    window.addEventListener("scroll", () => {
+      if (!adminNavFrame) adminNavFrame = window.requestAnimationFrame(updateAdminNavVisibility);
+    }, { passive:true });
+    adminIndex.addEventListener("focusin", () => adminIndex.classList.remove("nav-hidden"));
+    adminIndex.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
+      adminIndex.classList.remove("nav-hidden");
+      window.setTimeout(() => { previousAdminScroll = window.scrollY; }, 350);
+    }));
     const scheduleAdminRefresh = () => {
       window.clearTimeout(realtimeRefreshTimer);
       realtimeRefreshTimer = window.setTimeout(() => {
