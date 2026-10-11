@@ -100,24 +100,33 @@
     .priority-panel .panel-title { margin-bottom:16px; }
     .field-help { color:#838993; font-size:11px; line-height:1.45; }
     .auction-preview { scroll-margin-top:20px; margin:42px 0 46px; }
-    .auction-preview-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
-    .auction-card { overflow:hidden; display:grid; grid-template-columns:minmax(220px,42%) 1fr; min-height:330px; border-radius:20px; background:#141416; border:1px solid rgba(246,192,42,.3); box-shadow:0 20px 48px rgba(0,0,0,.2); }
-    .auction-photo { position:relative; min-height:300px; background:#0e0e10; border-right:1px solid rgba(255,255,255,.12); overflow:hidden; }
+    .auction-preview-toolbar { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:14px 0; }
+    .auction-preview-filters { display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; }
+    .auction-preview-filters::-webkit-scrollbar { display:none; }
+    .preview-filter { flex:0 0 auto; min-height:37px; padding:8px 14px; border-radius:999px; background:#242429; color:#aeb3bc; border:1px solid rgba(255,255,255,.1); font-size:11px; font-weight:900; }
+    .preview-filter.active { background:#f6c02a; color:#09090a; border-color:#f6c02a; }
+    .auction-preview-arrows { display:flex; gap:7px; }
+    .preview-arrow { width:39px; height:39px; padding:0; border-radius:50%; background:#242429; color:#f3f1ec; border:1px solid rgba(255,255,255,.1); font-size:18px; }
+    .auction-preview-frame { overflow:hidden; }
+    .auction-preview-grid { display:flex; gap:14px; overflow-x:auto; padding:2px 2px 14px; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:#4a4a50 #171719; }
+    .auction-card { flex:0 0 min(390px,85vw); overflow:hidden; display:grid; grid-template-columns:140px minmax(0,1fr); min-height:250px; border-radius:17px; background:#141416; border:1px solid rgba(246,192,42,.3); box-shadow:0 16px 34px rgba(0,0,0,.18); scroll-snap-align:start; }
+    .auction-card[hidden] { display:none; }
+    .auction-photo { position:relative; min-height:250px; background:#0e0e10; border-right:1px solid rgba(255,255,255,.12); overflow:hidden; }
     .auction-photo img { width:100%; height:100%; object-fit:cover; display:block; }
     .auction-photo-empty { height:100%; display:grid; place-items:center; color:#636872; font-weight:800; }
     .auction-state { position:absolute; top:15px; left:15px; display:inline-flex; align-items:center; gap:7px; padding:7px 11px; border-radius:999px; background:rgba(10,10,11,.9); border:1px solid rgba(246,192,42,.42); color:#f6c02a; font-size:10px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
     .auction-state::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
     .auction-state.closed { color:#a8adb5; border-color:rgba(255,255,255,.18); }
-    .auction-card-body { padding:24px; display:flex; flex-direction:column; }
+    .auction-card-body { padding:17px; display:flex; flex-direction:column; }
     .auction-kicker { color:#8f98a3; font-size:10px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; }
-    .auction-card h3 { margin:8px 0 18px; font-size:25px; line-height:1.1; }
+    .auction-card h3 { margin:6px 0 11px; font-size:18px; line-height:1.12; }
     .auction-price-label { color:#8f98a3; font-size:12px; font-weight:700; }
-    .auction-price { color:#f6c02a; font-size:31px; font-weight:900; margin:3px 0 14px; }
-    .auction-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:20px; }
-    .auction-meta div { padding:11px; border-radius:11px; background:#0e0e10; border:1px solid rgba(255,255,255,.08); }
-    .auction-meta .auction-category { grid-column:1 / -1; }
-    .auction-meta .auction-live-time { grid-column:1 / -1; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; border-color:rgba(246,192,42,.24); background:rgba(246,192,42,.055); }
-    .auction-live-time strong { color:#f6c02a; font-size:20px; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
+    .auction-price { color:#f6c02a; font-size:23px; font-weight:900; margin:2px 0 9px; }
+    .auction-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-bottom:12px; }
+    .auction-meta div { padding:8px; border-radius:9px; background:#0e0e10; border:1px solid rgba(255,255,255,.08); }
+    .auction-meta .auction-category { display:none; }
+    .auction-meta .auction-live-time { grid-column:1 / -1; display:flex; align-items:flex-end; justify-content:space-between; gap:10px; border-color:rgba(246,192,42,.24); background:rgba(246,192,42,.055); }
+    .auction-live-time strong { color:#f6c02a; font-size:15px; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
     .auction-meta span { display:block; color:#818791; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
     .auction-meta strong { display:block; margin-top:4px; font-size:12px; }
     .auction-card-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; }
@@ -141,7 +150,7 @@
     .details-heading { grid-column:1 / -1; display:flex; align-items:center; gap:12px; margin-top:4px; padding-top:15px; border-top:1px solid rgba(255,255,255,.09); }
     .details-heading strong { font-size:15px; }
     .details-heading span { color:#858c96; font-size:11px; }
-    @media(max-width:1100px) { .auction-preview-grid { grid-template-columns:1fr; } .finance-stats, .attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-width:1100px) { .finance-stats, .attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     @media(max-width:700px) {
       main { width:94vw; margin:22px auto; }
       .live-head { align-items:start; flex-direction:column; }
@@ -165,9 +174,12 @@
       .section-head { align-items:flex-start; flex-direction:column; }
       .section-tools { width:100%; overflow-x:auto; flex-wrap:nowrap; padding-bottom:3px; }
       .table-wrap.compact-history { max-height:390px; }
-      .auction-preview-grid { grid-template-columns:1fr; }
-      .auction-card { grid-template-columns:1fr; }
-      .auction-photo { min-height:250px; border-right:0; border-bottom:1px solid rgba(255,255,255,.12); }
+      .auction-preview-toolbar { align-items:flex-start; }
+      .auction-preview-arrows { display:none; }
+      .auction-preview-frame { width:calc(100vw - 3vw); margin-right:calc(50% - 50vw); }
+      .auction-preview-grid { padding-right:7vw; }
+      .auction-card { flex-basis:min(330px,84vw); grid-template-columns:1fr; }
+      .auction-photo { min-height:155px; height:155px; border-right:0; border-bottom:1px solid rgba(255,255,255,.12); }
       .publish-trigger { width:100%; }
       .publish-dialog { width:96vw; max-height:94vh; }
       .publish-dialog .piece-grid { padding:10px 18px 22px; }
@@ -201,7 +213,15 @@
 
     <section class="auction-preview" id="admin-subastas">
       <div class="section-head"><div><h2>Vista previa de tus subastas</h2><p>Así se presentan tus lotes, con controles administrativos en la misma tarjeta.</p></div><button class="publish-trigger" id="openPublish" type="button">Publicar pieza</button></div>
-      <div class="auction-preview-grid" id="auctionPreview"><div class="panel-card">Cargando subastas...</div></div>
+      <div class="auction-preview-toolbar">
+        <div class="auction-preview-filters" aria-label="Filtrar vistas previas">
+          <button class="preview-filter active" type="button" data-preview-filter="all">Todas</button>
+          <button class="preview-filter" type="button" data-preview-filter="active">Activas</button>
+          <button class="preview-filter" type="button" data-preview-filter="upcoming">Próximas</button>
+        </div>
+        <div class="auction-preview-arrows"><button class="preview-arrow" id="previewPrev" type="button" aria-label="Subasta anterior">←</button><button class="preview-arrow" id="previewNext" type="button" aria-label="Siguiente subasta">→</button></div>
+      </div>
+      <div class="auction-preview-frame"><div class="auction-preview-grid" id="auctionPreview"><div class="panel-card">Cargando subastas...</div></div></div>
     </section>
 
     <div class="live-head" id="control-vivo">
@@ -410,6 +430,21 @@
     let currentListings = [];
     let allNotices = [];
     let noticeFilter = "pending";
+    let previewFilter = "all";
+    const applyPreviewFilter = () => {
+      const cards = Array.from(document.querySelectorAll("#auctionPreview .auction-card"));
+      let visible = 0;
+      cards.forEach((card) => {
+        const show = previewFilter === "all" || card.dataset.previewState === previewFilter;
+        card.hidden = !show;
+        if (show) visible += 1;
+      });
+      document.querySelectorAll("[data-preview-filter]").forEach((button) => button.classList.toggle("active", button.dataset.previewFilter === previewFilter));
+      const oldEmpty = document.getElementById("previewEmpty");
+      if (oldEmpty) oldEmpty.remove();
+      if (cards.length && !visible) document.getElementById("auctionPreview").insertAdjacentHTML("beforeend", `<div class="panel-card" id="previewEmpty">No hay subastas en este filtro.</div>`);
+      document.getElementById("auctionPreview").scrollTo({ left:0, behavior:"smooth" });
+    };
     const adminAttention = { payments:0, winners:0, requests:0, closing:0 };
     const renderAdminAttention = () => {
       const entries = [
@@ -839,7 +874,7 @@
              <button class="action-btn action-secondary" data-reopen="${p.id}" data-round="${Number(p.auction_round || 1)}" data-start="${Number(p.start_price || 0)}">Reabrir</button>
              <button class="action-btn action-danger" data-dellist="${p.id}">Eliminar</button>`
           : `<button class="action-btn action-secondary" data-edit="${p.id}">Editar</button><button class="action-btn action-primary" data-close="${p.id}">Cerrar subasta</button>`;
-        return `<article class="auction-card">
+        return `<article class="auction-card" data-preview-state="${proxima ? "upcoming" : "active"}">
           <div class="auction-photo">
             ${p.image_url ? `<img src="${p.image_url}" alt="${p.title || "Pieza USSO"}">` : `<div class="auction-photo-empty">Sin fotografía</div>`}
             <span class="auction-state ${cerrada ? "closed" : ""}">${cerrada ? "Cerrada" : (proxima ? "Próxima" : "Activa")}</span>
@@ -861,6 +896,7 @@
           </div>
         </article>`;
       }).join("") || `<div class="panel-card">Todavía no has publicado subastas.</div>`;
+      applyPreviewFilter();
       updateAdminPreviewClocks();
 
       document.getElementById("listings").innerHTML = activeListings.map((p) => {
@@ -1262,6 +1298,17 @@
     });
 
     document.getElementById("refreshLive").addEventListener("click", loadLiveBids);
+    document.querySelectorAll("[data-preview-filter]").forEach((button) => button.addEventListener("click", () => {
+      previewFilter = button.dataset.previewFilter;
+      applyPreviewFilter();
+    }));
+    const scrollPreview = (direction) => {
+      const track = document.getElementById("auctionPreview");
+      const card = track.querySelector(".auction-card:not([hidden])");
+      track.scrollBy({ left:direction * ((card?.getBoundingClientRect().width || 360) + 14), behavior:"smooth" });
+    };
+    document.getElementById("previewPrev").addEventListener("click", () => scrollPreview(-1));
+    document.getElementById("previewNext").addEventListener("click", () => scrollPreview(1));
 
     (async () => {
       const user = await requireAdmin();
