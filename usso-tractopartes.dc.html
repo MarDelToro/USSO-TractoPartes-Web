@@ -407,7 +407,10 @@
           </sc-if>
         </button>
         <button onClick="{{ toggleAccount }}" style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);border-radius:100px;padding:5px 14px 5px 5px;cursor:pointer">
-          <span style="width:30px;height:30px;border-radius:50%;background:{{ accent }};color:#0a0a0b;font:800 12px Manrope,sans-serif;display:flex;align-items:center;justify-content:center;flex:none">{{ userInitials }}</span>
+          <span class="usso-account-avatar" style="width:30px;height:30px;border-radius:50%;background:{{ accent }};color:#0a0a0b;font:800 12px Manrope,sans-serif;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden">
+            <sc-if value="{{ hasUserAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ userAvatarUrl }}" alt="Foto de perfil" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+            <sc-if value="{{ noUserAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if>
+          </span>
           <span class="usso-account-name" style="font:700 13px Manrope,sans-serif;color:var(--text);white-space:nowrap">{{ userFirstName }}</span>
         </button>
       </sc-if>
@@ -552,12 +555,28 @@
         </button>
 
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:26px">
-          <span style="width:52px;height:52px;border-radius:50%;background:{{ accent }};color:#0a0a0b;font:800 19px Manrope,sans-serif;display:flex;align-items:center;justify-content:center;flex:none">{{ userInitials }}</span>
+          <div style="position:relative;flex:none">
+            <span class="usso-account-avatar" style="width:62px;height:62px;border-radius:50%;background:{{ accent }};color:#0a0a0b;font:800 20px Manrope,sans-serif;display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid rgba(246,192,42,.45)">
+              <sc-if value="{{ hasUserAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ userAvatarUrl }}" alt="Foto de perfil" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+              <sc-if value="{{ noUserAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if>
+            </span>
+            <label title="Cambiar foto" aria-label="Cambiar foto de perfil" style="position:absolute;right:-4px;bottom:-4px;width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:{{ accent }};color:#0a0a0b;border:3px solid var(--card-bg);cursor:pointer;font:900 16px/1 Manrope,sans-serif">
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" onChange="{{ onAvatarChange }}" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
+              +
+            </label>
+          </div>
           <div style="min-width:0">
             <h2 style="font:800 20px Manrope,sans-serif;color:var(--text);margin:0 0 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ userName }}</h2>
             <p style="font:500 13px Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0">{{ userCiudad }}</p>
+            <label style="display:inline-block;margin-top:6px;color:{{ accent }};font:800 12px Manrope,sans-serif;cursor:pointer">
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" onChange="{{ onAvatarChange }}" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
+              {{ avatarActionLabel }}
+            </label>
           </div>
         </div>
+
+        <sc-if value="{{ hasAvatarMessage }}" hint-placeholder-val="{{ false }}"><p style="margin:-14px 0 18px;color:#7ee2a8;font:700 12px/1.45 Manrope,sans-serif">{{ avatarMessage }}</p></sc-if>
+        <sc-if value="{{ hasAvatarError }}" hint-placeholder-val="{{ false }}"><p style="margin:-14px 0 18px;color:#ff8a80;font:700 12px/1.45 Manrope,sans-serif">{{ avatarError }}</p></sc-if>
 
         <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-10px 0 18px;padding:12px 14px;border:1px solid rgba(var(--border-rgb),.1);border-radius:13px;background:rgba(var(--border-rgb),.025)">
           <span style="font:700 11px Manrope,sans-serif;color:rgba(var(--text-rgb),.48);text-transform:uppercase;letter-spacing:.08em">Número de miembro</span>
@@ -1119,7 +1138,7 @@ class Component extends DCLogic {
     user: null, bidStatus: 'ninguno',
     authOpen: false, authMode: 'registro', authError: '',
     authForm: { nombre: '', whatsapp: '', correo: '', ciudad: '', pass: '' },
-    notifOpen: false, notifFilter: 'all', accountOpen: false, notifs: [],
+    notifOpen: false, notifFilter: 'all', accountOpen: false, notifs: [], avatarUploading: false, avatarMessage: '', avatarError: '',
     notifPrefs: { superada: true, cierre: true, gane: true, perdi: true, favorita: true },
     bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', watching: {},
     myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {} };
@@ -1938,18 +1957,27 @@ async syncAuthFromSupabase() {
   }
   let profileResult = await client
     .from("profiles")
-    .select("full_name, phone, city, role, authorized, notification_preferences, member_number")
+    .select("full_name, phone, city, role, authorized, notification_preferences, member_number, avatar_url")
     .eq("id", user.id)
     .single();
   if (profileResult.error) {
     profileResult = await client
       .from("profiles")
-      .select("full_name, phone, city, role, authorized, notification_preferences")
+      .select("full_name, phone, city, role, authorized, notification_preferences, avatar_url")
       .eq("id", user.id)
       .single();
   }
   const profile = profileResult.data;
   if (!profile) return;
+  let avatarUrl = '';
+  if (profile.avatar_url) {
+    if (/^https?:\/\//i.test(profile.avatar_url)) {
+      avatarUrl = profile.avatar_url;
+    } else {
+      const signedAvatar = await client.storage.from('avatars').createSignedUrl(profile.avatar_url, 3600);
+      avatarUrl = signedAvatar.data && signedAvatar.data.signedUrl ? signedAvatar.data.signedUrl : '';
+    }
+  }
   const [{ data: ownBids }, watchResult, hiddenHistoryResult] = await Promise.all([
     client.from("bids").select("listing_id, amount, auction_round, created_at").eq("user_id", user.id),
     client.from("auction_watchers").select("listing_id").eq("user_id", user.id),
@@ -2009,15 +2037,16 @@ async syncAuthFromSupabase() {
   });
   const mergedNotifs = [...persistentNotifs, ...localNotifs.filter((n) => !String(n.id).startsWith('db-'))].sort((a,b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
   this.setState({
-    user: {
-      id: user.id,
-      nombre: profile.full_name || "",
-      whatsapp: profile.phone || "",
-      correo: user.email,
-      ciudad: profile.city || "",
-      memberNumber: profile.member_number || null,
-      role: profile.role || "user"
-    },
+      user: {
+        id: user.id,
+        nombre: profile.full_name || "",
+        whatsapp: profile.phone || "",
+        correo: user.email,
+        ciudad: profile.city || "",
+        memberNumber: profile.member_number || null,
+        avatarUrl,
+        role: profile.role || "user"
+      },
     bidStatus: profile.authorized ? "autorizado" : "ninguno",
     notifPrefs: savedPrefs,
     myBids,
@@ -2274,6 +2303,45 @@ submitAuth = async (e) => {
   toggleAccount = () => this.setState((s) => ({ accountOpen: !s.accountOpen, notifOpen: false }));
   closeAccount = () => this.setState({ accountOpen: false });
   openAccountFromMenu = () => this.setState({ mobileMenuOpen: false, accountOpen: true });
+  onAvatarChange = async (event) => {
+    const input = event && event.target;
+    const file = input && input.files && input.files[0];
+    if (!file) return;
+    if (!/^image\//i.test(file.type || '')) {
+      this.setState({ avatarError:'Selecciona una imagen válida.', avatarMessage:'' });
+      input.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.setState({ avatarError:'La foto debe pesar menos de 5 MB.', avatarMessage:'' });
+      input.value = '';
+      return;
+    }
+    const client = this.notificationClient();
+    const currentUser = this.state.user;
+    if (!client || !currentUser) return;
+    this.setState({ avatarUploading:true, avatarError:'', avatarMessage:'' });
+    try {
+      const extension = String(file.name || '').split('.').pop().toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+      const path = `${currentUser.id}/perfil-${Date.now()}.${extension}`;
+      const upload = await client.storage.from('avatars').upload(path, file, { cacheControl:'3600', upsert:false, contentType:file.type });
+      if (upload.error) throw upload.error;
+      const signedAvatar = await client.storage.from('avatars').createSignedUrl(path, 3600);
+      const avatarUrl = signedAvatar.data && signedAvatar.data.signedUrl;
+      if (signedAvatar.error || !avatarUrl) throw signedAvatar.error || new Error('No fue posible abrir la imagen.');
+      const saved = await client.from('profiles').update({ avatar_url:path }).eq('id', currentUser.id);
+      if (saved.error) throw saved.error;
+      this.setState((state) => ({
+        user:{ ...state.user, avatarUrl },
+        avatarUploading:false,
+        avatarMessage:'Foto de perfil actualizada.',
+        avatarError:''
+      }));
+    } catch (error) {
+      this.setState({ avatarUploading:false, avatarMessage:'', avatarError:'No pudimos guardar la foto. Inténtalo nuevamente.' });
+    }
+    input.value = '';
+  };
   setHistoryFilter = (filter) => () => this.setState({ historyFilter:filter });
   dismissHistoryItem = (item) => async (event) => {
     if (event && event.stopPropagation) event.stopPropagation();
@@ -2522,6 +2590,15 @@ submitAuth = async (e) => {
       userName: u ? u.nombre : '',
       userCiudad: u ? u.ciudad : '',
       userWhatsapp: u ? u.whatsapp : '',
+      userAvatarUrl: u ? (u.avatarUrl || '') : '',
+      hasUserAvatar: !!(u && u.avatarUrl),
+      noUserAvatar: !(u && u.avatarUrl),
+      avatarActionLabel: st.avatarUploading ? 'Subiendo foto…' : (u && u.avatarUrl ? 'Cambiar foto' : 'Agregar foto'),
+      avatarMessage: st.avatarMessage,
+      hasAvatarMessage: !!st.avatarMessage,
+      avatarError: st.avatarError,
+      hasAvatarError: !!st.avatarError,
+      onAvatarChange: this.onAvatarChange,
       userMemberNumber: u && u.memberNumber ? `USSO-${String(u.memberNumber).padStart(6, '0')}` : 'Pendiente de asignar',
       accountHistory: historyFiltered.map((item) => item.outcome === 'won' ? { ...item, finalPrice:this.formatMoney(this.parseMoney(item.finalPrice)), label:'GANADA · COMPRA', color:'#7ee2a8', bg:'rgba(74,222,128,.1)', border:'rgba(74,222,128,.3)', cursor:'pointer', open:() => { window.location.href = `Compra.dc.html#${encodeURIComponent(item.id)}`; }, dismiss:this.dismissHistoryItem(item) } : { ...item, finalPrice:this.formatMoney(this.parseMoney(item.finalPrice)), label:'PERDIDA', color:'#ff9a91', bg:'rgba(255,92,82,.09)', border:'rgba(255,92,82,.26)', cursor:'default', open:() => {}, dismiss:this.dismissHistoryItem(item) }),
       historyFilters:historyFilterOptions.map((filter) => ({ ...filter, select:this.setHistoryFilter(filter.id), bg:st.historyFilter === filter.id ? accent : 'rgba(255,255,255,.035)', border:st.historyFilter === filter.id ? accent : 'rgba(255,255,255,.1)', color:st.historyFilter === filter.id ? '#0a0a0b' : 'rgba(243,241,236,.65)' })),
