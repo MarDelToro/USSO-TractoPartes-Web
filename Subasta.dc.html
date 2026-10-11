@@ -349,8 +349,17 @@
       if (!whatsappWindow) window.location.href = whatsappUrl;
     });
 
-    load();
-    window.setInterval(async () => {
+    let auctionRefreshTimer = null;
+    let auctionRefreshRunning = false;
+    let auctionRefreshQueued = false;
+    let auctionRealtimeChannel = null;
+    const refreshAuction = async () => {
+      if (auctionRefreshRunning) {
+        auctionRefreshQueued = true;
+        return;
+      }
+      auctionRefreshRunning = true;
+      try {
       if (!listing) return;
       if (currentUser && listing.status === "active" && listing.ends_at && new Date(listing.ends_at).getTime() <= Date.now()) await client.rpc("expire_listings");
       const { data } = await client.from("listings")
@@ -378,7 +387,38 @@
           playOutbidAlertSound();
         }
       }
-    }, 3000);
+      } finally {
+        auctionRefreshRunning = false;
+        const delay = auctionRefreshQueued ? 120 : (document.hidden ? 12000 : 3000);
+        auctionRefreshQueued = false;
+        window.clearTimeout(auctionRefreshTimer);
+        auctionRefreshTimer = window.setTimeout(refreshAuction, delay);
+      }
+    };
+    const requestAuctionRefresh = () => {
+      if (document.hidden) return;
+      window.clearTimeout(auctionRefreshTimer);
+      auctionRefreshTimer = window.setTimeout(refreshAuction, 80);
+    };
+    const setupAuctionRealtime = () => {
+      if (auctionRealtimeChannel || !client || typeof client.channel !== "function") return;
+      auctionRealtimeChannel = client
+        .channel(`auction-detail-${id}`)
+        .on("postgres_changes", { event:"*", schema:"public", table:"listings", filter:`id=eq.${id}` }, requestAuctionRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"bids", filter:`listing_id=eq.${id}` }, requestAuctionRefresh)
+        .subscribe();
+    };
+    load().finally(() => {
+      setupAuctionRealtime();
+      auctionRefreshTimer = window.setTimeout(refreshAuction, 3000);
+    });
+    document.addEventListener("visibilitychange", requestAuctionRefresh);
+    window.addEventListener("pageshow", requestAuctionRefresh);
+    window.addEventListener("pagehide", () => {
+      window.clearTimeout(auctionRefreshTimer);
+      if (auctionRealtimeChannel) client.removeChannel(auctionRealtimeChannel);
+      auctionRealtimeChannel = null;
+    }, { once:true });
     scheduleCountdownTick();
   </script>
 </body>

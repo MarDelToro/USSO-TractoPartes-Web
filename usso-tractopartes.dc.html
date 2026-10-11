@@ -1144,12 +1144,24 @@ class Component extends DCLogic {
     myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {} };
   videoRef = null;
   observer = null;
+  listingRequestInFlight = false;
+  listingRefreshQueued = false;
+  auctionRealtimeReady = false;
+  carouselBindings = {};
+  videoStallTimer = null;
   // La ventana grande solo corresponde a resultados ocurridos mientras esta
   // página estaba abierta. Los resultados anteriores permanecen en avisos.
   outcomeSessionStartedAt = Date.now();
 
   setupVideo = (v) => {
     if (!v || v === this.videoRef) return;
+    if (this.videoRef) {
+      this.videoRef.onloadedmetadata = null;
+      this.videoRef.oncanplay = null;
+      this.videoRef.onerror = null;
+      this.videoRef.onstalled = null;
+    }
+    if (this.videoStallTimer) clearTimeout(this.videoStallTimer);
     this.videoRef = v;
     v.muted = true;
     v.defaultMuted = true;
@@ -1158,10 +1170,15 @@ class Component extends DCLogic {
     v.setAttribute('webkit-playsinline', '');
     const tryPlay = () => v.play().catch(() => {});
     tryPlay();
-    v.addEventListener('loadedmetadata', tryPlay);
-    v.addEventListener('canplay', tryPlay);
-    v.addEventListener('error', () => this.handleVideoEnd());
-    v.addEventListener('stalled', () => setTimeout(() => { if (v.readyState < 2) this.handleVideoEnd(); }, 1500));
+    v.onloadedmetadata = tryPlay;
+    v.oncanplay = tryPlay;
+    v.onerror = () => this.handleVideoEnd();
+    v.onstalled = () => {
+      clearTimeout(this.videoStallTimer);
+      this.videoStallTimer = setTimeout(() => {
+        if (v === this.videoRef && v.readyState < 2) this.handleVideoEnd();
+      }, 1500);
+    };
   };
 
   componentDidMount() {
@@ -1187,7 +1204,11 @@ class Component extends DCLogic {
     this.loadUser();
     this.loadYouTubeViews();
     this.setupAuctionRealtime();
-    this.auctionRefreshTimer = window.setInterval(() => this.loadListingsFromDB(), 3000);
+    // Realtime es la vía principal. Este sondeo lento es únicamente un respaldo
+    // para navegadores móviles que suspenden la conexión al cambiar de app.
+    this.auctionRefreshTimer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') this.loadListingsFromDB();
+    }, 15000);
     window.addEventListener('pageshow', this.onPageShow);
     document.addEventListener('visibilitychange', this.onVisibilityChange);
     window.addEventListener('scroll', this.onPageScroll, { passive: true });
@@ -1231,12 +1252,23 @@ class Component extends DCLogic {
     if (this.introFallback) clearTimeout(this.introFallback);
     if (this.countdownTimer) clearTimeout(this.countdownTimer);
     if (this.auctionRefreshTimer) clearInterval(this.auctionRefreshTimer);
+    if (this.listingsClientRetry) clearTimeout(this.listingsClientRetry);
+    if (this.auctionRealtimeRetry) clearTimeout(this.auctionRealtimeRetry);
+    if (this.auctionRealtimeDebounce) clearTimeout(this.auctionRealtimeDebounce);
     if (this.winnerTimer) clearTimeout(this.winnerTimer);
+    if (this.videoStallTimer) clearTimeout(this.videoStallTimer);
     if (this.auctionRealtimeClient && this.auctionRealtimeChannel) this.auctionRealtimeClient.removeChannel(this.auctionRealtimeChannel);
     window.removeEventListener('scroll', this.onPageScroll);
     window.removeEventListener('resize', this.checkOverflow);
     window.removeEventListener('pageshow', this.onPageShow);
     document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    Object.keys(this.carouselBindings).forEach((key) => this.detachCarousel(key));
+    if (this.videoRef) {
+      this.videoRef.onloadedmetadata = null;
+      this.videoRef.oncanplay = null;
+      this.videoRef.onerror = null;
+      this.videoRef.onstalled = null;
+    }
   }
 
   scheduleCountdownTick = () => {
@@ -1305,71 +1337,35 @@ class Component extends DCLogic {
   // Smooth-scrolls without writing the target id into location.hash — a
   // persisted hash would skip the intro on the next load/reload.
   setCarouselRef = (key) => (el) => {
+    const previous = this['_' + key + 'Ref'];
+    if (previous && previous !== el) this.detachCarousel(key);
     this['_' + key + 'Ref'] = el;
     if (el && !el.dataset.coverInited) {
       el.dataset.coverInited = '1';
-      el.addEventListener('scroll', () => this.onCarouselScroll(key), { passive: true });
-      el.addEventListener('touchstart', () => { el.dataset.touching = '1'; }, { passive: true });
-      const release = () => {
-        el.dataset.touching = '0';
-        if (this.isTouchLayout()) return;
-        if (this['_wrapT_' + key]) clearTimeout(this['_wrapT_' + key]);
-        this['_wrapT_' + key] = setTimeout(() => this.wrapCarousel(key), 220);
-      };
-      el.addEventListener('touchend', release, { passive: true });
-      el.addEventListener('touchcancel', release, { passive: true });
+      const onScroll = () => this.onCarouselScroll(key);
+      el.addEventListener('scroll', onScroll, { passive: true });
       const settle = () => {
         this.applyCoverflow(key);
-        if (this.isTouchLayout()) return;
-        const single = this.measurePeriod(el);
-        if (single) {
-          this['_' + key + 'Single'] = single;
-          el.scrollLeft = single;
-        }
       };
       requestAnimationFrame(settle);
+      let ro = null;
       if (window.ResizeObserver) {
-        const ro = new ResizeObserver(() => settle());
+        ro = new ResizeObserver(() => settle());
         ro.observe(el);
-        this['_ro_' + key] = ro;
       }
+      this.carouselBindings[key] = { el, onScroll, ro };
     }
   };
-  // Un tercio de la tira, medido de hijo a hijo: el padding que agrega
-  // applyCoverflow() infla scrollWidth y descuadraba el salto del loop.
-  measurePeriod(el) {
-    if (!el || el.scrollWidth <= el.clientWidth + 1) return 0;
-    const kids = el.children;
-    const per = Math.floor(kids.length / 3);
-    if (per < 1 || !kids[per]) return 0;
-    return kids[per].offsetLeft - kids[0].offsetLeft;
-  }
+  detachCarousel = (key) => {
+    const binding = this.carouselBindings[key];
+    if (!binding) return;
+    binding.el.removeEventListener('scroll', binding.onScroll);
+    if (binding.ro) binding.ro.disconnect();
+    delete binding.el.dataset.coverInited;
+    delete this.carouselBindings[key];
+  };
   onCarouselScroll = (key) => {
     this.scheduleCoverflow(key);
-    if (this.isTouchLayout()) return;
-    if (this['_wrapT_' + key]) clearTimeout(this['_wrapT_' + key]);
-    this['_wrapT_' + key] = setTimeout(() => this.wrapCarousel(key), 170);
-  };
-  // El salto del loop infinito solo se hace cuando el dedo ya soltó y la
-  // inercia terminó: en iOS escribir scrollLeft a media inercia la cancela.
-  wrapCarousel = (key) => {
-    if (this.isTouchLayout()) return;
-    const el = this['_' + key + 'Ref'];
-    const single = this['_' + key + 'Single'];
-    if (!el || !single || el.dataset.touching === '1') return;
-    const low = el.scrollLeft < single * 0.5;
-    const high = el.scrollLeft > single * 1.5;
-    if (!low && !high) return;
-    const prevSnap = el.style.scrollSnapType;
-    const prevBehavior = el.style.scrollBehavior;
-    el.style.scrollSnapType = 'none';
-    el.style.scrollBehavior = 'auto';
-    el.scrollLeft += low ? single : -single;
-    requestAnimationFrame(() => {
-      el.style.scrollSnapType = prevSnap;
-      el.style.scrollBehavior = prevBehavior;
-      this.applyCoverflow(key);
-    });
   };
   CAROUSEL_SEL = '.usso-inventory-grid, .usso-auctions-grid, .usso-videos-grid, .usso-all-grid, .usso-filter-row, .usso-trust-grid, .usso-financing-cards, .usso-finance-route';
 
@@ -1485,7 +1481,6 @@ class Component extends DCLogic {
     const key = el.classList.contains('usso-auctions-grid') ? 'auctions'
       : el.classList.contains('usso-videos-grid') ? 'videos'
       : el.classList.contains('usso-inventory-grid') ? 'inv' : null;
-    if (key && !this.isTouchLayout()) setTimeout(() => this.wrapCarousel(key), 360);
   };
   isTouchLayout() {
     return window.matchMedia('(max-width: 860px)').matches;
@@ -1548,10 +1543,6 @@ class Component extends DCLogic {
       overflow[key] = overflowing;
       this.applyCoverflow(key);
       this.initTouchDrag();
-      if (el && overflowing) {
-        const single = this.measurePeriod(el);
-        if (single) this['_' + key + 'Single'] = single;
-      }
     });
     this.setState({ overflow });
   };
@@ -1559,20 +1550,10 @@ class Component extends DCLogic {
     this._heroCarouselEl = el;
     if (el && !el.dataset.inited) {
       el.dataset.inited = '1';
-      requestAnimationFrame(() => {
-        this._heroSingleWidth = this.measurePeriod(el) || el.scrollWidth / 3;
-        el.scrollLeft = this._heroSingleWidth;
-      });
+      requestAnimationFrame(() => { el.scrollLeft = 0; });
     }
   };
-  onHeroCarouselScroll = () => {
-    if (this._heroCarouselEl) this._heroSingleWidth = this.measurePeriod(this._heroCarouselEl) || this._heroSingleWidth;
-    const el = this._heroCarouselEl;
-    const single = this._heroSingleWidth;
-    if (!el || !single) return;
-    if (el.scrollLeft < single * 0.5) el.scrollLeft += single;
-    else if (el.scrollLeft > single * 1.5) el.scrollLeft -= single;
-  };
+  onHeroCarouselScroll = () => {};
   scrollCarousel = (key, dir) => () => {
     const el = this['_' + key + 'Ref'];
     if (!el) return;
@@ -1665,7 +1646,11 @@ class Component extends DCLogic {
   rawAuctionItems = [];
 
   setupAuctionRealtime() {
-    if (!window.supabase || !window.supabase.createClient) return setTimeout(() => this.setupAuctionRealtime(), 350);
+    if (!window.supabase || !window.supabase.createClient) {
+      clearTimeout(this.auctionRealtimeRetry);
+      this.auctionRealtimeRetry = setTimeout(() => this.setupAuctionRealtime(), 350);
+      return;
+    }
     this.auctionRealtimeClient = window.supabase.createClient(
       "https://ahhlfvjicxylidpmeciw.supabase.co",
       "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
@@ -1678,7 +1663,7 @@ class Component extends DCLogic {
       .on('postgres_changes', { event:'*', schema:'public', table:'listings' }, refresh)
       .on('postgres_changes', { event:'*', schema:'public', table:'bids' }, refresh)
       .on('postgres_changes', { event:'*', schema:'public', table:'notifications' }, refresh)
-      .subscribe();
+      .subscribe((status) => { this.auctionRealtimeReady = status === 'SUBSCRIBED'; });
   }
 
   closeWinnerCelebration = () => {
@@ -1889,14 +1874,21 @@ class Component extends DCLogic {
   }
 
   async loadListingsFromDB() {
-  if (!window.supabase || !window.supabase.createClient) {
-    setTimeout(() => this.loadListingsFromDB(), 300);
-    return;
-  }
-  const client = window.supabase.createClient(
-    "https://ahhlfvjicxylidpmeciw.supabase.co",
-    "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
-  );
+    if (this.listingRequestInFlight) {
+      this.listingRefreshQueued = true;
+      return;
+    }
+    if (!window.supabase || !window.supabase.createClient) {
+      clearTimeout(this.listingsClientRetry);
+      this.listingsClientRetry = setTimeout(() => this.loadListingsFromDB(), 300);
+      return;
+    }
+    this.listingRequestInFlight = true;
+    try {
+      const client = this.auctionRealtimeClient || window.supabase.createClient(
+        "https://ahhlfvjicxylidpmeciw.supabase.co",
+        "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
+      );
   await client.rpc('expire_listings');
   await client.rpc('dispatch_upcoming_auction_reminders');
   const { data } = await client
@@ -1933,8 +1925,17 @@ class Component extends DCLogic {
 
   if (typeof this.forceUpdate === "function") this.forceUpdate();
   else if (typeof this.setState === "function") this.setState({});
-  this.syncAuthFromSupabase();
-}
+      await this.syncAuthFromSupabase();
+    } catch (error) {
+      console.warn('No se pudo actualizar el estado de las subastas.', error);
+    } finally {
+      this.listingRequestInFlight = false;
+      if (this.listingRefreshQueued) {
+        this.listingRefreshQueued = false;
+        queueMicrotask(() => this.loadListingsFromDB());
+      }
+    }
+  }
 
 async syncAuthFromSupabase() {
   if (!window.supabase || !window.supabase.createClient) return;
@@ -2872,9 +2873,8 @@ submitAuth = async (e) => {
         { id: 'v4', title: '¿Cómo construir un chasis mexicano?', desc: 'Conoce paso a paso cómo se construye un chasis mexicano.', placeholder: 'Video: Chasis mexicano', youtubeId: 'SUR8zGxWx2A' },
         { id: 'v5', title: 'Qué chasis le deberías de poner a tu camión', desc: 'Te explicamos qué chasis elegir para tu camión según el uso que le vas a dar.', placeholder: 'Video: Chasis para tu camión', youtubeId: '7tmOiFH2MXI' },
         ];
-        const carouselItems = this.isTouchLayout() ? base : [...base, ...base, ...base];
-        return carouselItems.map((v, i) => {
-          const uid = `${v.id}-${i}`;
+        return base.map((v) => {
+          const uid = v.id;
           const playing = this.playingVideo === uid;
           return {
             ...v,
@@ -2894,7 +2894,7 @@ submitAuth = async (e) => {
       youtubeLink: 'https://www.youtube.com/@usso.tractopartes',
       visibleInventoryItems: (() => {
         const base = this.inventoryItems.map((item) => ({ ...item, goTo: this.goToCategory(item.id) }));
-        return [...base, ...base, ...base].map((item, i) => ({ ...item, uid: `${item.id}-${i}` }));
+        return base.map((item) => ({ ...item, uid: item.id }));
       })(),
       brandsLoop: (() => {
         const brands = ['Kenworth', 'Freightliner', 'International', 'Volvo', 'Mack', 'Peterbilt', 'Cummins', 'Detroit Diesel', 'Eaton Fuller', 'Meritor'];

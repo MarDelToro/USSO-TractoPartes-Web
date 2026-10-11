@@ -604,11 +604,41 @@
       observedAdminSections.forEach((section) => sectionObserver.observe(section));
     }
     adminSectionLinks.forEach((link) => link.addEventListener("click", () => setActiveAdminSection(link.dataset.adminSection)));
-    const scheduleAdminRefresh = () => {
+    const pendingAdminDomains = new Set();
+    const adminLoadState = new Map();
+    const runAdminLoad = async (key, task) => {
+      const state = adminLoadState.get(key) || { running:false, queued:false };
+      adminLoadState.set(key, state);
+      if (state.running) {
+        state.queued = true;
+        return;
+      }
+      state.running = true;
+      try {
+        do {
+          state.queued = false;
+          try {
+            await task();
+          } catch (error) {
+            console.error(`[USSO admin] No se pudo actualizar ${key}:`, error);
+          }
+        } while (state.queued);
+      } finally {
+        state.running = false;
+      }
+    };
+    const refreshAdminDomains = () => {
+      const domains = new Set(pendingAdminDomains);
+      pendingAdminDomains.clear();
+      if (domains.has("all") || domains.has("bids")) loadLiveBids();
+      if (domains.has("all") || domains.has("listings") || domains.has("bids")) loadListings();
+      if (domains.has("all") || domains.has("notifications") || domains.has("listings") || domains.has("bids")) loadAvisos();
+      if (domains.has("all") || domains.has("profiles") || domains.has("authorization_requests")) loadUsers();
+    };
+    const scheduleAdminRefresh = (domain = "all") => {
+      pendingAdminDomains.add(domain);
       window.clearTimeout(realtimeRefreshTimer);
-      realtimeRefreshTimer = window.setTimeout(() => {
-        loadLiveBids(); loadListings(); loadAvisos(); loadUsers();
-      }, 180);
+      realtimeRefreshTimer = window.setTimeout(refreshAdminDomains, 180);
     };
     const formatAdminCountdown = (milliseconds) => {
       const total = Math.max(0, Math.floor(milliseconds / 1000));
@@ -685,19 +715,28 @@
     }));
 
     async function loadLiveBids() {
+      return runAdminLoad("live-bids", loadLiveBidsNow);
+    }
+    async function loadLiveBidsNow() {
       if (liveLoading) return;
       liveLoading = true;
-      await client.rpc("dispatch_upcoming_auction_reminders");
       const status = document.getElementById("liveStatus");
       status.textContent = "Actualizando...";
-
-      const [{ data: lots, error: lotsError }, { data: bids, error: bidsError }, { data: people, error: peopleError }] = await Promise.all([
-        client.from("listings").select("id,title,current_price,start_price,bid_count,status,starts_at,ends_at,auction_round").order("created_at", { ascending:false }),
-        client.from("bids").select("id,listing_id,user_id,amount,created_at,auction_round").order("created_at", { ascending:false }).limit(200),
-        client.from("profiles").select("id,full_name,phone")
-      ]);
-
-      liveLoading = false;
+      let lots = [], bids = [], people = [];
+      let lotsError = null, bidsError = null, peopleError = null;
+      try {
+        await client.rpc("dispatch_upcoming_auction_reminders");
+        const results = await Promise.all([
+          client.from("listings").select("id,title,current_price,start_price,bid_count,status,starts_at,ends_at,auction_round").order("created_at", { ascending:false }),
+          client.from("bids").select("id,listing_id,user_id,amount,created_at,auction_round").order("created_at", { ascending:false }).limit(200),
+          client.from("profiles").select("id,full_name,phone")
+        ]);
+        ({ data:lots = [], error:lotsError } = results[0]);
+        ({ data:bids = [], error:bidsError } = results[1]);
+        ({ data:people = [], error:peopleError } = results[2]);
+      } finally {
+        liveLoading = false;
+      }
       const error = lotsError || bidsError || peopleError;
       if (error) {
         status.textContent = "No se pudo actualizar: " + error.message;
@@ -769,6 +808,9 @@
     }
 
     async function loadUsers() {
+      return runAdminLoad("users", loadUsersNow);
+    }
+    async function loadUsersNow() {
       const { data: requests, error: requestError } = await client
         .from("authorization_requests")
         .select("user_id, email, status, requested_at");
@@ -939,6 +981,9 @@
     }
 
     async function loadListings() {
+      return runAdminLoad("listings", loadListingsNow);
+    }
+    async function loadListingsNow() {
       await client.rpc("expire_listings");
 
       let listingResult = await client
@@ -1220,6 +1265,9 @@
     }
 
     async function loadAvisos() {
+      return runAdminLoad("notices", loadAvisosNow);
+    }
+    async function loadAvisosNow() {
       const [noticeResult, profileResult, listingResult] = await Promise.all([
         client.from("notifications").select("id, user_id, listing_id, title, phone, message, status, created_at, notification_type, auction_round").order("created_at", { ascending:false }),
         client.from("profiles").select("id, full_name, phone"),
@@ -1460,16 +1508,18 @@
       loadAvisos();
       loadLiveBids();
       client.channel("usso-admin-live")
-        .on("postgres_changes", { event:"*", schema:"public", table:"bids" }, scheduleAdminRefresh)
-        .on("postgres_changes", { event:"*", schema:"public", table:"listings" }, scheduleAdminRefresh)
-        .on("postgres_changes", { event:"*", schema:"public", table:"notifications" }, scheduleAdminRefresh)
-        .on("postgres_changes", { event:"*", schema:"public", table:"profiles" }, scheduleAdminRefresh)
-        .on("postgres_changes", { event:"*", schema:"public", table:"authorization_requests" }, scheduleAdminRefresh)
+        .on("postgres_changes", { event:"*", schema:"public", table:"bids" }, () => scheduleAdminRefresh("bids"))
+        .on("postgres_changes", { event:"*", schema:"public", table:"listings" }, () => scheduleAdminRefresh("listings"))
+        .on("postgres_changes", { event:"*", schema:"public", table:"notifications" }, () => scheduleAdminRefresh("notifications"))
+        .on("postgres_changes", { event:"*", schema:"public", table:"profiles" }, () => scheduleAdminRefresh("profiles"))
+        .on("postgres_changes", { event:"*", schema:"public", table:"authorization_requests" }, () => scheduleAdminRefresh("authorization_requests"))
         .subscribe();
-      window.setInterval(loadLiveBids, 5000);
-      window.setInterval(loadListings, 5000);
-      window.setInterval(loadAvisos, 15000);
-      window.setInterval(loadUsers, 15000);
+      window.setInterval(() => {
+        if (!document.hidden) scheduleAdminRefresh("all");
+      }, 30000);
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) scheduleAdminRefresh("all");
+      });
       window.setInterval(updateAdminPreviewClocks, 1000);
     })();
   </script>
