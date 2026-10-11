@@ -75,7 +75,13 @@
     .pref-off { color:#8f98a3; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); }
     .admin-hero { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:26px 0 8px; }
     .admin-identity { display:flex; align-items:center; gap:15px; min-width:0; }
-    .admin-mark { width:46px; height:46px; display:grid; place-items:center; border-radius:14px; background:#f6c02a; color:#0a0a0b; font-weight:900; }
+    .admin-mark { position:relative; width:52px; height:52px; flex:0 0 52px; display:grid; place-items:center; padding:0; overflow:visible; border-radius:16px; background:#f6c02a; color:#0a0a0b; border:1px solid rgba(246,192,42,.72); font-weight:900; cursor:pointer; box-shadow:0 8px 22px rgba(0,0,0,.22); }
+    .admin-mark:hover, .admin-mark:focus-visible { transform:translateY(-1px); border-color:#ffe28d; box-shadow:0 0 0 4px rgba(246,192,42,.12),0 10px 24px rgba(0,0,0,.25); outline:none; }
+    .admin-mark img { width:100%; height:100%; display:none; object-fit:cover; border-radius:15px; }
+    .admin-mark.has-photo img { display:block; }
+    .admin-mark.has-photo .admin-avatar-initials { display:none; }
+    .admin-avatar-edit { position:absolute; right:-6px; bottom:-6px; width:22px; height:22px; display:grid; place-items:center; border:2px solid #0f0f11; border-radius:50%; background:#f6c02a; color:#09090a; font-size:12px; line-height:1; }
+    .admin-avatar-help { display:block; margin-top:3px; color:#f6c02a; font-size:10px; font-weight:800; }
     .admin-hero h1 { margin:0 0 4px; font-size:31px; }
     .admin-hero p { margin:0; color:#8f98a3; font-size:13px; }
     .admin-nav { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin:0; }
@@ -205,7 +211,15 @@
 <body>
   <main>
     <header class="admin-hero">
-      <div class="admin-identity"><span class="admin-mark">U</span><div><h1>Panel administrativo</h1><p id="who">Cargando cuenta...</p></div></div>
+      <div class="admin-identity">
+        <button class="admin-mark" id="adminAvatarButton" type="button" title="Cambiar foto de perfil" aria-label="Cambiar foto de perfil">
+          <img id="adminAvatarImage" alt="Foto de perfil">
+          <span class="admin-avatar-initials" id="adminAvatarInitials">U</span>
+          <span class="admin-avatar-edit" aria-hidden="true">✎</span>
+        </button>
+        <input id="adminAvatarInput" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden>
+        <div><h1>Panel administrativo</h1><p id="who">Cargando cuenta...</p><span class="admin-avatar-help">Toca tu foto para cambiarla</span></div>
+      </div>
       <nav class="admin-nav"><a href="/">Ver sitio</a><a href="#admin-subastas">Ver subastas</a></nav>
     </header>
     <p class="msg admin-ready" id="msg">Cargando...</p>
@@ -454,6 +468,69 @@
     let allNotices = [];
     let noticeFilter = "pending";
     let previewFilter = "all";
+    let currentAdminAvatarPath = "";
+    const adminAvatarButton = document.getElementById("adminAvatarButton");
+    const adminAvatarInput = document.getElementById("adminAvatarInput");
+    const adminAvatarImage = document.getElementById("adminAvatarImage");
+    const adminAvatarInitials = document.getElementById("adminAvatarInitials");
+    const avatarInitialsFor = (name) => String(name || "U").trim().split(/\s+/).slice(0, 2).map((part) => part[0] || "").join("").toUpperCase() || "U";
+    const renderAdminAvatar = async (profile = {}) => {
+      adminAvatarInitials.textContent = avatarInitialsFor(profile.full_name);
+      currentAdminAvatarPath = profile.avatar_url || "";
+      let avatarUrl = "";
+      if (currentAdminAvatarPath) {
+        if (/^https?:\/\//i.test(currentAdminAvatarPath)) avatarUrl = currentAdminAvatarPath;
+        else {
+          const signed = await client.storage.from("avatars").createSignedUrl(currentAdminAvatarPath, 3600);
+          avatarUrl = signed.data?.signedUrl || "";
+        }
+      }
+      if (avatarUrl) {
+        adminAvatarImage.src = avatarUrl;
+        adminAvatarButton.classList.add("has-photo");
+      } else {
+        adminAvatarImage.removeAttribute("src");
+        adminAvatarButton.classList.remove("has-photo");
+      }
+    };
+    const uploadAdminAvatar = async (file) => {
+      if (!file) return;
+      if (!/^image\//i.test(file.type || "") || file.size > 5 * 1024 * 1024) {
+        msg.textContent = "Elige una imagen válida de máximo 5 MB.";
+        return;
+      }
+      const { data:{ user } } = await client.auth.getUser();
+      if (!user) return;
+      const previousPath = currentAdminAvatarPath;
+      const extension = String(file.name || "").split(".").pop().toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `${user.id}/perfil-${Date.now()}.${extension}`;
+      adminAvatarButton.disabled = true;
+      msg.textContent = "Guardando tu foto...";
+      const uploaded = await client.storage.from("avatars").upload(path, file, { cacheControl:"3600", upsert:false, contentType:file.type });
+      if (uploaded.error) {
+        adminAvatarButton.disabled = false;
+        msg.textContent = "No pudimos subir la foto. Inténtalo de nuevo.";
+        return;
+      }
+      const saved = await client.from("profiles").update({ avatar_url:path }).eq("id", user.id);
+      if (saved.error) {
+        await client.storage.from("avatars").remove([path]);
+        adminAvatarButton.disabled = false;
+        msg.textContent = "No pudimos guardar la foto. Inténtalo de nuevo.";
+        return;
+      }
+      await renderAdminAvatar({ full_name:document.getElementById("who").textContent.split(" · ")[0], avatar_url:path });
+      if (previousPath && !/^https?:\/\//i.test(previousPath) && previousPath !== path) {
+        await client.storage.from("avatars").remove([previousPath]);
+      }
+      adminAvatarButton.disabled = false;
+      msg.textContent = "Foto de perfil actualizada";
+    };
+    adminAvatarButton.addEventListener("click", () => adminAvatarInput.click());
+    adminAvatarInput.addEventListener("change", async () => {
+      await uploadAdminAvatar(adminAvatarInput.files?.[0]);
+      adminAvatarInput.value = "";
+    });
     const applyPreviewFilter = () => {
       const cards = Array.from(document.querySelectorAll("#auctionPreview .auction-card"));
       let visible = 0;
@@ -681,12 +758,13 @@
         window.location.href = "login.html";
         return null;
       }
-      const { data: me } = await client.from("profiles").select("full_name, role").eq("id", user.id).single();
+      const { data: me } = await client.from("profiles").select("full_name, role, avatar_url").eq("id", user.id).single();
       if (!me || me.role !== "admin") {
         msg.textContent = "No tienes permiso de admin.";
         return null;
       }
       document.getElementById("who").textContent = me.full_name + " · " + user.email;
+      await renderAdminAvatar(me);
       return user;
     }
 
