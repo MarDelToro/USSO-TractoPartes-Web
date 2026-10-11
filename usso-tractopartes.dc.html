@@ -2726,20 +2726,22 @@ submitAuth = async (e) => {
         { id: 'v3', title: 'Mancuernas y Diferenciales. Todo lo que necesitas saber', desc: 'Todo lo que necesitas saber sobre mancuernas y diferenciales para camiones.', placeholder: 'Video: Recorrido de camión', youtubeId: 'qHK1ha7BPiw' },
         { id: 'v4', title: '¿Cómo construir un chasis mexicano?', desc: 'Conoce paso a paso cómo se construye un chasis mexicano.', placeholder: 'Video: Chasis mexicano', youtubeId: 'SUR8zGxWx2A' },
         { id: 'v5', title: 'Qué chasis le deberías de poner a tu camión', desc: 'Te explicamos qué chasis elegir para tu camión según el uso que le vas a dar.', placeholder: 'Video: Chasis para tu camión', youtubeId: '7tmOiFH2MXI' },
-        ].map((v) => {
-        const playing = this.playingVideo === v.id;
-        return {
-          ...v,
-          playing: playing && !!v.youtubeId,
-          showThumb: !playing && !!v.youtubeId,
-          showUpload: !v.youtubeId,
-          embedSrc: v.youtubeId ? `https://www.youtube.com/embed/${v.youtubeId}?autoplay=1` : null,
-          setThumbEl: v.youtubeId ? (el) => { if (el) el.style.backgroundImage = `url(https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg)`; } : null,
-          cursor: v.youtubeId && !playing ? 'pointer' : 'default',
-          play: v.youtubeId && !playing ? this.playVideo(v.id) : null,
-        };
+        ];
+        return [...base, ...base, ...base].map((v, i) => {
+          const uid = `${v.id}-${i}`;
+          const playing = this.playingVideo === uid;
+          return {
+            ...v,
+            uid,
+            playing: playing && !!v.youtubeId,
+            showThumb: !playing && !!v.youtubeId,
+            showUpload: !v.youtubeId,
+            embedSrc: v.youtubeId ? `https://www.youtube.com/embed/${v.youtubeId}?autoplay=1` : null,
+            setThumbEl: v.youtubeId ? (el) => { if (el) el.style.backgroundImage = `url(https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg)`; } : null,
+            cursor: v.youtubeId && !playing ? 'pointer' : 'default',
+            play: v.youtubeId && !playing ? this.playVideo(uid) : null,
+          };
         });
-        return [...base, ...base, ...base].map((v, i) => ({ ...v, uid: `${v.id}-${i}` }));
       })(),
       tiktokLink: 'https://www.tiktok.com/@usso.tractopartes',
       youtubeLink: 'https://www.youtube.com/@usso.tractopartes',
