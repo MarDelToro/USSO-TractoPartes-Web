@@ -74,9 +74,9 @@
     .pref-off { color:#8f98a3; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); }
     .admin-hero { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:26px 0 8px; }
     .admin-identity { display:flex; align-items:center; gap:15px; min-width:0; }
-    .admin-mark { position:relative; width:52px; min-width:52px; max-width:52px; height:52px; aspect-ratio:1; flex:0 0 52px; display:grid; place-items:center; padding:0; overflow:visible; border-radius:50%; background:#f6c02a; color:#0a0a0b; border:1px solid rgba(246,192,42,.72); font-weight:900; cursor:pointer; box-shadow:0 8px 22px rgba(0,0,0,.22); }
+    .admin-mark { position:relative; box-sizing:border-box; width:52px; min-width:52px; max-width:52px; height:52px; min-height:52px; max-height:52px; aspect-ratio:1 / 1; flex:0 0 52px; display:grid; place-items:center; padding:0 !important; overflow:visible; border-radius:50%; background:#f6c02a; color:#0a0a0b; border:2px solid #f6c02a; font-weight:900; line-height:1; cursor:pointer; box-shadow:0 8px 22px rgba(0,0,0,.22); }
     .admin-mark:hover, .admin-mark:focus-visible { transform:translateY(-1px); border-color:#ffe28d; box-shadow:0 0 0 4px rgba(246,192,42,.12),0 10px 24px rgba(0,0,0,.25); outline:none; }
-    .admin-mark img { width:100%; height:100%; display:none; object-fit:cover; border-radius:50%; }
+    .admin-mark img { position:absolute; inset:0; box-sizing:border-box; width:100%; height:100%; display:none; object-fit:cover; object-position:center; border-radius:50%; }
     .admin-mark.has-photo img { display:block; }
     .admin-mark.has-photo .admin-avatar-initials { display:none; }
     .admin-avatar-edit { position:absolute; right:-6px; bottom:-6px; width:22px; height:22px; display:grid; place-items:center; border:2px solid #0f0f11; border-radius:50%; background:#f6c02a; color:#09090a; font-size:12px; line-height:1; }
