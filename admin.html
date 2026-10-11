@@ -34,6 +34,12 @@
     .admin-index::-webkit-scrollbar { display:none; }
     .admin-index a { flex:none; color:#c8cbd1; font-size:11px; font-weight:800; padding:9px 12px; border-radius:999px; background:#1d1d21; }
     .admin-index a:hover { color:#0a0a0b; background:#f6c02a; }
+    .attention-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:0 0 28px; }
+    .attention-card { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:82px; padding:16px 18px; border-radius:15px; background:#141416; border:1px solid rgba(255,255,255,.11); color:#e9e7e2; transition:.18s ease; }
+    .attention-card:hover { transform:translateY(-2px); border-color:rgba(246,192,42,.42); }
+    .attention-card span { display:block; color:#9299a3; font-size:11px; font-weight:800; line-height:1.35; }
+    .attention-card strong { color:#f6c02a; font-size:25px; font-weight:900; }
+    .attention-card.clear strong { color:#7ee2a8; }
     .money { color:#f6c02a; font-weight:800; white-space:nowrap; }
     .leader { display:inline-flex; padding:5px 10px; border-radius:999px; background:rgba(74,222,128,.12); border:1px solid rgba(74,222,128,.3); color:#7ee2a8; font-size:12px; font-weight:800; white-space:nowrap; }
     .muted { color:#8f98a3; }
@@ -132,12 +138,15 @@
     .details-heading { grid-column:1 / -1; display:flex; align-items:center; gap:12px; margin-top:4px; padding-top:15px; border-top:1px solid rgba(255,255,255,.09); }
     .details-heading strong { font-size:15px; }
     .details-heading span { color:#858c96; font-size:11px; }
-    @media(max-width:1100px) { .auction-preview-grid { grid-template-columns:1fr; } .finance-stats { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-width:1100px) { .auction-preview-grid { grid-template-columns:1fr; } .finance-stats, .attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     @media(max-width:700px) {
       main { width:94vw; margin:22px auto; }
       .live-head { align-items:start; flex-direction:column; }
       .stats { grid-template-columns:1fr; gap:9px; }
       .finance-stats { grid-template-columns:1fr; }
+      .attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+      .attention-card { min-height:72px; padding:13px; }
+      .attention-card strong { font-size:21px; }
       .stat { padding:14px 16px; display:flex; justify-content:space-between; align-items:center; }
       .stat span { margin:0; }
       .stat strong { font-size:22px; }
@@ -176,6 +185,16 @@
     <nav class="admin-index" aria-label="Secciones del panel">
       <a href="#admin-subastas" id="publishIndex">Publicar</a><a href="#admin-subastas">Subastas</a><a href="#control-vivo">Pujas en vivo</a><a href="#finanzas-admin">Finanzas</a><a href="#historial-admin">Historial</a><a href="#ganadores-contacto">Ganadores</a><a href="#usuarios-admin">Usuarios</a><a href="#avisos-admin">Avisos</a>
     </nav>
+
+    <section aria-labelledby="attentionTitle">
+      <div class="section-head" style="margin-top:20px"><div><h2 id="attentionTitle">Pendientes de hoy</h2><p>Entra directamente a lo que necesita atención.</p></div></div>
+      <div class="attention-grid">
+        <a class="attention-card" href="#historial-admin" id="attentionPayments"><span>Ventas pendientes<br>de cobro</span><strong id="attentionPaymentCount">0</strong></a>
+        <a class="attention-card" href="#ganadores-contacto" id="attentionWinners"><span>Ganadores pendientes<br>de aviso</span><strong id="attentionWinnerCount">0</strong></a>
+        <a class="attention-card" href="#usuarios-admin" id="attentionRequests"><span>Solicitudes pendientes<br>de autorización</span><strong id="attentionRequestCount">0</strong></a>
+        <a class="attention-card" href="#control-vivo" id="attentionClosing"><span>Subastas que cierran<br>en menos de 1 hora</span><strong id="attentionClosingCount">0</strong></a>
+      </div>
+    </section>
 
     <section class="auction-preview" id="admin-subastas">
       <div class="section-head"><div><h2>Vista previa de tus subastas</h2><p>Así se presentan tus lotes, con controles administrativos en la misma tarjeta.</p></div><button class="publish-trigger" id="openPublish" type="button">Publicar pieza</button></div>
@@ -388,6 +407,20 @@
     let currentListings = [];
     let allNotices = [];
     let noticeFilter = "pending";
+    const adminAttention = { payments:0, winners:0, requests:0, closing:0 };
+    const renderAdminAttention = () => {
+      const entries = [
+        ["payments", "attentionPaymentCount", "attentionPayments"],
+        ["winners", "attentionWinnerCount", "attentionWinners"],
+        ["requests", "attentionRequestCount", "attentionRequests"],
+        ["closing", "attentionClosingCount", "attentionClosing"]
+      ];
+      entries.forEach(([key, valueId, cardId]) => {
+        const value = Number(adminAttention[key] || 0);
+        document.getElementById(valueId).textContent = value;
+        document.getElementById(cardId).classList.toggle("clear", value === 0);
+      });
+    };
     let realtimeRefreshTimer = null;
     const scheduleAdminRefresh = () => {
       window.clearTimeout(realtimeRefreshTimer);
@@ -557,6 +590,7 @@
       const requestsByUser = requestError
         ? {}
         : Object.fromEntries((requests || []).map((r) => [r.user_id, r]));
+      adminAttention.requests = requestError ? 0 : (requests || []).filter((request) => request.status === "pending").length;
 
       let profileResult = await client
         .from("profiles")
@@ -594,6 +628,8 @@
         const bSent = b.status === "sent" ? 1 : 0;
         return aSent - bSent || new Date(b.created_at) - new Date(a.created_at);
       });
+      adminAttention.winners = orderedWinnerNotices.filter((win) => win.status !== "sent").length;
+      renderAdminAttention();
       document.getElementById("winnerFollowup").innerHTML = orderedWinnerNotices.map((win) => {
         const profile = profilesById[win.user_id];
         return `<tr>
@@ -759,6 +795,12 @@
       const totalAwarded = completedSales.reduce((sum, p) => sum + Number(p.current_price || p.start_price || 0), 0);
       const paidSales = completedSales.filter((p) => p.payment_status === "paid");
       const totalPaid = paidSales.reduce((sum, p) => sum + Number(p.paid_amount || p.current_price || p.start_price || 0), 0);
+      adminAttention.payments = completedSales.filter((p) => p.payment_status !== "paid").length;
+      adminAttention.closing = activeListings.filter((p) => {
+        const remaining = new Date(p.ends_at).getTime() - Date.now();
+        return (!p.starts_at || new Date(p.starts_at) <= new Date()) && remaining > 0 && remaining <= 60 * 60 * 1000;
+      }).length;
+      renderAdminAttention();
       document.getElementById("financeAwarded").textContent = money(totalAwarded);
       document.getElementById("financePaid").textContent = money(totalPaid);
       document.getElementById("financePending").textContent = money(Math.max(0, totalAwarded - totalPaid));
