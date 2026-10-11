@@ -901,12 +901,12 @@
   <section id="confianza" data-screen-label="Confianza" ref="{{ registerReveal_confianza }}" class="usso-section-pad" style="padding:100px 48px;background:var(--bg-alt);border-top:1px solid rgba(var(--border-rgb),0.07)">
     <div style="max-width:1400px;margin:0 auto;opacity:{{ styles.trust.opacity }};transform:{{ styles.trust.transform }};filter:{{ styles.trust.filter }};transition:{{ styles.trust.transition }}">
       <div style="margin-bottom:48px;max-width:660px">
-        <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Por qué puedes pujar tranquilo</span>
+        <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Por qué elegir USSO</span>
         <h2 style="font-family:'Archivo Black',sans-serif;font-size:clamp(30px,4.2vw,48px);margin:10px 0 18px;color:var(--text)">Pieza usada no significa<br>pieza a ciegas</h2>
-        <p style="font:500 17px/1.65 Manrope,sans-serif;color:rgba(var(--text-rgb),0.65);margin:0">Cada lote sale con evidencia de su estado real — incluyendo lo que está mal. Si la pieza tiene un detalle, lo verás antes de pujar, no después de pagar.</p>
+        <p style="font:500 17px/1.65 Manrope,sans-serif;color:rgba(var(--text-rgb),0.65);margin:0">Cada lote se publica con evidencia de su estado real, incluyendo cualquier detalle importante. Así puedes revisar la información antes de hacer una oferta.</p>
       </div>
       <div class="usso-trust-grid">
-        <sc-for list="{{ trustItems }}" as="t" hint-placeholder-count="4">
+        <sc-for list="{{ trustItems }}" as="t" hint-placeholder-count="3">
           <div style="background:var(--bg);border:1px solid rgba(var(--border-rgb),0.08);border-radius:18px;padding:28px 24px">
             <span style="display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;background:{{ accentSoft }};font-family:'Archivo Black',sans-serif;font-size:17px;color:{{ accent }};margin-bottom:18px">{{ t.num }}</span>
             <h3 style="font:800 17px/1.3 Manrope,sans-serif;color:var(--text);margin:0 0 9px">{{ t.title }}</h3>
@@ -2646,9 +2646,8 @@ submitAuth = async (e) => {
       registerReveal_confianza: this.makeReveal('trust'),
       trustItems: [
         { num: '01', title: 'Video de la pieza funcionando', desc: 'Grabamos el motor encendido o la transmisión girando. No fotos bonitas: la pieza trabajando.' },
-        { num: '02', title: 'Reporte honesto de condición', desc: 'Anotamos lo bueno y lo malo. Si tiene una fuga, un desgaste o le falta algo, está escrito antes de que pujes.' },
+        { num: '02', title: 'Reporte honesto de condición', desc: 'Anotamos lo bueno y lo malo. Si tiene una fuga, un desgaste o le falta algo, queda indicado antes de que hagas una oferta.' },
         { num: '03', title: 'Prueba y medición real', desc: 'Compresión, fugas, juego de baleros y kilometraje cuando aplica. Números, no promesas.' },
-        { num: '04', title: '15 días para devolverla', desc: 'Si al instalarla no coincide con el reporte que te dimos, la recibes de vuelta y te devolvemos tu dinero.' },
       ],
 
       accent,
@@ -2767,7 +2766,7 @@ submitAuth = async (e) => {
       onHeroCarouselScroll: this.onHeroCarouselScroll,
       statItems: [
         { value: '+20,000', label: 'Piezas en inventario' },
-        { value: '+15 años', label: 'En el mercado' },
+        { value: '+25 años', label: 'En el mercado' },
         { value: '100%', label: 'Envíos a todo México' },
         { value: 'Nacional', label: 'Clientes en todo el país' },
       ],
