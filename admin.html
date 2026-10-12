@@ -46,10 +46,15 @@
     .operations-panel { margin:0 0 34px; background:linear-gradient(145deg,rgba(246,192,42,.055),#141416 42%); }
     .operations-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
     .operations-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin:18px 0; }
-    .operations-metric { padding:14px; border:1px solid rgba(255,255,255,.1); border-radius:13px; background:#0f0f11; }
+    .operations-metric { width:100%; padding:14px; border:1px solid rgba(255,255,255,.1); border-radius:13px; background:#0f0f11; color:inherit; font:inherit; text-align:left; cursor:pointer; transition:transform .18s ease,border-color .18s ease,background .18s ease; }
+    .operations-metric:hover { transform:translateY(-2px); border-color:rgba(246,192,42,.52); background:#151518; }
+    .operations-metric:focus-visible { outline:2px solid #f6c02a; outline-offset:3px; }
     .operations-metric span { display:block; min-height:32px; color:#9299a3; font-size:10px; font-weight:800; line-height:1.35; text-transform:uppercase; }
     .operations-metric strong { display:block; margin-top:5px; color:#7ee2a8; font-size:23px; }
+    .operations-metric small { display:block; margin-top:8px; color:#f6c02a; font-size:10px; font-weight:800; }
     .operations-metric.has-issue strong { color:#ff8a80; }
+    .operation-target-flash { animation:operationTargetFlash 1.5s ease; }
+    @keyframes operationTargetFlash { 0%,100% { box-shadow:none; } 35% { box-shadow:0 0 0 3px rgba(246,192,42,.45),0 18px 38px rgba(0,0,0,.24); } }
     .operations-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; color:#8f98a3; font-size:11px; }
     .system-ok { color:#7ee2a8; }
     .system-warning { color:#ffd45b; }
@@ -265,12 +270,12 @@
         <span class="system-warning" id="operationsStatus">Revisando sistema…</span>
       </div>
       <div class="operations-grid">
-        <article class="operations-metric"><span>Vencidas abiertas</span><strong id="opExpired">—</strong></article>
-        <article class="operations-metric"><span>Ganadores por contactar</span><strong id="opPending">—</strong></article>
-        <article class="operations-metric"><span>Ganadores urgentes</span><strong id="opStale">—</strong></article>
-        <article class="operations-metric"><span>Entregas con error</span><strong id="opFailed">—</strong></article>
-        <article class="operations-metric"><span>Cierres incompletos</span><strong id="opIncomplete">—</strong></article>
-        <article class="operations-metric"><span>Historial faltante</span><strong id="opMissing">—</strong></article>
+        <button class="operations-metric" type="button" data-operation-target="admin-subastas" data-operation-message="Aquí verás las subastas activas. Si alguna ya venció, usa ‘Actualizar sistema’ para cerrarla de forma segura."><span>Vencidas abiertas</span><strong id="opExpired">—</strong><small>Ver subastas →</small></button>
+        <button class="operations-metric" type="button" data-operation-target="ganadores-contacto" data-operation-message="Aquí están primero los ganadores que aún esperan tu mensaje."><span>Ganadores por contactar</span><strong id="opPending">—</strong><small>Ver ganadores →</small></button>
+        <button class="operations-metric" type="button" data-operation-target="ganadores-contacto" data-operation-message="Aquí puedes localizar los avisos urgentes: se ordenan primero los ganadores pendientes más recientes."><span>Ganadores urgentes</span><strong id="opStale">—</strong><small>Ver seguimiento →</small></button>
+        <button class="operations-metric" type="button" data-operation-target="ganadores-contacto" data-operation-message="Aquí revisas los ganadores que requieren atención por un problema de entrega o contacto."><span>Entregas con error</span><strong id="opFailed">—</strong><small>Ver seguimiento →</small></button>
+        <button class="operations-metric" type="button" data-operation-target="historial-admin" data-operation-message="Aquí puedes revisar los cierres que requieren completar su información."><span>Cierres incompletos</span><strong id="opIncomplete">—</strong><small>Ver historial →</small></button>
+        <button class="operations-metric" type="button" data-operation-target="historial-admin" data-operation-message="Aquí puedes revisar las subastas finalizadas y confirmar que todas sigan en el historial."><span>Historial faltante</span><strong id="opMissing">—</strong><small>Ver historial →</small></button>
       </div>
       <div class="operations-footer"><span id="operationsMeta">Conectando con el centro de operaciones…</span><button class="secondary-action" id="runOperations" type="button">Actualizar sistema</button></div>
     </section>
@@ -634,6 +639,21 @@
       observedAdminSections.forEach((section) => sectionObserver.observe(section));
     }
     adminSectionLinks.forEach((link) => link.addEventListener("click", () => setActiveAdminSection(link.dataset.adminSection)));
+    document.querySelectorAll("[data-operation-target]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const targetId = button.dataset.operationTarget;
+        const target = document.getElementById(targetId);
+        if (!target) return;
+        setActiveAdminSection(targetId);
+        adminIndex.classList.remove("nav-hidden");
+        target.scrollIntoView({ behavior:"smooth", block:"start" });
+        target.classList.remove("operation-target-flash");
+        window.requestAnimationFrame(() => target.classList.add("operation-target-flash"));
+        window.setTimeout(() => target.classList.remove("operation-target-flash"), 1550);
+        const message = button.dataset.operationMessage;
+        if (message) msg.textContent = message;
+      });
+    });
     const pendingAdminDomains = new Set();
     const adminLoadState = new Map();
     const runAdminLoad = async (key, task) => {
