@@ -500,17 +500,54 @@
     const mediaTypeFor = (url, mime = "") => mime.startsWith("video/") || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url) ? "video" : "image";
     const mediaFromLines = (value) => parseLines(value).map((url) => ({ type:mediaTypeFor(url), url }));
     const uniqueMedia = (items) => Array.from(new Map((items || []).filter((item) => item?.url).map((item) => [item.url, { type:item.type || mediaTypeFor(item.url), url:item.url }])).values());
-    async function uploadEvidence(files) {
-      const uploaded = [];
+    const MAX_EVIDENCE_FILE_SIZE = 50 * 1024 * 1024;
+    const evidenceSize = (bytes) => `${Math.max(0, Number(bytes || 0)) / 1024 / 1024 < 1 ? (Math.max(0, Number(bytes || 0)) / 1024).toFixed(0) + " KB" : (Math.max(0, Number(bytes || 0)) / 1024 / 1024).toFixed(1) + " MB"}`;
+    const evidenceErrorMessage = (error, file) => {
+      const message = String(error?.message || error || "No se pudo subir la evidencia.");
+      const fileName = file?.name ? ` “${file.name}”` : "";
+      if (/maximum allowed size|payload too large|entity too large|file size/i.test(message)) return `El archivo${fileName} es demasiado pesado. El máximo es 50 MB por archivo.`;
+      if (/bucket not found/i.test(message)) return "Falta habilitar el espacio de fotos y videos en Supabase. Ejecuta la migración más reciente y vuelve a intentar.";
+      if (/row.level security|not authorized|permission|jwt/i.test(message)) return "Tu sesión no tiene permiso para subir evidencia. Vuelve a iniciar sesión como administradora.";
+      if (/fetch|network|connection|offline/i.test(message)) return `Se perdió la conexión mientras subíamos${fileName}. Revisa tu internet e inténtalo otra vez.`;
+      return `No pudimos subir${fileName}: ${message}`;
+    };
+    const validateEvidenceFiles = (files) => {
       for (const file of Array.from(files || [])) {
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-");
-        const path = `${Date.now()}-${crypto.randomUUID?.() || Math.random().toString(36).slice(2)}-${safeName}`;
-        const { error } = await client.storage.from("listings").upload(path, file);
-        if (error) throw error;
-        const url = client.storage.from("listings").getPublicUrl(path).data.publicUrl;
-        uploaded.push({ type:mediaTypeFor(url, file.type), url });
+        if (!/^(image|video)\//i.test(file.type || "")) return `“${file.name}” no es una imagen ni un video compatible.`;
+        if (file.size > MAX_EVIDENCE_FILE_SIZE) return `“${file.name}” pesa ${evidenceSize(file.size)}. El máximo es 50 MB por archivo.`;
+      }
+      return "";
+    };
+    async function uploadEvidence(files, onProgress) {
+      const uploaded = [];
+      const selected = Array.from(files || []);
+      const validationError = validateEvidenceFiles(selected);
+      if (validationError) throw new Error(validationError);
+      try {
+        for (let index = 0; index < selected.length; index += 1) {
+          const file = selected[index];
+          onProgress?.(index + 1, selected.length, file);
+          const safeName = String(file.name || "evidencia").replace(/[^a-zA-Z0-9._-]+/g, "-");
+          const randomId = globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2);
+          const path = `${Date.now()}-${randomId}-${safeName}`;
+          const { error } = await client.storage.from("listings").upload(path, file, {
+            cacheControl:"3600",
+            contentType:file.type || undefined,
+            upsert:false
+          });
+          if (error) throw new Error(evidenceErrorMessage(error, file));
+          const url = client.storage.from("listings").getPublicUrl(path).data.publicUrl;
+          uploaded.push({ type:mediaTypeFor(url, file.type), url, path });
+        }
+      } catch (error) {
+        await removeUploadedEvidence(uploaded);
+        throw error;
       }
       return uploaded;
+    }
+    async function removeUploadedEvidence(items) {
+      const paths = (items || []).map((item) => item?.path).filter(Boolean);
+      if (paths.length) await client.storage.from("listings").remove(paths);
     }
     let liveLoading = false;
     let currentListings = [];
@@ -1505,19 +1542,16 @@
     document.getElementById("pieza").addEventListener("submit", async (e) => {
       e.preventDefault();
       const publishButton = document.getElementById("publishSave");
-      const { data: { user } } = await client.auth.getUser();
-      let imageUrl = document.getElementById("image_url").value.trim();
-      let uploadedMedia = [];
-      try { uploadedMedia = await uploadEvidence(document.getElementById("photo").files); }
-      catch (error) { showPublishFeedback(error.message); return; }
-      const mediaUrls = uniqueMedia([...uploadedMedia, ...mediaFromLines(document.getElementById("media_urls").value), ...(imageUrl ? [{ type:"image", url:imageUrl }] : [])]);
-      if (!imageUrl) imageUrl = mediaUrls.find((item) => item.type === "image")?.url || null;
-
+      if (publishButton.disabled) return;
+      const originalButtonText = publishButton.textContent;
+      const title = document.getElementById("title").value.trim();
       const start = Number(document.getElementById("start_price").value || 0);
       const createStatus = document.getElementById("create_status").value;
       const starts = dateTimeFromFields("create_start");
       const ends = dateTimeFromFields("create_end");
-      if (!document.getElementById("title").value.trim()) {
+      const selectedFiles = document.getElementById("photo").files;
+      const fileValidationError = validateEvidenceFiles(selectedFiles);
+      if (!title) {
         showPublishFeedback("Escribe el nombre de la pieza.");
         return;
       }
@@ -1537,38 +1571,77 @@
         showPublishFeedback("Para publicarla como próxima, selecciona una fecha de inicio futura.");
         return;
       }
-      publishButton.disabled = true;
-      showPublishFeedback("Publicando pieza...", false);
-      const { error } = await client.from("listings").insert({
-        title: document.getElementById("title").value.trim(),
-        category: document.getElementById("category").value,
-        description: document.getElementById("description").value.trim(),
-        product_details: buildProductDetails(),
-        image_url: imageUrl,
-        media_urls: mediaUrls,
-        start_price: start,
-        current_price: start,
-        status: "active",
-        starts_at: starts ? new Date(starts).toISOString() : new Date().toISOString(),
-        ends_at: ends ? new Date(ends).toISOString() : null,
-        created_by: user.id
-      });
+      if (fileValidationError) {
+        showPublishFeedback(fileValidationError);
+        return;
+      }
 
-      publishButton.disabled = false;
-      msg.textContent = error ? error.message : "Pieza publicada";
-      showPublishFeedback(error ? error.message : "Pieza publicada correctamente.", Boolean(error));
-      if (!error) {
+      let uploadedMedia = [];
+      let publishStage = "auth";
+      publishButton.disabled = true;
+      publishButton.textContent = "Preparando…";
+      showPublishFeedback("Comprobando tu sesión…", false);
+      try {
+        const { data:{ user }, error:authError } = await client.auth.getUser();
+        if (authError || !user) throw new Error("Tu sesión venció. Vuelve a iniciar sesión como administradora antes de publicar.");
+
+        publishStage = "upload";
+        uploadedMedia = await uploadEvidence(selectedFiles, (current, total, file) => {
+          publishButton.textContent = `Subiendo ${current}/${total}…`;
+          showPublishFeedback(`Subiendo evidencia ${current} de ${total}: ${file.name} (${evidenceSize(file.size)})`, false);
+        });
+        let imageUrl = document.getElementById("image_url").value.trim();
+        const mediaUrls = uniqueMedia([...uploadedMedia, ...mediaFromLines(document.getElementById("media_urls").value), ...(imageUrl ? [{ type:"image", url:imageUrl }] : [])]);
+        if (!imageUrl) imageUrl = mediaUrls.find((item) => item.type === "image")?.url || null;
+
+        publishButton.textContent = "Publicando…";
+        showPublishFeedback("Guardando la subasta…", false);
+        publishStage = "save";
+        const { error } = await client.from("listings").insert({
+          title,
+          category: document.getElementById("category").value,
+          description: document.getElementById("description").value.trim(),
+          product_details: buildProductDetails(),
+          image_url: imageUrl,
+          media_urls: mediaUrls,
+          start_price: start,
+          current_price: start,
+          status:createStatus === "upcoming" ? "active" : createStatus,
+          starts_at: starts ? new Date(starts).toISOString() : new Date().toISOString(),
+          ends_at: new Date(ends).toISOString(),
+          created_by:user.id
+        });
+        if (error) {
+          await removeUploadedEvidence(uploadedMedia);
+          throw error;
+        }
+
+        msg.textContent = "Pieza publicada";
+        showPublishFeedback("Pieza publicada correctamente.", false);
         e.target.reset();
         document.getElementById("photoName").textContent = "Imágenes y videos";
         closePublishDialog();
-        loadListings();
-        loadLiveBids();
+        await Promise.all([loadListings(), loadLiveBids()]);
+      } catch (error) {
+        const rawMessage = String(error?.message || error || "No se pudo publicar la subasta.");
+        const message = publishStage === "upload"
+          ? (/^(El archivo|Falta habilitar|Tu sesión|Se perdió|No pudimos)/.test(rawMessage) ? rawMessage : evidenceErrorMessage(error))
+          : rawMessage;
+        msg.textContent = message;
+        showPublishFeedback(message);
+      } finally {
+        publishButton.disabled = false;
+        publishButton.textContent = originalButtonText;
       }
     });
 
     document.getElementById("photo").addEventListener("change", (event) => {
-      const count = event.target.files.length;
-      document.getElementById("photoName").textContent = count ? `${count} archivo${count === 1 ? "" : "s"} seleccionado${count === 1 ? "" : "s"}` : "Imágenes y videos";
+      const files = Array.from(event.target.files || []);
+      const count = files.length;
+      const validationError = validateEvidenceFiles(files);
+      const totalSize = files.reduce((sum, file) => sum + Number(file.size || 0), 0);
+      document.getElementById("photoName").textContent = count ? `${count} archivo${count === 1 ? "" : "s"} · ${evidenceSize(totalSize)}` : "Imágenes y videos";
+      showPublishFeedback(validationError || (count ? "Archivos listos para subir." : ""), Boolean(validationError));
     });
     document.getElementById("create_start_date").addEventListener("change", () => {
       const starts = dateTimeFromFields("create_start");
