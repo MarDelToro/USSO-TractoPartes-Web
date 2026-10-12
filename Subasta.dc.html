@@ -49,7 +49,7 @@
         <div id="auctionNotice" class="notice auction-notice hidden"></div>
         <div id="guest" class="actions hidden"><div class="notice">Inicia sesión para participar en esta subasta.</div><a class="btn secondary" href="login.html">Iniciar sesión</a></div>
         <div id="pending" class="actions hidden"><div class="notice">Tu cuenta todavía necesita autorización de USSO antes de poder pujar.</div><button id="requestAuth" class="btn">Solicitar autorización</button></div>
-        <form id="bidForm" class="actions hidden"><div id="minimum" class="notice"></div><div class="bid-form"><input id="amount" type="number" min="1" step="1" required placeholder="Cantidad de tu puja"><button id="bidButton" class="btn" type="submit" disabled>Pujar ahora</button></div></form>
+        <form id="bidForm" class="actions hidden"><div id="minimum" class="notice"></div><div class="bid-form"><input id="amount" type="number" min="1" step="1000" required placeholder="Siguiente puja"><button id="bidButton" class="btn" type="submit" disabled>Enviar mi puja</button></div></form>
         <p id="msg" class="msg"></p>
       </div>
     </section>
@@ -235,10 +235,16 @@
     }
 
     function updateMinimum(value) {
+      const previousMinimum = minimumBid;
       minimumBid = calculateMinimum(value);
       const amount = document.getElementById("amount");
+      const enteredAmount = Number(amount.value || 0);
       amount.min = String(minimumBid);
-      document.getElementById("minimum").textContent = `Puja mínima: ${money(minimumBid)}`;
+      amount.step = "1000";
+      if (!enteredAmount || enteredAmount < minimumBid || enteredAmount === previousMinimum) {
+        amount.value = String(minimumBid);
+      }
+      document.getElementById("minimum").textContent = `Puja mínima: ${money(minimumBid)} · Ya está lista, pero puedes aumentarla.`;
       validateAmount();
     }
 

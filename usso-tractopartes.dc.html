@@ -652,7 +652,8 @@
         </div>
 
         <form onSubmit="{{ submitBid }}" style="display:flex;flex-direction:column;gap:12px">
-          <input class="usso-field" type="text" inputMode="numeric" placeholder="Tu oferta en pesos" value="{{ bidAmount }}" onChange="{{ onBidAmount }}" aria-invalid="{{ bidAmountInvalid }}" style="border-color:{{ bidInputBorder }};box-shadow:{{ bidInputShadow }}">
+          <input class="usso-field" type="number" inputMode="numeric" min="{{ bidMinimumValue }}" step="1000" placeholder="Siguiente puja" value="{{ bidAmount }}" onChange="{{ onBidAmount }}" aria-invalid="{{ bidAmountInvalid }}" style="border-color:{{ bidInputBorder }};box-shadow:{{ bidInputShadow }}">
+          <p style="font:600 12.5px/1.45 Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0">La siguiente puja ya está lista. Puedes cambiarla si quieres ofrecer más.</p>
           <sc-if value="{{ hasBidError }}" hint-placeholder-val="{{ false }}">
             <p style="font:600 13px/1.45 Manrope,sans-serif;color:#ff6b5e;margin:2px 0 0">{{ bidError }}</p>
           </sc-if>
@@ -1925,7 +1926,21 @@ class Component extends DCLogic {
     };
   });
 
-  if (typeof this.forceUpdate === "function") this.forceUpdate();
+  const openBidMinimum = this.state.bidOpen && this.state.bidLotId
+    ? this.getBidMinimum(this.state.bidLotId)
+    : 0;
+  const enteredBid = this.parseMoney(this.state.bidAmount);
+  const shouldRefreshSuggestedBid = !!openBidMinimum && (
+    !enteredBid ||
+    enteredBid < openBidMinimum ||
+    enteredBid === Number(this.lastSuggestedBid || 0)
+  );
+
+  if (openBidMinimum) this.lastSuggestedBid = openBidMinimum;
+
+  if (shouldRefreshSuggestedBid && typeof this.setState === "function") {
+    this.setState({ bidAmount: String(openBidMinimum), bidError: "" });
+  } else if (typeof this.forceUpdate === "function") this.forceUpdate();
   else if (typeof this.setState === "function") this.setState({});
       await this.syncAuthFromSupabase();
     } catch (error) {
@@ -2432,9 +2447,14 @@ submitAuth = async (e) => {
       this.pushNotif({ icon: '✅', kind: 'ok', title: 'Vas ganando esta subasta', body: 'Podrás volver a pujar si otra persona supera tu oferta.' });
       return;
     }
-    this.setState({ bidOpen: true, bidLotId: lotId, bidAmount: '', bidError: '' });
+    const minimum = this.getBidMinimum(lotId);
+    this.lastSuggestedBid = minimum;
+    this.setState({ bidOpen: true, bidLotId: lotId, bidAmount: String(minimum), bidError: '' });
   };
-  closeBid = () => this.setState({ bidOpen: false, bidError: '' });
+  closeBid = () => {
+    this.lastSuggestedBid = 0;
+    this.setState({ bidOpen: false, bidAmount: '', bidError: '' });
+  };
   onBidAmount = (e) => {
     const value = e.target.value;
     const amount = this.parseMoney(value);
@@ -2486,6 +2506,7 @@ submitAuth = async (e) => {
     bidError: "",
     myBids: { ...state.myBids, [lot.id]: amount }
   }), () => {
+    this.lastSuggestedBid = 0;
     this.pushNotif({ icon: '🔥', kind: 'ok', title: '¡YA CASI ES TUYAAAA!', body: `Vas ganando ${lot.title} con ${this.formatMoney(amount)}. Mantente pendiente: si alguien te supera, te avisaremos de inmediato.` });
     this.persist();
   });
@@ -2690,6 +2711,7 @@ submitAuth = async (e) => {
       bidLotTitle: bidLot ? bidLot.title : '',
       bidLotCurrent: bidLot ? bidLot.bid : '',
       bidLotMinimum: bidMin ? this.formatMoney(bidMin) : '',
+      bidMinimumValue: bidMin || 0,
       bidAmount: st.bidAmount,
       onBidAmount: this.onBidAmount,
       submitBid: this.submitBid,
