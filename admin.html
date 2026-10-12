@@ -9,6 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="usso-app.css?v=20261009-2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <script src="media-compat.js?v=20261012-1"></script>
   <style>
     .ghost { background:#2a323e; }
     .warn { background:#b45309; }
@@ -501,6 +503,15 @@
     const mediaFromLines = (value) => parseLines(value).map((url) => ({ type:mediaTypeFor(url), url }));
     const uniqueMedia = (items) => Array.from(new Map((items || []).filter((item) => item?.url).map((item) => [item.url, { type:item.type || mediaTypeFor(item.url), url:item.url }])).values());
     const MAX_EVIDENCE_FILE_SIZE = 50 * 1024 * 1024;
+    const isHeicFile = (file) => /image\/(heic|heif)/i.test(file?.type || "") || /\.(heic|heif)$/i.test(file?.name || "");
+    async function normalizeEvidenceFile(file) {
+      if (!isHeicFile(file)) return file;
+      if (typeof window.heic2any !== "function") throw new Error(`No pudimos convertir “${file.name}”. Recarga la página e inténtalo otra vez.`);
+      const result = await window.heic2any({ blob:file, toType:"image/jpeg", quality:0.9 });
+      const jpegBlob = Array.isArray(result) ? result[0] : result;
+      const jpegName = String(file.name || "evidencia.heic").replace(/\.(heic|heif)$/i, "") + ".jpg";
+      return new File([jpegBlob], jpegName, { type:"image/jpeg", lastModified:file.lastModified || Date.now() });
+    }
     const evidenceSize = (bytes) => `${Math.max(0, Number(bytes || 0)) / 1024 / 1024 < 1 ? (Math.max(0, Number(bytes || 0)) / 1024).toFixed(0) + " KB" : (Math.max(0, Number(bytes || 0)) / 1024 / 1024).toFixed(1) + " MB"}`;
     const evidenceErrorMessage = (error, file) => {
       const message = String(error?.message || error || "No se pudo subir la evidencia.");
@@ -513,7 +524,7 @@
     };
     const validateEvidenceFiles = (files) => {
       for (const file of Array.from(files || [])) {
-        if (!/^(image|video)\//i.test(file.type || "")) return `“${file.name}” no es una imagen ni un video compatible.`;
+        if (!/^(image|video)\//i.test(file.type || "") && !isHeicFile(file)) return `“${file.name}” no es una imagen ni un video compatible.`;
         if (file.size > MAX_EVIDENCE_FILE_SIZE) return `“${file.name}” pesa ${evidenceSize(file.size)}. El máximo es 50 MB por archivo.`;
       }
       return "";
@@ -525,8 +536,9 @@
       if (validationError) throw new Error(validationError);
       try {
         for (let index = 0; index < selected.length; index += 1) {
-          const file = selected[index];
-          onProgress?.(index + 1, selected.length, file);
+          const originalFile = selected[index];
+          onProgress?.(index + 1, selected.length, originalFile);
+          const file = await normalizeEvidenceFile(originalFile);
           const safeName = String(file.name || "evidencia").replace(/[^a-zA-Z0-9._-]+/g, "-");
           const randomId = globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2);
           const path = `${Date.now()}-${randomId}-${safeName}`;
