@@ -107,7 +107,7 @@
     const mediaTypeFor = (item) => item?.type === "video" || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(item?.url || item || "") ? "video" : "image";
     const mediaMarkup = (item, title, expanded = false) => item.type === "video"
       ? `<video src="${escapeHtml(item.url)}" controls playsinline preload="metadata"${expanded ? " autoplay" : ""}></video>`
-      : `<img src="${escapeHtml(item.url)}" alt="Evidencia de ${escapeHtml(title || "pieza USSO")}">`;
+      : `<img src="${escapeHtml(item.url)}" alt="Evidencia de ${escapeHtml(title || "pieza USSO")}" decoding="async" fetchpriority="high">`;
     function renderLightbox() {
       if (!galleryMedia.length) return;
       document.getElementById("lightboxStage").innerHTML = mediaMarkup(galleryMedia[galleryIndex], listing?.title, true);
@@ -132,7 +132,7 @@
         thumbs.querySelectorAll(".thumb").forEach((button, buttonIndex) => button.classList.toggle("active", buttonIndex === index));
       };
       if (!media.length) { stage.innerHTML = `<div id="noImage" class="empty">Evidencia próximamente</div>`; return; }
-      thumbs.innerHTML = media.map((item, index) => `<button class="thumb ${index === 0 ? "active" : ""}" type="button" data-media-index="${index}" aria-label="Ver ${item.type === "video" ? "video" : "foto"} ${index + 1}">${item.type === "video" ? `<span class="thumb-video">▶ VIDEO</span>` : `<img src="${escapeHtml(item.url)}" alt="">`}</button>`).join("");
+      thumbs.innerHTML = media.map((item, index) => `<button class="thumb ${index === 0 ? "active" : ""}" type="button" data-media-index="${index}" aria-label="Ver ${item.type === "video" ? "video" : "foto"} ${index + 1}">${item.type === "video" ? `<span class="thumb-video">▶ VIDEO</span>` : `<img src="${escapeHtml(item.url)}" alt="" loading="lazy" decoding="async">`}</button>`).join("");
       if (media.length > 1) show("mediaThumbs");
       thumbs.querySelectorAll("[data-media-index]").forEach((button) => button.addEventListener("click", () => setActive(Number(button.dataset.mediaIndex))));
       setActive(0);

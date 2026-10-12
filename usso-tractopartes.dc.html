@@ -743,7 +743,7 @@
       <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
       <div class="usso-featured-lot {{ featuredFinishClass }}">
         <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
-         <img src="{{ featuredSrc }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+         <img src="{{ featuredSrc }}" alt="" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
           <span class="usso-live-badge" style="position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:7px;background:rgba(10,10,11,0.86);backdrop-filter:blur(6px);border:1px solid {{ featuredBadgeBorder }};border-radius:100px;padding:7px 14px;z-index:4">
             <span style="width:6px;height:6px;border-radius:50%;background:{{ featuredBadgeDot }};animation:{{ featuredBadgeAnimation }}"></span>
             <span style="font:800 11px Manrope,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:{{ featuredBadgeColor }}">{{ featuredBadgeLabel }}</span>
@@ -815,7 +815,7 @@
         <sc-for list="{{ auctionItems }}" as="lot" hint-placeholder-count="3">
           <div onClick="{{ lot.goTo }}" style="background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.07);border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;flex:0 0 320px">
             <div style="position:relative">
-             <img src="{{ lot.src }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+             <img src="{{ lot.src }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
               <span style="position:absolute;top:14px;left:14px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 11px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:6px 12px;border-radius:100px">{{ lot.status }}</span>
             </div>
             <div style="padding:22px;display:flex;flex-direction:column;flex:1">
