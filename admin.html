@@ -266,13 +266,13 @@
       </div>
       <div class="operations-grid">
         <article class="operations-metric"><span>Vencidas abiertas</span><strong id="opExpired">—</strong></article>
-        <article class="operations-metric"><span>Avisos pendientes</span><strong id="opPending">—</strong></article>
-        <article class="operations-metric"><span>Avisos retrasados</span><strong id="opStale">—</strong></article>
+        <article class="operations-metric"><span>Ganadores por contactar</span><strong id="opPending">—</strong></article>
+        <article class="operations-metric"><span>Ganadores urgentes</span><strong id="opStale">—</strong></article>
         <article class="operations-metric"><span>Entregas con error</span><strong id="opFailed">—</strong></article>
         <article class="operations-metric"><span>Cierres incompletos</span><strong id="opIncomplete">—</strong></article>
         <article class="operations-metric"><span>Historial faltante</span><strong id="opMissing">—</strong></article>
       </div>
-      <div class="operations-footer"><span id="operationsMeta">Conectando con el centro de operaciones…</span><button class="secondary-action" id="runOperations" type="button">Revisar y corregir ahora</button></div>
+      <div class="operations-footer"><span id="operationsMeta">Conectando con el centro de operaciones…</span><button class="secondary-action" id="runOperations" type="button">Actualizar sistema</button></div>
     </section>
 
     <section class="auction-preview" id="admin-subastas">
@@ -713,7 +713,7 @@
       status.className = issues === 0 && schedulerReady ? "system-ok" : "system-warning";
       const eventCount = Number(health.close_events || 0).toLocaleString("es-MX");
       document.getElementById("operationsMeta").textContent = schedulerReady
-        ? `Cierre automático activo · ${eventCount} cierres protegidos en historial`
+        ? `Cierre automático activo · ${eventCount} cierres protegidos en historial · Los avisos antiguos quedan en historial y no cuentan como pendientes.`
         : `Programador automático pendiente · ${eventCount} cierres protegidos en historial`;
     }
     const formatAdminCountdown = (milliseconds) => {
@@ -1608,7 +1608,7 @@
     document.getElementById("runOperations").addEventListener("click", async () => {
       const button = document.getElementById("runOperations");
       button.disabled = true;
-      document.getElementById("operationsStatus").textContent = "Revisando…";
+      document.getElementById("operationsStatus").textContent = "Actualizando…";
       const result = await client.rpc("run_auction_operations");
       if (result.error) {
         const missing = /run_auction_operations|schema cache|could not find/i.test(result.error.message || "");
@@ -1616,8 +1616,12 @@
           ? "Falta ejecutar la migración 20261011_operations_center.sql en Supabase."
           : `No se pudo completar la revisión: ${result.error.message}`);
       } else {
-        msg.textContent = "Revisión de cierres, ganadores y avisos completada";
         await Promise.all([loadOperationsHealth(), loadListings(), loadAvisos(), loadLiveBids()]);
+        const activeIssues = Array.from(document.querySelectorAll("#opExpired, #opStale, #opFailed, #opIncomplete, #opMissing"))
+          .some((metric) => Number(String(metric.textContent || "0").replace(/[^0-9]/g, "")) > 0);
+        msg.textContent = activeIssues
+          ? "Sistema actualizado. Revisa los indicadores marcados para atenderlos."
+          : "Sistema actualizado: no había cierres ni errores que corregir.";
       }
       button.disabled = false;
     });
