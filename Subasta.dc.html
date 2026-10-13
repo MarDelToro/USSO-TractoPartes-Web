@@ -49,7 +49,7 @@
         <div id="auctionNotice" class="notice auction-notice hidden"></div>
         <div id="guest" class="actions hidden"><div class="notice">Inicia sesión para participar en esta subasta.</div><a class="btn secondary" href="login.html">Iniciar sesión</a></div>
         <div id="pending" class="actions hidden"><div class="notice">Tu cuenta todavía necesita autorización de USSO antes de poder pujar.</div><button id="requestAuth" class="btn">Solicitar autorización</button></div>
-        <form id="bidForm" class="actions hidden"><div id="minimum" class="notice"></div><div class="bid-form"><input id="amount" type="number" min="1" step="1000" required placeholder="Siguiente puja"><button id="bidButton" class="btn" type="submit" disabled>Enviar mi puja</button></div></form>
+        <form id="bidForm" class="actions hidden"><div id="minimum" class="notice"></div><div class="bid-form"><input id="amount" type="number" min="1" step="1000" inputmode="numeric" required aria-label="Cantidad de tu puja" placeholder="Siguiente puja"><button id="bidButton" class="btn" type="submit" disabled>Enviar mi puja</button></div></form>
         <p id="msg" class="msg"></p>
       </div>
     </section>
@@ -105,9 +105,10 @@
     const isActive = (data) => data?.status === "active" && !isUpcoming(data) && !!data.ends_at && new Date(data.ends_at).getTime() > Date.now();
     const escapeHtml = (value) => String(value || "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
     const mediaTypeFor = (item) => item?.type === "video" || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(item?.url || item || "") ? "video" : "image";
+    const mediaDisplayUrl = (item, expanded = false) => item.type === "image" && !expanded && item.preview_url ? item.preview_url : item.url;
     const mediaMarkup = (item, title, expanded = false) => item.type === "video"
       ? `<video src="${escapeHtml(item.url)}" controls playsinline preload="metadata"${expanded ? " autoplay" : ""}></video>`
-      : `<img src="${escapeHtml(item.url)}" alt="Evidencia de ${escapeHtml(title || "pieza USSO")}" decoding="async" fetchpriority="high">`;
+      : `<img src="${escapeHtml(mediaDisplayUrl(item, expanded))}" alt="Evidencia de ${escapeHtml(title || "pieza USSO")}" decoding="async" ${expanded ? "" : 'fetchpriority="high"'}>`;
     function renderLightbox() {
       if (!galleryMedia.length) return;
       document.getElementById("lightboxStage").innerHTML = mediaMarkup(galleryMedia[galleryIndex], listing?.title, true);
@@ -119,7 +120,7 @@
     function moveLightbox(direction) { galleryIndex = (galleryIndex + direction + galleryMedia.length) % galleryMedia.length; renderLightbox(); }
     function renderEvidence(data) {
       const raw = Array.isArray(data.media_urls) ? data.media_urls : [];
-      const media = raw.map((item) => typeof item === "string" ? { url:item, type:mediaTypeFor(item) } : { url:item.url, type:mediaTypeFor(item) }).filter((item) => item.url);
+      const media = raw.map((item) => typeof item === "string" ? { url:item, type:mediaTypeFor(item) } : { ...item, url:item.url, type:mediaTypeFor(item) }).filter((item) => item.url);
       if (data.image_url && !media.some((item) => item.url === data.image_url)) media.unshift({ url:data.image_url, type:"image" });
       const stage = document.getElementById("mediaStage");
       const thumbs = document.getElementById("mediaThumbs");
@@ -132,7 +133,7 @@
         thumbs.querySelectorAll(".thumb").forEach((button, buttonIndex) => button.classList.toggle("active", buttonIndex === index));
       };
       if (!media.length) { stage.innerHTML = `<div id="noImage" class="empty">Evidencia próximamente</div>`; return; }
-      thumbs.innerHTML = media.map((item, index) => `<button class="thumb ${index === 0 ? "active" : ""}" type="button" data-media-index="${index}" aria-label="Ver ${item.type === "video" ? "video" : "foto"} ${index + 1}">${item.type === "video" ? `<span class="thumb-video">▶ VIDEO</span>` : `<img src="${escapeHtml(item.url)}" alt="" loading="lazy" decoding="async">`}</button>`).join("");
+      thumbs.innerHTML = media.map((item, index) => `<button class="thumb ${index === 0 ? "active" : ""}" type="button" data-media-index="${index}" aria-label="Ver ${item.type === "video" ? "video" : "foto"} ${index + 1}">${item.type === "video" ? `<span class="thumb-video">▶ VIDEO</span>` : `<img src="${escapeHtml(mediaDisplayUrl(item))}" alt="" loading="lazy" decoding="async">`}</button>`).join("");
       if (media.length > 1) show("mediaThumbs");
       thumbs.querySelectorAll("[data-media-index]").forEach((button) => button.addEventListener("click", () => setActive(Number(button.dataset.mediaIndex))));
       setActive(0);
@@ -252,13 +253,25 @@
       const input = document.getElementById("amount");
       const button = document.getElementById("bidButton");
       const value = Number(input.value);
-      const tooLow = input.value !== "" && value < minimumBid;
-      input.classList.toggle("invalid", tooLow);
-      input.setAttribute("aria-invalid", String(tooLow));
-      button.disabled = !value || value < minimumBid;
+      const hasValue = input.value !== "" && Number.isFinite(value);
+      const tooLow = hasValue && value < minimumBid;
+      const invalidStep = hasValue && !tooLow && (value - minimumBid) % 1000 !== 0;
+      const invalid = !hasValue || tooLow || invalidStep;
+      input.classList.toggle("invalid", tooLow || invalidStep);
+      input.setAttribute("aria-invalid", String(tooLow || invalidStep));
+      button.disabled = invalid;
+      button.textContent = hasValue && !invalid ? `Pujar ${money(value)}` : "Enviar mi puja";
       const msg = document.getElementById("msg");
-      if (tooLow) msg.textContent = `La puja mínima es ${money(minimumBid)}.`;
-      else if (msg.textContent.startsWith("La puja mínima")) msg.textContent = "";
+      if (tooLow) {
+        msg.dataset.bidValidation = "true";
+        msg.textContent = `La puja mínima es ${money(minimumBid)}.`;
+      } else if (invalidStep) {
+        msg.dataset.bidValidation = "true";
+        msg.textContent = `Usa aumentos de $1,000: ${money(minimumBid)}, ${money(minimumBid + 1000)}, ${money(minimumBid + 2000)}…`;
+      } else if (msg.dataset.bidValidation === "true") {
+        msg.textContent = "";
+        delete msg.dataset.bidValidation;
+      }
       return !button.disabled;
     }
 

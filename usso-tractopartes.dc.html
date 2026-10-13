@@ -1896,7 +1896,7 @@ class Component extends DCLogic {
   await client.rpc('dispatch_upcoming_auction_reminders');
   const { data } = await client
     .from("listings")
-    .select("id, title, image_url, current_price, start_price, status, starts_at, ends_at, category, bid_count, auction_round, winner_id")
+    .select("id, title, image_url, media_urls, current_price, start_price, status, starts_at, ends_at, category, bid_count, auction_round, winner_id")
     .order("created_at", { ascending: false });
 
   this.rawAuctionItems = (data || []).map((p, i) => {
@@ -1905,6 +1905,10 @@ class Component extends DCLogic {
     const proxima = p.status === "active" && !!inicia && inicia > Date.now();
     const activa = p.status === "active" && !proxima && !!termina && termina > Date.now();
     const precio = Number(p.current_price || p.start_price || 0);
+    const listingMedia = Array.isArray(p.media_urls) ? p.media_urls : [];
+    const coverMedia = listingMedia.find((item) => item && typeof item === "object" && item.type !== "video" && item.url === p.image_url)
+      || listingMedia.find((item) => item && typeof item === "object" && item.type !== "video")
+      || null;
     return {
       id: p.id,
       number: String(100 + i),
@@ -1920,7 +1924,7 @@ class Component extends DCLogic {
       statusBg: proxima ? "rgba(92,160,255,0.9)" : (activa ? "rgba(246,192,42,0.9)" : "rgba(255,255,255,0.12)"),
       statusColor: proxima || activa ? "#0a0a0b" : "#f3f1ec",
       placeholder: "Foto del lote",
-      src: p.image_url || "",
+      src: coverMedia?.preview_url || coverMedia?.url || p.image_url || "",
       startsAt: inicia,
       closesAt: termina || Date.now() + 7 * 86400000
     };

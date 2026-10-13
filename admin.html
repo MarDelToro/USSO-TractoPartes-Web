@@ -500,11 +500,19 @@
       document.getElementById(`${prefix}product_details`).value = remaining.filter(Boolean).join("\n");
     };
     const mediaTypeFor = (url, mime = "") => mime.startsWith("video/") || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url) ? "video" : "image";
-    const mediaFromLines = (value) => parseLines(value).map((url) => ({ type:mediaTypeFor(url), url }));
-    const uniqueMedia = (items) => Array.from(new Map((items || []).filter((item) => item?.url).map((item) => [item.url, { type:item.type || mediaTypeFor(item.url), url:item.url }])).values());
+    const mediaFromLines = (value, knownItems = []) => parseLines(value).map((url) => {
+      const known = (knownItems || []).find((item) => (typeof item === "string" ? item : item?.url) === url);
+      return known && typeof known === "object" ? { ...known, type:known.type || mediaTypeFor(url), url } : { type:mediaTypeFor(url), url };
+    });
+    const uniqueMedia = (items) => Array.from((items || []).filter((item) => item?.url).reduce((map, item) => {
+      const previous = map.get(item.url) || {};
+      map.set(item.url, { ...previous, ...item, type:item.type || previous.type || mediaTypeFor(item.url), url:item.url });
+      return map;
+    }, new Map()).values());
     const MAX_EVIDENCE_FILE_SIZE = 50 * 1024 * 1024;
-    const MAX_OPTIMIZED_IMAGE_DIMENSION = 2200;
-    const MAX_IMAGE_SIZE_WITHOUT_OPTIMIZING = 1.5 * 1024 * 1024;
+    const MAX_OPTIMIZED_IMAGE_DIMENSION = 1800;
+    const MAX_IMAGE_SIZE_WITHOUT_OPTIMIZING = 900 * 1024;
+    const MAX_PREVIEW_IMAGE_DIMENSION = 720;
     const isHeicFile = (file) => /image\/(heic|heif)/i.test(file?.type || "") || /\.(heic|heif)$/i.test(file?.name || "");
     const loadEvidenceImage = (file) => new Promise((resolve, reject) => {
       const objectUrl = URL.createObjectURL(file);
@@ -520,6 +528,25 @@
       image.src = objectUrl;
     });
     const imageCanvasBlob = (canvas, type, quality) => new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+    async function createImageVariant(image, sourceFile, maxDimension, quality, suffix) {
+      const width = Number(image.naturalWidth || image.width || 0);
+      const height = Number(image.naturalHeight || image.height || 0);
+      const largestSide = Math.max(width, height);
+      if (!width || !height) return null;
+      const scale = Math.min(1, maxDimension / largestSide);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(width * scale));
+      canvas.height = Math.max(1, Math.round(height * scale));
+      const context = canvas.getContext("2d", { alpha:true });
+      if (!context) return null;
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const blob = await imageCanvasBlob(canvas, "image/webp", quality);
+      if (!blob) return null;
+      const name = String(sourceFile.name || "evidencia").replace(/\.[^.]+$/, "") + `${suffix}.webp`;
+      return new File([blob], name, { type:"image/webp", lastModified:sourceFile.lastModified || Date.now() });
+    }
     async function normalizeEvidenceFile(file) {
       let normalizedFile = file;
       if (isHeicFile(file)) {
@@ -531,27 +558,21 @@
       }
 
       const mime = String(normalizedFile.type || "").toLowerCase();
-      if (!mime.startsWith("image/") || mime === "image/gif" || mime === "image/svg+xml") return normalizedFile;
+      if (!mime.startsWith("image/") || mime === "image/gif" || mime === "image/svg+xml") return { file:normalizedFile, previewFile:null };
 
       const image = await loadEvidenceImage(normalizedFile);
       const width = Number(image.naturalWidth || image.width || 0);
       const height = Number(image.naturalHeight || image.height || 0);
       const largestSide = Math.max(width, height);
-      if (!width || !height || (largestSide <= MAX_OPTIMIZED_IMAGE_DIMENSION && normalizedFile.size <= MAX_IMAGE_SIZE_WITHOUT_OPTIMIZING)) return normalizedFile;
+      if (!width || !height) return { file:normalizedFile, previewFile:null };
 
-      const scale = Math.min(1, MAX_OPTIMIZED_IMAGE_DIMENSION / largestSide);
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(width * scale));
-      canvas.height = Math.max(1, Math.round(height * scale));
-      const context = canvas.getContext("2d", { alpha:true });
-      if (!context) return normalizedFile;
-      context.imageSmoothingEnabled = true;
-      context.imageSmoothingQuality = "high";
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      const optimizedBlob = await imageCanvasBlob(canvas, "image/webp", 0.84);
-      if (!optimizedBlob || (scale === 1 && optimizedBlob.size >= normalizedFile.size)) return normalizedFile;
-      const optimizedName = String(normalizedFile.name || "evidencia").replace(/\.[^.]+$/, "") + ".webp";
-      return new File([optimizedBlob], optimizedName, { type:"image/webp", lastModified:normalizedFile.lastModified || Date.now() });
+      let fullFile = normalizedFile;
+      if (largestSide > MAX_OPTIMIZED_IMAGE_DIMENSION || normalizedFile.size > MAX_IMAGE_SIZE_WITHOUT_OPTIMIZING) {
+        const optimized = await createImageVariant(image, normalizedFile, MAX_OPTIMIZED_IMAGE_DIMENSION, 0.82, "");
+        if (optimized && (largestSide > MAX_OPTIMIZED_IMAGE_DIMENSION || optimized.size < normalizedFile.size)) fullFile = optimized;
+      }
+      const previewFile = await createImageVariant(image, normalizedFile, MAX_PREVIEW_IMAGE_DIMENSION, 0.7, "-mini");
+      return { file:fullFile, previewFile:previewFile && previewFile.size < fullFile.size ? previewFile : null };
     }
     const evidenceSize = (bytes) => `${Math.max(0, Number(bytes || 0)) / 1024 / 1024 < 1 ? (Math.max(0, Number(bytes || 0)) / 1024).toFixed(0) + " KB" : (Math.max(0, Number(bytes || 0)) / 1024 / 1024).toFixed(1) + " MB"}`;
     const evidenceErrorMessage = (error, file) => {
@@ -579,7 +600,8 @@
         for (let index = 0; index < selected.length; index += 1) {
           const originalFile = selected[index];
           onProgress?.(index + 1, selected.length, originalFile);
-          const file = await normalizeEvidenceFile(originalFile);
+          const normalized = await normalizeEvidenceFile(originalFile);
+          const file = normalized.file;
           const safeName = String(file.name || "evidencia").replace(/[^a-zA-Z0-9._-]+/g, "-");
           const randomId = globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2);
           const path = `${Date.now()}-${randomId}-${safeName}`;
@@ -590,7 +612,22 @@
           });
           if (error) throw new Error(evidenceErrorMessage(error, file));
           const url = client.storage.from("listings").getPublicUrl(path).data.publicUrl;
-          uploaded.push({ type:mediaTypeFor(url, file.type), url, path });
+          const uploadedItem = { type:mediaTypeFor(url, file.type), url, path };
+          uploaded.push(uploadedItem);
+          let preview_url = "";
+          let preview_path = "";
+          if (normalized.previewFile) {
+            const previewName = String(normalized.previewFile.name || "mini.webp").replace(/[^a-zA-Z0-9._-]+/g, "-");
+            preview_path = `${Date.now()}-${randomId}-preview-${previewName}`;
+            const { error:previewError } = await client.storage.from("listings").upload(preview_path, normalized.previewFile, {
+              cacheControl:"31536000",
+              contentType:"image/webp",
+              upsert:false
+            });
+            if (previewError) throw new Error(evidenceErrorMessage(previewError, normalized.previewFile));
+            preview_url = client.storage.from("listings").getPublicUrl(preview_path).data.publicUrl;
+          }
+          if (preview_url) Object.assign(uploadedItem, { preview_url, preview_path });
         }
       } catch (error) {
         await removeUploadedEvidence(uploaded);
@@ -599,7 +636,7 @@
       return uploaded;
     }
     async function removeUploadedEvidence(items) {
-      const paths = (items || []).map((item) => item?.path).filter(Boolean);
+      const paths = (items || []).flatMap((item) => [item?.path, item?.preview_path]).filter(Boolean);
       if (paths.length) await client.storage.from("listings").remove(paths);
     }
     let liveLoading = false;
@@ -1730,7 +1767,8 @@
       let uploadedMedia = [];
       try { uploadedMedia = await uploadEvidence(document.getElementById("edit_photo").files); }
       catch (error) { msg.textContent = error.message; showEditFeedback(error.message); return; }
-      const mediaUrls = uniqueMedia([...mediaFromLines(document.getElementById("edit_media_urls").value), ...uploadedMedia, ...(imageUrl ? [{ type:"image", url:imageUrl }] : [])]);
+      const knownMedia = Array.isArray(original.media_urls) ? original.media_urls : [];
+      const mediaUrls = uniqueMedia([...mediaFromLines(document.getElementById("edit_media_urls").value, knownMedia), ...uploadedMedia, ...(imageUrl ? mediaFromLines(imageUrl, knownMedia) : [])]);
       if (!imageUrl) imageUrl = mediaUrls.find((item) => item.type === "image")?.url || null;
       const endDate = document.getElementById("edit_end_date").value;
       const endsAt = dateTimeFromFields("edit_end");
