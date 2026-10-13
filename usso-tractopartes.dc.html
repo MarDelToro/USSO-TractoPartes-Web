@@ -76,8 +76,7 @@
 <meta name="ext-resource-dependency" content="assets/estructura-cascadia-3.webp">
 <meta name="ext-resource-dependency" content="assets/estructura-cascadia-4.webp">
 <template id="__bundler_thumbnail" data-bg-color="#0a0a0b"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#0a0a0b"></rect><text x="100" y="112" font-family="Arial Black, sans-serif" font-size="56" font-weight="900" fill="#f6c02a" text-anchor="middle">U</text></svg></template>
-<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
-<script src="media-compat.js?v=20261012-1"></script>
+<script src="media-compat.js?v=20261013-2"></script>
 </head>
 <body>
 <x-dc>
@@ -87,7 +86,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="./image-slot.js"></script>
 <style>
   * { box-sizing: border-box; }
   :root {
@@ -1050,7 +1048,7 @@
             </sc-if>
             <sc-if value="{{ v.showUpload }}" hint-placeholder-val="{{ true }}">
               <div style="position:relative;width:100%;aspect-ratio:16/9">
-                <image-slot id="video-{{ v.id }}" shape="rect" placeholder="{{ v.placeholder }}" style="width:100%;height:100%"></image-slot>
+                <div style="width:100%;height:100%;display:grid;place-items:center;background:#171719;color:rgba(var(--text-rgb),.45);font:700 13px Manrope,sans-serif">{{ v.placeholder }}</div>
                 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
                   <div style="width:56px;height:56px;border-radius:50%;background:rgba(var(--bg-rgb),0.55);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)">
                     <div style="width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:16px solid #f3f1ec;margin-left:4px"></div>
@@ -1149,6 +1147,7 @@ class Component extends DCLogic {
   listingRequestInFlight = false;
   listingRefreshQueued = false;
   auctionRealtimeReady = false;
+  authSynced = false;
   carouselBindings = {};
   videoStallTimer = null;
   // La ventana grande solo corresponde a resultados ocurridos mientras esta
@@ -1206,11 +1205,10 @@ class Component extends DCLogic {
     this.loadUser();
     this.loadYouTubeViews();
     this.setupAuctionRealtime();
-    // Realtime es la vía principal. Este sondeo lento es únicamente un respaldo
-    // para navegadores móviles que suspenden la conexión al cambiar de app.
+    // Realtime es la vía principal. El sondeo es sólo un respaldo espaciado.
     this.auctionRefreshTimer = window.setInterval(() => {
-      if (document.visibilityState === 'visible') this.loadListingsFromDB();
-    }, 15000);
+      if (document.visibilityState === 'visible' && !this.auctionRealtimeReady) this.loadListingsFromDB();
+    }, 120000);
     window.addEventListener('pageshow', this.onPageShow);
     document.addEventListener('visibilitychange', this.onVisibilityChange);
     window.addEventListener('scroll', this.onPageScroll, { passive: true });
@@ -1891,11 +1889,6 @@ class Component extends DCLogic {
         "https://ahhlfvjicxylidpmeciw.supabase.co",
         "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
       );
-  // El mantenimiento no debe bloquear la carga visual de las subastas.
-  void Promise.allSettled([
-    client.rpc('expire_listings'),
-    client.rpc('dispatch_upcoming_auction_reminders')
-  ]);
   const { data } = await client
     .from("listings")
     .select("id, title, image_url, media_urls, current_price, start_price, status, starts_at, ends_at, category, bid_count, auction_round, winner_id")
@@ -1908,7 +1901,10 @@ class Component extends DCLogic {
     const activa = p.status === "active" && !proxima && !!termina && termina > Date.now();
     const precio = Number(p.current_price || p.start_price || 0);
     const listingMedia = Array.isArray(p.media_urls) ? p.media_urls : [];
-    const coverMedia = listingMedia.find((item) => item && typeof item === "object" && item.type !== "video" && item.url === p.image_url)
+    const exactCover = listingMedia.find((item) => item && typeof item === "object" && item.type !== "video" && item.url === p.image_url) || null;
+    const coverMedia = (exactCover?.preview_url ? exactCover : null)
+      || listingMedia.find((item) => item && typeof item === "object" && item.type !== "video" && item.preview_url)
+      || exactCover
       || listingMedia.find((item) => item && typeof item === "object" && item.type !== "video")
       || null;
     return {
@@ -1951,7 +1947,10 @@ class Component extends DCLogic {
     this.setState({ bidAmount: String(openBidMinimum), bidError: "" });
   } else if (typeof this.forceUpdate === "function") this.forceUpdate();
   else if (typeof this.setState === "function") this.setState({});
-      await this.syncAuthFromSupabase();
+      if (!this.authSynced) {
+        this.authSynced = true;
+        await this.syncAuthFromSupabase();
+      }
     } catch (error) {
       console.warn('No se pudo actualizar el estado de las subastas.', error);
     } finally {
@@ -2970,6 +2969,5 @@ submitAuth = async (e) => {
 
 </script>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="puente-home.js"></script>
 </html>

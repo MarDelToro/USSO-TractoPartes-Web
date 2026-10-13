@@ -3,18 +3,37 @@
 
   const convertedUrls = new Map();
   const pendingUrls = new Map();
+  let decoderPromise = null;
   const isHeicUrl = (value) => /\.(heic|heif)(?:[?#]|$)/i.test(String(value || ""));
+
+  function loadHeicDecoder() {
+    if (typeof window.heic2any === "function") return Promise.resolve(window.heic2any);
+    if (decoderPromise) return decoderPromise;
+
+    decoderPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js";
+      script.async = true;
+      script.onload = () => typeof window.heic2any === "function"
+        ? resolve(window.heic2any)
+        : reject(new Error("El convertidor HEIC no está disponible."));
+      script.onerror = () => reject(new Error("No se pudo cargar el convertidor HEIC."));
+      document.head.appendChild(script);
+    });
+
+    return decoderPromise;
+  }
 
   async function convertHeicUrl(source) {
     if (convertedUrls.has(source)) return convertedUrls.get(source);
     if (pendingUrls.has(source)) return pendingUrls.get(source);
 
     const pending = (async () => {
-      if (typeof window.heic2any !== "function") throw new Error("El convertidor HEIC no está disponible.");
+      const heic2any = await loadHeicDecoder();
       const response = await fetch(source, { mode: "cors", cache: "force-cache" });
       if (!response.ok) throw new Error(`No se pudo descargar la imagen (${response.status}).`);
       const sourceBlob = await response.blob();
-      const result = await window.heic2any({ blob: sourceBlob, toType: "image/jpeg", quality: 0.9 });
+      const result = await heic2any({ blob: sourceBlob, toType: "image/jpeg", quality: 0.9 });
       const jpegBlob = Array.isArray(result) ? result[0] : result;
       const objectUrl = URL.createObjectURL(jpegBlob);
       convertedUrls.set(source, objectUrl);
