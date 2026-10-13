@@ -632,6 +632,7 @@
     let allNotices = [];
     let noticeFilter = "pending";
     let previewFilter = "all";
+    let requestedEditorOpened = false;
     let currentAdminAvatarPath = "";
     const adminAvatarButton = document.getElementById("adminAvatarButton");
     const adminAvatarInput = document.getElementById("adminAvatarInput");
@@ -1411,6 +1412,18 @@
           if (!error) loadListings();
         });
       });
+
+      if (!requestedEditorOpened) {
+        const requestedId = new URLSearchParams(window.location.search).get("edit");
+        if (requestedId) {
+          const requestedButton = document.querySelector(`[data-edit="${CSS.escape(requestedId)}"][data-focus-media="true"]`)
+            || document.querySelector(`[data-edit="${CSS.escape(requestedId)}"]`);
+          if (requestedButton) {
+            requestedEditorOpened = true;
+            requestedButton.click();
+          }
+        }
+      }
     }
 
     function renderAvisos() {

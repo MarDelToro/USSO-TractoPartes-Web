@@ -900,6 +900,9 @@
                 <sc-if value="{{ lot.isUpcoming }}" hint-placeholder-val="{{ false }}">
                   <button onClick="{{ lot.notify }}" style="width:100%;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:700 13px Manrope,sans-serif;padding:11px 16px;border-radius:100px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px">{{ lot.notifyLabel }}</button>
                 </sc-if>
+                <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+                  <a href="{{ lot.editHref }}" style="display:flex;align-items:center;justify-content:center;width:100%;background:rgba(246,192,42,.1);border:1px solid rgba(246,192,42,.38);color:{{ accent }};font:800 12px Manrope,sans-serif;padding:11px 14px;border-radius:100px;text-decoration:none">Ajustar imagen</a>
+                </sc-if>
               </div>
             </div>
           </sc-for>
@@ -1928,6 +1931,7 @@ class Component extends DCLogic {
       placeholder: "Foto del lote",
       src: coverMedia?.preview_url || coverMedia?.url || p.image_url || "",
       fullSrc: coverMedia?.url || p.image_url || "",
+      editHref: `admin.html?edit=${encodeURIComponent(p.id)}&media=1`,
       position: `${Math.max(0, Math.min(100, Number(coverMedia?.focal_x ?? 50)))}% ${Math.max(0, Math.min(100, Number(coverMedia?.focal_y ?? 50)))}%`,
       startsAt: inicia,
       closesAt: termina || Date.now() + 7 * 86400000
