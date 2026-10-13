@@ -38,34 +38,13 @@
     .admin-index-publish { flex:none; display:inline-flex; align-items:center; gap:7px; min-height:38px; padding:7px 12px 7px 8px; border:1px solid rgba(246,192,42,.34); border-radius:10px; background:rgba(246,192,42,.07); color:#f6c02a; font:900 11px Manrope,sans-serif; cursor:pointer; box-shadow:none; white-space:nowrap; transition:background .18s ease,border-color .18s ease,transform .18s ease; }
     .admin-index-publish:hover { transform:translateY(-1px); background:rgba(246,192,42,.13); border-color:rgba(246,192,42,.6); }
     .admin-index-plus { display:grid; place-items:center; width:21px; height:21px; border-radius:50%; background:#f6c02a; color:#09090a; font-size:16px; line-height:1; }
-    .admin-index-links { display:grid; grid-template-columns:repeat(8,minmax(max-content,1fr)); gap:2px; min-width:0; overflow-x:auto; scrollbar-width:none; }
+    .admin-index-links { display:grid; grid-template-columns:repeat(7,minmax(max-content,1fr)); gap:2px; min-width:0; overflow-x:auto; scrollbar-width:none; }
     .admin-index-links::-webkit-scrollbar { display:none; }
-    .admin-index a, .admin-system-trigger { position:relative; display:flex; align-items:center; justify-content:center; min-height:38px; padding:8px 10px; border:0; border-radius:8px; background:transparent; color:#aeb2ba; font:800 11px Manrope,sans-serif; text-align:center; white-space:nowrap; cursor:pointer; transition:color .18s ease,background .18s ease; }
-    .admin-index a:hover, .admin-system-trigger:hover { color:#f3f1ec; background:rgba(255,255,255,.045); }
+    .admin-index a { position:relative; display:flex; align-items:center; justify-content:center; min-height:38px; padding:8px 10px; border:0; border-radius:8px; background:transparent; color:#aeb2ba; font:800 11px Manrope,sans-serif; text-align:center; white-space:nowrap; cursor:pointer; transition:color .18s ease,background .18s ease; }
+    .admin-index a:hover { color:#f3f1ec; background:rgba(255,255,255,.045); }
     .admin-index a.active { color:#f6c02a; background:transparent; }
     .admin-index a.active::after { content:""; position:absolute; left:50%; bottom:2px; width:22px; height:2px; border-radius:999px; background:#f6c02a; transform:translateX(-50%); }
-    #admin-subastas, #sistema-admin, #control-vivo, #finanzas-admin, #historial-admin, #ganadores-contacto, #usuarios-admin, #avisos-admin { scroll-margin-top:92px; }
-    .operations-panel { margin:0 0 34px; background:linear-gradient(145deg,rgba(246,192,42,.055),#141416 42%); }
-    .operations-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
-    .operations-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin:18px 0; }
-    .operations-metric { width:100%; padding:14px; border:1px solid rgba(255,255,255,.1); border-radius:13px; background:#0f0f11; color:inherit; font:inherit; text-align:left; cursor:pointer; transition:transform .18s ease,border-color .18s ease,background .18s ease; }
-    .operations-metric:hover { transform:translateY(-2px); border-color:rgba(246,192,42,.52); background:#151518; }
-    .operations-metric:focus-visible { outline:2px solid #f6c02a; outline-offset:3px; }
-    .operations-metric span { display:block; min-height:32px; color:#9299a3; font-size:10px; font-weight:800; line-height:1.35; text-transform:uppercase; }
-    .operations-metric strong { display:block; margin-top:5px; color:#7ee2a8; font-size:23px; }
-    .operations-metric small { display:block; margin-top:8px; color:#f6c02a; font-size:10px; font-weight:800; }
-    .operations-metric.has-issue strong { color:#ff8a80; }
-    .operation-target-flash { animation:operationTargetFlash 1.5s ease; }
-    @keyframes operationTargetFlash { 0%,100% { box-shadow:none; } 35% { box-shadow:0 0 0 3px rgba(246,192,42,.45),0 18px 38px rgba(0,0,0,.24); } }
-    .operations-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; color:#8f98a3; font-size:11px; }
-    .operations-dialog { width:min(1080px,calc(100% - 28px)); max-height:calc(100dvh - 28px); margin:auto; padding:0; border:0; border-radius:24px; background:transparent; color:#f3f1ec; }
-    .operations-dialog::backdrop { background:rgba(0,0,0,.78); backdrop-filter:blur(7px); }
-    .operations-dialog-shell { position:relative; max-height:calc(100dvh - 28px); overflow:auto; padding:24px; border:1px solid rgba(255,255,255,.13); border-radius:24px; background:#111113; box-shadow:0 28px 90px rgba(0,0,0,.58); }
-    .operations-dialog .operations-panel { margin:0; padding:8px; border:0; background:transparent; box-shadow:none; }
-    .operations-dialog .operations-head { padding-right:48px; }
-    .operations-dialog-close { position:absolute; top:16px; right:16px; z-index:2; width:38px; height:38px; border:1px solid rgba(255,255,255,.12); border-radius:50%; background:#202024; color:#f3f1ec; font-size:24px; line-height:1; cursor:pointer; }
-    .system-ok { color:#7ee2a8; }
-    .system-warning { color:#ffd45b; }
+    #admin-subastas, #control-vivo, #finanzas-admin, #historial-admin, #ganadores-contacto, #usuarios-admin, #avisos-admin { scroll-margin-top:92px; }
     .attention-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:0 0 28px; }
     .attention-card { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:82px; padding:16px 18px; border-radius:15px; background:#141416; border:1px solid rgba(255,255,255,.11); color:#e9e7e2; transition:.18s ease; }
     .attention-card:hover { transform:translateY(-2px); border-color:rgba(246,192,42,.42); }
@@ -144,9 +123,9 @@
     .preview-arrow { width:39px; height:39px; padding:0; border-radius:50%; background:#242429; color:#f3f1ec; border:1px solid rgba(255,255,255,.1); font-size:18px; }
     .auction-preview-frame { overflow:hidden; }
     .auction-preview-grid { display:flex; gap:14px; overflow-x:auto; padding:2px 2px 14px; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:#4a4a50 #171719; }
-    .auction-card { flex:0 0 min(390px,85vw); overflow:hidden; display:grid; grid-template-columns:140px minmax(0,1fr); min-height:250px; border-radius:17px; background:#141416; border:1px solid rgba(246,192,42,.3); box-shadow:0 16px 34px rgba(0,0,0,.18); scroll-snap-align:start; }
+    .auction-card { flex:0 0 min(440px,88vw); overflow:hidden; display:grid; grid-template-columns:190px minmax(0,1fr); border-radius:17px; background:#141416; border:1px solid rgba(246,192,42,.3); box-shadow:0 16px 34px rgba(0,0,0,.18); scroll-snap-align:start; }
     .auction-card[hidden] { display:none; }
-    .auction-photo { position:relative; min-height:250px; background:#0e0e10; border-right:1px solid rgba(255,255,255,.12); overflow:hidden; }
+    .auction-photo { position:relative; width:100%; aspect-ratio:1/1; align-self:start; background:#0e0e10; border-right:1px solid rgba(255,255,255,.12); overflow:hidden; }
     .auction-photo img { width:100%; height:100%; object-fit:cover; display:block; }
     .auction-photo-empty { height:100%; display:grid; place-items:center; color:#636872; font-weight:800; }
     .auction-state { position:absolute; top:15px; left:15px; display:inline-flex; align-items:center; gap:7px; padding:7px 11px; border-radius:999px; background:rgba(10,10,11,.9); border:1px solid rgba(246,192,42,.42); color:#f6c02a; font-size:10px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
@@ -182,18 +161,37 @@
     .publish-trigger { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:12px 20px; border-radius:999px; background:#f6c02a; color:#09090a; font-size:13px; font-weight:900; white-space:nowrap; box-shadow:0 10px 30px rgba(246,192,42,.16); }
     .publish-trigger::before { content:"+"; display:grid; place-items:center; width:25px; height:25px; border-radius:50%; background:#09090a; color:#f6c02a; font-size:20px; line-height:1; }
     .publish-trigger:hover { transform:translateY(-1px); filter:brightness(1.04); }
+    .cover-tools { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+    .cover-tools input { flex:1 1 240px; }
+    .reframe-trigger { flex:none; min-height:42px; padding:10px 14px; border:1px solid rgba(246,192,42,.38); border-radius:999px; background:rgba(246,192,42,.08); color:#f6c02a; font-size:12px; font-weight:900; }
+    .reframe-trigger:disabled { opacity:.42; cursor:not-allowed; }
+    .reframe-dialog { width:min(680px,94vw); margin:auto; padding:0; border:1px solid rgba(255,255,255,.15); border-radius:22px; color:#f3f1ec; background:#141416; box-shadow:0 30px 100px rgba(0,0,0,.72); }
+    .reframe-dialog::backdrop { background:rgba(0,0,0,.84); backdrop-filter:blur(6px); }
+    .reframe-body { padding:12px 24px 24px; }
+    .reframe-preview { position:relative; width:min(100%,520px); aspect-ratio:1/1; margin:0 auto 20px; overflow:hidden; border:1px solid rgba(246,192,42,.38); border-radius:17px; background:#09090a; }
+    .reframe-preview img { width:100%; height:100%; display:block; object-fit:cover; }
+    .reframe-preview::after { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,transparent 33.1%,rgba(255,255,255,.28) 33.3%,transparent 33.5%,transparent 66.4%,rgba(255,255,255,.28) 66.6%,transparent 66.8%),linear-gradient(transparent 33.1%,rgba(255,255,255,.28) 33.3%,transparent 33.5%,transparent 66.4%,rgba(255,255,255,.28) 66.6%,transparent 66.8%); }
+    .reframe-controls { display:grid; gap:14px; }
+    .reframe-control { display:grid; grid-template-columns:100px minmax(0,1fr) 42px; align-items:center; gap:12px; color:#c9cbd0; font-size:12px; font-weight:800; }
+    .reframe-control input { width:100%; accent-color:#f6c02a; }
+    .reframe-control output { color:#f6c02a; text-align:right; }
+    .reframe-actions { display:flex; justify-content:flex-end; gap:9px; margin-top:22px; }
+    .edit-media-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-top:4px; }
+    .edit-media-card { position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.12); border-radius:14px; background:#0e0e10; }
+    .edit-media-card img, .edit-media-card video { width:100%; aspect-ratio:1/1; display:block; object-fit:cover; background:#09090a; }
+    .edit-media-card video { object-fit:contain; }
+    .edit-media-badge { position:absolute; top:8px; left:8px; padding:4px 8px; border-radius:999px; background:rgba(10,10,11,.86); color:#f6c02a; font-size:9px; font-weight:900; }
+    .edit-media-action { width:100%; min-height:38px; padding:8px 10px; border-radius:0; background:#242429; color:#f6c02a; font-size:11px; font-weight:900; }
     .details-heading { grid-column:1 / -1; display:flex; align-items:center; gap:12px; margin-top:4px; padding-top:15px; border-top:1px solid rgba(255,255,255,.09); }
     .details-heading strong { font-size:15px; }
     .details-heading span { color:#858c96; font-size:11px; }
-    @media(max-width:1100px) { .finance-stats, .attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .operations-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+    @media(max-width:1100px) { .finance-stats, .attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     @media(max-width:700px) {
       main { width:94vw; margin:22px auto; }
       .live-head { align-items:start; flex-direction:column; }
       .stats { grid-template-columns:1fr; gap:9px; }
       .finance-stats { grid-template-columns:1fr; }
       .attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-      .operations-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-      .operations-footer { align-items:stretch; flex-direction:column; }
       .attention-card { min-height:72px; padding:13px; }
       .attention-card strong { font-size:21px; }
       .stat { padding:14px 16px; display:flex; justify-content:space-between; align-items:center; }
@@ -216,7 +214,7 @@
       .auction-preview-frame { width:calc(100vw - 3vw); margin-right:calc(50% - 50vw); }
       .auction-preview-grid { padding-right:7vw; }
       .auction-card { flex-basis:min(330px,84vw); grid-template-columns:1fr; }
-      .auction-photo { min-height:155px; height:155px; border-right:0; border-bottom:1px solid rgba(255,255,255,.12); }
+      .auction-photo { height:auto; aspect-ratio:1/1; border-right:0; border-bottom:1px solid rgba(255,255,255,.12); }
       .publish-trigger { width:100%; }
       .publish-dialog { width:96vw; max-height:94vh; }
       .publish-dialog .piece-grid { padding:10px 18px 22px; }
@@ -228,12 +226,7 @@
       .admin-index-publish > span:last-child { display:none; }
       .admin-index-plus { width:21px; height:21px; }
       .admin-index-links { display:flex; gap:4px; }
-      .admin-index a, .admin-system-trigger { flex:none; min-height:38px; padding:8px 10px; border-radius:8px; }
-      .operations-dialog { width:calc(100% - 18px); max-height:calc(100dvh - 18px); }
-      .operations-dialog-shell { max-height:calc(100dvh - 18px); padding:14px; border-radius:18px; }
-      .operations-dialog .operations-panel { padding:4px; }
-      .operations-dialog .operations-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-      .operations-dialog .operations-footer { align-items:stretch; flex-direction:column; }
+      .admin-index a { flex:none; min-height:38px; padding:8px 10px; border-radius:8px; }
     }
   </style>
 </head>
@@ -256,7 +249,6 @@
     <nav class="admin-index" aria-label="Secciones del panel">
       <div class="admin-index-links">
         <a class="active" href="#admin-subastas" data-admin-section="admin-subastas" aria-current="page">Subastas</a>
-        <button class="admin-system-trigger" id="openOperations" type="button">Estado del sistema</button>
         <a href="#control-vivo" data-admin-section="control-vivo">Pujas en vivo</a>
         <a href="#finanzas-admin" data-admin-section="finanzas-admin">Finanzas</a>
         <a href="#historial-admin" data-admin-section="historial-admin">Historial</a>
@@ -388,27 +380,6 @@
     </table></div>
   </main>
 
-  <dialog class="operations-dialog" id="operationsDialog">
-    <div class="operations-dialog-shell">
-      <button class="operations-dialog-close" id="closeOperations" type="button" aria-label="Cerrar estado del sistema">×</button>
-      <section class="panel-card operations-panel" id="sistema-admin">
-        <div class="operations-head">
-          <div><span class="eyebrow">Centro de operaciones</span><h2>Salud de las subastas</h2><p>Revisa cierres, ganadores, avisos e historial desde un solo lugar.</p></div>
-          <span class="system-warning" id="operationsStatus">Revisando sistema…</span>
-        </div>
-        <div class="operations-grid">
-          <button class="operations-metric" type="button" data-operation-target="admin-subastas" data-operation-message="Aquí verás las subastas activas. Si alguna ya venció, usa ‘Actualizar sistema’ para cerrarla de forma segura."><span>Vencidas abiertas</span><strong id="opExpired">—</strong><small>Ver subastas →</small></button>
-          <button class="operations-metric" type="button" data-operation-target="ganadores-contacto" data-operation-message="Aquí están primero los ganadores que aún esperan tu mensaje."><span>Ganadores por contactar</span><strong id="opPending">—</strong><small>Ver ganadores →</small></button>
-          <button class="operations-metric" type="button" data-operation-target="ganadores-contacto" data-operation-message="Aquí puedes localizar los avisos urgentes: se ordenan primero los ganadores pendientes más recientes."><span>Ganadores urgentes</span><strong id="opStale">—</strong><small>Ver seguimiento →</small></button>
-          <button class="operations-metric" type="button" data-operation-target="ganadores-contacto" data-operation-message="Aquí revisas los ganadores que requieren atención por un problema de entrega o contacto."><span>Entregas con error</span><strong id="opFailed">—</strong><small>Ver seguimiento →</small></button>
-          <button class="operations-metric" type="button" data-operation-target="historial-admin" data-operation-message="Aquí puedes revisar los cierres que requieren completar su información."><span>Cierres incompletos</span><strong id="opIncomplete">—</strong><small>Ver historial →</small></button>
-          <button class="operations-metric" type="button" data-operation-target="historial-admin" data-operation-message="Aquí puedes revisar las subastas finalizadas y confirmar que todas sigan en el historial."><span>Historial faltante</span><strong id="opMissing">—</strong><small>Ver historial →</small></button>
-        </div>
-        <div class="operations-footer"><span id="operationsMeta">Conectando con el centro de operaciones…</span><button class="secondary-action" id="runOperations" type="button">Actualizar sistema</button></div>
-      </section>
-    </div>
-  </dialog>
-
   <dialog class="publish-dialog" id="publishDialog">
     <div class="edit-dialog-head"><div><h2>Publicar una pieza</h2><p>Crea una subasta nueva y agrega toda la evidencia del producto.</p></div><button class="dialog-close" id="closePublish" type="button" aria-label="Cerrar">×</button></div>
     <form id="pieza" class="piece-grid" novalidate>
@@ -451,8 +422,9 @@
       <div class="field"><label for="edit_detail_includes">¿Qué incluye?</label><input id="edit_detail_includes"></div>
       <div class="field full"><label for="edit_product_details">Otros detalles importantes</label><textarea id="edit_product_details" placeholder="Un detalle adicional por línea"></textarea></div>
       <div class="field"><label for="edit_photo">Agregar fotos o videos</label><input id="edit_photo" type="file" accept="image/*,video/*" multiple><span class="field-help">Los nuevos archivos se agregarán a la evidencia existente.</span></div>
-      <div class="field"><label for="edit_image_url">Fotografía de portada</label><input id="edit_image_url" type="url" placeholder="https://..."></div>
+      <div class="field"><label for="edit_image_url">Fotografía de portada</label><div class="cover-tools"><input id="edit_image_url" type="url" placeholder="https://..."><button class="reframe-trigger" id="openReframe" type="button">Ajustar encuadre</button></div><span class="field-help" id="reframeStatus">Centra la parte importante de la fotografía.</span></div>
       <div class="field full"><label for="edit_media_urls">Galería actual y direcciones adicionales</label><textarea id="edit_media_urls" placeholder="Una dirección por línea"></textarea><span class="field-help">Puedes reordenar o borrar direcciones. La portada se controla en el campo anterior.</span></div>
+      <div class="field full"><label>Encuadre de la galería</label><div class="edit-media-grid" id="editMediaGrid"></div><span class="field-help">Pulsa “Encuadrar” debajo de cualquier fotografía. Los videos no necesitan ajuste.</span></div>
       <div class="field"><label for="edit_start_price">Precio base</label><input id="edit_start_price" type="number" min="0" step="1" required></div>
       <div class="field"><label for="edit_current_price">Precio actual</label><input id="edit_current_price" type="number" min="0" step="1" required></div>
       <div class="field full"><label for="edit_start_date">Fecha y hora de inicio</label><div class="date-time-row"><input id="edit_start_date" type="date"><select id="edit_start_hour" aria-label="Hora de inicio"></select><span class="date-time-separator">:</span><select id="edit_start_minute" aria-label="Minutos de inicio"></select><select id="edit_start_period" aria-label="Periodo de inicio"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div><span class="field-help">Para una subasta próxima, elige aquí el día y la hora exactos en que comenzará.</span></div>
@@ -463,6 +435,18 @@
     </form>
   </dialog>
 
+  <dialog class="reframe-dialog" id="reframeDialog">
+    <div class="edit-dialog-head"><div><h2>Ajustar encuadre</h2><p>Mueve el punto de atención; la foto se adaptará a cada tarjeta sin perder el sujeto.</p></div><button class="dialog-close" id="closeReframe" type="button" aria-label="Cerrar">&times;</button></div>
+    <div class="reframe-body">
+      <div class="reframe-preview"><img id="reframeImage" alt="Vista previa del encuadre"></div>
+      <div class="reframe-controls">
+        <label class="reframe-control" for="reframeX"><span>Horizontal</span><input id="reframeX" type="range" min="0" max="100" value="50"><output id="reframeXValue">50%</output></label>
+        <label class="reframe-control" for="reframeY"><span>Vertical</span><input id="reframeY" type="range" min="0" max="100" value="50"><output id="reframeYValue">50%</output></label>
+      </div>
+      <div class="reframe-actions"><button class="action-secondary" id="resetReframe" type="button">Centrar</button><button class="action-secondary" id="cancelReframe" type="button">Cancelar</button><button id="saveReframe" type="button">Usar encuadre</button></div>
+    </div>
+  </dialog>
+
   <script>
     const client = window.supabase.createClient(
       "https://ahhlfvjicxylidpmeciw.supabase.co",
@@ -470,6 +454,7 @@
     );
     const msg = document.getElementById("msg");
     const money = (value) => Number(value || 0).toLocaleString("es-MX", { style:"currency", currency:"MXN", maximumFractionDigits:0 });
+    const escapeAdminHtml = (value) => String(value || "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
     const toLocalInputValue = (value) => {
       const date = new Date(value);
       date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
@@ -509,6 +494,9 @@
       map.set(item.url, { ...previous, ...item, type:item.type || previous.type || mediaTypeFor(item.url), url:item.url });
       return map;
     }, new Map()).values());
+    const focalPosition = (item) => `${Math.max(0, Math.min(100, Number(item?.focal_x ?? 50)))}% ${Math.max(0, Math.min(100, Number(item?.focal_y ?? 50)))}%`;
+    const pendingMediaFrames = new Map();
+    let reframeTargetUrl = "";
     const MAX_EVIDENCE_FILE_SIZE = 50 * 1024 * 1024;
     const MAX_OPTIMIZED_IMAGE_DIMENSION = 1800;
     const MAX_IMAGE_SIZE_WITHOUT_OPTIMIZING = 900 * 1024;
@@ -757,21 +745,6 @@
       window.setTimeout(() => { previousAdminScroll = window.scrollY; }, 350);
     }));
     const adminSectionLinks = [...adminIndex.querySelectorAll("[data-admin-section]")];
-    const operationsDialog = document.getElementById("operationsDialog");
-    const openOperations = document.getElementById("openOperations");
-    const closeOperations = document.getElementById("closeOperations");
-    const showOperations = () => {
-      adminIndex.classList.remove("nav-hidden");
-      if (!operationsDialog.open) operationsDialog.showModal();
-    };
-    const hideOperations = () => {
-      if (operationsDialog.open) operationsDialog.close();
-    };
-    openOperations.addEventListener("click", showOperations);
-    closeOperations.addEventListener("click", hideOperations);
-    operationsDialog.addEventListener("click", (event) => {
-      if (event.target === operationsDialog) hideOperations();
-    });
     const setActiveAdminSection = (sectionId) => {
       adminSectionLinks.forEach((link) => {
         const isActive = link.dataset.adminSection === sectionId;
@@ -797,22 +770,6 @@
       observedAdminSections.forEach((section) => sectionObserver.observe(section));
     }
     adminSectionLinks.forEach((link) => link.addEventListener("click", () => setActiveAdminSection(link.dataset.adminSection)));
-    document.querySelectorAll("[data-operation-target]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const targetId = button.dataset.operationTarget;
-        const target = document.getElementById(targetId);
-        if (!target) return;
-        hideOperations();
-        setActiveAdminSection(targetId);
-        adminIndex.classList.remove("nav-hidden");
-        target.scrollIntoView({ behavior:"smooth", block:"start" });
-        target.classList.remove("operation-target-flash");
-        window.requestAnimationFrame(() => target.classList.add("operation-target-flash"));
-        window.setTimeout(() => target.classList.remove("operation-target-flash"), 1550);
-        const message = button.dataset.operationMessage;
-        if (message) msg.textContent = message;
-      });
-    });
     const pendingAdminDomains = new Set();
     const adminLoadState = new Map();
     const runAdminLoad = async (key, task) => {
@@ -843,58 +800,12 @@
       if (domains.has("all") || domains.has("listings") || domains.has("bids")) loadListings();
       if (domains.has("all") || domains.has("notifications") || domains.has("listings") || domains.has("bids")) loadAvisos();
       if (domains.has("all") || domains.has("profiles") || domains.has("authorization_requests")) loadUsers();
-      if (domains.has("all") || domains.has("listings") || domains.has("bids") || domains.has("notifications") || domains.has("auction_events")) loadOperationsHealth();
     };
     const scheduleAdminRefresh = (domain = "all") => {
       pendingAdminDomains.add(domain);
       window.clearTimeout(realtimeRefreshTimer);
       realtimeRefreshTimer = window.setTimeout(refreshAdminDomains, 180);
     };
-    const operationMetricIds = {
-      expired_active_listings:"opExpired",
-      pending_notifications:"opPending",
-      stale_notifications:"opStale",
-      failed_notifications:"opFailed",
-      incomplete_closed_listings:"opIncomplete",
-      missing_close_events:"opMissing"
-    };
-    const setOperationsUnavailable = (message) => {
-      Object.values(operationMetricIds).forEach((id) => { document.getElementById(id).textContent = "—"; });
-      const status = document.getElementById("operationsStatus");
-      status.textContent = "Configuración pendiente";
-      status.className = "system-warning";
-      document.getElementById("operationsMeta").textContent = message;
-    };
-    async function loadOperationsHealth() {
-      return runAdminLoad("operations-health", loadOperationsHealthNow);
-    }
-    async function loadOperationsHealthNow() {
-      const result = await client.rpc("admin_operations_health");
-      if (result.error) {
-        const missing = /admin_operations_health|schema cache|could not find/i.test(result.error.message || "");
-        setOperationsUnavailable(missing
-          ? "Falta ejecutar la migración 20261011_operations_center.sql en Supabase."
-          : `No se pudo revisar el sistema: ${result.error.message}`);
-        return;
-      }
-      const health = Array.isArray(result.data) ? (result.data[0] || {}) : (result.data || {});
-      Object.entries(operationMetricIds).forEach(([key, id]) => {
-        document.getElementById(id).textContent = Number(health[key] || 0).toLocaleString("es-MX");
-      });
-      const issues = Number(health.expired_active_listings || 0)
-        + Number(health.stale_notifications || 0)
-        + Number(health.failed_notifications || 0)
-        + Number(health.incomplete_closed_listings || 0)
-        + Number(health.missing_close_events || 0);
-      const schedulerReady = Boolean(health.scheduler_configured);
-      const status = document.getElementById("operationsStatus");
-      status.textContent = issues === 0 && schedulerReady ? "Sistema saludable" : `${issues} pendiente${issues === 1 ? "" : "s"}`;
-      status.className = issues === 0 && schedulerReady ? "system-ok" : "system-warning";
-      const eventCount = Number(health.close_events || 0).toLocaleString("es-MX");
-      document.getElementById("operationsMeta").textContent = schedulerReady
-        ? `Cierre automático activo · ${eventCount} cierres protegidos en historial · Los avisos antiguos quedan en historial y no cuentan como pendientes.`
-        : `Programador automático pendiente · ${eventCount} cierres protegidos en historial`;
-    }
     const formatAdminCountdown = (milliseconds) => {
       const total = Math.max(0, Math.floor(milliseconds / 1000));
       const days = Math.floor(total / 86400);
@@ -1239,10 +1150,12 @@
       return runAdminLoad("listings", loadListingsNow);
     }
     async function loadListingsNow() {
-      const operations = await client.rpc("run_auction_operations");
-      if (operations.error && /run_auction_operations|schema cache|could not find/i.test(operations.error.message || "")) {
-        await client.rpc("expire_listings");
-      }
+      // Carga primero las tarjetas; el mantenimiento puede terminar en segundo plano.
+      void client.rpc("run_auction_operations").then((operations) => {
+        if (operations.error && /run_auction_operations|schema cache|could not find/i.test(operations.error.message || "")) {
+          return client.rpc("expire_listings");
+        }
+      });
 
       let listingResult = await client
         .from("listings")
@@ -1317,9 +1230,10 @@
              <button class="action-btn action-secondary" data-reopen="${p.id}" data-round="${Number(p.auction_round || 1)}" data-start="${Number(p.start_price || 0)}">Reabrir</button>
              <button class="action-btn action-danger" data-dellist="${p.id}">Eliminar</button>`
           : `<button class="action-btn action-secondary" data-edit="${p.id}">Editar</button><button class="action-btn action-primary" data-close="${p.id}">Cerrar subasta</button>`;
+        const coverItem = (p.media_urls || []).find((item) => item && typeof item === "object" && item.url === p.image_url) || null;
         return `<article class="auction-card" data-preview-state="${proxima ? "upcoming" : "active"}">
           <div class="auction-photo">
-            ${p.image_url ? `<img src="${p.image_url}" alt="${p.title || "Pieza USSO"}" loading="lazy" decoding="async">` : `<div class="auction-photo-empty">Sin fotografía</div>`}
+            ${p.image_url ? `<img src="${coverItem?.preview_url || coverItem?.url || p.image_url}" alt="${p.title || "Pieza USSO"}" loading="lazy" decoding="async" style="object-position:${focalPosition(coverItem)}">` : `<div class="auction-photo-empty">Sin fotografía</div>`}
             <span class="auction-state ${cerrada ? "closed" : ""}">${cerrada ? "Cerrada" : (proxima ? "Próxima" : "Activa")}</span>
           </div>
           <div class="auction-card-body">
@@ -1335,7 +1249,7 @@
               <div><span>Cierre</span><strong>${cierre}</strong></div>
               <div class="auction-live-time" data-auction-clock data-starts-at="${p.starts_at ? new Date(p.starts_at).getTime() : 0}" data-ends-at="${p.ends_at ? new Date(p.ends_at).getTime() : 0}"><span data-clock-label>${proxima ? "Inicia en" : "Cierra en"}</span><strong data-clock-value>--:--:--</strong></div>
             </div>
-            <div class="auction-card-actions"><a class="action-btn action-secondary" href="Subasta.dc.html#${encodeURIComponent(p.id)}">Ver detalles</a>${acciones}</div>
+            <div class="auction-card-actions"><a class="action-btn action-secondary" href="Subasta.dc.html#${encodeURIComponent(p.id)}">Ver detalles</a><button class="action-btn action-primary" data-edit="${p.id}" data-focus-media="true">Encuadrar imágenes</button>${acciones}</div>
           </div>
         </article>`;
       }).join("") || `<div class="panel-card">Todavía no has publicado subastas.</div>`;
@@ -1413,7 +1327,10 @@
           document.getElementById("edit_description").value = listing.description || "";
           populateProductDetails(listing.product_details || []);
           document.getElementById("edit_image_url").value = listing.image_url || "";
+          pendingMediaFrames.clear();
+          document.getElementById("reframeStatus").textContent = "Centra la parte importante de la fotografía.";
           document.getElementById("edit_media_urls").value = (listing.media_urls || []).map((item) => typeof item === "string" ? item : item.url).filter(Boolean).join("\n");
+          renderEditMediaGallery(listing);
           document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
           document.getElementById("edit_current_price").value = Number(listing.current_price || listing.start_price || 0);
           document.getElementById("edit_status").value = listing.status === "active" ? (listing.starts_at && new Date(listing.starts_at) > new Date() ? "upcoming" : "active") : "closed";
@@ -1438,6 +1355,7 @@
           const dialog = document.getElementById("editDialog");
           if (typeof dialog.showModal === "function") dialog.showModal();
           else { dialog.setAttribute("open", ""); dialog.style.display = "block"; }
+          if (btn.dataset.focusMedia === "true") window.setTimeout(() => document.getElementById("editMediaGrid").scrollIntoView({ behavior:"smooth", block:"center" }), 80);
         });
       });
 
@@ -1459,7 +1377,10 @@
           document.getElementById("edit_description").value = listing.description || "";
           populateProductDetails(listing.product_details || []);
           document.getElementById("edit_image_url").value = listing.image_url || "";
+          pendingMediaFrames.clear();
+          document.getElementById("reframeStatus").textContent = "Centra la parte importante de la fotografía.";
           document.getElementById("edit_media_urls").value = (listing.media_urls || []).map((item) => typeof item === "string" ? item : item.url).filter(Boolean).join("\n");
+          renderEditMediaGallery(listing);
           document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
           document.getElementById("edit_current_price").value = Number(listing.start_price || 0);
           document.getElementById("edit_status").value = "active";
@@ -1755,6 +1676,69 @@
       editFeedback.textContent = message;
       editFeedback.style.color = isError ? "#ff8a80" : "#7ee2a8";
     };
+    const reframeDialog = document.getElementById("reframeDialog");
+    const reframeX = document.getElementById("reframeX");
+    const reframeY = document.getElementById("reframeY");
+    const updateReframePreview = () => {
+      const position = `${reframeX.value}% ${reframeY.value}%`;
+      document.getElementById("reframeImage").style.objectPosition = position;
+      document.getElementById("reframeXValue").textContent = `${reframeX.value}%`;
+      document.getElementById("reframeYValue").textContent = `${reframeY.value}%`;
+    };
+    const closeReframeDialog = () => { if (reframeDialog.open) reframeDialog.close(); };
+    const currentMediaItem = (url) => {
+      const id = document.getElementById("edit_id").value;
+      const original = currentListings.find((item) => item.id === id);
+      return (original?.media_urls || []).find((item) => item && typeof item === "object" && item.url === url) || null;
+    };
+    const renderEditMediaGallery = (listing = currentListings.find((item) => item.id === document.getElementById("edit_id").value)) => {
+      const coverUrl = document.getElementById("edit_image_url").value.trim();
+      const known = Array.isArray(listing?.media_urls) ? listing.media_urls : [];
+      const media = uniqueMedia([...mediaFromLines(document.getElementById("edit_media_urls").value, known), ...(coverUrl ? mediaFromLines(coverUrl, known) : [])]);
+      document.getElementById("editMediaGrid").innerHTML = media.map((item) => {
+        const pending = pendingMediaFrames.get(item.url);
+        const position = focalPosition(pending || item);
+        const isVideo = item.type === "video";
+        const source = item.preview_url || item.url;
+        return `<article class="edit-media-card">${isVideo
+          ? `<video src="${escapeAdminHtml(item.url)}" muted playsinline preload="metadata"></video>`
+          : `<img src="${escapeAdminHtml(source)}" alt="Fotografía de la galería" loading="lazy" decoding="async" style="object-position:${position}">`}
+          ${item.url === coverUrl ? `<span class="edit-media-badge">PORTADA</span>` : ""}
+          ${isVideo ? "" : `<button class="edit-media-action" type="button" data-reframe-url="${escapeAdminHtml(item.url)}">Encuadrar</button>`}</article>`;
+      }).join("") || `<span class="field-help">Agrega una fotografía para poder ajustar su encuadre.</span>`;
+    };
+    const openReframeFor = (url) => {
+      if (!url) return showEditFeedback("Agrega primero una fotografía de portada para ajustar su encuadre.");
+      reframeTargetUrl = url;
+      const saved = pendingMediaFrames.get(url) || currentMediaItem(url);
+      reframeX.value = String(saved?.focal_x ?? 50);
+      reframeY.value = String(saved?.focal_y ?? 50);
+      const image = document.getElementById("reframeImage");
+      image.src = saved?.preview_url || url;
+      image.onerror = () => showEditFeedback("No pudimos mostrar esa fotografía. Revisa la dirección web.");
+      updateReframePreview();
+      reframeDialog.showModal();
+    };
+    document.getElementById("openReframe").addEventListener("click", () => openReframeFor(document.getElementById("edit_image_url").value.trim()));
+    document.getElementById("editMediaGrid").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-reframe-url]");
+      if (button) openReframeFor(button.dataset.reframeUrl);
+    });
+    [reframeX, reframeY].forEach((input) => input.addEventListener("input", updateReframePreview));
+    document.getElementById("resetReframe").addEventListener("click", () => { reframeX.value = "50"; reframeY.value = "50"; updateReframePreview(); });
+    document.getElementById("closeReframe").addEventListener("click", closeReframeDialog);
+    document.getElementById("cancelReframe").addEventListener("click", closeReframeDialog);
+    reframeDialog.addEventListener("click", (event) => { if (event.target === reframeDialog) closeReframeDialog(); });
+    document.getElementById("saveReframe").addEventListener("click", () => {
+      pendingMediaFrames.set(reframeTargetUrl, { url:reframeTargetUrl, focal_x:Number(reframeX.value), focal_y:Number(reframeY.value) });
+      document.getElementById("reframeStatus").textContent = `Encuadre guardado para la fotografía seleccionada.`;
+      renderEditMediaGallery();
+      closeReframeDialog();
+    });
+    document.getElementById("edit_image_url").addEventListener("input", () => {
+      renderEditMediaGallery();
+    });
+    document.getElementById("edit_media_urls").addEventListener("change", () => renderEditMediaGallery());
     editForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const id = document.getElementById("edit_id").value;
@@ -1768,7 +1752,8 @@
       try { uploadedMedia = await uploadEvidence(document.getElementById("edit_photo").files); }
       catch (error) { msg.textContent = error.message; showEditFeedback(error.message); return; }
       const knownMedia = Array.isArray(original.media_urls) ? original.media_urls : [];
-      const mediaUrls = uniqueMedia([...mediaFromLines(document.getElementById("edit_media_urls").value, knownMedia), ...uploadedMedia, ...(imageUrl ? mediaFromLines(imageUrl, knownMedia) : [])]);
+      let mediaUrls = uniqueMedia([...mediaFromLines(document.getElementById("edit_media_urls").value, knownMedia), ...uploadedMedia, ...(imageUrl ? mediaFromLines(imageUrl, knownMedia) : [])]);
+      mediaUrls = mediaUrls.map((item) => pendingMediaFrames.has(item.url) ? { ...item, ...pendingMediaFrames.get(item.url) } : item);
       if (!imageUrl) imageUrl = mediaUrls.find((item) => item.type === "image")?.url || null;
       const endDate = document.getElementById("edit_end_date").value;
       const endsAt = dateTimeFromFields("edit_end");
@@ -1821,26 +1806,6 @@
     });
 
     document.getElementById("refreshLive").addEventListener("click", loadLiveBids);
-    document.getElementById("runOperations").addEventListener("click", async () => {
-      const button = document.getElementById("runOperations");
-      button.disabled = true;
-      document.getElementById("operationsStatus").textContent = "Actualizando…";
-      const result = await client.rpc("run_auction_operations");
-      if (result.error) {
-        const missing = /run_auction_operations|schema cache|could not find/i.test(result.error.message || "");
-        setOperationsUnavailable(missing
-          ? "Falta ejecutar la migración 20261011_operations_center.sql en Supabase."
-          : `No se pudo completar la revisión: ${result.error.message}`);
-      } else {
-        await Promise.all([loadOperationsHealth(), loadListings(), loadAvisos(), loadLiveBids()]);
-        const activeIssues = Array.from(document.querySelectorAll("#opExpired, #opStale, #opFailed, #opIncomplete, #opMissing"))
-          .some((metric) => Number(String(metric.textContent || "0").replace(/[^0-9]/g, "")) > 0);
-        msg.textContent = activeIssues
-          ? "Sistema actualizado. Revisa los indicadores marcados para atenderlos."
-          : "Sistema actualizado: no había cierres ni errores que corregir.";
-      }
-      button.disabled = false;
-    });
     document.querySelectorAll("[data-preview-filter]").forEach((button) => button.addEventListener("click", () => {
       previewFilter = button.dataset.previewFilter;
       applyPreviewFilter(true);
@@ -1861,14 +1826,12 @@
       loadListings();
       loadAvisos();
       loadLiveBids();
-      loadOperationsHealth();
       client.channel("usso-admin-live")
         .on("postgres_changes", { event:"*", schema:"public", table:"bids" }, () => scheduleAdminRefresh("bids"))
         .on("postgres_changes", { event:"*", schema:"public", table:"listings" }, () => scheduleAdminRefresh("listings"))
         .on("postgres_changes", { event:"*", schema:"public", table:"notifications" }, () => scheduleAdminRefresh("notifications"))
         .on("postgres_changes", { event:"*", schema:"public", table:"profiles" }, () => scheduleAdminRefresh("profiles"))
         .on("postgres_changes", { event:"*", schema:"public", table:"authorization_requests" }, () => scheduleAdminRefresh("authorization_requests"))
-        .on("postgres_changes", { event:"*", schema:"public", table:"auction_events" }, () => scheduleAdminRefresh("auction_events"))
         .subscribe();
       window.setInterval(() => {
         if (!document.hidden) scheduleAdminRefresh("all");

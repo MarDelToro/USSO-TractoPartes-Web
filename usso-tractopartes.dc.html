@@ -264,8 +264,8 @@
     .usso-all-grid { display: flex !important; grid-template-columns: none !important; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 12px !important; margin: 0 -20px; padding: 2px 20px 8px; }
     .usso-all-grid::-webkit-scrollbar { display: none; }
     .usso-all-grid > div, .usso-all-card { flex: 0 0 88% !important; scroll-snap-align: center; scroll-snap-stop: always; box-shadow: 0 10px 28px rgba(0,0,0,0.35); display: grid !important; grid-template-columns: 40% minmax(0,1fr) !important; grid-template-rows: auto auto !important; grid-template-areas: "photo body" "actions actions" !important; align-items: stretch; }
-    .usso-all-grid > div > div:first-child, .usso-all-photo { grid-area: photo !important; aspect-ratio: auto !important; min-height: 100% !important; }
-    .usso-all-grid > div > div:first-child image-slot, .usso-all-photo image-slot { height: 100% !important; }
+    .usso-all-grid > div > div:first-child, .usso-all-photo { grid-area: photo !important; aspect-ratio: 1/1 !important; align-self:start !important; min-height:0 !important; }
+    .usso-all-grid > div > div:first-child img, .usso-all-photo img { width:100% !important; height:100% !important; object-fit:cover !important; }
     .usso-all-grid > div > div:first-child > span, .usso-all-photo > span { font-size: 9.5px !important; padding: 4px 8px !important; top: 8px !important; left: 8px !important; }
     .usso-all-grid > div > div:first-child > span:last-child, .usso-all-cat { display: none !important; }
     .usso-all-body { grid-area: body !important; padding: 13px 14px 12px !important; }
@@ -289,13 +289,13 @@
   .usso-all-grid > div { flex: 0 0 300px; scroll-snap-align: center; scroll-snap-stop: always; }
   .usso-history-grid { display:flex; flex-wrap:nowrap; overflow-x:auto; scroll-snap-type:x mandatory; gap:20px; scrollbar-width:none; padding:2px 2px 10px; align-items:stretch; }
   .usso-history-grid::-webkit-scrollbar { display:none; }
-  .usso-history-card { flex:0 0 300px; min-height:390px; display:grid; grid-template-rows:190px minmax(0,1fr); overflow:hidden; border-radius:18px; background:var(--card-bg); border:1px solid rgba(var(--border-rgb),0.09); cursor:pointer; scroll-snap-align:start; }
-  .usso-history-photo { min-height:190px; background:#1a1a1d; overflow:hidden; }
-  .usso-history-photo image-slot { width:100%; height:100%; }
+  .usso-history-card { flex:0 0 300px; min-height:500px; display:grid; grid-template-rows:300px minmax(0,1fr); overflow:hidden; border-radius:18px; background:var(--card-bg); border:1px solid rgba(var(--border-rgb),0.09); cursor:pointer; scroll-snap-align:start; }
+  .usso-history-photo { width:100%; aspect-ratio:1/1; background:#1a1a1d; overflow:hidden; }
+  .usso-history-photo img { width:100%; height:100%; display:block; object-fit:cover; }
   .usso-history-body { padding:19px; display:flex; flex-direction:column; min-width:0; }
   .usso-history-body h3 { min-height:46px; }
   .usso-history-result { margin-top:auto; border-top:1px solid rgba(var(--border-rgb),.09); padding-top:14px; display:flex; justify-content:space-between; align-items:flex-end; gap:12px; }
-  @media(max-width:700px){.usso-history-grid{margin:0 -20px;padding:2px 20px 10px;gap:12px}.usso-history-card{flex-basis:84vw;min-height:360px;grid-template-rows:180px minmax(0,1fr)}}
+  @media(max-width:700px){.usso-history-grid{margin:0 -20px;padding:2px 20px 10px;gap:12px}.usso-history-card{flex-basis:84vw;min-height:0;grid-template-rows:auto minmax(0,1fr)}}
   .usso-trust-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .usso-trust-layout { display:grid;grid-template-columns:minmax(0,.82fr) minmax(520px,1.18fr);gap:64px;align-items:center; }
   .usso-proof-stage { position:relative;min-height:520px;border:1px solid rgba(var(--border-rgb),.11);border-radius:28px;overflow:hidden;background:radial-gradient(circle at 84% 12%,rgba(246,192,42,.16),transparent 35%),linear-gradient(145deg,#09090a,#171719);box-shadow:0 34px 80px rgba(0,0,0,.42); }
@@ -330,8 +330,7 @@
   .usso-field::placeholder { color: rgba(243,241,236,0.32); font-weight: 500; }
   @media (max-width: 860px) {
     .usso-featured-lot { grid-template-columns: 40% minmax(0,1fr) !important; grid-template-rows: auto auto !important; grid-template-areas: "photo body" "actions actions" !important; border-radius: 16px !important; margin-bottom: 32px !important; }
-    .usso-featured-photo { align-self: stretch !important; aspect-ratio: auto !important; min-height: 100% !important; }
-    .usso-featured-photo image-slot { height: 100% !important; }
+    .usso-featured-photo { align-self:start !important; aspect-ratio:1/1 !important; min-height:0 !important; }
     .usso-featured-photo .usso-live-badge { top: 8px !important; left: 8px !important; padding: 4px 8px !important; }
     .usso-featured-photo .usso-live-badge span:last-child { font-size: 9px !important; }
     .usso-featured-body { padding: 14px 14px 12px !important; }
@@ -744,7 +743,7 @@
       <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
       <div class="usso-featured-lot {{ featuredFinishClass }}">
         <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
-         <img src="{{ featuredSrc }}" alt="" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
+         <img src="{{ featuredSrc }}" data-fallback-src="{{ featuredFullSrc }}" onError="{{ onAuctionImageError }}" alt="" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ featuredPosition }};display:block">
           <span class="usso-live-badge" style="position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:7px;background:rgba(10,10,11,0.86);backdrop-filter:blur(6px);border:1px solid {{ featuredBadgeBorder }};border-radius:100px;padding:7px 14px;z-index:4">
             <span style="width:6px;height:6px;border-radius:50%;background:{{ featuredBadgeDot }};animation:{{ featuredBadgeAnimation }}"></span>
             <span style="font:800 11px Manrope,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:{{ featuredBadgeColor }}">{{ featuredBadgeLabel }}</span>
@@ -815,8 +814,8 @@
       <div class="usso-auctions-grid" ref="{{ auctionsRef }}" style="{{ auctionsGridStyle }}">
         <sc-for list="{{ auctionItems }}" as="lot" hint-placeholder-count="3">
           <div onClick="{{ lot.goTo }}" style="background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.07);border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;flex:0 0 320px">
-            <div style="position:relative">
-             <img src="{{ lot.src }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block">
+            <div style="position:relative;aspect-ratio:1/1">
+             <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ lot.position }};display:block">
               <span style="position:absolute;top:14px;left:14px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 11px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:6px 12px;border-radius:100px">{{ lot.status }}</span>
             </div>
             <div style="padding:22px;display:flex;flex-direction:column;flex:1">
@@ -867,8 +866,8 @@
         <div class="usso-all-grid" style="display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;gap:20px;scrollbar-width:none;padding-bottom:6px;mask-image:linear-gradient(to right, transparent, black 3%, black 97%, transparent);-webkit-mask-image:linear-gradient(to right, transparent, black 3%, black 97%, transparent)">
           <sc-for list="{{ filteredLots }}" as="lot" hint-placeholder-count="6">
             <div class="usso-all-card" onClick="{{ lot.goTo }}" style="background:var(--bg);border:1px solid rgba(var(--border-rgb),0.09);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer">
-              <div class="usso-all-photo" style="position:relative;aspect-ratio:4/3">
-                <image-slot id="all-{{ lot.id }}" shape="rect" placeholder="{{ lot.placeholder }}" src="{{ lot.src }}" style="width:100%;height:100%"></image-slot>
+              <div class="usso-all-photo" style="position:relative;aspect-ratio:1/1">
+                <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;display:block;object-fit:cover;object-position:{{ lot.position }}">
                 <span class="usso-all-status" style="position:absolute;top:12px;left:12px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 10.5px Manrope,sans-serif;letter-spacing:0.08em;text-transform:uppercase;padding:5px 11px;border-radius:100px">{{ lot.status }}</span>
                 <span class="usso-all-cat" style="position:absolute;top:12px;right:12px;background:rgba(10,10,11,0.78);backdrop-filter:blur(4px);color:rgba(243,241,236,0.9);font:700 10.5px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:5px 11px;border-radius:100px">{{ lot.categoryLabel }}</span>
               </div>
@@ -928,7 +927,7 @@
         <div class="usso-history-grid">
           <sc-for list="{{ historyLots }}" as="lot" hint-placeholder-count="3">
             <article class="usso-history-card" onClick="{{ lot.goTo }}">
-              <div class="usso-history-photo"><image-slot id="history-{{ lot.id }}" shape="rect" placeholder="{{ lot.placeholder }}" src="{{ lot.src }}" style="width:100%;height:100%"></image-slot></div>
+              <div class="usso-history-photo"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="object-position:{{ lot.position }}"></div>
               <div class="usso-history-body">
                 <span style="font:800 10.5px Manrope,sans-serif;color:{{ lot.resultColor }};text-transform:uppercase;letter-spacing:.09em">{{ lot.resultLabel }} · Ronda {{ lot.auctionRound }}</span>
                 <h3 style="font:800 18px Manrope,sans-serif;color:var(--text);margin:7px 0 18px">{{ lot.title }}</h3>
@@ -1892,8 +1891,11 @@ class Component extends DCLogic {
         "https://ahhlfvjicxylidpmeciw.supabase.co",
         "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
       );
-  await client.rpc('expire_listings');
-  await client.rpc('dispatch_upcoming_auction_reminders');
+  // El mantenimiento no debe bloquear la carga visual de las subastas.
+  void Promise.allSettled([
+    client.rpc('expire_listings'),
+    client.rpc('dispatch_upcoming_auction_reminders')
+  ]);
   const { data } = await client
     .from("listings")
     .select("id, title, image_url, media_urls, current_price, start_price, status, starts_at, ends_at, category, bid_count, auction_round, winner_id")
@@ -1925,6 +1927,8 @@ class Component extends DCLogic {
       statusColor: proxima || activa ? "#0a0a0b" : "#f3f1ec",
       placeholder: "Foto del lote",
       src: coverMedia?.preview_url || coverMedia?.url || p.image_url || "",
+      fullSrc: coverMedia?.url || p.image_url || "",
+      position: `${Math.max(0, Math.min(100, Number(coverMedia?.focal_x ?? 50)))}% ${Math.max(0, Math.min(100, Number(coverMedia?.focal_y ?? 50)))}%`,
       startsAt: inicia,
       closesAt: termina || Date.now() + 7 * 86400000
     };
@@ -2135,6 +2139,15 @@ async syncAuthFromSupabase() {
     el.dataset.fallback = '1';
     el.src = 'assets/hero-truck-wide.webp';
     el.style.objectPosition = '62% center';
+  };
+
+  onAuctionImageError = (e) => {
+    const image = e.currentTarget;
+    const fallback = image.dataset.fallbackSrc || '';
+    if (!fallback || image.dataset.usedFallback === '1' || image.src === fallback) return;
+    image.dataset.usedFallback = '1';
+    image.src = fallback;
+    window.ussoRefreshMedia?.();
   };
 
   CATS = { motores: 'Motores', transmisiones: 'Transmisiones', diferenciales: 'Diferenciales', cortes: 'Cortes completos', estructuras: 'Estructuras', suspension: 'Suspensión' };
@@ -2729,6 +2742,9 @@ submitAuth = async (e) => {
 
       featuredId: feat.id,
       featuredSrc: feat.src,
+      featuredFullSrc: feat.fullSrc || feat.src,
+      featuredPosition: feat.position || '50% 50%',
+      onAuctionImageError: this.onAuctionImageError,
       featuredNumber: feat.number,
       featuredTitle: feat.title,
       featuredEvidence: feat.evidence,
