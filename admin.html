@@ -125,7 +125,8 @@
     .auction-preview-grid { display:flex; gap:14px; overflow-x:auto; padding:2px 2px 14px; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:#4a4a50 #171719; }
     .auction-card { flex:0 0 min(440px,88vw); overflow:hidden; display:grid; grid-template-columns:190px minmax(0,1fr); border-radius:17px; background:#141416; border:1px solid rgba(246,192,42,.3); box-shadow:0 16px 34px rgba(0,0,0,.18); scroll-snap-align:start; }
     .auction-card[hidden] { display:none; }
-    .auction-photo { position:relative; width:100%; aspect-ratio:1/1; align-self:start; background:#0e0e10; border-right:1px solid rgba(255,255,255,.12); overflow:hidden; }
+    .auction-photo { position:relative; width:100%; aspect-ratio:1/1; align-self:start; padding:0; border:0; border-right:1px solid rgba(255,255,255,.12); border-radius:0; background:#0e0e10; overflow:hidden; cursor:pointer; }
+    .auction-photo:focus-visible { outline:3px solid #f6c02a; outline-offset:-3px; }
     .auction-photo img { width:100%; height:100%; object-fit:cover; display:block; }
     .auction-photo-empty { height:100%; display:grid; place-items:center; color:#636872; font-weight:800; }
     .auction-state { position:absolute; top:15px; left:15px; display:inline-flex; align-items:center; gap:7px; padding:7px 11px; border-radius:999px; background:rgba(10,10,11,.9); border:1px solid rgba(246,192,42,.42); color:#f6c02a; font-size:10px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
@@ -632,7 +633,6 @@
     let allNotices = [];
     let noticeFilter = "pending";
     let previewFilter = "all";
-    let requestedEditorOpened = false;
     let currentAdminAvatarPath = "";
     const adminAvatarButton = document.getElementById("adminAvatarButton");
     const adminAvatarInput = document.getElementById("adminAvatarInput");
@@ -1233,10 +1233,10 @@
           : `<button class="action-btn action-secondary" data-edit="${p.id}">Editar</button><button class="action-btn action-primary" data-close="${p.id}">Cerrar subasta</button>`;
         const coverItem = (p.media_urls || []).find((item) => item && typeof item === "object" && item.url === p.image_url) || null;
         return `<article class="auction-card" data-preview-state="${proxima ? "upcoming" : "active"}">
-          <div class="auction-photo">
+          <button class="auction-photo" type="button" data-edit="${p.id}" data-focus-media="true" aria-label="Encuadrar imágenes de ${escapeAdminHtml(p.title || "esta subasta")}">
             ${p.image_url ? `<img src="${coverItem?.preview_url || coverItem?.url || p.image_url}" alt="${p.title || "Pieza USSO"}" loading="lazy" decoding="async" style="object-position:${focalPosition(coverItem)}">` : `<div class="auction-photo-empty">Sin fotografía</div>`}
             <span class="auction-state ${cerrada ? "closed" : ""}">${cerrada ? "Cerrada" : (proxima ? "Próxima" : "Activa")}</span>
-          </div>
+          </button>
           <div class="auction-card-body">
             <span class="auction-kicker">Lote ${100 + index} · Ronda ${Number(p.auction_round || 1)}</span>
             <h3>${p.title || "Pieza sin título"}</h3>
@@ -1413,17 +1413,6 @@
         });
       });
 
-      if (!requestedEditorOpened) {
-        const requestedId = new URLSearchParams(window.location.search).get("edit");
-        if (requestedId) {
-          const requestedButton = document.querySelector(`[data-edit="${CSS.escape(requestedId)}"][data-focus-media="true"]`)
-            || document.querySelector(`[data-edit="${CSS.escape(requestedId)}"]`);
-          if (requestedButton) {
-            requestedEditorOpened = true;
-            requestedButton.click();
-          }
-        }
-      }
     }
 
     function renderAvisos() {
