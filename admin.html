@@ -123,11 +123,11 @@
     .preview-arrow { width:39px; height:39px; padding:0; border-radius:50%; background:#242429; color:#f3f1ec; border:1px solid rgba(255,255,255,.1); font-size:18px; }
     .auction-preview-frame { overflow:hidden; }
     .auction-preview-grid { display:flex; gap:14px; overflow-x:auto; padding:2px 2px 14px; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:#4a4a50 #171719; }
-    .auction-card { flex:0 0 min(440px,88vw); overflow:hidden; display:grid; grid-template-columns:190px minmax(0,1fr); border-radius:17px; background:#141416; border:1px solid rgba(246,192,42,.3); box-shadow:0 16px 34px rgba(0,0,0,.18); scroll-snap-align:start; }
+    .auction-card { flex:0 0 min(1000px,92vw); overflow:hidden; display:grid; grid-template-columns:minmax(0,.72fr) minmax(0,1fr); border-radius:20px; background:#141416; border:1px solid rgba(246,192,42,.3); box-shadow:0 20px 50px rgba(0,0,0,.3); scroll-snap-align:start; }
     .auction-card[hidden] { display:none; }
     .auction-photo { position:relative; width:100%; aspect-ratio:1/1; align-self:start; padding:0; border:0; border-right:1px solid rgba(255,255,255,.12); border-radius:0; background:#0e0e10; overflow:hidden; cursor:pointer; }
     .auction-photo:focus-visible { outline:3px solid #f6c02a; outline-offset:-3px; }
-    .auction-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+    .auction-photo img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .2s ease; }
     .auction-photo-empty { height:100%; display:grid; place-items:center; color:#636872; font-weight:800; }
     .auction-state { position:absolute; top:15px; left:15px; display:inline-flex; align-items:center; gap:7px; padding:7px 11px; border-radius:999px; background:rgba(10,10,11,.9); border:1px solid rgba(246,192,42,.42); color:#f6c02a; font-size:10px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
     .auction-state::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
@@ -170,7 +170,7 @@
     .reframe-dialog::backdrop { background:rgba(0,0,0,.84); backdrop-filter:blur(6px); }
     .reframe-body { padding:12px 24px 24px; }
     .reframe-preview { position:relative; width:min(100%,520px); aspect-ratio:1/1; margin:0 auto 20px; overflow:hidden; border:1px solid rgba(246,192,42,.38); border-radius:17px; background:#09090a; }
-    .reframe-preview img { width:100%; height:100%; display:block; object-fit:cover; }
+    .reframe-preview img { width:100%; height:100%; display:block; object-fit:cover; transition:transform .12s ease; }
     .reframe-preview::after { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,transparent 33.1%,rgba(255,255,255,.28) 33.3%,transparent 33.5%,transparent 66.4%,rgba(255,255,255,.28) 66.6%,transparent 66.8%),linear-gradient(transparent 33.1%,rgba(255,255,255,.28) 33.3%,transparent 33.5%,transparent 66.4%,rgba(255,255,255,.28) 66.6%,transparent 66.8%); }
     .reframe-controls { display:grid; gap:14px; }
     .reframe-control { display:grid; grid-template-columns:100px minmax(0,1fr) 42px; align-items:center; gap:12px; color:#c9cbd0; font-size:12px; font-weight:800; }
@@ -443,6 +443,7 @@
       <div class="reframe-controls">
         <label class="reframe-control" for="reframeX"><span>Horizontal</span><input id="reframeX" type="range" min="0" max="100" value="50"><output id="reframeXValue">50%</output></label>
         <label class="reframe-control" for="reframeY"><span>Vertical</span><input id="reframeY" type="range" min="0" max="100" value="50"><output id="reframeYValue">50%</output></label>
+        <label class="reframe-control" for="reframeZoom"><span>Acercamiento</span><input id="reframeZoom" type="range" min="100" max="220" value="100"><output id="reframeZoomValue">100%</output></label>
       </div>
       <div class="reframe-actions"><button class="action-secondary" id="resetReframe" type="button">Centrar</button><button class="action-secondary" id="cancelReframe" type="button">Cancelar</button><button id="saveReframe" type="button">Usar encuadre</button></div>
     </div>
@@ -496,6 +497,8 @@
       return map;
     }, new Map()).values());
     const focalPosition = (item) => `${Math.max(0, Math.min(100, Number(item?.focal_x ?? 50)))}% ${Math.max(0, Math.min(100, Number(item?.focal_y ?? 50)))}%`;
+    const focalZoom = (item) => Math.max(1, Math.min(2.2, Number(item?.zoom ?? 1)));
+    const focalStyle = (item) => `object-position:${focalPosition(item)};transform-origin:${focalPosition(item)};transform:scale(${focalZoom(item)})`;
     const pendingMediaFrames = new Map();
     let reframeTargetUrl = "";
     const MAX_EVIDENCE_FILE_SIZE = 50 * 1024 * 1024;
@@ -1234,7 +1237,7 @@
         const coverItem = (p.media_urls || []).find((item) => item && typeof item === "object" && item.url === p.image_url) || null;
         return `<article class="auction-card" data-preview-state="${proxima ? "upcoming" : "active"}">
           <button class="auction-photo" type="button" data-edit="${p.id}" data-focus-media="true" aria-label="Encuadrar imágenes de ${escapeAdminHtml(p.title || "esta subasta")}">
-            ${p.image_url ? `<img src="${coverItem?.preview_url || coverItem?.url || p.image_url}" alt="${p.title || "Pieza USSO"}" loading="lazy" decoding="async" style="object-position:${focalPosition(coverItem)}">` : `<div class="auction-photo-empty">Sin fotografía</div>`}
+            ${p.image_url ? `<img src="${coverItem?.preview_url || coverItem?.url || p.image_url}" alt="${p.title || "Pieza USSO"}" loading="lazy" decoding="async" style="${focalStyle(coverItem)}">` : `<div class="auction-photo-empty">Sin fotografía</div>`}
             <span class="auction-state ${cerrada ? "closed" : ""}">${cerrada ? "Cerrada" : (proxima ? "Próxima" : "Activa")}</span>
           </button>
           <div class="auction-card-body">
@@ -1681,11 +1684,16 @@
     const reframeDialog = document.getElementById("reframeDialog");
     const reframeX = document.getElementById("reframeX");
     const reframeY = document.getElementById("reframeY");
+    const reframeZoom = document.getElementById("reframeZoom");
     const updateReframePreview = () => {
       const position = `${reframeX.value}% ${reframeY.value}%`;
-      document.getElementById("reframeImage").style.objectPosition = position;
+      const image = document.getElementById("reframeImage");
+      image.style.objectPosition = position;
+      image.style.transformOrigin = position;
+      image.style.transform = `scale(${Number(reframeZoom.value) / 100})`;
       document.getElementById("reframeXValue").textContent = `${reframeX.value}%`;
       document.getElementById("reframeYValue").textContent = `${reframeY.value}%`;
+      document.getElementById("reframeZoomValue").textContent = `${reframeZoom.value}%`;
     };
     const closeReframeDialog = () => { if (reframeDialog.open) reframeDialog.close(); };
     const currentMediaItem = (url) => {
@@ -1704,7 +1712,7 @@
         const source = item.preview_url || item.url;
         return `<article class="edit-media-card">${isVideo
           ? `<video src="${escapeAdminHtml(item.url)}" muted playsinline preload="metadata"></video>`
-          : `<img src="${escapeAdminHtml(source)}" alt="Fotografía de la galería" loading="lazy" decoding="async" style="object-position:${position}">`}
+          : `<img src="${escapeAdminHtml(source)}" alt="Fotografía de la galería" loading="lazy" decoding="async" style="object-position:${position};transform-origin:${position};transform:scale(${focalZoom(pending || item)})">`}
           ${item.url === coverUrl ? `<span class="edit-media-badge">PORTADA</span>` : ""}
           ${isVideo ? "" : `<button class="edit-media-action" type="button" data-reframe-url="${escapeAdminHtml(item.url)}">Encuadrar</button>`}</article>`;
       }).join("") || `<span class="field-help">Agrega una fotografía para poder ajustar su encuadre.</span>`;
@@ -1715,6 +1723,7 @@
       const saved = pendingMediaFrames.get(url) || currentMediaItem(url);
       reframeX.value = String(saved?.focal_x ?? 50);
       reframeY.value = String(saved?.focal_y ?? 50);
+      reframeZoom.value = String(Math.round(focalZoom(saved) * 100));
       const image = document.getElementById("reframeImage");
       image.src = saved?.preview_url || url;
       image.onerror = () => showEditFeedback("No pudimos mostrar esa fotografía. Revisa la dirección web.");
@@ -1726,13 +1735,13 @@
       const button = event.target.closest("[data-reframe-url]");
       if (button) openReframeFor(button.dataset.reframeUrl);
     });
-    [reframeX, reframeY].forEach((input) => input.addEventListener("input", updateReframePreview));
-    document.getElementById("resetReframe").addEventListener("click", () => { reframeX.value = "50"; reframeY.value = "50"; updateReframePreview(); });
+    [reframeX, reframeY, reframeZoom].forEach((input) => input.addEventListener("input", updateReframePreview));
+    document.getElementById("resetReframe").addEventListener("click", () => { reframeX.value = "50"; reframeY.value = "50"; reframeZoom.value = "100"; updateReframePreview(); });
     document.getElementById("closeReframe").addEventListener("click", closeReframeDialog);
     document.getElementById("cancelReframe").addEventListener("click", closeReframeDialog);
     reframeDialog.addEventListener("click", (event) => { if (event.target === reframeDialog) closeReframeDialog(); });
     document.getElementById("saveReframe").addEventListener("click", () => {
-      pendingMediaFrames.set(reframeTargetUrl, { url:reframeTargetUrl, focal_x:Number(reframeX.value), focal_y:Number(reframeY.value) });
+      pendingMediaFrames.set(reframeTargetUrl, { url:reframeTargetUrl, focal_x:Number(reframeX.value), focal_y:Number(reframeY.value), zoom:Number(reframeZoom.value) / 100 });
       document.getElementById("reframeStatus").textContent = `Encuadre guardado para la fotografía seleccionada.`;
       renderEditMediaGallery();
       closeReframeDialog();

@@ -107,9 +107,13 @@
     const mediaTypeFor = (item) => item?.type === "video" || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(item?.url || item || "") ? "video" : "image";
     const mediaDisplayUrl = (item, expanded = false) => item.type === "image" && !expanded && item.preview_url ? item.preview_url : item.url;
     const mediaPosition = (item) => `${Math.max(0, Math.min(100, Number(item?.focal_x ?? 50)))}% ${Math.max(0, Math.min(100, Number(item?.focal_y ?? 50)))}%`;
+    const mediaZoom = (item) => Math.max(1, Math.min(2.2, Number(item?.zoom ?? 1)));
+    const mediaFrameStyle = (item, expanded = false) => expanded
+      ? "object-position:center"
+      : `object-position:${mediaPosition(item)};transform-origin:${mediaPosition(item)};transform:scale(${mediaZoom(item)})`;
     const mediaMarkup = (item, title, expanded = false) => item.type === "video"
       ? `<video src="${escapeHtml(item.url)}" controls playsinline preload="metadata"${expanded ? " autoplay" : ""}></video>`
-      : `<img src="${escapeHtml(mediaDisplayUrl(item, expanded))}" alt="Evidencia de ${escapeHtml(title || "pieza USSO")}" decoding="async" style="object-position:${mediaPosition(item)}" ${expanded ? "" : 'fetchpriority="high"'}>`;
+      : `<img src="${escapeHtml(mediaDisplayUrl(item, expanded))}" alt="Evidencia de ${escapeHtml(title || "pieza USSO")}" decoding="async" style="${mediaFrameStyle(item, expanded)}" ${expanded ? "" : 'fetchpriority="high"'}>`;
     function renderLightbox() {
       if (!galleryMedia.length) return;
       document.getElementById("lightboxStage").innerHTML = mediaMarkup(galleryMedia[galleryIndex], listing?.title, true);
@@ -134,7 +138,7 @@
         thumbs.querySelectorAll(".thumb").forEach((button, buttonIndex) => button.classList.toggle("active", buttonIndex === index));
       };
       if (!media.length) { stage.innerHTML = `<div id="noImage" class="empty">Evidencia próximamente</div>`; return; }
-      thumbs.innerHTML = media.map((item, index) => `<button class="thumb ${index === 0 ? "active" : ""}" type="button" data-media-index="${index}" aria-label="Ver ${item.type === "video" ? "video" : "foto"} ${index + 1}">${item.type === "video" ? `<span class="thumb-video">▶ VIDEO</span>` : `<img src="${escapeHtml(mediaDisplayUrl(item))}" alt="" loading="lazy" decoding="async" style="object-position:${mediaPosition(item)}">`}</button>`).join("");
+      thumbs.innerHTML = media.map((item, index) => `<button class="thumb ${index === 0 ? "active" : ""}" type="button" data-media-index="${index}" aria-label="Ver ${item.type === "video" ? "video" : "foto"} ${index + 1}">${item.type === "video" ? `<span class="thumb-video">▶ VIDEO</span>` : `<img src="${escapeHtml(mediaDisplayUrl(item))}" alt="" loading="lazy" decoding="async" style="${mediaFrameStyle(item)}">`}</button>`).join("");
       if (media.length > 1) show("mediaThumbs");
       thumbs.querySelectorAll("[data-media-index]").forEach((button) => button.addEventListener("click", () => setActive(Number(button.dataset.mediaIndex))));
       setActive(0);
