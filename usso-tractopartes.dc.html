@@ -253,6 +253,9 @@
   .usso-featured-body { grid-area: body; }
   .usso-featured-actions { grid-area: actions; }
   .usso-featured-chips-mobile { display: none !important; }
+  .usso-auctions-grid .usso-featured-lot { border-color:rgba(246,192,42,.16); filter:brightness(.68) saturate(.82); box-shadow:0 14px 35px rgba(0,0,0,.5); }
+  .usso-auctions-grid .usso-featured-lot.is-carousel-current { border-color:rgba(246,192,42,.88); filter:brightness(1) saturate(1.04); box-shadow:0 0 18px rgba(246,192,42,.28),0 0 46px rgba(246,192,42,.18),0 28px 65px rgba(0,0,0,.58); }
+  .usso-auctions-grid .usso-featured-lot.is-carousel-current.usso-featured-active { border-color:#f6c02a; box-shadow:0 0 20px rgba(246,192,42,.48),0 0 64px rgba(246,192,42,.26),0 32px 72px rgba(0,0,0,.62); }
   @media (max-width: 1150px) and (min-width: 861px) {
     .usso-featured-body { padding: 28px 26px 26px !important; }
     .usso-featured-title { font-size: 24px !important; }
@@ -332,6 +335,8 @@
     .usso-featured-lot { grid-template-columns: minmax(0,1fr) !important; grid-template-rows: auto auto auto !important; grid-template-areas: "photo" "body" "actions" !important; border-radius: 16px !important; margin-bottom: 8px !important; }
     .usso-auctions-grid { align-items:stretch !important; }
     .usso-auctions-grid > .usso-featured-lot { align-self:stretch !important; height:auto !important; }
+    .usso-auctions-grid > .usso-featured-lot:not(.is-carousel-current) { opacity:.56 !important; filter:brightness(.58) saturate(.72) !important; }
+    .usso-auctions-grid > .usso-featured-lot.is-carousel-current { opacity:1 !important; filter:brightness(1) saturate(1.04) !important; }
     .usso-featured-photo { width:100% !important; height:auto !important; align-self:stretch !important; aspect-ratio:4/3 !important; min-height:0 !important; }
     .usso-featured-photo > img { transform:scale(1) !important; }
     .usso-featured-photo .usso-live-badge { top: 8px !important; left: 8px !important; padding: 4px 8px !important; }
@@ -753,7 +758,7 @@
       <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
       <div class="usso-auctions-grid" ref="{{ auctionsRef }}" style="{{ auctionsGridStyle }}">
       <sc-for list="{{ featuredCarouselItems }}" as="lot" hint-placeholder-count="3">
-      <div data-auction-id="{{ lot.id }}" data-auction-copy="{{ lot.copy }}" data-auction-index="{{ lot.index }}" class="usso-featured-lot {{ lot.finishClass }}" style="flex:0 0 min(1120px,86vw)">
+      <div data-auction-id="{{ lot.id }}" data-auction-copy="{{ lot.copy }}" data-auction-index="{{ lot.index }}" class="usso-featured-lot {{ lot.finishClass }} {{ lot.activeClass }}" style="flex:0 0 min(1120px,86vw)">
         <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
          <sc-if value="{{ lot.hasImage }}">
          <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }});display:block">
@@ -1493,13 +1498,21 @@ class Component extends DCLogic {
     if (el.classList.contains('usso-filter-row') || el.dataset.snapping === '1') return;
     const kids = Array.from(el.children);
     if (!kids.length) return;
+    const isAuctionCarousel = el.classList.contains('usso-auctions-grid');
+    const viewportCenter = isAuctionCarousel ? window.innerWidth / 2 : null;
     const center = el.scrollLeft + el.clientWidth / 2;
     let best = kids[0], bd = Infinity;
     kids.forEach((k) => {
-      const d = Math.abs((k.offsetLeft + k.offsetWidth / 2) - center);
+      const kr = k.getBoundingClientRect();
+      const d = isAuctionCarousel
+        ? Math.abs(kr.left + kr.width / 2 - viewportCenter)
+        : Math.abs((k.offsetLeft + k.offsetWidth / 2) - center);
       if (d < bd) { bd = d; best = k; }
     });
-    const left = best.offsetLeft + best.offsetWidth / 2 - el.clientWidth / 2;
+    const bestRect = best.getBoundingClientRect();
+    const left = isAuctionCarousel
+      ? el.scrollLeft + bestRect.left + bestRect.width / 2 - viewportCenter
+      : best.offsetLeft + best.offsetWidth / 2 - el.clientWidth / 2;
     const target = Math.max(0, left);
     if (Math.abs(el.scrollLeft - target) < 2) return;
     el.dataset.snapping = '1';
@@ -1525,7 +1538,8 @@ class Component extends DCLogic {
     if (!middleFirst) return;
     el.dataset.loopCentered = '1';
     el.style.scrollBehavior = 'auto';
-    el.scrollLeft = middleFirst.offsetLeft + middleFirst.offsetWidth / 2 - el.clientWidth / 2;
+    const cardRect = middleFirst.getBoundingClientRect();
+    el.scrollLeft += cardRect.left + cardRect.width / 2 - window.innerWidth / 2;
     requestAnimationFrame(() => {
       if (!this.isTouchLayout()) el.style.scrollBehavior = '';
       this.applyCoverflow('videos');
@@ -1612,7 +1626,21 @@ class Component extends DCLogic {
         el.style.paddingLeft = pad + 'px';
         el.style.paddingRight = pad + 'px';
       }
-      Array.from(el.children).forEach((c) => { c.style.transform = ''; c.style.opacity = ''; c.style.zIndex = ''; });
+      const viewportCenter = window.innerWidth / 2;
+      let nearest = null;
+      let nearestDistance = Infinity;
+      Array.from(el.children).forEach((c) => {
+        const cr = c.getBoundingClientRect();
+        const distance = Math.abs(cr.left + cr.width / 2 - viewportCenter);
+        if (distance < nearestDistance) { nearestDistance = distance; nearest = c; }
+      });
+      Array.from(el.children).forEach((c) => {
+        const current = key === 'auctions' && c === nearest;
+        c.classList.toggle('is-carousel-current', current);
+        c.style.transform = '';
+        c.style.opacity = '';
+        c.style.zIndex = current ? '5' : '1';
+      });
       return;
     }
     const overflowing = el.scrollWidth > el.clientWidth + 1;
@@ -1630,7 +1658,7 @@ class Component extends DCLogic {
       el.style.paddingRight = pad + 'px';
     }
     const rect = el.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
+    const centerX = key === 'auctions' ? window.innerWidth / 2 : rect.left + rect.width / 2;
     const maxDist = rect.width / 2 + 40;
     children.forEach((c) => {
       const cr = c.getBoundingClientRect();
@@ -1641,6 +1669,7 @@ class Component extends DCLogic {
       c.style.transform = 'scale(' + scale.toFixed(3) + ')';
       c.style.opacity = opacity.toFixed(2);
       c.style.zIndex = String(Math.round((1 - t) * 100));
+      c.classList.toggle('is-carousel-current', key === 'auctions' && t < 0.08);
     });
   };
   scheduleCoverflow = (key) => {
@@ -1676,7 +1705,7 @@ class Component extends DCLogic {
     if (!el) return;
     const card = el.querySelector(':scope > *');
     const gap = parseFloat(getComputedStyle(el).columnGap || getComputedStyle(el).gap) || 12;
-    const step = card ? card.getBoundingClientRect().width + gap : el.clientWidth * 0.8;
+    const step = card ? card.offsetWidth + gap : el.clientWidth * 0.8;
     const target = el.scrollLeft + (dir * step);
     el.scrollTo({ left: target, behavior: 'smooth' });
   };
@@ -2804,6 +2833,7 @@ submitAuth = async (e) => {
         badgeDot: isUpcoming ? '#5ca0ff' : '#ff0000',
         badgeAnimation: isActive ? 'livePulse 0.8s ease-in-out infinite' : 'none',
         finishClass: '',
+        activeClass: isActive ? 'usso-featured-active' : '',
         detailsFlex: isActive ? '0' : '1',
         isActive,
         isUpcoming,
