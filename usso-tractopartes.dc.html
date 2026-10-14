@@ -805,6 +805,13 @@
           </sc-if>
         </div>
       </div>
+      <sc-if value="{{ featuredHasMultiple }}">
+        <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px">
+          <button onClick="{{ featuredPrev }}" aria-label="Subasta anterior" style="width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.2);color:var(--text);font-size:19px;cursor:pointer">←</button>
+          <span style="min-width:44px;text-align:center;font:700 12px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);letter-spacing:.08em">{{ featuredCounter }}</span>
+          <button onClick="{{ featuredNext }}" aria-label="Subasta siguiente" style="width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.2);color:var(--text);font-size:19px;cursor:pointer">→</button>
+        </div>
+      </sc-if>
       </sc-if>
 
       <sc-if value="{{ noAuctions }}" hint-placeholder-val="{{ false }}">
@@ -815,41 +822,6 @@
         </div>
       </sc-if>
 
-      <div class="usso-auctions-grid" ref="{{ auctionsRef }}" style="{{ auctionsGridStyle }}">
-        <sc-for list="{{ auctionItems }}" as="lot" hint-placeholder-count="3">
-          <div onClick="{{ lot.goTo }}" style="background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.07);border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;flex:0 0 320px">
-            <div class="usso-auction-photo" style="position:relative;aspect-ratio:1/1">
-             <sc-if value="{{ lot.hasImage }}">
-             <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }});display:block">
-             </sc-if>
-             <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
-              <span style="position:absolute;top:14px;left:14px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 11px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:6px 12px;border-radius:100px">{{ lot.status }}</span>
-            </div>
-            <div style="padding:22px;display:flex;flex-direction:column;flex:1">
-              <span style="font:700 11px Manrope,sans-serif;color:rgba(var(--text-rgb),0.45);letter-spacing:0.1em">LOTE {{ lot.number }}</span>
-              <h3 style="font:800 19px Manrope,sans-serif;color:var(--text);margin:6px 0 10px;min-height:48px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ lot.title }}</h3>
-              <span style="display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.28);border-radius:100px;padding:5px 11px;font:700 11px Manrope,sans-serif;color:#7ee2a8;margin-bottom:14px">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="flex:none"><path d="M1.5 6.2l3 3L10.5 2.8" stroke="#7ee2a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{ lot.evidenceLabel }}
-              </span>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px"><div style="padding:8px;border-radius:9px;background:rgba(var(--border-rgb),.045)"><span style="display:block;font:700 8px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Inicio</span><strong style="font:700 9.5px/1.3 Manrope;color:var(--text)">{{ lot.startsDateDisplay }}</strong></div><div style="padding:8px;border-radius:9px;background:rgba(var(--border-rgb),.045)"><span style="display:block;font:700 8px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Cierre</span><strong style="font:700 9.5px/1.3 Manrope;color:var(--text)">{{ lot.closesDateDisplay }}</strong></div></div>
-              <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(var(--border-rgb),0.08);padding-top:14px;margin-top:auto">
-                <div>
-                  <div style="font:600 11px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5)">{{ lot.bidLabel }}</div>
-                  <div style="font-family:'Archivo Black',sans-serif;font-size:20px;color:{{ accent }}">{{ lot.bid }}</div>
-                </div>
-                <div style="text-align:right">
-                  <div style="font:600 11px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5)">{{ lot.closesLabel }}</div>
-                  <div style="font:700 15px/1 'Archivo Black',monospace;color:{{ lot.clockColor }};font-variant-numeric:tabular-nums;letter-spacing:0.02em">{{ lot.closesDisplay }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </sc-for>
-      </div>
-      <div class="usso-carousel-nav" style="display:none !important;justify-content:center;gap:12px;margin-top:16px">
-        <button onClick="{{ auctionsPrev }}" aria-label="Anterior" style="width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.15);color:var(--text);font-size:16px">←</button>
-        <button onClick="{{ auctionsNext }}" aria-label="Siguiente" style="width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.15);color:var(--text);font-size:16px">→</button>
-      </div>
     </div>
   </section>
 
@@ -1153,7 +1125,7 @@ class Component extends DCLogic {
     notifOpen: false, notifFilter: 'all', accountOpen: false, notifs: [], avatarUploading: false, avatarMessage: '', avatarError: '',
     notifPrefs: { superada: true, cierre: true, gane: true, perdi: true, favorita: true },
     bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', watching: {},
-    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {} };
+    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {}, featuredAuctionIndex: 0 };
   videoRef = null;
   observer = null;
   listingRequestInFlight = false;
@@ -2570,7 +2542,7 @@ submitAuth = async (e) => {
     });
   };
 
- submitBid = async (e) => {
+  submitBid = async (e) => {
   if (e && e.preventDefault) e.preventDefault();
   const lot = this.rawAuctionItems.find((l) => l.id === this.state.bidLotId);
   if (!lot) return;
@@ -2618,6 +2590,14 @@ submitAuth = async (e) => {
   this.loadListingsFromDB();
 };
 
+  moveFeaturedAuction = (direction) => () => {
+    const length = Array.isArray(this.featuredAuctionQueue) ? this.featuredAuctionQueue.length : 0;
+    if (length < 2) return;
+    this.setState((state) => ({
+      featuredAuctionIndex: (Number(state.featuredAuctionIndex || 0) + direction + length) % length,
+    }));
+  };
+
   renderVals() {
     const phase = this.state.phase;
     const accent = this.props.accent ?? '#f6c02a';
@@ -2644,10 +2624,14 @@ submitAuth = async (e) => {
     const active = this.auctionItemsComputed.filter((l) => l.status === 'Activa').sort((a, b) => a.closesAt - b.closesAt);
     const upcoming = this.auctionItemsComputed.filter((l) => l.status === 'Próxima').sort((a, b) => a.startsAt - b.startsAt);
     const history = this.auctionItemsComputed.filter((l) => l.status === 'Finalizada').sort((a, b) => b.closesAt - a.closesAt);
-    const justEnded = history.find((l) => Date.now() - l.closesAt >= 0 && Date.now() - l.closesAt < 12000);
     const hasAnyAuction = active.length > 0;
     const hasCurrentOrUpcoming = active.length > 0 || upcoming.length > 0;
-    const feat = justEnded || active[0] || upcoming[0] || {
+    const featuredAuctionQueue = [...active, ...upcoming].slice(0, 3);
+    this.featuredAuctionQueue = featuredAuctionQueue;
+    const featuredAuctionIndex = featuredAuctionQueue.length
+      ? ((Number(st.featuredAuctionIndex || 0) % featuredAuctionQueue.length) + featuredAuctionQueue.length) % featuredAuctionQueue.length
+      : 0;
+    const feat = featuredAuctionQueue[featuredAuctionIndex] || {
       id: '',
       src: '',
       number: '—',
@@ -2857,6 +2841,10 @@ submitAuth = async (e) => {
       featuredNotifyColor: featuredWatchOn ? '#7ee2a8' : 'var(--text)',
       featuredCelebrating,
       featuredFinishClass: featuredCelebrating ? 'usso-finished-lot' : '',
+      featuredHasMultiple: featuredAuctionQueue.length > 1,
+      featuredCounter: `${featuredAuctionIndex + 1} / ${featuredAuctionQueue.length}`,
+      featuredPrev: this.moveFeaturedAuction(-1),
+      featuredNext: this.moveFeaturedAuction(1),
       featuredBadgeLabel: featuredIsUpcoming ? 'Próxima subasta' : (featuredIsActive ? (featuredEndingSoon ? 'Cerrando pronto' : 'Subasta activa') : (feat.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas')),
       featuredBadgeColor: featuredIsUpcoming ? '#8dbbff' : (featuredIsActive ? accent : (feat.bidCount > 0 ? '#7ee2a8' : '#ff8a80')),
       featuredBadgeBorder: featuredIsUpcoming ? 'rgba(92,160,255,.5)' : (featuredIsActive ? 'rgba(246,192,42,0.45)' : (feat.bidCount > 0 ? 'rgba(74,222,128,0.48)' : 'rgba(255,92,82,0.55)')),
@@ -2874,8 +2862,8 @@ submitAuth = async (e) => {
       featuredGoTo: feat.goTo,
       bidButtonLabel: bidLabel,
       hasAnyAuction,
-      hasFeaturedAuction: !!justEnded || hasCurrentOrUpcoming,
-      noAuctions: !hasCurrentOrUpcoming && !justEnded,
+      hasFeaturedAuction: hasCurrentOrUpcoming,
+      noAuctions: !hasCurrentOrUpcoming,
 
       registerReveal_todas: this.makeReveal('todas'),
       filterChips: this.FILTERS.map((f) => {
@@ -2968,15 +2956,11 @@ submitAuth = async (e) => {
       searchWidth: this.searchState.open || this.searchState.value ? '160px' : '0px',
       searchGap: this.searchState.open || this.searchState.value ? '8px' : '0px',
       invRef: this.setCarouselRef('inv'),
-      auctionsRef: this.setCarouselRef('auctions'),
       videosRef: this.setCarouselRef('videos'),
       invGridStyle: { display: 'flex', flexWrap: 'nowrap', gap: '24px', alignItems: 'center', justifyContent: this.state.overflow.inv ? 'flex-start' : 'center' },
-      auctionsGridStyle: { display: 'flex', flexWrap: 'nowrap', gap: '24px', alignItems: 'center', justifyContent: this.state.overflow.auctions ? 'flex-start' : 'center' },
       videosGridStyle: { display: 'flex', flexWrap: 'nowrap', gap: '24px', alignItems: 'center', justifyContent: this.state.overflow.videos ? 'flex-start' : 'center' },
       invPrev: this.scrollCarousel('inv', -1),
       invNext: this.scrollCarousel('inv', 1),
-      auctionsPrev: this.scrollCarousel('auctions', -1),
-      auctionsNext: this.scrollCarousel('auctions', 1),
       videosPrev: this.scrollCarousel('videos', -1),
       videosNext: this.scrollCarousel('videos', 1),
       mobileMenuOpen: this.state.mobileMenuOpen,
@@ -3048,9 +3032,6 @@ submitAuth = async (e) => {
         { mono: '1-6', showText: true, title: 'Plazos de 1 a 6 meses', desc: 'Pagos flexibles ajustados a tu flujo de caja.' },
         { showShield: true, title: 'Financiamiento con garantías', desc: 'Deja un objeto de valor como garantía y llévate la tractoparte de inmediato; tienes un plazo definido para pagar y recuperarlo.' },
       ],
-      // La primera subasta activa ya aparece en la tarjeta principal.
-      // Debajo mostramos solamente los otros lotes, una vez cada uno.
-      auctionItems: (active.length ? [...active.slice(1), ...upcoming] : upcoming.slice(1)).map((l) => ({ ...l, uid: l.id, hasImage:!!l.src, noImage:!l.src })),
       heroLoopLots: this.heroLoopLots,
       setHeroCarouselRef: this.setHeroCarouselRef,
       onHeroCarouselScroll: this.onHeroCarouselScroll,
