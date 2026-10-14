@@ -1685,12 +1685,32 @@
     const reframeX = document.getElementById("reframeX");
     const reframeY = document.getElementById("reframeY");
     const reframeZoom = document.getElementById("reframeZoom");
+    const applyReframeGeometry = (image) => {
+      const frame = image?.parentElement;
+      const frameWidth = Number(frame?.clientWidth || 0);
+      const frameHeight = Number(frame?.clientHeight || 0);
+      const naturalWidth = Number(image?.naturalWidth || 0);
+      const naturalHeight = Number(image?.naturalHeight || 0);
+      if (!image || !frameWidth || !frameHeight || !naturalWidth || !naturalHeight) return;
+      const zoom = Number(reframeZoom.value) / 100;
+      const scale = Math.max(frameWidth / naturalWidth, frameHeight / naturalHeight) * zoom;
+      const width = naturalWidth * scale;
+      const height = naturalHeight * scale;
+      const focalX = Number(reframeX.value) / 100;
+      const focalY = Number(reframeY.value) / 100;
+      image.style.position = "absolute";
+      image.style.maxWidth = "none";
+      image.style.width = `${width}px`;
+      image.style.height = `${height}px`;
+      image.style.left = `${-(width - frameWidth) * focalX}px`;
+      image.style.top = `${-(height - frameHeight) * focalY}px`;
+      image.style.objectFit = "fill";
+      image.style.objectPosition = "center";
+      image.style.transform = "none";
+    };
     const updateReframePreview = () => {
-      const position = `${reframeX.value}% ${reframeY.value}%`;
       const image = document.getElementById("reframeImage");
-      image.style.objectPosition = position;
-      image.style.transformOrigin = position;
-      image.style.transform = `scale(${Number(reframeZoom.value) / 100})`;
+      applyReframeGeometry(image);
       document.getElementById("reframeXValue").textContent = `${reframeX.value}%`;
       document.getElementById("reframeYValue").textContent = `${reframeY.value}%`;
       document.getElementById("reframeZoomValue").textContent = `${reframeZoom.value}%`;
@@ -1726,6 +1746,7 @@
       reframeZoom.value = String(Math.round(focalZoom(saved) * 100));
       const image = document.getElementById("reframeImage");
       image.src = saved?.preview_url || url;
+      image.onload = () => applyReframeGeometry(image);
       image.onerror = () => showEditFeedback("No pudimos mostrar esa fotografía. Revisa la dirección web.");
       updateReframePreview();
       reframeDialog.showModal();
