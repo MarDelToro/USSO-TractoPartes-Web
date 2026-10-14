@@ -843,7 +843,7 @@
       <p style="font:600 13px Manrope,sans-serif;color:rgba(var(--text-rgb),0.45);margin:0 0 26px">{{ filterSummary }}</p>
 
       <sc-if value="{{ hasFiltered }}" hint-placeholder-val="{{ true }}">
-        <div class="usso-all-grid" style="display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;gap:20px;scrollbar-width:none;padding-bottom:6px;mask-image:linear-gradient(to right, transparent, black 3%, black 97%, transparent);-webkit-mask-image:linear-gradient(to right, transparent, black 3%, black 97%, transparent)">
+        <div class="usso-all-grid" style="display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:12px;gap:20px;scrollbar-width:none;padding:2px 8px 6px 12px">
           <sc-for list="{{ filteredLots }}" as="lot" hint-placeholder-count="6">
             <div class="usso-all-card" onClick="{{ lot.goTo }}" style="background:var(--bg);border:1px solid rgba(var(--border-rgb),0.09);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer">
               <div class="usso-all-photo" style="position:relative;aspect-ratio:1/1">
@@ -1245,6 +1245,10 @@ class Component extends DCLogic {
     if (this.videoStallTimer) clearTimeout(this.videoStallTimer);
     if (this.videoLoopSettleTimer) clearTimeout(this.videoLoopSettleTimer);
     if (this.auctionLoopSettleTimer) clearTimeout(this.auctionLoopSettleTimer);
+    ['inv', 'auctions', 'videos'].forEach((key) => {
+      clearTimeout(this['_snapTimer_' + key]);
+      clearTimeout(this['_snapRelease_' + key]);
+    });
     if (this.auctionRealtimeClient && this.auctionRealtimeChannel) this.auctionRealtimeClient.removeChannel(this.auctionRealtimeChannel);
     window.removeEventListener('scroll', this.onPageScroll);
     window.removeEventListener('resize', this.checkOverflow);
@@ -1356,6 +1360,7 @@ class Component extends DCLogic {
   };
   onCarouselScroll = (key) => {
     this.scheduleCoverflow(key);
+    this.queueCarouselSnap(key);
     if (key === 'videos') {
       clearTimeout(this.videoLoopSettleTimer);
       this.videoLoopSettleTimer = setTimeout(this.normalizeVideoLoop, 140);
@@ -1364,6 +1369,12 @@ class Component extends DCLogic {
       clearTimeout(this.auctionLoopSettleTimer);
       this.auctionLoopSettleTimer = setTimeout(this.normalizeAuctionLoop, 140);
     }
+  };
+  queueCarouselSnap = (key) => {
+    const el = this['_' + key + 'Ref'];
+    if (!el || el.dataset.touching === '1' || el.dataset.snapping === '1') return;
+    clearTimeout(this['_snapTimer_' + key]);
+    this['_snapTimer_' + key] = setTimeout(() => this.snapNearest(el), 180);
   };
   CAROUSEL_SEL = '.usso-inventory-grid, .usso-auctions-grid, .usso-videos-grid, .usso-all-grid, .usso-filter-row, .usso-trust-grid, .usso-financing-cards, .usso-finance-route';
 
@@ -1400,17 +1411,21 @@ class Component extends DCLogic {
         lastX = t.clientX; lastT = now;
       };
       const onEnd = () => {
-        el.dataset.touching = '0';
         if (mode === 'x') {
           let v = vel * 16;
           const step = () => {
-            if (Math.abs(v) < 0.5) { raf = null; this.snapNearest(el); return; }
+            if (Math.abs(v) < 0.5) {
+              raf = null;
+              el.dataset.touching = '0';
+              this.snapNearest(el);
+              return;
+            }
             el.scrollLeft -= v;
             v *= 0.93;
             raf = requestAnimationFrame(step);
           };
           raf = requestAnimationFrame(step);
-        }
+        } else el.dataset.touching = '0';
         mode = null;
       };
       el.addEventListener('touchstart', onStart, { passive: true });
@@ -1465,7 +1480,7 @@ class Component extends DCLogic {
     });
   };
   snapNearest = (el) => {
-    if (el.classList.contains('usso-filter-row')) return;
+    if (el.classList.contains('usso-filter-row') || el.dataset.snapping === '1') return;
     const kids = Array.from(el.children);
     if (!kids.length) return;
     const center = el.scrollLeft + el.clientWidth / 2;
@@ -1475,10 +1490,19 @@ class Component extends DCLogic {
       if (d < bd) { bd = d; best = k; }
     });
     const left = best.offsetLeft + best.offsetWidth / 2 - el.clientWidth / 2;
-    el.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
+    const target = Math.max(0, left);
+    if (Math.abs(el.scrollLeft - target) < 2) return;
+    el.dataset.snapping = '1';
+    el.scrollTo({ left: target, behavior: 'smooth' });
     const key = el.classList.contains('usso-auctions-grid') ? 'auctions'
       : el.classList.contains('usso-videos-grid') ? 'videos'
       : el.classList.contains('usso-inventory-grid') ? 'inv' : null;
+    clearTimeout(this['_snapRelease_' + (key || 'generic')]);
+    this['_snapRelease_' + (key || 'generic')] = setTimeout(() => {
+      delete el.dataset.snapping;
+      if (key === 'videos') this.normalizeVideoLoop();
+      if (key === 'auctions') this.normalizeAuctionLoop();
+    }, 520);
   };
   isTouchLayout() {
     return window.matchMedia('(max-width: 860px)').matches;
