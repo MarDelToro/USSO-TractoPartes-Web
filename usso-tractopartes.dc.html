@@ -253,7 +253,6 @@
   .usso-featured-body { grid-area: body; }
   .usso-featured-actions { grid-area: actions; }
   .usso-featured-chips-mobile { display: none !important; }
-  .usso-mobile-secondary-auctions { display:none; }
   .usso-auctions-grid .usso-featured-lot { border-color:rgba(246,192,42,.16); filter:brightness(.68) saturate(.82); box-shadow:0 14px 35px rgba(0,0,0,.5); }
   .usso-auctions-grid .usso-featured-lot.is-carousel-current { border-color:rgba(246,192,42,.88); filter:brightness(1) saturate(1.04); box-shadow:0 0 18px rgba(246,192,42,.28),0 0 46px rgba(246,192,42,.18),0 28px 65px rgba(0,0,0,.58); }
   .usso-auctions-grid .usso-featured-lot.is-carousel-current.usso-featured-active { border-color:#f6c02a; box-shadow:0 0 20px rgba(246,192,42,.48),0 0 64px rgba(246,192,42,.26),0 32px 72px rgba(0,0,0,.62); }
@@ -334,15 +333,10 @@
   .usso-field::placeholder { color: rgba(243,241,236,0.32); font-weight: 500; }
   @media (max-width: 860px) {
     .usso-featured-lot { grid-template-columns: minmax(0,1fr) !important; grid-template-rows: auto auto auto !important; grid-template-areas: "photo" "body" "actions" !important; border-radius: 16px !important; margin-bottom: 8px !important; }
-    .usso-auctions-grid { display:block !important; overflow:visible !important; padding:0 !important; margin:0 !important; mask-image:none !important; -webkit-mask-image:none !important; }
-    .usso-auctions-grid > .usso-featured-lot { display:none !important; }
-    .usso-auctions-grid > .usso-featured-lot[data-auction-copy="1"][data-auction-index="0"] { display:grid !important; width:100% !important; max-width:none !important; opacity:1 !important; filter:brightness(1) saturate(1.04) !important; transform:none !important; }
-    .usso-featured-carousel-nav { display:none !important; }
-    .usso-mobile-secondary-auctions { display:flex; gap:12px; overflow-x:auto; margin:18px -20px 0; padding:4px 20px 10px; scrollbar-width:none; touch-action:pan-y; }
-    .usso-mobile-secondary-auctions::-webkit-scrollbar { display:none; }
-    .usso-mobile-secondary-card { flex:0 0 76%; scroll-snap-align:center; border:1px solid rgba(246,192,42,.2); border-radius:16px; overflow:hidden; background:var(--card-bg); box-shadow:0 12px 28px rgba(0,0,0,.38); }
-    .usso-mobile-secondary-photo { position:relative; aspect-ratio:16/10; overflow:hidden; background:#171719; }
-    .usso-mobile-secondary-photo img { width:100%; height:100%; object-fit:cover; transform:scale(1) !important; display:block; }
+    .usso-auctions-grid { align-items:stretch !important; }
+    .usso-auctions-grid > .usso-featured-lot { align-self:stretch !important; height:auto !important; }
+    .usso-auctions-grid > .usso-featured-lot:not(.is-carousel-current) { opacity:.56 !important; filter:brightness(.58) saturate(.72) !important; }
+    .usso-auctions-grid > .usso-featured-lot.is-carousel-current { opacity:1 !important; filter:brightness(1) saturate(1.04) !important; }
     .usso-featured-photo { width:100% !important; height:auto !important; align-self:stretch !important; aspect-ratio:4/3 !important; min-height:0 !important; }
     .usso-featured-photo > img { transform:scale(1) !important; }
     .usso-featured-photo .usso-live-badge { top: 8px !important; left: 8px !important; padding: 4px 8px !important; }
@@ -829,30 +823,9 @@
       </sc-for>
       </div>
       <sc-if value="{{ featuredHasMultiple }}">
-        <div class="usso-featured-carousel-nav" style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px">
+        <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px">
           <button onClick="{{ auctionsPrev }}" aria-label="Subasta anterior" style="width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.2);color:var(--text);font-size:19px;cursor:pointer">←</button>
           <button onClick="{{ auctionsNext }}" aria-label="Subasta siguiente" style="width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.2);color:var(--text);font-size:19px;cursor:pointer">→</button>
-        </div>
-      </sc-if>
-      <sc-if value="{{ hasMobileSecondaryAuctions }}">
-        <div class="usso-mobile-secondary-auctions">
-          <sc-for list="{{ mobileSecondaryAuctions }}" as="lot" hint-placeholder-count="2">
-            <div class="usso-mobile-secondary-card" onClick="{{ lot.goTo }}">
-              <div class="usso-mobile-secondary-photo">
-                <sc-if value="{{ lot.hasImage }}"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async"></sc-if>
-                <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
-                <span style="position:absolute;top:9px;left:9px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 9px Manrope,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:100px">{{ lot.status }}</span>
-              </div>
-              <div style="padding:14px">
-                <span style="font:700 9px Manrope,sans-serif;letter-spacing:.12em;color:rgba(var(--text-rgb),.45)">LOTE {{ lot.number }}</span>
-                <h3 style="font:800 16px/1.2 Manrope,sans-serif;color:var(--text);margin:5px 0 12px">{{ lot.title }}</h3>
-                <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;border-top:1px solid rgba(var(--border-rgb),.09);padding-top:11px">
-                  <div><small style="display:block;font:600 9px Manrope;color:rgba(var(--text-rgb),.48);margin-bottom:3px">{{ lot.bidLabel }}</small><strong style="font:900 18px 'Archivo Black',sans-serif;color:{{ accent }}">{{ lot.bid }}</strong></div>
-                  <div style="text-align:right"><small style="display:block;font:600 9px Manrope;color:rgba(var(--text-rgb),.48);margin-bottom:3px">{{ lot.closesLabel }}</small><strong style="font:800 12px Manrope;color:{{ lot.clockColor }}">{{ lot.closesDisplay }}</strong></div>
-                </div>
-              </div>
-            </div>
-          </sc-for>
         </div>
       </sc-if>
       </sc-if>
@@ -1418,7 +1391,7 @@ class Component extends DCLogic {
     clearTimeout(this['_snapTimer_' + key]);
     this['_snapTimer_' + key] = setTimeout(() => this.snapNearest(el), 180);
   };
-  CAROUSEL_SEL = '.usso-inventory-grid, .usso-auctions-grid, .usso-mobile-secondary-auctions, .usso-videos-grid, .usso-all-grid, .usso-filter-row, .usso-trust-grid, .usso-financing-cards, .usso-finance-route';
+  CAROUSEL_SEL = '.usso-inventory-grid, .usso-auctions-grid, .usso-videos-grid, .usso-all-grid, .usso-filter-row, .usso-trust-grid, .usso-financing-cards, .usso-finance-route';
 
   // Arrastre horizontal manejado por nosotros: el scroll nativo horizontal de
   // iOS Safari no responde de forma confiable dentro de esta página, así que en
@@ -3036,13 +3009,6 @@ submitAuth = async (e) => {
       featuredFinishClass: featuredCelebrating ? 'usso-finished-lot' : '',
       featuredHasMultiple: featuredAuctionQueue.length > 1,
       featuredCarouselItems,
-      mobileSecondaryAuctions: featuredAuctionQueue.slice(1).map((lot) => ({
-        ...lot,
-        hasImage: !!lot.src,
-        noImage: !lot.src,
-        fullSrc: lot.fullSrc || lot.src,
-      })),
-      hasMobileSecondaryAuctions: featuredAuctionQueue.length > 1,
       featuredBadgeLabel: featuredIsUpcoming ? 'Próxima subasta' : (featuredIsActive ? (featuredEndingSoon ? 'Cerrando pronto' : 'Subasta activa') : (feat.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas')),
       featuredBadgeColor: featuredIsUpcoming ? '#8dbbff' : (featuredIsActive ? accent : (feat.bidCount > 0 ? '#7ee2a8' : '#ff8a80')),
       featuredBadgeBorder: featuredIsUpcoming ? 'rgba(92,160,255,.5)' : (featuredIsActive ? 'rgba(246,192,42,0.45)' : (feat.bidCount > 0 ? 'rgba(74,222,128,0.48)' : 'rgba(255,92,82,0.55)')),
