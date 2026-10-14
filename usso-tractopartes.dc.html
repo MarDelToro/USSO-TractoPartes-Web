@@ -265,7 +265,7 @@
     .usso-all-grid { display: flex !important; grid-template-columns: none !important; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 12px !important; margin: 0 -20px; padding: 2px 20px 8px; }
     .usso-all-grid::-webkit-scrollbar { display: none; }
     .usso-all-grid > div, .usso-all-card { flex: 0 0 88% !important; scroll-snap-align: center; scroll-snap-stop: always; box-shadow: 0 10px 28px rgba(0,0,0,0.35); display: grid !important; grid-template-columns: minmax(0,1fr) !important; grid-template-rows: auto auto auto !important; grid-template-areas: "photo" "body" "actions" !important; align-items: stretch; }
-    .usso-all-grid > div > div:first-child, .usso-all-photo { grid-area: photo !important; width:100% !important; aspect-ratio: 1/1 !important; align-self:stretch !important; min-height:0 !important; }
+    .usso-all-grid > div > div:first-child, .usso-all-photo { grid-area: photo !important; width:100% !important; aspect-ratio: 16/10 !important; align-self:stretch !important; min-height:0 !important; }
     .usso-all-grid > div > div:first-child img, .usso-all-photo img { width:100% !important; height:100% !important; object-fit:cover !important; }
     .usso-all-grid > div > div:first-child > span, .usso-all-photo > span { font-size: 9.5px !important; padding: 4px 8px !important; top: 8px !important; left: 8px !important; }
     .usso-all-grid > div > div:first-child > span:last-child, .usso-all-cat { display: none !important; }
@@ -296,7 +296,7 @@
   .usso-history-body { padding:19px; display:flex; flex-direction:column; min-width:0; }
   .usso-history-body h3 { min-height:46px; }
   .usso-history-result { margin-top:auto; border-top:1px solid rgba(var(--border-rgb),.09); padding-top:14px; display:flex; justify-content:space-between; align-items:flex-end; gap:12px; }
-  @media(max-width:700px){.usso-history-grid{margin:0 -20px;padding:2px 20px 10px;gap:12px}.usso-history-card{flex-basis:84vw;min-height:0;grid-template-rows:auto minmax(0,1fr)}}
+  @media(max-width:700px){.usso-history-grid{margin:0 -20px;padding:2px 20px 10px;gap:12px}.usso-history-card{flex-basis:84vw;min-height:0;grid-template-rows:auto minmax(0,1fr)}.usso-history-photo{aspect-ratio:16/10}}
   .usso-trust-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .usso-trust-layout { display:grid;grid-template-columns:minmax(0,.82fr) minmax(520px,1.18fr);gap:64px;align-items:center; }
   .usso-proof-stage { position:relative;min-height:520px;border:1px solid rgba(var(--border-rgb),.11);border-radius:28px;overflow:hidden;background:radial-gradient(circle at 84% 12%,rgba(246,192,42,.16),transparent 35%),linear-gradient(145deg,#09090a,#171719);box-shadow:0 34px 80px rgba(0,0,0,.42); }
@@ -331,7 +331,7 @@
   .usso-field::placeholder { color: rgba(243,241,236,0.32); font-weight: 500; }
   @media (max-width: 860px) {
     .usso-featured-lot { grid-template-columns: minmax(0,1fr) !important; grid-template-rows: auto auto auto !important; grid-template-areas: "photo" "body" "actions" !important; border-radius: 16px !important; margin-bottom: 32px !important; }
-    .usso-featured-photo { width:100% !important; align-self:stretch !important; aspect-ratio:1/1 !important; min-height:0 !important; }
+    .usso-featured-photo { width:100% !important; align-self:stretch !important; aspect-ratio:16/10 !important; min-height:0 !important; }
     .usso-featured-photo .usso-live-badge { top: 8px !important; left: 8px !important; padding: 4px 8px !important; }
     .usso-featured-photo .usso-live-badge span:last-child { font-size: 9px !important; }
     .usso-featured-body { padding: 14px 14px 12px !important; }
@@ -1662,12 +1662,13 @@ class Component extends DCLogic {
       if (!Array.isArray(cached)) return [];
       const now = Date.now();
       return cached.map((lot) => {
-        if (lot.databaseStatus !== 'active') return lot;
+        const normalizedLot = { ...lot, zoom:Math.max(1.06, Math.min(2.2, Number(lot.zoom || 1))) };
+        if (lot.databaseStatus !== 'active') return normalizedLot;
         const upcoming = Number(lot.startsAt) > now;
         const active = !upcoming && Number(lot.closesAt) > now;
         const status = upcoming ? 'Próxima' : (active ? 'Activa' : 'Finalizada');
         return {
-          ...lot,
+          ...normalizedLot,
           status,
           statusBg: upcoming ? 'rgba(92,160,255,0.9)' : (active ? 'rgba(246,192,42,0.9)' : 'rgba(255,255,255,0.12)'),
           statusColor: upcoming || active ? '#0a0a0b' : '#f3f1ec'
@@ -1959,7 +1960,9 @@ class Component extends DCLogic {
       src: coverMedia?.preview_url || coverMedia?.url || p.image_url || "",
       fullSrc: coverMedia?.url || p.image_url || "",
       position: `${Math.max(0, Math.min(100, Number(coverMedia?.focal_x ?? 50)))}% ${Math.max(0, Math.min(100, Number(coverMedia?.focal_y ?? 50)))}%`,
-      zoom: Math.max(1, Math.min(2.2, Number(coverMedia?.zoom ?? 1))),
+      // Un acercamiento mínimo elimina las franjas negras incrustadas en varias
+      // miniaturas antiguas; si administración guardó más zoom, se respeta.
+      zoom: Math.max(1.06, Math.min(2.2, Number(coverMedia?.zoom ?? 1))),
       startsAt: inicia,
       closesAt: termina || Date.now() + 7 * 86400000
     };
