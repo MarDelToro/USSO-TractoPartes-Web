@@ -329,21 +329,28 @@
   .usso-field:focus { border-color: rgba(246,192,42,0.6); background: rgba(var(--border-rgb),0.08); }
   .usso-field::placeholder { color: rgba(243,241,236,0.32); font-weight: 500; }
   @media (max-width: 860px) {
-    .usso-featured-lot { grid-template-columns: minmax(0,1fr) !important; grid-template-rows: auto auto auto !important; grid-template-areas: "photo" "body" "actions" !important; border-radius: 16px !important; margin-bottom: 32px !important; }
-    .usso-featured-photo { width:100% !important; height:auto !important; align-self:stretch !important; aspect-ratio:16/10 !important; min-height:0 !important; }
+    .usso-featured-lot { grid-template-columns: minmax(0,1fr) !important; grid-template-rows: auto auto auto !important; grid-template-areas: "photo" "body" "actions" !important; border-radius: 16px !important; margin-bottom: 8px !important; }
+    .usso-featured-photo { width:100% !important; height:auto !important; align-self:stretch !important; aspect-ratio:16/9 !important; min-height:0 !important; }
     .usso-featured-photo .usso-live-badge { top: 8px !important; left: 8px !important; padding: 4px 8px !important; }
     .usso-featured-photo .usso-live-badge span:last-child { font-size: 9px !important; }
-    .usso-featured-body { padding: 14px 14px 12px !important; }
-    .usso-featured-title { font-size: 17px !important; margin: 4px 0 10px !important; }
-    .usso-featured-bid { font-size: 26px !important; }
-    .usso-featured-clock { font-size: 15px !important; }
+    .usso-featured-body { padding: 12px 13px 8px !important; }
+    .usso-featured-body > span:first-child { font-size: 9px !important; }
+    .usso-featured-title { font-size: 16px !important; margin: 3px 0 8px !important; }
+    .usso-featured-dates { gap: 6px !important; margin-bottom: 8px !important; }
+    .usso-featured-dates > div { padding: 7px 8px !important; border-radius: 9px !important; }
+    .usso-featured-dates span { font-size: 7.5px !important; margin-bottom: 2px !important; }
+    .usso-featured-dates strong { font-size: 9px !important; line-height: 1.2 !important; }
+    .usso-featured-bid { font-size: 23px !important; }
+    .usso-featured-clock { font-size: 14px !important; }
     .usso-featured-body .usso-evidence-row { display: none !important; }
-    .usso-featured-chips-mobile { display: flex !important; }
-    .usso-featured-meta { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; padding: 10px 0 0 !important; border-bottom: 0 !important; margin-bottom: 0 !important; }
-    .usso-featured-meta > div:last-child { text-align: left !important; }
-    .usso-featured-actions { padding: 12px 14px 16px !important; margin-top: 4px !important; border-top: 1px solid rgba(var(--border-rgb),0.09) !important; gap: 14px !important; }
-    .usso-featured-chips-mobile { gap: 6px !important; }
-    .usso-featured-actions button { flex: 1 1 0 !important; min-width: 0 !important; font-size: 13px !important; padding: 13px 12px !important; }
+    .usso-featured-chips-mobile { display: none !important; }
+    .usso-featured-meta { flex-direction: row !important; align-items: flex-end !important; justify-content:space-between !important; gap: 10px !important; padding: 9px 0 5px !important; border-bottom: 0 !important; margin-bottom: 0 !important; }
+    .usso-featured-meta p { margin-bottom: 3px !important; }
+    .usso-featured-meta > div:first-child > p:last-child { display:none !important; }
+    .usso-featured-meta > div:last-child { text-align: right !important; }
+    .usso-featured-actions { padding: 9px 13px 13px !important; margin-top: 0 !important; border-top: 1px solid rgba(var(--border-rgb),0.09) !important; gap: 8px !important; }
+    .usso-featured-actions button { flex: 1 1 0 !important; min-width: 0 !important; font-size: 11.5px !important; padding: 11px 8px !important; }
+    #subastas { padding-top:72px !important; overflow:hidden; }
     .usso-trust-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
     .usso-auth-card { padding: 26px 20px 30px !important; border-radius: 18px !important; }
     .usso-modal-overlay { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(5,5,6,0.95) !important; align-items: flex-start !important; padding: 12px !important; }
@@ -767,7 +774,7 @@
             </sc-for>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px">
+          <div class="usso-featured-dates" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px">
             <div style="padding:10px 12px;border-radius:11px;background:rgba(var(--border-rgb),.045);border:1px solid rgba(var(--border-rgb),.09)"><span style="display:block;font:700 9.5px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--text-rgb),.42);margin-bottom:4px">Inicio</span><strong style="font:700 11.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ lot.startsDate }}</strong></div>
             <div style="padding:10px 12px;border-radius:11px;background:rgba(var(--border-rgb),.045);border:1px solid rgba(var(--border-rgb),.09)"><span style="display:block;font:700 9.5px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--text-rgb),.42);margin-bottom:4px">Cierre</span><strong style="font:700 11.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ lot.closesDate }}</strong></div>
           </div>
