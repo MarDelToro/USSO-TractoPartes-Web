@@ -283,7 +283,6 @@
     .usso-trust-grid > div, .usso-financing-cards > div { flex: 0 0 76% !important; }
     .usso-trust-grid > div { padding: 22px 20px !important; border-radius: 16px !important; }
     .usso-financing-cards > div { flex-direction: column !important; gap: 14px !important; }
-    .usso-auctions-grid { display: none !important; }
     #subastas { padding-bottom: 40px !important; }
   }
   .usso-all-grid::-webkit-scrollbar { display: none; }
@@ -742,25 +741,26 @@
 
       <!-- LOTE DESTACADO -->
       <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
-      <div class="usso-featured-lot {{ featuredFinishClass }}">
+      <div class="usso-auctions-grid" ref="{{ auctionsRef }}" style="{{ auctionsGridStyle }}">
+      <sc-for list="{{ featuredCarouselItems }}" as="lot" hint-placeholder-count="3">
+      <div data-auction-id="{{ lot.id }}" data-auction-copy="{{ lot.copy }}" data-auction-index="{{ lot.index }}" class="usso-featured-lot {{ lot.finishClass }}" style="flex:0 0 min(1120px,86vw)">
         <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
-         <sc-if value="{{ featuredHasImage }}">
-         <img src="{{ featuredSrc }}" data-fallback-src="{{ featuredFullSrc }}" onError="{{ onAuctionImageError }}" alt="" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ featuredPosition }};transform-origin:{{ featuredPosition }};transform:scale({{ featuredZoom }});display:block">
+         <sc-if value="{{ lot.hasImage }}">
+         <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }});display:block">
          </sc-if>
-         <sc-if value="{{ featuredNoImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
-          <span class="usso-live-badge" style="position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:7px;background:rgba(10,10,11,0.86);backdrop-filter:blur(6px);border:1px solid {{ featuredBadgeBorder }};border-radius:100px;padding:7px 14px;z-index:4">
-            <span style="width:6px;height:6px;border-radius:50%;background:{{ featuredBadgeDot }};animation:{{ featuredBadgeAnimation }}"></span>
-            <span style="font:800 11px Manrope,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:{{ featuredBadgeColor }}">{{ featuredBadgeLabel }}</span>
+         <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
+          <span class="usso-live-badge" style="position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:7px;background:rgba(10,10,11,0.86);backdrop-filter:blur(6px);border:1px solid {{ lot.badgeBorder }};border-radius:100px;padding:7px 14px;z-index:4">
+            <span style="width:6px;height:6px;border-radius:50%;background:{{ lot.badgeDot }};animation:{{ lot.badgeAnimation }}"></span>
+            <span style="font:800 11px Manrope,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:{{ lot.badgeColor }}">{{ lot.badgeLabel }}</span>
           </span>
-          <sc-if value="{{ featuredCelebrating }}"><div class="usso-celebration"><i></i><i></i><i></i><i></i><i></i><i></i></div></sc-if>
         </div>
 
         <div class="usso-featured-body" style="padding:30px 32px 0;display:flex;flex-direction:column;justify-content:center">
-          <span style="font:700 11px Manrope,sans-serif;letter-spacing:0.16em;color:rgba(var(--text-rgb),0.45)">LOTE {{ featuredNumber }}</span>
-          <h3 class="usso-featured-title" style="font-family:'Archivo Black',sans-serif;font-size:26px;line-height:1.14;color:var(--text);margin:8px 0 14px">{{ featuredTitle }}</h3>
+          <span style="font:700 11px Manrope,sans-serif;letter-spacing:0.16em;color:rgba(var(--text-rgb),0.45)">LOTE {{ lot.number }}</span>
+          <h3 class="usso-featured-title" style="font-family:'Archivo Black',sans-serif;font-size:26px;line-height:1.14;color:var(--text);margin:8px 0 14px">{{ lot.title }}</h3>
 
           <div class="usso-evidence-row" style="margin-bottom:20px">
-            <sc-for list="{{ featuredEvidence }}" as="ev" hint-placeholder-count="3">
+            <sc-for list="{{ lot.evidence }}" as="ev" hint-placeholder-count="3">
               <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.32);border-radius:100px;padding:6px 12px;font:700 11.5px Manrope,sans-serif;color:#7ee2a8">
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" style="flex:none"><path d="M1.5 6.2l3 3L10.5 2.8" stroke="#7ee2a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{ ev }}
               </span>
@@ -768,19 +768,19 @@
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px">
-            <div style="padding:10px 12px;border-radius:11px;background:rgba(var(--border-rgb),.045);border:1px solid rgba(var(--border-rgb),.09)"><span style="display:block;font:700 9.5px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--text-rgb),.42);margin-bottom:4px">Inicio</span><strong style="font:700 11.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ featuredStartsDate }}</strong></div>
-            <div style="padding:10px 12px;border-radius:11px;background:rgba(var(--border-rgb),.045);border:1px solid rgba(var(--border-rgb),.09)"><span style="display:block;font:700 9.5px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--text-rgb),.42);margin-bottom:4px">Cierre</span><strong style="font:700 11.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ featuredClosesDate }}</strong></div>
+            <div style="padding:10px 12px;border-radius:11px;background:rgba(var(--border-rgb),.045);border:1px solid rgba(var(--border-rgb),.09)"><span style="display:block;font:700 9.5px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--text-rgb),.42);margin-bottom:4px">Inicio</span><strong style="font:700 11.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ lot.startsDate }}</strong></div>
+            <div style="padding:10px 12px;border-radius:11px;background:rgba(var(--border-rgb),.045);border:1px solid rgba(var(--border-rgb),.09)"><span style="display:block;font:700 9.5px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--text-rgb),.42);margin-bottom:4px">Cierre</span><strong style="font:700 11.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ lot.closesDate }}</strong></div>
           </div>
 
           <div class="usso-featured-meta" style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(var(--border-rgb),0.09);border-bottom:1px solid rgba(var(--border-rgb),0.09);margin-bottom:22px">
             <div>
-              <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">{{ featuredPriceLabel }}</p>
-              <p class="usso-featured-bid" style="font-family:'Archivo Black',sans-serif;font-size:34px;line-height:1;color:{{ accent }};margin:0">{{ featuredBid }}</p>
-              <p style="font:600 12px Manrope,sans-serif;color:rgba(var(--text-rgb),0.4);margin:7px 0 0">Precio base {{ featuredBase }}</p>
+              <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">{{ lot.priceLabel }}</p>
+              <p class="usso-featured-bid" style="font-family:'Archivo Black',sans-serif;font-size:34px;line-height:1;color:{{ accent }};margin:0">{{ lot.bid }}</p>
+              <p style="font:600 12px Manrope,sans-serif;color:rgba(var(--text-rgb),0.4);margin:7px 0 0">Precio base {{ lot.base }}</p>
             </div>
             <div style="text-align:right">
-              <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">{{ featuredClockLabel }}</p>
-              <p class="usso-featured-clock" style="font-family:'Archivo Black',monospace;font-size:25px;line-height:1;color:{{ featuredClockColor }};font-variant-numeric:tabular-nums;margin:0">{{ featuredClock }}</p>
+              <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">{{ lot.clockLabel }}</p>
+              <p class="usso-featured-clock" style="font-family:'Archivo Black',monospace;font-size:25px;line-height:1;color:{{ lot.clockColor }};font-variant-numeric:tabular-nums;margin:0">{{ lot.closesDisplay }}</p>
             </div>
           </div>
 
@@ -788,28 +788,29 @@
 
         <div class="usso-featured-actions" style="padding:22px 32px 28px;display:flex;flex-direction:column;gap:12px">
           <div class="usso-evidence-row usso-featured-chips-mobile">
-            <sc-for list="{{ featuredEvidence }}" as="ev" hint-placeholder-count="3">
+            <sc-for list="{{ lot.evidence }}" as="ev" hint-placeholder-count="3">
               <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.32);border-radius:100px;padding:4px 10px;font:700 10.5px Manrope,sans-serif;color:#7ee2a8">
                 <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="flex:none"><path d="M1.5 6.2l3 3L10.5 2.8" stroke="#7ee2a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{ ev }}
               </span>
             </sc-for>
           </div>
           <div style="display:flex;gap:10px">
-            <sc-if value="{{ featuredIsActive }}">
-            <button onClick="{{ featuredBidAction }}" aria-disabled="{{ featuredBidDisabled }}" style="flex:1;min-width:170px;background:{{ accent }};color:#0a0a0b;font:800 14px Manrope,sans-serif;padding:14px 24px;border-radius:100px;border:0;cursor:{{ featuredBidCursor }};opacity:{{ featuredBidOpacity }}">{{ bidButtonLabel }}</button>
+            <sc-if value="{{ lot.isActive }}">
+            <button onClick="{{ lot.bidAction }}" aria-disabled="{{ lot.bidDisabled }}" style="flex:1;min-width:170px;background:{{ accent }};color:#0a0a0b;font:800 14px Manrope,sans-serif;padding:14px 24px;border-radius:100px;border:0;cursor:{{ lot.bidCursor }};opacity:{{ lot.bidOpacity }}">{{ lot.bidButtonLabel }}</button>
             </sc-if>
-            <button onClick="{{ featuredGoTo }}" style="flex:{{ featuredDetailsFlex }};background:transparent;border:1.5px solid rgba(var(--text-rgb),0.25);color:var(--text);font:700 14px Manrope,sans-serif;padding:13px 22px;border-radius:100px;cursor:pointer">Ver detalles</button>
+            <button onClick="{{ lot.goTo }}" style="flex:{{ lot.detailsFlex }};background:transparent;border:1.5px solid rgba(var(--text-rgb),0.25);color:var(--text);font:700 14px Manrope,sans-serif;padding:13px 22px;border-radius:100px;cursor:pointer">Ver detalles</button>
           </div>
-          <sc-if value="{{ featuredIsUpcoming }}">
-            <button onClick="{{ featuredNotify }}" style="width:100%;background:{{ featuredNotifyBg }};border:1px solid {{ featuredNotifyBorder }};color:{{ featuredNotifyColor }};font:800 13px Manrope,sans-serif;padding:13px 18px;border-radius:100px;cursor:pointer">{{ featuredNotifyLabel }}</button>
+          <sc-if value="{{ lot.isUpcoming }}">
+            <button onClick="{{ lot.notify }}" style="width:100%;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:800 13px Manrope,sans-serif;padding:13px 18px;border-radius:100px;cursor:pointer">{{ lot.notifyLabel }}</button>
           </sc-if>
         </div>
       </div>
+      </sc-for>
+      </div>
       <sc-if value="{{ featuredHasMultiple }}">
         <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px">
-          <button onClick="{{ featuredPrev }}" aria-label="Subasta anterior" style="width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.2);color:var(--text);font-size:19px;cursor:pointer">←</button>
-          <span style="min-width:44px;text-align:center;font:700 12px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);letter-spacing:.08em">{{ featuredCounter }}</span>
-          <button onClick="{{ featuredNext }}" aria-label="Subasta siguiente" style="width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.2);color:var(--text);font-size:19px;cursor:pointer">→</button>
+          <button onClick="{{ auctionsPrev }}" aria-label="Subasta anterior" style="width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.2);color:var(--text);font-size:19px;cursor:pointer">←</button>
+          <button onClick="{{ auctionsNext }}" aria-label="Subasta siguiente" style="width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.2);color:var(--text);font-size:19px;cursor:pointer">→</button>
         </div>
       </sc-if>
       </sc-if>
@@ -1217,6 +1218,7 @@ class Component extends DCLogic {
 
   componentDidUpdate() {
     this.initTouchDrag();
+    requestAnimationFrame(this.centerAuctionLoop);
   }
 
   loadYouTubeViews = async () => {
@@ -1242,6 +1244,7 @@ class Component extends DCLogic {
     if (this.winnerTimer) clearTimeout(this.winnerTimer);
     if (this.videoStallTimer) clearTimeout(this.videoStallTimer);
     if (this.videoLoopSettleTimer) clearTimeout(this.videoLoopSettleTimer);
+    if (this.auctionLoopSettleTimer) clearTimeout(this.auctionLoopSettleTimer);
     if (this.auctionRealtimeClient && this.auctionRealtimeChannel) this.auctionRealtimeClient.removeChannel(this.auctionRealtimeChannel);
     window.removeEventListener('scroll', this.onPageScroll);
     window.removeEventListener('resize', this.checkOverflow);
@@ -1332,6 +1335,7 @@ class Component extends DCLogic {
       const settle = () => {
         this.applyCoverflow(key);
         if (key === 'videos') this.centerVideoLoop();
+        if (key === 'auctions') this.centerAuctionLoop();
       };
       requestAnimationFrame(settle);
       let ro = null;
@@ -1355,6 +1359,10 @@ class Component extends DCLogic {
     if (key === 'videos') {
       clearTimeout(this.videoLoopSettleTimer);
       this.videoLoopSettleTimer = setTimeout(this.normalizeVideoLoop, 140);
+    }
+    if (key === 'auctions') {
+      clearTimeout(this.auctionLoopSettleTimer);
+      this.auctionLoopSettleTimer = setTimeout(this.normalizeAuctionLoop, 140);
     }
   };
   CAROUSEL_SEL = '.usso-inventory-grid, .usso-auctions-grid, .usso-videos-grid, .usso-all-grid, .usso-filter-row, .usso-trust-grid, .usso-financing-cards, .usso-finance-route';
@@ -1515,6 +1523,49 @@ class Component extends DCLogic {
       this.applyCoverflow('videos');
     });
   };
+  centerAuctionLoop = () => {
+    const el = this._auctionsRef;
+    if (!el) return;
+    const children = Array.from(el.children);
+    const signature = children.map((child) => `${child.dataset.auctionId}:${child.dataset.auctionCopy}:${child.dataset.auctionIndex}`).join('|');
+    if (!signature || el.dataset.loopSignature === signature) return;
+    const middleFirst = children.find((child) => child.dataset.auctionCopy === '1' && child.dataset.auctionIndex === '0');
+    if (!middleFirst) return;
+    el.dataset.loopCentered = '1';
+    el.dataset.loopSignature = signature;
+    el.style.scrollBehavior = 'auto';
+    el.scrollLeft = middleFirst.offsetLeft + middleFirst.offsetWidth / 2 - el.clientWidth / 2;
+    requestAnimationFrame(() => {
+      if (!this.isTouchLayout()) el.style.scrollBehavior = '';
+      this.applyCoverflow('auctions');
+    });
+  };
+  normalizeAuctionLoop = () => {
+    const el = this._auctionsRef;
+    if (!el || el.dataset.touching === '1') return;
+    const children = Array.from(el.children);
+    const first = children.find((child) => child.dataset.auctionCopy === '0' && child.dataset.auctionIndex === '0');
+    const middle = children.find((child) => child.dataset.auctionCopy === '1' && child.dataset.auctionIndex === '0');
+    if (!first || !middle) return;
+    const groupWidth = middle.offsetLeft - first.offsetLeft;
+    if (!groupWidth) return;
+    const center = el.scrollLeft + el.clientWidth / 2;
+    let nearest = null;
+    let distance = Infinity;
+    children.forEach((child) => {
+      const currentDistance = Math.abs(child.offsetLeft + child.offsetWidth / 2 - center);
+      if (currentDistance < distance) { distance = currentDistance; nearest = child; }
+    });
+    const copy = Number(nearest?.dataset.auctionCopy);
+    if (copy !== 0 && copy !== 2) return;
+    const previousBehavior = el.style.scrollBehavior;
+    el.style.scrollBehavior = 'auto';
+    el.scrollLeft += copy === 0 ? groupWidth : -groupWidth;
+    requestAnimationFrame(() => {
+      el.style.scrollBehavior = previousBehavior;
+      this.applyCoverflow('auctions');
+    });
+  };
   applyCoverflow = (key) => {
     const el = this['_' + key + 'Ref'];
     if (!el) return;
@@ -1576,6 +1627,7 @@ class Component extends DCLogic {
     });
     this.setState({ overflow });
     requestAnimationFrame(this.centerVideoLoop);
+    requestAnimationFrame(this.centerAuctionLoop);
   };
   setHeroCarouselRef = (el) => {
     this._heroCarouselEl = el;
@@ -2683,6 +2735,56 @@ submitAuth = async (e) => {
     const bidLabel = !hasAnyAuction
       ? 'No hay subastas activas'
       : (!u ? 'Crear cuenta para pujar' : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : (featuredIsLeading ? 'Vas ganando' : 'Pujar ahora')));
+    const featuredCarouselItems = (featuredAuctionQueue.length > 1
+      ? [...featuredAuctionQueue, ...featuredAuctionQueue, ...featuredAuctionQueue]
+      : featuredAuctionQueue
+    ).map((lot, loopIndex) => {
+      const isActive = lot.status === 'Activa';
+      const isUpcoming = lot.status === 'Próxima';
+      const ownBid = this.parseMoney(st.myBids[lot.id] || 0);
+      const currentBid = this.parseMoney(lot.bid);
+      const isLeading = !!ownBid && ownBid >= currentBid;
+      const watchOn = !!st.watching[lot.id];
+      const endingSoon = isActive && lot.closesAt - Date.now() <= 60 * 60 * 1000;
+      const itemBidLabel = !u
+        ? 'Crear cuenta para pujar'
+        : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : (isLeading ? 'Vas ganando' : 'Pujar ahora'));
+      return {
+        ...lot,
+        uid: `${lot.id}-featured-${loopIndex}`,
+        copy: featuredAuctionQueue.length > 1 ? Math.floor(loopIndex / featuredAuctionQueue.length) : 1,
+        index: featuredAuctionQueue.length > 1 ? loopIndex % featuredAuctionQueue.length : 0,
+        hasImage: !!lot.src,
+        noImage: !lot.src,
+        fullSrc: lot.fullSrc || lot.src,
+        position: lot.position || '50% 50%',
+        zoom: lot.zoom || 1,
+        startsDate: this.formatAuctionDate(lot.startsAt),
+        closesDate: this.formatAuctionDate(lot.closesAt),
+        priceLabel: isUpcoming ? 'Precio base' : `Puja actual · ${lot.bidCount} ofertas`,
+        clockLabel: isUpcoming ? 'Inicia en' : 'Cierra en',
+        clockColor: isUpcoming ? '#8dbbff' : 'var(--text)',
+        badgeLabel: isUpcoming ? 'Próxima subasta' : (endingSoon ? 'Cerrando pronto' : 'Subasta activa'),
+        badgeColor: isUpcoming ? '#8dbbff' : accent,
+        badgeBorder: isUpcoming ? 'rgba(92,160,255,.5)' : 'rgba(246,192,42,0.45)',
+        badgeDot: isUpcoming ? '#5ca0ff' : '#ff0000',
+        badgeAnimation: isActive ? 'livePulse 0.8s ease-in-out infinite' : 'none',
+        finishClass: '',
+        detailsFlex: isActive ? '0' : '1',
+        isActive,
+        isUpcoming,
+        bidAction: !u ? this.startBid(lot.id) : (st.bidStatus === 'autorizado' ? this.startBid(lot.id) : this.requestAuth),
+        bidDisabled: isLeading,
+        bidCursor: isLeading ? 'not-allowed' : 'pointer',
+        bidOpacity: isLeading ? '0.55' : '1',
+        bidButtonLabel: itemBidLabel,
+        notify: this.toggleWatch(lot.id),
+        notifyLabel: watchOn ? '✓ Te avisaremos 24 horas antes' : 'Avisarme cuando comience',
+        notifyBg: watchOn ? 'rgba(74,222,128,0.1)' : 'transparent',
+        notifyBorder: watchOn ? 'rgba(74,222,128,0.35)' : 'rgba(var(--border-rgb),0.25)',
+        notifyColor: watchOn ? '#7ee2a8' : 'var(--text)',
+      };
+    });
     const activeFilter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
     const publicAuctions = [...active, ...upcoming];
     const filtered = publicAuctions.filter(activeFilter.test);
@@ -2842,9 +2944,7 @@ submitAuth = async (e) => {
       featuredCelebrating,
       featuredFinishClass: featuredCelebrating ? 'usso-finished-lot' : '',
       featuredHasMultiple: featuredAuctionQueue.length > 1,
-      featuredCounter: `${featuredAuctionIndex + 1} / ${featuredAuctionQueue.length}`,
-      featuredPrev: this.moveFeaturedAuction(-1),
-      featuredNext: this.moveFeaturedAuction(1),
+      featuredCarouselItems,
       featuredBadgeLabel: featuredIsUpcoming ? 'Próxima subasta' : (featuredIsActive ? (featuredEndingSoon ? 'Cerrando pronto' : 'Subasta activa') : (feat.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas')),
       featuredBadgeColor: featuredIsUpcoming ? '#8dbbff' : (featuredIsActive ? accent : (feat.bidCount > 0 ? '#7ee2a8' : '#ff8a80')),
       featuredBadgeBorder: featuredIsUpcoming ? 'rgba(92,160,255,.5)' : (featuredIsActive ? 'rgba(246,192,42,0.45)' : (feat.bidCount > 0 ? 'rgba(74,222,128,0.48)' : 'rgba(255,92,82,0.55)')),
@@ -2956,11 +3056,15 @@ submitAuth = async (e) => {
       searchWidth: this.searchState.open || this.searchState.value ? '160px' : '0px',
       searchGap: this.searchState.open || this.searchState.value ? '8px' : '0px',
       invRef: this.setCarouselRef('inv'),
+      auctionsRef: this.setCarouselRef('auctions'),
       videosRef: this.setCarouselRef('videos'),
       invGridStyle: { display: 'flex', flexWrap: 'nowrap', gap: '24px', alignItems: 'center', justifyContent: this.state.overflow.inv ? 'flex-start' : 'center' },
+      auctionsGridStyle: { display: 'flex', flexWrap: 'nowrap', gap: '24px', alignItems: 'center', justifyContent: 'flex-start' },
       videosGridStyle: { display: 'flex', flexWrap: 'nowrap', gap: '24px', alignItems: 'center', justifyContent: this.state.overflow.videos ? 'flex-start' : 'center' },
       invPrev: this.scrollCarousel('inv', -1),
       invNext: this.scrollCarousel('inv', 1),
+      auctionsPrev: this.scrollCarousel('auctions', -1),
+      auctionsNext: this.scrollCarousel('auctions', 1),
       videosPrev: this.scrollCarousel('videos', -1),
       videosNext: this.scrollCarousel('videos', 1),
       mobileMenuOpen: this.state.mobileMenuOpen,
