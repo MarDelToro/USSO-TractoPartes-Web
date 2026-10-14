@@ -246,7 +246,10 @@
   .usso-featured-lot { display: grid; grid-template-columns: minmax(0,0.72fr) minmax(0,1fr); grid-template-rows: 1fr auto; grid-template-areas: "photo body" "photo actions"; gap: 0; align-items: stretch; background: var(--card-bg); border: 1px solid rgba(246,192,42,0.3); border-radius: 20px; overflow: hidden; margin: 0 auto 56px; max-width: 1000px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
   .usso-featured-lot > * { min-width: 0; }
   .usso-featured-lot image-slot { min-width: 0; max-width: 100%; }
-  .usso-featured-photo { grid-area: photo; }
+  .usso-featured-photo { grid-area: photo; overflow:hidden; background:#171719; }
+  .usso-featured-photo > img, .usso-auction-photo > img, .usso-all-photo > img, .usso-history-photo > img { position:absolute; inset:0; width:100%; height:100%; max-width:none; object-fit:cover; display:block; }
+  .usso-auction-photo, .usso-all-photo, .usso-history-photo { position:relative; overflow:hidden; background:#171719; }
+  .usso-photo-empty { position:absolute; inset:0; display:grid; place-items:center; padding:20px; color:rgba(var(--text-rgb),.42); font:700 13px Manrope,sans-serif; text-align:center; }
   .usso-featured-body { grid-area: body; }
   .usso-featured-actions { grid-area: actions; }
   .usso-featured-chips-mobile { display: none !important; }
@@ -261,8 +264,8 @@
   @media (max-width: 860px) {
     .usso-all-grid { display: flex !important; grid-template-columns: none !important; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 12px !important; margin: 0 -20px; padding: 2px 20px 8px; }
     .usso-all-grid::-webkit-scrollbar { display: none; }
-    .usso-all-grid > div, .usso-all-card { flex: 0 0 88% !important; scroll-snap-align: center; scroll-snap-stop: always; box-shadow: 0 10px 28px rgba(0,0,0,0.35); display: grid !important; grid-template-columns: 40% minmax(0,1fr) !important; grid-template-rows: auto auto !important; grid-template-areas: "photo body" "actions actions" !important; align-items: stretch; }
-    .usso-all-grid > div > div:first-child, .usso-all-photo { grid-area: photo !important; aspect-ratio: 1/1 !important; align-self:start !important; min-height:0 !important; }
+    .usso-all-grid > div, .usso-all-card { flex: 0 0 88% !important; scroll-snap-align: center; scroll-snap-stop: always; box-shadow: 0 10px 28px rgba(0,0,0,0.35); display: grid !important; grid-template-columns: minmax(0,1fr) !important; grid-template-rows: auto auto auto !important; grid-template-areas: "photo" "body" "actions" !important; align-items: stretch; }
+    .usso-all-grid > div > div:first-child, .usso-all-photo { grid-area: photo !important; width:100% !important; aspect-ratio: 1/1 !important; align-self:stretch !important; min-height:0 !important; }
     .usso-all-grid > div > div:first-child img, .usso-all-photo img { width:100% !important; height:100% !important; object-fit:cover !important; }
     .usso-all-grid > div > div:first-child > span, .usso-all-photo > span { font-size: 9.5px !important; padding: 4px 8px !important; top: 8px !important; left: 8px !important; }
     .usso-all-grid > div > div:first-child > span:last-child, .usso-all-cat { display: none !important; }
@@ -327,8 +330,8 @@
   .usso-field:focus { border-color: rgba(246,192,42,0.6); background: rgba(var(--border-rgb),0.08); }
   .usso-field::placeholder { color: rgba(243,241,236,0.32); font-weight: 500; }
   @media (max-width: 860px) {
-    .usso-featured-lot { grid-template-columns: 40% minmax(0,1fr) !important; grid-template-rows: auto auto !important; grid-template-areas: "photo body" "actions actions" !important; border-radius: 16px !important; margin-bottom: 32px !important; }
-    .usso-featured-photo { align-self:start !important; aspect-ratio:1/1 !important; min-height:0 !important; }
+    .usso-featured-lot { grid-template-columns: minmax(0,1fr) !important; grid-template-rows: auto auto auto !important; grid-template-areas: "photo" "body" "actions" !important; border-radius: 16px !important; margin-bottom: 32px !important; }
+    .usso-featured-photo { width:100% !important; align-self:stretch !important; aspect-ratio:1/1 !important; min-height:0 !important; }
     .usso-featured-photo .usso-live-badge { top: 8px !important; left: 8px !important; padding: 4px 8px !important; }
     .usso-featured-photo .usso-live-badge span:last-child { font-size: 9px !important; }
     .usso-featured-body { padding: 14px 14px 12px !important; }
@@ -741,7 +744,10 @@
       <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
       <div class="usso-featured-lot {{ featuredFinishClass }}">
         <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
+         <sc-if value="{{ featuredHasImage }}">
          <img src="{{ featuredSrc }}" data-fallback-src="{{ featuredFullSrc }}" onError="{{ onAuctionImageError }}" alt="" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ featuredPosition }};transform-origin:{{ featuredPosition }};transform:scale({{ featuredZoom }});display:block">
+         </sc-if>
+         <sc-if value="{{ featuredNoImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
           <span class="usso-live-badge" style="position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:7px;background:rgba(10,10,11,0.86);backdrop-filter:blur(6px);border:1px solid {{ featuredBadgeBorder }};border-radius:100px;padding:7px 14px;z-index:4">
             <span style="width:6px;height:6px;border-radius:50%;background:{{ featuredBadgeDot }};animation:{{ featuredBadgeAnimation }}"></span>
             <span style="font:800 11px Manrope,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:{{ featuredBadgeColor }}">{{ featuredBadgeLabel }}</span>
@@ -812,8 +818,11 @@
       <div class="usso-auctions-grid" ref="{{ auctionsRef }}" style="{{ auctionsGridStyle }}">
         <sc-for list="{{ auctionItems }}" as="lot" hint-placeholder-count="3">
           <div onClick="{{ lot.goTo }}" style="background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.07);border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;flex:0 0 320px">
-            <div style="position:relative;aspect-ratio:1/1">
+            <div class="usso-auction-photo" style="position:relative;aspect-ratio:1/1">
+             <sc-if value="{{ lot.hasImage }}">
              <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }});display:block">
+             </sc-if>
+             <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
               <span style="position:absolute;top:14px;left:14px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 11px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:6px 12px;border-radius:100px">{{ lot.status }}</span>
             </div>
             <div style="padding:22px;display:flex;flex-direction:column;flex:1">
@@ -865,7 +874,10 @@
           <sc-for list="{{ filteredLots }}" as="lot" hint-placeholder-count="6">
             <div class="usso-all-card" onClick="{{ lot.goTo }}" style="background:var(--bg);border:1px solid rgba(var(--border-rgb),0.09);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer">
               <div class="usso-all-photo" style="position:relative;aspect-ratio:1/1">
+                <sc-if value="{{ lot.hasImage }}">
                 <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="eager" decoding="async" style="width:100%;height:100%;display:block;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }})">
+                </sc-if>
+                <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
                 <span class="usso-all-status" style="position:absolute;top:12px;left:12px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 10.5px Manrope,sans-serif;letter-spacing:0.08em;text-transform:uppercase;padding:5px 11px;border-radius:100px">{{ lot.status }}</span>
                 <span class="usso-all-cat" style="position:absolute;top:12px;right:12px;background:rgba(10,10,11,0.78);backdrop-filter:blur(4px);color:rgba(243,241,236,0.9);font:700 10.5px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:5px 11px;border-radius:100px">{{ lot.categoryLabel }}</span>
               </div>
@@ -925,7 +937,7 @@
         <div class="usso-history-grid">
           <sc-for list="{{ historyLots }}" as="lot" hint-placeholder-count="3">
             <article class="usso-history-card" onClick="{{ lot.goTo }}">
-              <div class="usso-history-photo"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }})"></div>
+              <div class="usso-history-photo"><sc-if value="{{ lot.hasImage }}"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }})"></sc-if><sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if></div>
               <div class="usso-history-body">
                 <span style="font:800 10.5px Manrope,sans-serif;color:{{ lot.resultColor }};text-transform:uppercase;letter-spacing:.09em">{{ lot.resultLabel }} · Ronda {{ lot.auctionRound }}</span>
                 <h3 style="font:800 18px Manrope,sans-serif;color:var(--text);margin:7px 0 18px">{{ lot.title }}</h3>
@@ -2769,6 +2781,8 @@ submitAuth = async (e) => {
       featuredId: feat.id,
       featuredSrc: feat.src,
       featuredFullSrc: feat.fullSrc || feat.src,
+      featuredHasImage: !!feat.src,
+      featuredNoImage: !feat.src,
       featuredPosition: feat.position || '50% 50%',
       featuredZoom: feat.zoom || 1,
       onAuctionImageError: this.onAuctionImageError,
@@ -2837,6 +2851,8 @@ submitAuth = async (e) => {
           : (st.bidStatus !== 'autorizado' ? 'Solicitar autorización' : (isLeading ? 'Vas ganando' : 'Pujar ahora'));
         return {
           ...l,
+          hasImage: !!l.src,
+          noImage: !l.src,
           categoryLabel: this.CATS[l.cat] || '',
           isActive,
           isUpcoming: l.status === 'Próxima',
@@ -2857,7 +2873,7 @@ submitAuth = async (e) => {
       hasFiltered: filtered.length > 0,
       noFiltered: filtered.length === 0,
       filterSummary: filtered.length === 1 ? '1 lote' : filtered.length + ' lotes',
-      historyLots: history.map((lot) => ({ ...lot, resultLabel: lot.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas', resultColor: lot.bidCount > 0 ? '#7ee2a8' : '#ff8a80' })),
+      historyLots: history.map((lot) => ({ ...lot, hasImage:!!lot.src, noImage:!lot.src, resultLabel: lot.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas', resultColor: lot.bidCount > 0 ? '#7ee2a8' : '#ff8a80' })),
       hasHistory: history.length > 0,
       noHistory: history.length === 0,
 
@@ -2979,7 +2995,7 @@ submitAuth = async (e) => {
       ],
       // La primera subasta activa ya aparece en la tarjeta principal.
       // Debajo mostramos solamente los otros lotes, una vez cada uno.
-      auctionItems: (active.length ? [...active.slice(1), ...upcoming] : upcoming.slice(1)).map((l) => ({ ...l, uid: l.id })),
+      auctionItems: (active.length ? [...active.slice(1), ...upcoming] : upcoming.slice(1)).map((l) => ({ ...l, uid: l.id, hasImage:!!l.src, noImage:!l.src })),
       heroLoopLots: this.heroLoopLots,
       setHeroCarouselRef: this.setHeroCarouselRef,
       onHeroCarouselScroll: this.onHeroCarouselScroll,
