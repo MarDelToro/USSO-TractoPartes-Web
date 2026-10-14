@@ -330,7 +330,10 @@
   .usso-field::placeholder { color: rgba(243,241,236,0.32); font-weight: 500; }
   @media (max-width: 860px) {
     .usso-featured-lot { grid-template-columns: minmax(0,1fr) !important; grid-template-rows: auto auto auto !important; grid-template-areas: "photo" "body" "actions" !important; border-radius: 16px !important; margin-bottom: 8px !important; }
-    .usso-featured-photo { width:100% !important; height:auto !important; align-self:stretch !important; aspect-ratio:16/9 !important; min-height:0 !important; }
+    .usso-auctions-grid { align-items:stretch !important; }
+    .usso-auctions-grid > .usso-featured-lot { align-self:stretch !important; height:auto !important; }
+    .usso-featured-photo { width:100% !important; height:auto !important; align-self:stretch !important; aspect-ratio:4/3 !important; min-height:0 !important; }
+    .usso-featured-photo > img { transform:scale(1) !important; }
     .usso-featured-photo .usso-live-badge { top: 8px !important; left: 8px !important; padding: 4px 8px !important; }
     .usso-featured-photo .usso-live-badge span:last-child { font-size: 9px !important; }
     .usso-featured-body { padding: 12px 13px 8px !important; }
