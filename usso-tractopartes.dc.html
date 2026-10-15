@@ -253,7 +253,7 @@
   @media (max-width: 640px) {
     .usso-hero-content { max-width: 100% !important; }
   }
-  .usso-featured-lot { display: grid; grid-template-columns: minmax(0,0.72fr) minmax(0,1fr); grid-template-rows: 1fr auto; grid-template-areas: "photo body" "photo actions"; gap: 0; align-items: stretch; background: var(--card-bg); border: 1px solid rgba(246,192,42,0.3); border-radius: 20px; overflow: hidden; margin: 0 auto 56px; max-width: 1000px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+  .usso-featured-lot { display: grid; grid-template-columns: minmax(0,0.72fr) minmax(0,1fr); grid-template-rows: 1fr auto; grid-template-areas: "photo body" "photo actions"; gap: 0; align-items: stretch; background: var(--card-bg); border: 1px solid rgba(246,192,42,0.3); border-radius: 20px; overflow: hidden; margin: 0 auto 56px; max-width: 1000px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); cursor:pointer; transition:border-color .25s ease,box-shadow .25s ease,filter .25s ease; }
   .usso-featured-lot > * { min-width: 0; }
   .usso-featured-lot image-slot { min-width: 0; max-width: 100%; }
   .usso-featured-photo { grid-area: photo; align-self:stretch !important; aspect-ratio:auto !important; height:100%; min-height:100%; overflow:hidden; background:#171719; }
@@ -269,6 +269,8 @@
   .usso-auctions-grid { display:block !important; overflow:visible !important; padding:0 !important; mask-image:none !important; -webkit-mask-image:none !important; }
   .usso-auctions-grid > .usso-featured-lot { display:none !important; }
   .usso-auctions-grid > .usso-featured-lot[data-auction-copy="1"][data-auction-index="0"] { display:grid !important; width:100% !important; max-width:1000px !important; opacity:1 !important; filter:brightness(1) saturate(1.04) !important; transform:none !important; border-color:#f6c02a; box-shadow:0 0 20px rgba(246,192,42,.48),0 0 64px rgba(246,192,42,.26),0 32px 72px rgba(0,0,0,.62); }
+  .usso-auctions-grid > .usso-featured-lot[data-auction-copy="1"][data-auction-index="0"]:hover { filter:brightness(1.045) saturate(1.08) !important; border-color:#ffd65a !important; box-shadow:0 0 28px rgba(246,192,42,.62),0 0 82px rgba(246,192,42,.32),0 38px 78px rgba(0,0,0,.7) !important; }
+  .usso-featured-lot:focus-visible { outline:3px solid rgba(246,192,42,.78); outline-offset:5px; }
   .usso-secondary-auctions-grid { display:flex; flex-wrap:nowrap; justify-content:center; gap:28px; overflow-x:auto; scrollbar-width:none; max-width:1120px; margin:0 auto; padding:34px 38px 52px; scroll-snap-type:x mandatory; }
   .usso-secondary-auctions-grid::-webkit-scrollbar { display:none; }
   .usso-secondary-auction-card { position:relative; isolation:isolate; flex:0 0 320px; scroll-snap-align:center; background:linear-gradient(155deg,rgba(31,31,35,.98),rgba(15,15,17,.98)); border:1px solid rgba(246,192,42,.34); border-radius:18px; overflow:hidden; cursor:pointer; box-shadow:0 0 0 1px rgba(246,192,42,.05),0 14px 34px rgba(0,0,0,.58),0 28px 46px -30px rgba(246,192,42,.72); transform:translateY(0); animation:ussoSecondaryFloat 5.2s ease-in-out infinite; transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease; }
@@ -796,7 +798,7 @@
       <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
       <div class="usso-auctions-grid" ref="{{ auctionsRef }}" style="{{ auctionsGridStyle }}">
       <sc-for list="{{ featuredCarouselItems }}" as="lot" hint-placeholder-count="3">
-      <div data-auction-id="{{ lot.id }}" data-auction-copy="{{ lot.copy }}" data-auction-index="{{ lot.index }}" class="usso-featured-lot {{ lot.finishClass }} {{ lot.activeClass }} {{ lot.statusClass }}" style="flex:0 0 min(1120px,86vw)">
+      <div data-auction-id="{{ lot.id }}" data-auction-copy="{{ lot.copy }}" data-auction-index="{{ lot.index }}" class="usso-featured-lot {{ lot.finishClass }} {{ lot.activeClass }} {{ lot.statusClass }}" onClick="{{ lot.goTo }}" onKeyDown="{{ lot.openOnKey }}" role="button" tabIndex="0" aria-label="Abrir subasta {{ lot.title }}" style="flex:0 0 min(1120px,86vw)">
         <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
          <sc-if value="{{ lot.hasImage }}">
          <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }});display:block">
@@ -1806,6 +1808,12 @@ class Component extends DCLogic {
     if (e && e.stopPropagation) e.stopPropagation();
     this.setState({ pageOpacity: 0 });
     setTimeout(() => { window.location.href = `Subasta.dc.html#${id}`; }, 240);
+  };
+
+  openLotOnKey = (id) => (e) => {
+    if (!e || (e.key !== 'Enter' && e.key !== ' ')) return;
+    e.preventDefault();
+    this.goToLot(id)(e);
   };
 
   playingVideo = null;
@@ -2901,6 +2909,7 @@ submitAuth = async (e) => {
         finishClass: '',
         activeClass: isActive ? 'usso-featured-active' : '',
         statusClass: isUpcoming ? 'usso-featured-upcoming' : '',
+        openOnKey: this.openLotOnKey(lot.id),
         detailsFlex: isActive ? '0' : '1',
         isActive,
         isUpcoming,
