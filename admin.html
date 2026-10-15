@@ -428,7 +428,6 @@
       <div class="field full"><label for="edit_media_urls">Galería actual y direcciones adicionales</label><textarea id="edit_media_urls" placeholder="Una dirección por línea"></textarea><span class="field-help">Puedes reordenar o borrar direcciones. La portada se controla en el campo anterior.</span></div>
       <div class="field full"><label>Encuadre de la galería</label><div class="edit-media-grid" id="editMediaGrid"></div><span class="field-help">Pulsa “Encuadrar” debajo de cualquier fotografía. Los videos no necesitan ajuste.</span></div>
       <div class="field"><label for="edit_start_price">Precio base</label><input id="edit_start_price" type="number" min="0" step="1" required></div>
-      <div class="field"><label for="edit_current_price">Precio actual</label><input id="edit_current_price" type="number" min="0" step="1" required></div>
       <div class="field"><label for="edit_buy_now_price">Precio Comprar ahora</label><input id="edit_buy_now_price" type="number" min="0" step="1" placeholder="Opcional"><span class="field-help">Déjalo vacío para ocultar la compra anticipada.</span></div>
       <div class="field full"><label for="edit_start_date">Fecha y hora de inicio</label><div class="date-time-row"><input id="edit_start_date" type="date"><select id="edit_start_hour" aria-label="Hora de inicio"></select><span class="date-time-separator">:</span><select id="edit_start_minute" aria-label="Minutos de inicio"></select><select id="edit_start_period" aria-label="Periodo de inicio"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div><span class="field-help">Para una subasta próxima, elige aquí el día y la hora exactos en que comenzará.</span></div>
       <div class="field full"><label for="edit_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="edit_end_date" type="date" required><select id="edit_end_hour" aria-label="Hora"></select><span class="date-time-separator">:</span><select id="edit_end_minute" aria-label="Minutos"></select><select id="edit_end_period" aria-label="Periodo de cierre"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div><div class="time-shortcuts"><button type="button" data-duration="5">Desde ahora: 5 min</button><button type="button" data-duration="15">15 min</button><button type="button" data-duration="60">1 hora</button><button type="button" data-duration="1440">1 día</button></div></div>
@@ -1338,7 +1337,6 @@
           document.getElementById("edit_media_urls").value = (listing.media_urls || []).map((item) => typeof item === "string" ? item : item.url).filter(Boolean).join("\n");
           renderEditMediaGallery(listing);
           document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
-          document.getElementById("edit_current_price").value = Number(listing.current_price || listing.start_price || 0);
           document.getElementById("edit_buy_now_price").value = listing.buy_now_price ? Number(listing.buy_now_price) : "";
           document.getElementById("edit_status").value = listing.status === "active" ? (listing.starts_at && new Date(listing.starts_at) > new Date() ? "upcoming" : "active") : "closed";
           document.getElementById("edit_photo").value = "";
@@ -1389,7 +1387,6 @@
           document.getElementById("edit_media_urls").value = (listing.media_urls || []).map((item) => typeof item === "string" ? item : item.url).filter(Boolean).join("\n");
           renderEditMediaGallery(listing);
           document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
-          document.getElementById("edit_current_price").value = Number(listing.start_price || 0);
           document.getElementById("edit_buy_now_price").value = listing.buy_now_price ? Number(listing.buy_now_price) : "";
           document.getElementById("edit_status").value = "active";
           document.getElementById("edit_photo").value = "";
@@ -1808,7 +1805,9 @@
         image_url: imageUrl || null,
         media_urls: mediaUrls,
         start_price: Number(document.getElementById("edit_start_price").value || 0),
-        current_price: Number(document.getElementById("edit_current_price").value || 0),
+        current_price: selectedStatus === "upcoming"
+          ? Number(document.getElementById("edit_start_price").value || 0)
+          : Number(original.current_price || original.start_price || 0),
         buy_now_price: Number(document.getElementById("edit_buy_now_price").value || 0) || null,
         starts_at: startsAt ? new Date(startsAt).toISOString() : new Date().toISOString(),
         ends_at: endsAt ? new Date(endsAt).toISOString() : null,
