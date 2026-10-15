@@ -103,6 +103,12 @@ nav { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
 .auth-links a.primary-link { color:#f6c02a; border-color:rgba(246,192,42,.3); background:rgba(246,192,42,.06); }
 .auth-card .msg { min-height:18px; margin:0; text-align:center; font-size:12px; }
 @media(max-width:600px) {
-  .auth-card { padding:28px 20px; border-radius:18px; }
-  .auth-card h1 { font-size:27px; }
+  .auth-page { align-content:start; padding:20px 16px 34px; }
+  .auth-card { box-sizing:border-box; width:100%; max-width:390px; padding:24px 18px; gap:13px; border-radius:18px; }
+  .auth-card img { width:104px; margin-bottom:0; }
+  .auth-card h1 { font-size:25px; }
+  .auth-card .auth-intro { margin:-4px 0 5px; font-size:12px; }
+  .auth-field { gap:5px; }
+  .auth-field input { box-sizing:border-box; width:100%; min-height:46px; padding:11px 13px; }
+  .auth-submit { min-height:47px; }
 }
