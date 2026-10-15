@@ -269,9 +269,17 @@
   .usso-auctions-grid { display:block !important; overflow:visible !important; padding:0 !important; mask-image:none !important; -webkit-mask-image:none !important; }
   .usso-auctions-grid > .usso-featured-lot { display:none !important; }
   .usso-auctions-grid > .usso-featured-lot[data-auction-copy="1"][data-auction-index="0"] { display:grid !important; width:100% !important; max-width:1000px !important; opacity:1 !important; filter:brightness(1) saturate(1.04) !important; transform:none !important; border-color:#f6c02a; box-shadow:0 0 20px rgba(246,192,42,.48),0 0 64px rgba(246,192,42,.26),0 32px 72px rgba(0,0,0,.62); }
-  .usso-secondary-auctions-grid { display:flex; flex-wrap:nowrap; gap:24px; overflow-x:auto; scrollbar-width:none; padding:6px 4px 12px; scroll-snap-type:x mandatory; }
+  .usso-secondary-auctions-grid { display:flex; flex-wrap:nowrap; justify-content:center; gap:28px; overflow-x:auto; scrollbar-width:none; max-width:1120px; margin:0 auto; padding:34px 38px 52px; scroll-snap-type:x mandatory; }
   .usso-secondary-auctions-grid::-webkit-scrollbar { display:none; }
-  .usso-secondary-auction-card { flex:0 0 320px; scroll-snap-align:center; background:var(--card-bg); border:1px solid rgba(var(--border-rgb),.08); border-radius:16px; overflow:hidden; cursor:pointer; }
+  .usso-secondary-auction-card { position:relative; isolation:isolate; flex:0 0 320px; scroll-snap-align:center; background:linear-gradient(155deg,rgba(31,31,35,.98),rgba(15,15,17,.98)); border:1px solid rgba(246,192,42,.34); border-radius:18px; overflow:hidden; cursor:pointer; box-shadow:0 0 0 1px rgba(246,192,42,.05),0 14px 34px rgba(0,0,0,.58),0 28px 46px -30px rgba(246,192,42,.72); transform:translateY(0); animation:ussoSecondaryFloat 5.2s ease-in-out infinite; transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease; }
+  .usso-secondary-auction-card:nth-child(even) { animation-delay:-2.6s; }
+  .usso-secondary-auction-card:hover { animation:none; transform:translateY(-10px) scale(1.012); border-color:rgba(246,192,42,.72); box-shadow:0 0 24px rgba(246,192,42,.18),0 22px 46px rgba(0,0,0,.68),0 36px 54px -30px rgba(246,192,42,.9); }
+  @keyframes ussoSecondaryFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  @media (prefers-reduced-motion:reduce) { .usso-secondary-auction-card { animation:none; } }
+  @media (max-width:760px) and (min-width:641px) {
+    .usso-secondary-auctions-grid { gap:18px; padding:30px 18px 46px; }
+    .usso-secondary-auction-card { flex-basis:280px; }
+  }
   @media (max-width: 1150px) and (min-width: 641px) {
     .usso-featured-body { padding: 28px 26px 26px !important; }
     .usso-featured-title { font-size: 24px !important; }
