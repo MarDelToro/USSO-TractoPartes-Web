@@ -240,16 +240,18 @@
     .admin-sidebar-brand img { width:58px; height:38px; object-fit:contain; }
     .admin-sidebar-brand span { display:flex; flex-direction:column; color:#f5f3ee; font-size:12px; font-weight:900; line-height:1.15; }
     .admin-sidebar-brand small { margin-top:4px; color:#737983; font-size:8px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
-    .admin-index-links { display:flex; flex:1; flex-direction:column; gap:5px; overflow:visible; }
+    .admin-index-links { display:flex; flex:1; flex-direction:column; gap:5px; overflow-y:auto; scrollbar-width:none; }
+    .admin-index-links::-webkit-scrollbar { display:none; }
     .admin-index a { justify-content:flex-start; min-height:46px; padding:11px 13px 11px 44px; border-radius:12px; color:#969ca5; font-size:12px; text-align:left; }
     .admin-index a::before { position:absolute; left:14px; top:50%; width:21px; color:#747b85; font-size:16px; text-align:center; transform:translateY(-50%); }
     .admin-index a:nth-child(1)::before { content:"▦"; }
-    .admin-index a:nth-child(2)::before { content:"●"; font-size:11px; }
-    .admin-index a:nth-child(3)::before { content:"▥"; }
-    .admin-index a:nth-child(4)::before { content:"↺"; }
-    .admin-index a:nth-child(5)::before { content:"★"; }
-    .admin-index a:nth-child(6)::before { content:"♙"; }
-    .admin-index a:nth-child(7)::before { content:"◉"; }
+    .admin-index a:nth-child(2)::before { content:"◇"; }
+    .admin-index a:nth-child(3)::before { content:"●"; font-size:11px; }
+    .admin-index a:nth-child(4)::before { content:"▥"; }
+    .admin-index a:nth-child(5)::before { content:"↺"; }
+    .admin-index a:nth-child(6)::before { content:"★"; }
+    .admin-index a:nth-child(7)::before { content:"♙"; }
+    .admin-index a:nth-child(8)::before { content:"◉"; }
     .admin-index a:hover { color:#f5f3ee; background:rgba(255,255,255,.055); }
     .admin-index a.active { color:#0a0a0b; background:var(--admin-yellow); box-shadow:0 9px 24px rgba(246,192,42,.16); }
     .admin-index a.active::before { color:#0a0a0b; }
@@ -280,6 +282,11 @@
     .stat { background:linear-gradient(145deg,#18181b,#121214); border-color:var(--admin-line); box-shadow:0 14px 34px rgba(0,0,0,.16); }
     .panel-card,.table-wrap.compact-history { background:var(--admin-panel); }
     .auction-preview { margin-top:24px; padding:1px 22px 22px; border:1px solid var(--admin-line); border-radius:22px; background:rgba(20,20,23,.7); box-shadow:0 20px 50px rgba(0,0,0,.2); }
+    .admin-module-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; padding:36px 0 4px; }
+    .admin-module-heading span { color:var(--admin-yellow); font-size:10px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; }
+    .admin-module-heading h2 { margin:7px 0 4px; font-size:clamp(25px,3vw,38px); letter-spacing:-.045em; }
+    .admin-module-heading p { margin:0; color:#858c96; font-size:13px; }
+    [data-admin-views][hidden] { display:none !important; }
     #admin-subastas,#control-vivo,#finanzas-admin,#historial-admin,#ganadores-contacto,#usuarios-admin,#avisos-admin { scroll-margin-top:105px; }
 
     @media(max-width:1050px) {
@@ -324,35 +331,38 @@
         <input id="adminAvatarInput" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden>
         <div><h1>Panel administrativo</h1><p id="who">Cargando cuenta...</p><span class="admin-avatar-help">Toca tu foto para cambiarla</span></div>
       </div>
-      <nav class="admin-nav"><a href="/">Ver sitio</a><a href="#admin-subastas">Ver subastas</a></nav>
+      <nav class="admin-nav"><a href="/">Ver sitio</a><a href="admin.html?view=auctions">Ver subastas</a></nav>
     </header>
     <p class="msg admin-ready" id="msg">Cargando...</p>
 
     <nav class="admin-index" aria-label="Secciones del panel">
       <div class="admin-sidebar-brand"><img src="assets/logo-usso-v2-transparent.webp" alt="USSO"><span>Panel USSO<small>Administración</small></span></div>
       <div class="admin-index-links">
-        <a class="active" href="#admin-subastas" data-admin-section="admin-subastas" aria-current="page">Subastas</a>
-        <a href="#control-vivo" data-admin-section="control-vivo">Pujas en vivo</a>
-        <a href="#finanzas-admin" data-admin-section="finanzas-admin">Finanzas</a>
-        <a href="#historial-admin" data-admin-section="historial-admin">Historial</a>
-        <a href="#ganadores-contacto" data-admin-section="ganadores-contacto">Ganadores</a>
-        <a href="#usuarios-admin" data-admin-section="usuarios-admin">Usuarios</a>
-        <a href="#avisos-admin" data-admin-section="avisos-admin">Avisos</a>
+        <a href="admin.html?view=overview" data-admin-view-link="overview">Resumen</a>
+        <a href="admin.html?view=auctions" data-admin-view-link="auctions">Subastas</a>
+        <a href="admin.html?view=live" data-admin-view-link="live">Pujas en vivo</a>
+        <a href="admin.html?view=finance" data-admin-view-link="finance">Finanzas</a>
+        <a href="admin.html?view=history" data-admin-view-link="history">Historial</a>
+        <a href="admin.html?view=winners" data-admin-view-link="winners">Ganadores</a>
+        <a href="admin.html?view=users" data-admin-view-link="users">Usuarios</a>
+        <a href="admin.html?view=notices" data-admin-view-link="notices">Avisos</a>
       </div>
       <button class="admin-index-publish" id="publishIndex" type="button" aria-label="Publicar pieza"><span class="admin-index-plus" aria-hidden="true">+</span><span>Publicar pieza</span></button>
     </nav>
 
-    <section aria-labelledby="attentionTitle">
+    <div class="admin-module-heading" id="adminModuleHeading"><div><span id="adminModuleEyebrow">Vista general</span><h2 id="adminModuleTitle">Resumen del día</h2><p id="adminModuleDescription">Lo más importante de la operación en un solo vistazo.</p></div></div>
+
+    <section aria-labelledby="attentionTitle" data-admin-views="overview">
       <div class="section-head" style="margin-top:20px"><div><h2 id="attentionTitle">Pendientes de hoy</h2><p>Entra directamente a lo que necesita atención.</p></div></div>
       <div class="attention-grid">
-        <a class="attention-card" href="#historial-admin" id="attentionPayments"><span>Ventas pendientes<br>de cobro</span><strong id="attentionPaymentCount">0</strong></a>
-        <a class="attention-card" href="#ganadores-contacto" id="attentionWinners"><span>Ganadores pendientes<br>de aviso</span><strong id="attentionWinnerCount">0</strong></a>
-        <a class="attention-card" href="#usuarios-admin" id="attentionRequests"><span>Solicitudes pendientes<br>de autorización</span><strong id="attentionRequestCount">0</strong></a>
-        <a class="attention-card" href="#control-vivo" id="attentionClosing"><span>Subastas que cierran<br>en menos de 1 hora</span><strong id="attentionClosingCount">0</strong></a>
+        <a class="attention-card" href="admin.html?view=finance" id="attentionPayments"><span>Ventas pendientes<br>de cobro</span><strong id="attentionPaymentCount">0</strong></a>
+        <a class="attention-card" href="admin.html?view=winners" id="attentionWinners"><span>Ganadores pendientes<br>de aviso</span><strong id="attentionWinnerCount">0</strong></a>
+        <a class="attention-card" href="admin.html?view=users" id="attentionRequests"><span>Solicitudes pendientes<br>de autorización</span><strong id="attentionRequestCount">0</strong></a>
+        <a class="attention-card" href="admin.html?view=live" id="attentionClosing"><span>Subastas que cierran<br>en menos de 1 hora</span><strong id="attentionClosingCount">0</strong></a>
       </div>
     </section>
 
-    <section class="auction-preview" id="admin-subastas">
+    <section class="auction-preview" id="admin-subastas" data-admin-views="overview auctions">
       <div class="section-head"><div><h2>Vista previa de tus subastas</h2><p>Así se presentan tus lotes, con controles administrativos en la misma tarjeta.</p></div><button class="publish-trigger" id="openPublish" type="button">Publicar pieza</button></div>
       <div class="auction-preview-toolbar">
         <div class="auction-preview-filters" aria-label="Filtrar vistas previas">
@@ -365,36 +375,36 @@
       <div class="auction-preview-frame"><div class="auction-preview-grid" id="auctionPreview"><div class="panel-card">Cargando subastas...</div></div></div>
     </section>
 
-    <div class="live-head" id="control-vivo">
+    <div class="live-head" id="control-vivo" data-admin-views="live">
       <div><h2>Control de pujas en vivo</h2><div class="live-status" id="liveStatus">Preparando seguimiento...</div></div>
       <button class="ghost" id="refreshLive" type="button">Actualizar ahora</button>
     </div>
-    <div class="stats">
+    <div class="stats" data-admin-views="live">
       <div class="stat"><span>Subastas activas</span><strong id="statActive">0</strong></div>
       <div class="stat"><span>Ofertas registradas</span><strong id="statBids">0</strong></div>
       <div class="stat"><span>Última oferta</span><strong id="statLatest">$0</strong></div>
     </div>
-    <div class="table-wrap compact-history"><table>
+    <div class="table-wrap compact-history" data-admin-views="live"><table>
       <thead><tr><th>Lote</th><th>Precio actual</th><th>Ofertas</th><th>Va ganando</th><th>WhatsApp</th><th>Cierre</th></tr></thead>
       <tbody id="liveLots"><tr><td colspan="6">Cargando...</td></tr></tbody>
     </table></div>
 
-    <div class="section-head" id="finanzas-admin"><div><h2>Resumen financiero</h2><p>Distingue lo vendido en subasta del dinero que realmente ya recibiste.</p></div></div>
-    <div class="stats finance-stats">
+    <div class="section-head" id="finanzas-admin" data-admin-views="finance"><div><h2>Resumen financiero</h2><p>Distingue lo vendido en subasta del dinero que realmente ya recibiste.</p></div></div>
+    <div class="stats finance-stats" data-admin-views="finance">
       <div class="stat"><span>Total adjudicado</span><strong id="financeAwarded">$0</strong></div>
       <div class="stat"><span>Total cobrado</span><strong class="paid" id="financePaid">$0</strong></div>
       <div class="stat"><span>Pendiente de cobro</span><strong class="pending" id="financePending">$0</strong></div>
       <div class="stat"><span>Ventas pagadas</span><strong id="financePaidCount">0</strong></div>
     </div>
 
-    <div class="section-head"><div><h2>Historial de ofertas</h2><p>Registro cronológico de todas las pujas.</p></div></div>
-    <div class="table-wrap compact-history"><table>
+    <div class="section-head" data-admin-views="live"><div><h2>Historial de ofertas</h2><p>Registro cronológico de todas las pujas.</p></div></div>
+    <div class="table-wrap compact-history" data-admin-views="live"><table>
       <thead><tr><th>Hora</th><th>Lote</th><th>Usuario</th><th>WhatsApp</th><th>Cantidad</th><th>Resultado actual</th></tr></thead>
       <tbody id="bidHistory"><tr><td colspan="6">Cargando...</td></tr></tbody>
     </table></div>
 
-    <div class="section-head"><div><h2>Administrar subastas</h2><p>Controla el estado y las rondas de cada lote.</p></div></div>
-    <div class="table-wrap"><table>
+    <div class="section-head" data-admin-views="auctions"><div><h2>Administrar subastas</h2><p>Controla el estado y las rondas de cada lote.</p></div></div>
+    <div class="table-wrap" data-admin-views="auctions"><table>
       <thead>
         <tr>
           <th>Pieza</th>
@@ -408,13 +418,13 @@
       <tbody id="listings"></tbody>
     </table></div>
 
-    <div class="section-head" id="historial-admin"><div><h2>Historial de subastas finalizadas</h2><p>Estas subastas siguen visibles para los clientes. Las que ya tienen ofertas o resultado quedan protegidas; puedes reabrirlas y editarlas sin perder su historial.</p></div></div>
-    <div class="table-wrap compact-history"><table>
+    <div class="section-head" id="historial-admin" data-admin-views="finance history"><div><h2>Historial de subastas finalizadas</h2><p>Estas subastas siguen visibles para los clientes. Las que ya tienen ofertas o resultado quedan protegidas; puedes reabrirlas y editarlas sin perder su historial.</p></div></div>
+    <div class="table-wrap compact-history" data-admin-views="finance history"><table>
       <thead><tr><th>Pieza</th><th>Precio final</th><th>Ofertas</th><th>Ronda</th><th>Ganador</th><th>Pago</th><th></th></tr></thead>
       <tbody id="closedListings"></tbody>
     </table></div>
 
-    <section class="panel-card priority-panel" id="ganadores-contacto">
+    <section class="panel-card priority-panel" id="ganadores-contacto" data-admin-views="winners">
       <div class="panel-title"><div><h2>Ganadores por avisar</h2><p>Primero aparecen los ganadores más recientes que todavía necesitan tu mensaje.</p></div><span class="status-badge status-pending">Seguimiento</span></div>
       <div class="table-wrap compact-history"><table>
         <thead><tr><th>Ganador</th><th>Subasta</th><th>Ronda</th><th>Precio final</th><th>WhatsApp</th><th>Fecha</th><th>Estado</th><th></th></tr></thead>
@@ -422,8 +432,8 @@
       </table></div>
     </section>
 
-    <div class="section-head" id="usuarios-admin"><div><h2>Usuarios</h2><p>Autoriza cuentas y consulta sus datos de contacto.</p></div></div>
-    <div class="table-wrap compact-history"><table>
+    <div class="section-head" id="usuarios-admin" data-admin-views="users"><div><h2>Usuarios</h2><p>Autoriza cuentas y consulta sus datos de contacto.</p></div></div>
+    <div class="table-wrap compact-history" data-admin-views="users"><table>
       <thead>
         <tr>
           <th>Nombre</th>
@@ -440,14 +450,14 @@
       <tbody id="rows"></tbody>
     </table></div>
 
-    <div class="section-head"><div><h2>Preferencias de notificaciones</h2><p>Avisos de WhatsApp aceptados por cada usuario.</p></div></div>
-    <div class="table-wrap compact-history"><table>
+    <div class="section-head" data-admin-views="users"><div><h2>Preferencias de notificaciones</h2><p>Avisos de WhatsApp aceptados por cada usuario.</p></div></div>
+    <div class="table-wrap compact-history" data-admin-views="users"><table>
       <thead><tr><th>Usuario</th><th>WhatsApp</th><th>Superaron su puja</th><th>Cierre en 1 hora</th><th>Ganó</th><th>No ganó</th><th>Subastas guardadas</th></tr></thead>
       <tbody id="notificationPrefs"><tr><td colspan="7">Cargando...</td></tr></tbody>
     </table></div>
 
-    <div class="section-head" id="avisos-admin"><div><h2>Avisos y seguimiento</h2><p>Filtra los mensajes y atiende primero los pendientes.</p></div><div class="section-tools" id="noticeFilters"><button class="filter-chip active" data-notice-filter="pending">Pendientes</button><button class="filter-chip" data-notice-filter="results">Ganadores</button><button class="filter-chip" data-notice-filter="today">Hoy</button><button class="filter-chip" data-notice-filter="week">7 días</button><button class="filter-chip" data-notice-filter="all">Todos</button></div></div>
-    <div class="table-wrap compact-history"><table>
+    <div class="section-head" id="avisos-admin" data-admin-views="notices"><div><h2>Avisos y seguimiento</h2><p>Filtra los mensajes y atiende primero los pendientes.</p></div><div class="section-tools" id="noticeFilters"><button class="filter-chip active" data-notice-filter="pending">Pendientes</button><button class="filter-chip" data-notice-filter="results">Ganadores</button><button class="filter-chip" data-notice-filter="today">Hoy</button><button class="filter-chip" data-notice-filter="week">7 días</button><button class="filter-chip" data-notice-filter="all">Todos</button></div></div>
+    <div class="table-wrap compact-history" data-admin-views="notices"><table>
       <thead>
         <tr>
           <th>Pieza</th>
@@ -462,6 +472,37 @@
       <tbody id="avisos"><tr><td colspan="7">Cargando...</td></tr></tbody>
     </table></div>
   </main>
+
+  <script>
+    (() => {
+      const modules = {
+        overview:["Vista general","Resumen del día","Lo más importante de la operación en un solo vistazo."],
+        auctions:["Inventario","Administrar subastas","Publica, edita y controla todos los lotes."],
+        live:["Operación en vivo","Pujas en vivo","Sigue las ofertas y los cierres mientras suceden."],
+        finance:["Resultados","Finanzas","Consulta ventas, cobros y montos pendientes."],
+        history:["Archivo","Historial","Revisa las subastas y resultados de rondas anteriores."],
+        winners:["Seguimiento","Ganadores","Contacta a quienes ganaron y registra su seguimiento."],
+        users:["Comunidad","Usuarios","Administra cuentas, autorizaciones y preferencias."],
+        notices:["Comunicación","Avisos","Controla los mensajes y notificaciones pendientes."]
+      };
+      const requested = new URLSearchParams(location.search).get("view") || "overview";
+      const current = modules[requested] ? requested : "overview";
+      document.body.dataset.adminView = current;
+      document.querySelectorAll("[data-admin-views]").forEach((element) => {
+        element.hidden = !element.dataset.adminViews.split(/\s+/).includes(current);
+      });
+      document.querySelectorAll("[data-admin-view-link]").forEach((link) => {
+        const active = link.dataset.adminViewLink === current;
+        link.classList.toggle("active", active);
+        if (active) link.setAttribute("aria-current","page"); else link.removeAttribute("aria-current");
+      });
+      const copy = modules[current];
+      document.getElementById("adminModuleEyebrow").textContent = copy[0];
+      document.getElementById("adminModuleTitle").textContent = copy[1];
+      document.getElementById("adminModuleDescription").textContent = copy[2];
+      document.title = `${copy[1]} · Admin USSO`;
+    })();
+  </script>
 
   <dialog class="publish-dialog" id="publishDialog">
     <div class="edit-dialog-head"><div><h2>Publicar una pieza</h2><p>Crea una subasta nueva y agrega toda la evidencia del producto.</p></div><button class="dialog-close" id="closePublish" type="button" aria-label="Cerrar">×</button></div>
