@@ -800,7 +800,7 @@
       <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
       <div class="usso-auctions-grid" ref="{{ auctionsRef }}" style="{{ auctionsGridStyle }}">
       <sc-for list="{{ featuredCarouselItems }}" as="lot" hint-placeholder-count="3">
-      <div data-auction-id="{{ lot.id }}" data-auction-copy="{{ lot.copy }}" data-auction-index="{{ lot.index }}" class="usso-featured-lot {{ lot.finishClass }} {{ lot.activeClass }} {{ lot.statusClass }}" onClick="{{ lot.goTo }}" onKeyDown="{{ lot.openOnKey }}" role="button" tabIndex="0" aria-label="Abrir subasta {{ lot.title }}" style="flex:0 0 min(1120px,86vw)">
+      <div data-auction-id="{{ lot.id }}" data-auction-copy="{{ lot.copy }}" data-auction-index="{{ lot.index }}" class="usso-featured-lot {{ lot.finishClass }} {{ lot.activeClass }} {{ lot.statusClass }}" onClick="{{ lot.cardGoTo }}" onKeyDown="{{ lot.openOnKey }}" role="button" tabIndex="0" aria-label="Abrir subasta {{ lot.title }}" style="flex:0 0 min(1120px,86vw)">
         <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
          <sc-if value="{{ lot.hasImage }}">
          <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }});display:block">
@@ -875,7 +875,7 @@
       <sc-if value="{{ hasSecondaryAuctions }}">
         <div class="usso-secondary-auctions-grid" ref="{{ secondaryAuctionsRef }}">
           <sc-for list="{{ secondaryCarouselItems }}" as="lot" hint-placeholder-count="6">
-            <div class="usso-secondary-auction-card" data-secondary-copy="{{ lot.copy }}" data-secondary-index="{{ lot.index }}" onClick="{{ lot.goTo }}">
+            <div class="usso-secondary-auction-card" data-secondary-copy="{{ lot.copy }}" data-secondary-index="{{ lot.index }}" onClick="{{ lot.cardGoTo }}">
               <div style="position:relative;aspect-ratio:1/1;overflow:hidden;background:#171719">
                 <sc-if value="{{ lot.hasImage }}"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }});display:block"></sc-if>
                 <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
@@ -890,10 +890,7 @@
                   <div><small style="display:block;color:rgba(var(--text-rgb),.48);font:600 10px Manrope;margin-bottom:3px">{{ lot.bidLabel }}</small><strong style="font:900 20px 'Archivo Black',sans-serif;color:{{ accent }}">{{ lot.bid }}</strong></div>
                   <div style="text-align:right"><small style="display:block;color:rgba(var(--text-rgb),.48);font:600 10px Manrope;margin-bottom:3px">{{ lot.closesLabel }}</small><strong style="font:800 13px Manrope;color:{{ lot.clockColor }}">{{ lot.closesDisplay }}</strong></div>
                 </div>
-                <div style="display:flex;gap:7px;margin-top:14px">
-                  <button onClick="{{ lot.goTo }}" style="flex:1;background:transparent;border:1px solid rgba(var(--border-rgb),.22);color:var(--text);font:700 11px Manrope;padding:11px 8px;border-radius:100px">Ver detalles</button>
-                  <sc-if value="{{ lot.isUpcoming }}"><button onClick="{{ lot.notify }}" style="flex:1.5;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:800 10.5px Manrope;padding:11px 7px;border-radius:100px">{{ lot.notifyLabel }}</button></sc-if>
-                </div>
+                <sc-if value="{{ lot.isUpcoming }}"><button onClick="{{ lot.notify }}" style="width:100%;margin-top:14px;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:800 10.5px Manrope;padding:11px 10px;border-radius:100px;cursor:pointer">{{ lot.notifyLabel }}</button></sc-if>
               </div>
             </div>
           </sc-for>
@@ -1873,6 +1870,11 @@ class Component extends DCLogic {
     setTimeout(() => { window.location.href = `Subasta.dc.html#${id}`; }, 240);
   };
 
+  goToLotFromCard = (id) => (e) => {
+    if (e && e.target && e.target.closest && e.target.closest('button, a, input, select, textarea')) return;
+    this.goToLot(id)(e);
+  };
+
   openLotOnKey = (id) => (e) => {
     if (!e || (e.key !== 'Enter' && e.key !== ' ')) return;
     e.preventDefault();
@@ -2498,7 +2500,7 @@ async syncAuthFromSupabase() {
       return { watching: w };
     }, () => this.persist());
     if (!on && lot) {
-      this.pushNotif({ icon: '🔔', kind: 'info', title: 'Aviso activado', body: 'Te escribimos al WhatsApp cuando abra la subasta del lote ' + lot.number + ' — ' + lot.title + '.' });
+      this.pushNotif({ icon: '🔔', kind: 'info', title: 'Aviso activado', body: 'Recibirás una notificación aquí 24 horas antes de que comience el lote ' + lot.number + ' — ' + lot.title + '.' });
     }
   };
 
@@ -2973,6 +2975,7 @@ submitAuth = async (e) => {
         finishClass: '',
         activeClass: isActive ? 'usso-featured-active' : '',
         statusClass: isUpcoming ? 'usso-featured-upcoming' : '',
+        cardGoTo: this.goToLotFromCard(lot.id),
         openOnKey: this.openLotOnKey(lot.id),
         detailsFlex: isActive ? '0' : '1',
         isActive,
@@ -3156,6 +3159,7 @@ submitAuth = async (e) => {
         const watchOn = !!st.watching[lot.id];
         return {
           ...lot,
+          cardGoTo: this.goToLotFromCard(lot.id),
           copy: secondaryAuctionQueue.length > 1 ? Math.floor(loopIndex / secondaryAuctionQueue.length) : 1,
           index: secondaryAuctionQueue.length > 1 ? loopIndex % secondaryAuctionQueue.length : 0,
           hasImage: !!lot.src,
@@ -3163,7 +3167,7 @@ submitAuth = async (e) => {
           fullSrc: lot.fullSrc || lot.src,
           isUpcoming: lot.status === 'Próxima',
           notify: this.toggleWatch(lot.id),
-          notifyLabel: watchOn ? '✓ Te avisaremos' : 'Avisarme cuando comience',
+          notifyLabel: watchOn ? '✓ Te avisaremos 24 horas antes' : 'Avisarme cuando comience',
           notifyBg: watchOn ? 'rgba(74,222,128,.1)' : 'transparent',
           notifyBorder: watchOn ? 'rgba(74,222,128,.35)' : 'rgba(var(--border-rgb),.22)',
           notifyColor: watchOn ? '#7ee2a8' : 'var(--text)',
