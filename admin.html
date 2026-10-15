@@ -229,6 +229,87 @@
       .admin-index-links { display:flex; gap:4px; }
       .admin-index a { flex:none; min-height:38px; padding:8px 10px; border-radius:8px; }
     }
+
+    /* Dashboard administrativo USSO */
+    :root { --admin-sidebar:232px; --admin-yellow:#f6c02a; --admin-panel:#151518; --admin-line:rgba(255,255,255,.09); }
+    body { min-height:100vh; background:radial-gradient(circle at 82% 0%,rgba(246,192,42,.075),transparent 28%),#09090b; }
+    body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.22; background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px); background-size:34px 34px; }
+    main { box-sizing:border-box; width:auto; max-width:none; margin:0 0 0 var(--admin-sidebar); padding:0 clamp(24px,3.1vw,58px) 70px; }
+    .admin-index { position:fixed; inset:0 auto 0 0; z-index:50; box-sizing:border-box; width:var(--admin-sidebar); margin:0; padding:25px 16px 18px; display:flex; flex-direction:column; align-items:stretch; gap:22px; border:0; border-right:1px solid var(--admin-line); border-radius:0; background:linear-gradient(180deg,#111113 0%,#0b0b0d 100%); box-shadow:18px 0 55px rgba(0,0,0,.23); backdrop-filter:none; transform:none !important; opacity:1 !important; pointer-events:auto !important; }
+    .admin-sidebar-brand { display:flex; align-items:center; gap:11px; min-height:54px; padding:0 7px 19px; border-bottom:1px solid var(--admin-line); }
+    .admin-sidebar-brand img { width:58px; height:38px; object-fit:contain; }
+    .admin-sidebar-brand span { display:flex; flex-direction:column; color:#f5f3ee; font-size:12px; font-weight:900; line-height:1.15; }
+    .admin-sidebar-brand small { margin-top:4px; color:#737983; font-size:8px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .admin-index-links { display:flex; flex:1; flex-direction:column; gap:5px; overflow:visible; }
+    .admin-index a { justify-content:flex-start; min-height:46px; padding:11px 13px 11px 44px; border-radius:12px; color:#969ca5; font-size:12px; text-align:left; }
+    .admin-index a::before { position:absolute; left:14px; top:50%; width:21px; color:#747b85; font-size:16px; text-align:center; transform:translateY(-50%); }
+    .admin-index a:nth-child(1)::before { content:"▦"; }
+    .admin-index a:nth-child(2)::before { content:"●"; font-size:11px; }
+    .admin-index a:nth-child(3)::before { content:"▥"; }
+    .admin-index a:nth-child(4)::before { content:"↺"; }
+    .admin-index a:nth-child(5)::before { content:"★"; }
+    .admin-index a:nth-child(6)::before { content:"♙"; }
+    .admin-index a:nth-child(7)::before { content:"◉"; }
+    .admin-index a:hover { color:#f5f3ee; background:rgba(255,255,255,.055); }
+    .admin-index a.active { color:#0a0a0b; background:var(--admin-yellow); box-shadow:0 9px 24px rgba(246,192,42,.16); }
+    .admin-index a.active::before { color:#0a0a0b; }
+    .admin-index a.active::after { display:none; }
+    .admin-index-publish { width:100%; min-height:48px; justify-content:center; padding:10px 12px; border:0; border-radius:12px; background:var(--admin-yellow); color:#09090a; font-size:12px; box-shadow:0 10px 30px rgba(246,192,42,.16); }
+    .admin-index-publish:hover { background:#ffd04c; border-color:transparent; }
+    .admin-index-plus { background:#0a0a0b; color:var(--admin-yellow); }
+    .admin-hero { position:sticky; top:0; z-index:30; min-height:86px; box-sizing:border-box; padding:15px 0; border-bottom:1px solid var(--admin-line); background:rgba(9,9,11,.88); backdrop-filter:blur(18px); }
+    .admin-hero h1 { font-size:25px; letter-spacing:-.035em; }
+    .admin-hero p { font-size:11px; }
+    .admin-avatar-help { display:none; }
+    .admin-mark { order:2; width:46px; min-width:46px; max-width:46px; height:46px; min-height:46px; max-height:46px; flex-basis:46px; background:#f4f1e8; border-color:#f4f1e8; }
+    .admin-identity { flex-direction:row-reverse; gap:12px; }
+    .admin-nav { margin-left:auto; }
+    .admin-nav a { min-height:38px; border-radius:11px; background:#17171a; }
+    .admin-ready { position:absolute; right:228px; top:28px; margin:0; }
+    .admin-hero + .admin-ready { margin-top:-58px; }
+    section[aria-labelledby="attentionTitle"] { padding-top:34px; }
+    .section-head h2,.live-head h2,.panel-title h2 { letter-spacing:-.025em; }
+    .attention-grid { gap:14px; }
+    .attention-card { position:relative; overflow:hidden; min-height:112px; padding:20px; border-radius:18px; background:linear-gradient(145deg,#18181b,#121214); box-shadow:0 15px 34px rgba(0,0,0,.18); }
+    .attention-card::after { content:""; position:absolute; right:-24px; bottom:-32px; width:90px; height:90px; border-radius:50%; background:var(--card-tint,rgba(246,192,42,.12)); filter:blur(2px); }
+    .attention-card:nth-child(2) { --card-tint:rgba(74,222,128,.12); }
+    .attention-card:nth-child(3) { --card-tint:rgba(96,165,250,.13); }
+    .attention-card:nth-child(4) { --card-tint:rgba(248,113,113,.11); }
+    .attention-card span { align-self:flex-start; color:#adb1b8; font-size:12px; }
+    .attention-card strong { position:relative; z-index:1; align-self:flex-end; font-size:34px; }
+    .stat { background:linear-gradient(145deg,#18181b,#121214); border-color:var(--admin-line); box-shadow:0 14px 34px rgba(0,0,0,.16); }
+    .panel-card,.table-wrap.compact-history { background:var(--admin-panel); }
+    .auction-preview { margin-top:24px; padding:1px 22px 22px; border:1px solid var(--admin-line); border-radius:22px; background:rgba(20,20,23,.7); box-shadow:0 20px 50px rgba(0,0,0,.2); }
+    #admin-subastas,#control-vivo,#finanzas-admin,#historial-admin,#ganadores-contacto,#usuarios-admin,#avisos-admin { scroll-margin-top:105px; }
+
+    @media(max-width:1050px) {
+      :root { --admin-sidebar:198px; }
+      .admin-ready { position:static; margin:12px 0 0 !important; }
+      .admin-hero { position:relative; }
+    }
+    @media(max-width:760px) {
+      :root { --admin-sidebar:0px; }
+      main { width:100%; margin:0; padding:0 15px 110px; }
+      .admin-index { inset:auto 0 0 0; width:100%; height:auto; padding:7px 9px max(8px,env(safe-area-inset-bottom)); flex-direction:row; align-items:center; gap:7px; border-top:1px solid var(--admin-line); border-right:0; background:rgba(13,13,15,.96); box-shadow:0 -14px 40px rgba(0,0,0,.36); backdrop-filter:blur(18px); }
+      .admin-sidebar-brand { display:none; }
+      .admin-index-links { min-width:0; flex-direction:row; gap:4px; overflow-x:auto; }
+      .admin-index a { flex:0 0 68px; min-height:54px; padding:30px 5px 5px; justify-content:center; border-radius:10px; font-size:8px; text-align:center; }
+      .admin-index a::before { left:50%; top:16px; transform:translateX(-50%); }
+      .admin-index-publish { flex:0 0 48px; width:48px; min-height:48px; padding:0; border-radius:50%; }
+      .admin-index-publish > span:last-child { display:none; }
+      .admin-hero { position:relative; min-height:auto; align-items:center; flex-direction:row; padding:16px 0; }
+      .admin-hero h1 { font-size:21px; }
+      .admin-identity { flex-direction:row; }
+      .admin-mark { order:0; }
+      .admin-nav { width:auto; }
+      .admin-nav a { min-width:0; padding:9px 11px; font-size:10px; }
+      .admin-nav a:nth-child(2) { display:none; }
+      .admin-ready { margin:8px 0 0 !important; }
+      section[aria-labelledby="attentionTitle"] { padding-top:12px; }
+      .attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .attention-card { min-height:92px; }
+      .auction-preview { margin-left:0; margin-right:0; padding:1px 13px 15px; }
+    }
   </style>
 </head>
 <body>
@@ -248,6 +329,7 @@
     <p class="msg admin-ready" id="msg">Cargando...</p>
 
     <nav class="admin-index" aria-label="Secciones del panel">
+      <div class="admin-sidebar-brand"><img src="assets/logo-usso-v2-transparent.webp" alt="USSO"><span>Panel USSO<small>Administración</small></span></div>
       <div class="admin-index-links">
         <a class="active" href="#admin-subastas" data-admin-section="admin-subastas" aria-current="page">Subastas</a>
         <a href="#control-vivo" data-admin-section="control-vivo">Pujas en vivo</a>
