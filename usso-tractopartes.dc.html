@@ -273,15 +273,13 @@
   .usso-featured-lot:focus-visible { outline:3px solid rgba(246,192,42,.78); outline-offset:5px; }
   .usso-secondary-auctions-grid { display:flex; flex-wrap:nowrap; justify-content:flex-start; gap:22px; overflow-x:auto; scrollbar-width:none; max-width:1180px; margin:-30px auto 0; padding:34px 38px 48px; scroll-snap-type:x mandatory; }
   .usso-secondary-auctions-grid::-webkit-scrollbar { display:none; }
-  .usso-secondary-auction-card { position:relative; isolation:isolate; flex:0 0 500px; min-height:230px; display:grid; grid-template-columns:42% minmax(0,58%); scroll-snap-align:center; background:linear-gradient(155deg,rgba(31,31,35,.98),rgba(15,15,17,.98)); border:1px solid rgba(246,192,42,.34); border-radius:18px; overflow:hidden; cursor:pointer; box-shadow:0 0 0 1px rgba(246,192,42,.05),0 14px 34px rgba(0,0,0,.58),0 28px 46px -30px rgba(246,192,42,.72); transform:translateY(0); animation:ussoSecondaryFloat 5.2s ease-in-out infinite; transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease; }
+  .usso-secondary-auction-card { position:relative; isolation:isolate; flex:0 0 500px; min-height:230px; display:grid; grid-template-columns:42% minmax(0,58%); scroll-snap-align:center; background:linear-gradient(155deg,rgba(31,31,35,.98),rgba(15,15,17,.98)); border:1px solid rgba(var(--border-rgb),.12); border-radius:18px; overflow:hidden; cursor:pointer; box-shadow:0 14px 34px rgba(0,0,0,.48); transition:border-color .28s ease,box-shadow .28s ease,filter .28s ease; }
   .usso-secondary-auction-card > div:first-child { aspect-ratio:auto !important; height:100%; min-height:230px; }
   .usso-secondary-auction-card > div:nth-child(2) { padding:15px !important; display:flex; flex-direction:column; justify-content:center; }
   .usso-secondary-auction-card h3 { font-size:16px !important; margin:4px 0 8px !important; }
   .usso-secondary-auction-card button { padding:9px 7px !important; font-size:9.5px !important; }
-  .usso-secondary-auction-card:nth-child(even) { animation-delay:-2.6s; }
-  .usso-secondary-auction-card:hover { animation:none; transform:translateY(-10px) scale(1.012); border-color:rgba(246,192,42,.72); box-shadow:0 0 24px rgba(246,192,42,.18),0 22px 46px rgba(0,0,0,.68),0 36px 54px -30px rgba(246,192,42,.9); }
-  @keyframes ussoSecondaryFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-  @media (prefers-reduced-motion:reduce) { .usso-secondary-auction-card { animation:none; } }
+  .usso-secondary-auction-card:hover { filter:brightness(1.04); border-color:rgba(var(--border-rgb),.24); }
+  .usso-secondary-auction-card.is-carousel-current { border-color:#f6c02a; box-shadow:0 0 22px rgba(246,192,42,.48),0 0 58px rgba(246,192,42,.24),0 20px 42px rgba(0,0,0,.62); }
   @media (max-width:760px) and (min-width:641px) {
     .usso-secondary-auctions-grid { gap:18px; padding:30px 18px 46px; }
     .usso-secondary-auction-card { flex-basis:480px; }
@@ -1705,7 +1703,10 @@ class Component extends DCLogic {
     el.dataset.loopSignature = signature;
     el.style.scrollBehavior = 'auto';
     el.scrollLeft = middleFirst.offsetLeft + middleFirst.offsetWidth / 2 - el.clientWidth / 2;
-    requestAnimationFrame(() => { el.style.scrollBehavior = ''; });
+    requestAnimationFrame(() => {
+      el.style.scrollBehavior = '';
+      this.applyCoverflow('secondaryAuctions');
+    });
   };
   normalizeSecondaryAuctionLoop = () => {
     const el = this._secondaryAuctionsRef;
@@ -1727,12 +1728,26 @@ class Component extends DCLogic {
     const behavior = el.style.scrollBehavior;
     el.style.scrollBehavior = 'auto';
     el.scrollLeft += copy === 0 ? groupWidth : -groupWidth;
-    requestAnimationFrame(() => { el.style.scrollBehavior = behavior; });
+    requestAnimationFrame(() => {
+      el.style.scrollBehavior = behavior;
+      this.applyCoverflow('secondaryAuctions');
+    });
   };
   applyCoverflow = (key) => {
     const el = this['_' + key + 'Ref'];
     if (!el) return;
-    if (key === 'secondaryAuctions') return;
+    if (key === 'secondaryAuctions') {
+      const rect = el.getBoundingClientRect();
+      const center = rect.left + rect.width / 2;
+      let nearest = null, distance = Infinity;
+      Array.from(el.children).forEach((card) => {
+        const cardRect = card.getBoundingClientRect();
+        const d = Math.abs(cardRect.left + cardRect.width / 2 - center);
+        if (d < distance) { distance = d; nearest = card; }
+      });
+      Array.from(el.children).forEach((card) => card.classList.toggle('is-carousel-current', card === nearest));
+      return;
+    }
     if (this.isTouchLayout()) {
       // En móvil no tocamos transform/opacity de los hijos: dejamos el scroll
       // nativo intacto para que el swipe funcione en iPhone.
