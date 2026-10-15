@@ -399,6 +399,7 @@
       <div class="field"><label for="image_url">Portada por dirección web</label><input id="image_url" type="url" placeholder="https://..."><span class="field-help">Opcional. La primera foto subida será la portada si lo dejas vacío.</span></div>
       <div class="field full"><label for="media_urls">Más evidencia por dirección web</label><textarea id="media_urls" placeholder="Pega una dirección de foto o video por línea"></textarea></div>
       <div class="field"><label for="start_price">Precio inicial</label><input id="start_price" type="number" min="0" step="1" placeholder="$0 MXN" required></div>
+      <div class="field"><label for="buy_now_price">Precio Comprar ahora</label><input id="buy_now_price" type="number" min="0" step="1" placeholder="Opcional"><span class="field-help">Solo se ofrecerá antes de iniciar la subasta.</span></div>
       <div class="field"><label for="create_status">Estado inicial</label><select id="create_status"><option value="active">Activa ahora</option><option value="upcoming">Próxima / programada</option></select><span class="field-help">Para “Próxima”, elige abajo una fecha futura.</span></div>
       <div class="field full"><label for="create_start_date">Fecha y hora de inicio</label><div class="date-time-row"><input id="create_start_date" type="date"><select id="create_start_hour" aria-label="Hora de inicio"></select><span class="date-time-separator">:</span><select id="create_start_minute" aria-label="Minutos de inicio"></select><select id="create_start_period" aria-label="Periodo de inicio"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div><span class="field-help">Déjalo sin fecha para activarla ahora. Para programarla, selecciona una fecha futura.</span></div>
       <div class="field full"><label for="create_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="create_end_date" type="date" required><select id="create_end_hour" aria-label="Hora de cierre"></select><span class="date-time-separator">:</span><select id="create_end_minute" aria-label="Minutos de cierre"></select><select id="create_end_period" aria-label="Periodo de cierre"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div></div>
@@ -428,6 +429,7 @@
       <div class="field full"><label>Encuadre de la galería</label><div class="edit-media-grid" id="editMediaGrid"></div><span class="field-help">Pulsa “Encuadrar” debajo de cualquier fotografía. Los videos no necesitan ajuste.</span></div>
       <div class="field"><label for="edit_start_price">Precio base</label><input id="edit_start_price" type="number" min="0" step="1" required></div>
       <div class="field"><label for="edit_current_price">Precio actual</label><input id="edit_current_price" type="number" min="0" step="1" required></div>
+      <div class="field"><label for="edit_buy_now_price">Precio Comprar ahora</label><input id="edit_buy_now_price" type="number" min="0" step="1" placeholder="Opcional"><span class="field-help">Déjalo vacío para ocultar la compra anticipada.</span></div>
       <div class="field full"><label for="edit_start_date">Fecha y hora de inicio</label><div class="date-time-row"><input id="edit_start_date" type="date"><select id="edit_start_hour" aria-label="Hora de inicio"></select><span class="date-time-separator">:</span><select id="edit_start_minute" aria-label="Minutos de inicio"></select><select id="edit_start_period" aria-label="Periodo de inicio"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div><span class="field-help">Para una subasta próxima, elige aquí el día y la hora exactos en que comenzará.</span></div>
       <div class="field full"><label for="edit_end_date">Fecha y hora de cierre</label><div class="date-time-row"><input id="edit_end_date" type="date" required><select id="edit_end_hour" aria-label="Hora"></select><span class="date-time-separator">:</span><select id="edit_end_minute" aria-label="Minutos"></select><select id="edit_end_period" aria-label="Periodo de cierre"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div><div class="time-shortcuts"><button type="button" data-duration="5">Desde ahora: 5 min</button><button type="button" data-duration="15">15 min</button><button type="button" data-duration="60">1 hora</button><button type="button" data-duration="1440">1 día</button></div></div>
       <div class="field"><label for="edit_status">Estado</label><select id="edit_status"><option value="active">Activa ahora</option><option value="upcoming">Próxima / programada</option><option value="closed">Cerrada</option></select><span class="field-help">“Próxima” requiere una fecha de inicio futura.</span></div>
@@ -1163,7 +1165,7 @@
 
       let listingResult = await client
         .from("listings")
-        .select("id, title, description, category, image_url, media_urls, product_details, current_price, start_price, bid_count, auction_round, status, winner_id, starts_at, ends_at, payment_status, paid_amount, paid_at")
+        .select("id, title, description, category, image_url, media_urls, product_details, current_price, start_price, buy_now_price, bid_count, auction_round, status, winner_id, starts_at, ends_at, payment_status, paid_amount, paid_at")
         .order("created_at", { ascending: false });
       if (listingResult.error) {
         listingResult = await client
@@ -1337,6 +1339,7 @@
           renderEditMediaGallery(listing);
           document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
           document.getElementById("edit_current_price").value = Number(listing.current_price || listing.start_price || 0);
+          document.getElementById("edit_buy_now_price").value = listing.buy_now_price ? Number(listing.buy_now_price) : "";
           document.getElementById("edit_status").value = listing.status === "active" ? (listing.starts_at && new Date(listing.starts_at) > new Date() ? "upcoming" : "active") : "closed";
           document.getElementById("edit_photo").value = "";
           document.getElementById("edit_feedback").textContent = "";
@@ -1387,6 +1390,7 @@
           renderEditMediaGallery(listing);
           document.getElementById("edit_start_price").value = Number(listing.start_price || 0);
           document.getElementById("edit_current_price").value = Number(listing.start_price || 0);
+          document.getElementById("edit_buy_now_price").value = listing.buy_now_price ? Number(listing.buy_now_price) : "";
           document.getElementById("edit_status").value = "active";
           document.getElementById("edit_photo").value = "";
           document.getElementById("edit_feedback").textContent = "";
@@ -1562,6 +1566,7 @@
       const originalButtonText = publishButton.textContent;
       const title = document.getElementById("title").value.trim();
       const start = Number(document.getElementById("start_price").value || 0);
+      const buyNowPrice = Number(document.getElementById("buy_now_price").value || 0) || null;
       const createStatus = document.getElementById("create_status").value;
       const starts = dateTimeFromFields("create_start");
       const ends = dateTimeFromFields("create_end");
@@ -1622,6 +1627,7 @@
           media_urls: mediaUrls,
           start_price: start,
           current_price: start,
+          buy_now_price: buyNowPrice,
           status:createStatus === "upcoming" ? "active" : createStatus,
           starts_at: starts ? new Date(starts).toISOString() : new Date().toISOString(),
           ends_at: new Date(ends).toISOString(),
@@ -1803,6 +1809,7 @@
         media_urls: mediaUrls,
         start_price: Number(document.getElementById("edit_start_price").value || 0),
         current_price: Number(document.getElementById("edit_current_price").value || 0),
+        buy_now_price: Number(document.getElementById("edit_buy_now_price").value || 0) || null,
         starts_at: startsAt ? new Date(startsAt).toISOString() : new Date().toISOString(),
         ends_at: endsAt ? new Date(endsAt).toISOString() : null,
         status: selectedStatus === "upcoming" ? "active" : selectedStatus
