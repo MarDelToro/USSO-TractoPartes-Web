@@ -100,7 +100,7 @@
   a:hover { color: #ffd75e; }
   ::selection { background: #f6c02a; color: #0a0a0b; }
   @keyframes logoRing { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-  @keyframes logoFadeCinema { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.965); filter: blur(10px); } 55% { opacity: 1; } 100% { opacity: 1; transform: translate(-50%,-50%) scale(1); filter: blur(0px); } }
+  @keyframes logoFadeCinema { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.94); filter: blur(12px) brightness(1.8); } 48% { opacity: 1; filter:blur(2px) brightness(1.25); } 100% { opacity: 1; transform: translate(-50%,-50%) scale(1); filter: blur(0px) brightness(1); } }
   @keyframes logoShine { 0% { background-position: 150% 0; } 100% { background-position: -50% 0; } }
   @keyframes logoFade { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
   @keyframes barGrow { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
@@ -467,8 +467,8 @@
     </sc-if>
     <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom, rgba(10,10,10,0.15) 0%, rgba(10,10,10,0.35) 55%, rgba(10,10,10,0.75) 100%)"></div>
     <sc-if value="{{ showLogo }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;animation:logoFadeCinema 2800ms cubic-bezier(.25,.6,.3,1) forwards">
-        <img src="assets/logo-usso-v2-transparent.webp" alt="USSO Tractopartes" style="width:320px;height:auto;display:block;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.6))">
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(320px,68vw);animation:logoFadeCinema 1700ms cubic-bezier(.25,.6,.3,1) forwards;z-index:2">
+        <img src="assets/logo-usso-v2-transparent.webp" alt="USSO Tractopartes" style="width:100%;height:auto;display:block;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.6))">
       </div>
     </sc-if>
   </div>
@@ -1239,7 +1239,7 @@ class Component extends DCLogic {
     try { if (window.self !== window.top) return true; } catch (e) { return true; }
     try { return sessionStorage.getItem('usso_intro_seen') === '1'; } catch (e) { return false; }
   })();
-  state = { phase: this.skipIntroNow === 'logo' ? 'logo' : (this.skipIntroNow ? 'content' : 'video'), visible: { heroTitle: true }, scrollY: window.location.hash ? 999 : 0, showAllInventory: false, pageOpacity: window.location.hash ? 0 : 1, overflow: { inv: true, auctions: true, videos: true },
+  state = { phase: this.skipIntroNow === 'logo' ? 'logo' : (this.skipIntroNow ? 'content' : 'video'), introLogoVisible: this.skipIntroNow === 'logo', introVisualActive: !this.skipIntroNow, visible: { heroTitle: true }, scrollY: window.location.hash ? 999 : 0, showAllInventory: false, pageOpacity: window.location.hash ? 0 : 1, overflow: { inv: true, auctions: true, videos: true },
     user: null, bidStatus: 'ninguno',
     authOpen: false, authMode: 'registro', authError: '',
     authForm: { nombre: '', whatsapp: '', correo: '', ciudad: '', pass: '' },
@@ -1264,6 +1264,7 @@ class Component extends DCLogic {
     if (this.videoRef) {
       this.videoRef.onloadedmetadata = null;
       this.videoRef.oncanplay = null;
+      this.videoRef.ontimeupdate = null;
       this.videoRef.onerror = null;
       this.videoRef.onstalled = null;
     }
@@ -1278,6 +1279,11 @@ class Component extends DCLogic {
     tryPlay();
     v.onloadedmetadata = tryPlay;
     v.oncanplay = tryPlay;
+    v.ontimeupdate = () => {
+      const duration = Number.isFinite(v.duration) ? v.duration : 0;
+      const revealAt = duration > 0 ? Math.max(1.4, duration - 2.5) : 2.6;
+      if (v.currentTime >= revealAt && !this.state.introLogoVisible) this.setState({ introLogoVisible:true });
+    };
     v.onerror = () => this.handleVideoEnd();
     v.onstalled = () => {
       clearTimeout(this.videoStallTimer);
@@ -1356,6 +1362,7 @@ class Component extends DCLogic {
     document.body.style.overflow = '';
     if (this.observer) this.observer.disconnect();
     if (this.introFallback) clearTimeout(this.introFallback);
+    if (this.introVisualTimer) clearTimeout(this.introVisualTimer);
     if (this.countdownTimer) clearTimeout(this.countdownTimer);
     if (this.auctionRefreshTimer) clearInterval(this.auctionRefreshTimer);
     if (this.listingsClientRetry) clearTimeout(this.listingsClientRetry);
@@ -1378,6 +1385,7 @@ class Component extends DCLogic {
     if (this.videoRef) {
       this.videoRef.onloadedmetadata = null;
       this.videoRef.oncanplay = null;
+      this.videoRef.ontimeupdate = null;
       this.videoRef.onerror = null;
       this.videoRef.onstalled = null;
     }
@@ -1431,14 +1439,20 @@ class Component extends DCLogic {
     if (this.state.phase !== 'video') return;
     if (this.introFallback) clearTimeout(this.introFallback);
     if (this.videoRef) this.videoRef.pause();
-    this.setState({ phase: 'logo' });
-    setTimeout(() => this.finishIntro(), 3400);
+    // El logo permanece sobre el último cuadro iluminado del camión; ya no
+    // cambiamos a una pantalla negra independiente.
+    if (!this.state.introLogoVisible) {
+      this.setState({ introLogoVisible:true });
+      setTimeout(() => this.finishIntro(), 650);
+    } else this.finishIntro();
   };
 
   finishIntro = () => {
-    this.setState({ phase: 'content' });
+    this.setState({ phase: 'content', heroPassed:true });
     document.body.style.overflow = '';
-    setTimeout(() => this.setState({ heroPassed: true }), 500);
+    // Conservamos video y logo detrás del fundido para impedir un cuadro negro.
+    clearTimeout(this.introVisualTimer);
+    this.introVisualTimer = setTimeout(() => this.setState({ introVisualActive:false }), 1000);
   };
 
   toggleInventory = () => this.setState((s) => ({ showAllInventory: !s.showAllInventory }));
@@ -3308,10 +3322,10 @@ submitAuth = async (e) => {
 
       accent,
       accentSoft: this.hexToRgba(accent, 0.12),
-      showVideo: phase === 'video',
-      showLogo: phase === 'logo' || phase === 'content',
+      showVideo: phase === 'video' || this.state.introVisualActive,
+      showLogo: this.state.introLogoVisible,
       showSkip: phase === 'video',
-      videoBrightness: phase === 'video' ? 1.05 : 0.5,
+      videoBrightness: phase === 'video' || this.state.introVisualActive ? 1.05 : 0.5,
       overlayOpacity: phase === 'content' ? (this.state.heroPassed ? 0 : Math.max(0, 1 - this.state.scrollY / 40)) : 1,
       overlayPointer: phase === 'content' ? 'none' : 'auto',
       navOffset: '0%',
