@@ -280,6 +280,8 @@
     .admin-index a:nth-child(6)::before { content:"★"; }
     .admin-index a:nth-child(7)::before { content:"♙"; }
     .admin-index a:nth-child(8)::before { content:"◉"; }
+    .admin-index .admin-index-public { display:none; }
+    .admin-index .admin-index-public::before { content:"↗"; }
     .admin-index a:hover { color:#f5f3ee; background:rgba(255,255,255,.055); }
     .admin-index a.active { color:#0a0a0b; background:var(--admin-yellow); box-shadow:0 9px 24px rgba(246,192,42,.16); }
     .admin-index a.active::before { color:#0a0a0b; }
@@ -335,6 +337,8 @@
       .admin-index.menu-open .admin-mobile-menu::after { transform:rotate(180deg); }
       .admin-index-links { position:static; width:100%; max-height:none; box-sizing:border-box; padding:0; display:none; flex:none; flex-direction:column; gap:4px; overflow:visible; border:0; border-radius:0; background:transparent; box-shadow:none; backdrop-filter:none; }
       .admin-index.menu-open .admin-index-links { display:flex; }
+      .admin-index .admin-index-public { display:flex; margin-top:4px; border-top:1px solid var(--admin-line); border-radius:0 0 10px 10px; color:#f6c02a; }
+      .admin-index .admin-index-public::before { color:#f6c02a; }
       .admin-index a { flex:none; min-height:43px; padding:10px 12px 10px 42px; justify-content:flex-start; border-radius:10px; font-size:10px; text-align:left; }
       .admin-index a::before { left:13px; top:50%; transform:translateY(-50%); }
       .admin-index-publish { position:static; width:100%; min-height:46px; display:none; flex:none; box-sizing:border-box; margin:2px 0 0; border-radius:12px; }
@@ -412,6 +416,7 @@
         <a href="?view=winners" data-admin-view-link="winners">Ganadores</a>
         <a href="?view=users" data-admin-view-link="users">Usuarios</a>
         <a href="?view=notices" data-admin-view-link="notices">Avisos</a>
+        <a class="admin-index-public" href="/">Ver sitio público</a>
       </div>
       <button class="admin-index-publish" id="publishIndex" type="button" aria-label="Publicar pieza"><span class="admin-index-plus" aria-hidden="true">+</span><span>Publicar pieza</span></button>
     </nav>
