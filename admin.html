@@ -268,23 +268,22 @@
     .admin-sidebar-brand span { display:flex; flex-direction:column; color:#f5f3ee; font-size:12px; font-weight:900; line-height:1.15; }
     .admin-sidebar-brand small { margin-top:4px; color:#737983; font-size:8px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
     .admin-mobile-menu { display:none; }
+    .admin-mobile-site-link { display:none; }
     .admin-index-links { display:flex; flex:1; flex-direction:column; gap:5px; overflow-y:auto; scrollbar-width:none; }
     .admin-index-links::-webkit-scrollbar { display:none; }
     .admin-index a { justify-content:flex-start; min-height:46px; padding:11px 13px 11px 44px; border-radius:12px; color:#969ca5; font-size:12px; text-align:left; }
-    .admin-index a::before { position:absolute; left:14px; top:50%; width:21px; color:#747b85; font-size:16px; text-align:center; transform:translateY(-50%); }
-    .admin-index a:nth-child(1)::before { content:"▦"; }
-    .admin-index a:nth-child(2)::before { content:"◇"; }
-    .admin-index a:nth-child(3)::before { content:"●"; font-size:11px; }
-    .admin-index a:nth-child(4)::before { content:"▥"; }
-    .admin-index a:nth-child(5)::before { content:"↺"; }
-    .admin-index a:nth-child(6)::before { content:"★"; }
-    .admin-index a:nth-child(7)::before { content:"♙"; }
-    .admin-index a:nth-child(8)::before { content:"◉"; }
-    .admin-index .admin-index-public { display:none; }
-    .admin-index .admin-index-public::before { content:"↗"; }
+    .admin-index a::before { position:absolute; left:11px; top:50%; width:25px; height:25px; display:grid; place-items:center; box-sizing:border-box; border:1px solid rgba(255,255,255,.09); border-radius:7px; background:rgba(255,255,255,.035); color:#8c939d; font-size:7px; font-weight:900; letter-spacing:.04em; text-align:center; transform:translateY(-50%); }
+    .admin-index a:nth-child(1)::before { content:"RE"; }
+    .admin-index a:nth-child(2)::before { content:"SU"; }
+    .admin-index a:nth-child(3)::before { content:"PV"; }
+    .admin-index a:nth-child(4)::before { content:"FI"; }
+    .admin-index a:nth-child(5)::before { content:"HI"; }
+    .admin-index a:nth-child(6)::before { content:"GA"; }
+    .admin-index a:nth-child(7)::before { content:"US"; }
+    .admin-index a:nth-child(8)::before { content:"AV"; }
     .admin-index a:hover { color:#f5f3ee; background:rgba(255,255,255,.055); }
     .admin-index a.active { color:#0a0a0b; background:var(--admin-yellow); box-shadow:0 9px 24px rgba(246,192,42,.16); }
-    .admin-index a.active::before { color:#0a0a0b; }
+    .admin-index a.active::before { border-color:rgba(10,10,11,.18); background:rgba(10,10,11,.11); color:#0a0a0b; }
     .admin-index a.active::after { display:none; }
     .admin-index-publish { width:100%; min-height:48px; justify-content:center; padding:10px 12px; border:0; border-radius:12px; background:var(--admin-yellow); color:#09090a; font-size:12px; box-shadow:0 10px 30px rgba(246,192,42,.16); }
     .admin-index-publish:hover { background:#ffd04c; border-color:transparent; }
@@ -331,20 +330,22 @@
       .admin-index { inset:12px max(0px,env(safe-area-inset-right)) auto auto; width:auto; height:auto; padding:0; display:block; border:0; background:transparent; box-shadow:none; }
       .admin-index.menu-open { width:min(260px,calc(100vw - 12px - env(safe-area-inset-left))); max-height:calc(100dvh - 24px); padding:10px; display:flex; flex-direction:column; gap:8px; overflow-x:hidden; overflow-y:auto; border:1px solid var(--admin-line); border-radius:17px; background:#111113; box-shadow:0 24px 65px rgba(0,0,0,.66); -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
       .admin-sidebar-brand { display:none; }
+      .admin-mobile-site-link { position:absolute; right:0; bottom:10px; z-index:29; min-height:36px; padding:8px 13px; display:inline-flex; align-items:center; gap:7px; border:1px solid rgba(255,255,255,.14); border-radius:11px; background:rgba(17,17,19,.96); color:#f3f1ec; font-size:9px; font-weight:900; box-shadow:0 10px 28px rgba(0,0,0,.34); backdrop-filter:blur(16px); }
+      .admin-mobile-site-link span { width:20px; height:20px; display:grid; place-items:center; border-radius:6px; background:rgba(246,192,42,.12); color:#f6c02a; font-size:12px; }
+      .admin-mobile-site-link:hover { color:#0a0a0b; background:#f6c02a; }
+      .admin-mobile-site-link:hover span { background:#0a0a0b; color:#f6c02a; }
       .admin-mobile-menu { position:relative; z-index:2; min-width:122px; min-height:43px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; border:1px solid rgba(246,192,42,.38); border-radius:12px; background:rgba(20,20,22,.96); color:#f6c02a; font:900 11px Manrope,sans-serif; box-shadow:0 10px 28px rgba(0,0,0,.35); backdrop-filter:blur(16px); }
       .admin-index.menu-open .admin-mobile-menu { width:100%; flex:none; box-sizing:border-box; background:#171719; box-shadow:none; }
       .admin-mobile-menu::after { content:"⌄"; font-size:16px; transition:transform .2s ease; }
       .admin-index.menu-open .admin-mobile-menu::after { transform:rotate(180deg); }
       .admin-index-links { position:static; width:100%; max-height:none; box-sizing:border-box; padding:0; display:none; flex:none; flex-direction:column; gap:4px; overflow:visible; border:0; border-radius:0; background:transparent; box-shadow:none; backdrop-filter:none; }
       .admin-index.menu-open .admin-index-links { display:flex; }
-      .admin-index .admin-index-public { display:flex; margin-top:4px; border-top:1px solid var(--admin-line); border-radius:0 0 10px 10px; color:#f6c02a; }
-      .admin-index .admin-index-public::before { color:#f6c02a; }
       .admin-index a { flex:none; min-height:43px; padding:10px 12px 10px 42px; justify-content:flex-start; border-radius:10px; font-size:10px; text-align:left; }
       .admin-index a::before { left:13px; top:50%; transform:translateY(-50%); }
       .admin-index-publish { position:static; width:100%; min-height:46px; display:none; flex:none; box-sizing:border-box; margin:2px 0 0; border-radius:12px; }
       .admin-index.menu-open .admin-index-publish { display:flex; }
       .admin-index-publish > span:last-child { display:inline; }
-      .admin-hero { position:relative; min-height:auto; align-items:center; flex-direction:row; padding:16px 0; }
+      .admin-hero { position:relative; min-height:116px; align-items:flex-start; flex-direction:row; padding:16px 0 50px; }
       .admin-hero h1 { max-width:145px; font-size:19px; }
       .admin-identity { flex-direction:row; }
       .admin-mark { order:0; }
@@ -400,6 +401,7 @@
         <input id="adminAvatarInput" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden>
         <div><h1>Panel administrativo</h1><p id="who">Cargando cuenta...</p><span class="admin-avatar-help">Toca tu foto para cambiarla</span></div>
       </div>
+      <a class="admin-mobile-site-link" href="/" aria-label="Regresar al sitio público"><span aria-hidden="true">↗</span>Ver sitio</a>
       <nav class="admin-nav"><a href="/">Ver sitio</a><a href="?view=auctions">Ver subastas</a></nav>
     </header>
     <p class="msg admin-ready" id="msg">Cargando...</p>
@@ -416,7 +418,6 @@
         <a href="?view=winners" data-admin-view-link="winners">Ganadores</a>
         <a href="?view=users" data-admin-view-link="users">Usuarios</a>
         <a href="?view=notices" data-admin-view-link="notices">Avisos</a>
-        <a class="admin-index-public" href="/">Ver sitio público</a>
       </div>
       <button class="admin-index-publish" id="publishIndex" type="button" aria-label="Publicar pieza"><span class="admin-index-plus" aria-hidden="true">+</span><span>Publicar pieza</span></button>
     </nav>
