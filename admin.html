@@ -387,6 +387,84 @@
       .edit-dialog-head h2 { font-size:24px; }
       .field,.field input,.field textarea,.field select { min-width:0; max-width:100%; box-sizing:border-box; }
       .details-heading { align-items:flex-start; flex-direction:column; gap:3px; }
+
+      /* El editor debe caber completo en Safari móvil sin conservar el ancho
+         intrínseco de la cuadrícula de escritorio. */
+      #editDialog {
+        inset:10px;
+        width:auto;
+        max-width:none;
+        max-height:calc(100dvh - 20px);
+        margin:0;
+        overflow-x:clip;
+        overflow-y:auto;
+        overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch;
+      }
+      #editDialog .edit-dialog-head {
+        position:sticky;
+        top:0;
+        z-index:5;
+        width:100%;
+        padding:15px 14px 10px;
+        background:rgba(20,20,22,.97);
+        backdrop-filter:blur(14px);
+      }
+      #editDialog .edit-dialog-head > div { min-width:0; }
+      #editDialog .edit-dialog-head h2 { font-size:clamp(22px,7vw,28px); line-height:1.08; }
+      #editDialog .edit-dialog-head p { max-width:260px; font-size:10px; line-height:1.45; }
+      #editDialog .dialog-close { flex:0 0 36px; width:36px; height:36px; }
+      #editDialog #editForm {
+        display:grid;
+        grid-template-columns:minmax(0,1fr);
+        gap:13px;
+        width:100%;
+        min-width:0;
+        max-width:100%;
+        padding:8px 14px calc(22px + env(safe-area-inset-bottom));
+        overflow:hidden;
+      }
+      #editDialog #editForm > *,
+      #editDialog .field,
+      #editDialog .field.full,
+      #editDialog .details-heading,
+      #editDialog .form-actions {
+        grid-column:1;
+        width:100%;
+        min-width:0;
+        max-width:100%;
+      }
+      #editDialog input,
+      #editDialog select,
+      #editDialog textarea,
+      #editDialog button { max-width:100%; }
+      #editDialog .field input,
+      #editDialog .field select,
+      #editDialog .field textarea {
+        width:100%;
+        min-width:0;
+        min-height:44px;
+        padding:11px 12px;
+        font-size:16px;
+      }
+      #editDialog .field textarea { min-height:92px; }
+      #editDialog .cover-tools { display:grid; grid-template-columns:minmax(0,1fr); width:100%; }
+      #editDialog .cover-tools input,
+      #editDialog .cover-tools button { width:100%; min-width:0; }
+      #editDialog .edit-media-grid { grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; gap:8px; }
+      #editDialog .date-time-row {
+        display:grid;
+        grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr) minmax(72px,.9fr);
+        width:100%;
+        min-width:0;
+        gap:6px;
+      }
+      #editDialog .date-time-row > input[type="date"] { grid-column:1 / -1; width:100%; }
+      #editDialog .date-time-row select { width:100%; min-width:0; padding-left:7px; padding-right:7px; }
+      #editDialog .time-shortcuts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; }
+      #editDialog .time-shortcuts button { width:100%; min-width:0; padding:8px 6px; font-size:10px; }
+      #editDialog .form-actions { display:grid; grid-template-columns:1fr; gap:8px; }
+      #editDialog .form-actions button { width:100%; min-width:0; }
     }
   </style>
 </head>
