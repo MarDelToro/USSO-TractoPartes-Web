@@ -5,6 +5,33 @@
 <script src="/access-guard.js"></script>
 <script src="/youtube-stats.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html, body { background: #050505; }
+  #usso-boot-loader {
+    position: fixed; inset: 0; z-index: 100000; display: flex;
+    align-items: center; justify-content: center; background: #050505;
+    color: #f6c02a; font-family: Inter, system-ui, sans-serif;
+    opacity: 1; transition: opacity .28s ease .16s;
+  }
+  .usso-boot-box { width: min(300px, 72vw); text-align: center; }
+  .usso-boot-text {
+    margin-bottom: 14px; font-size: 13px; font-weight: 600;
+    letter-spacing: .18em; text-transform: uppercase;
+  }
+  .usso-boot-track {
+    height: 4px; overflow: hidden; border-radius: 999px;
+    background: rgba(246,192,42,.16); box-shadow: 0 0 18px rgba(246,192,42,.08);
+  }
+  .usso-boot-bar {
+    display: block; width: 8%; height: 100%; border-radius: inherit;
+    background: #f6c02a; box-shadow: 0 0 14px rgba(246,192,42,.8);
+    animation: ussoBootFill 2.4s cubic-bezier(.18,.75,.22,1) forwards;
+    transition: width .22s ease;
+  }
+  html.usso-app-ready #usso-boot-loader { opacity: 0; pointer-events: none; }
+  html.usso-app-ready .usso-boot-bar { width: 100%; animation: none; }
+  @keyframes ussoBootFill { from { width: 8%; } to { width: 94%; } }
+</style>
 <title>USSO Tractopartes México | Motores y refacciones para camiones</title>
 <meta name="description" content="USSO Tractopartes México en Uruapan, Michoacán: motores diésel, transmisiones, diferenciales, cortes y refacciones para camiones pesados. Consulta inventario y subastas.">
 <link rel="canonical" href="https://ussotractopartes.com/">
@@ -79,6 +106,12 @@
 <script src="media-compat.js?v=20261013-2"></script>
 </head>
 <body>
+<div id="usso-boot-loader" role="status" aria-live="polite" aria-label="Cargando el sitio">
+  <div class="usso-boot-box">
+    <div class="usso-boot-text">Cargando...</div>
+    <div class="usso-boot-track"><span class="usso-boot-bar"></span></div>
+  </div>
+</div>
 <x-dc>
 <helmet data-dc-atomics>
 <meta charset="utf-8">
@@ -1259,6 +1292,15 @@ class Component extends DCLogic {
   // página estaba abierta. Los resultados anteriores permanecen en avisos.
   outcomeSessionStartedAt = Date.now();
 
+  dismissBootLoader = () => {
+    if (document.documentElement.classList.contains('usso-app-ready')) return;
+    document.documentElement.classList.add('usso-app-ready');
+    setTimeout(() => {
+      const loader = document.getElementById('usso-boot-loader');
+      if (loader) loader.remove();
+    }, 520);
+  };
+
   setupVideo = (v) => {
     if (!v || v === this.videoRef) return;
     if (this.videoRef) {
@@ -1278,7 +1320,10 @@ class Component extends DCLogic {
     const tryPlay = () => v.play().catch(() => {});
     tryPlay();
     v.onloadedmetadata = tryPlay;
-    v.oncanplay = tryPlay;
+    v.oncanplay = () => {
+      tryPlay();
+      this.dismissBootLoader();
+    };
     v.ontimeupdate = () => {
       const duration = Number.isFinite(v.duration) ? v.duration : 0;
       const revealAt = duration > 0 ? Math.max(1.4, duration - 2.5) : 2.6;
@@ -1296,6 +1341,7 @@ class Component extends DCLogic {
   componentDidMount() {
     try { sessionStorage.setItem('usso_intro_seen', '1'); } catch (e) {}
     if (this.state.phase === 'content') {
+      this.dismissBootLoader();
       document.body.style.overflow = '';
       if (window.location.hash && window.location.hash.length > 1) {
         let target = null;
@@ -1305,6 +1351,7 @@ class Component extends DCLogic {
       requestAnimationFrame(() => this.setState({ pageOpacity: 1 }));
       setTimeout(() => this.setState({ heroPassed: true }), 500);
     } else if (this.state.phase === 'logo') {
+      this.dismissBootLoader();
       document.body.style.overflow = 'hidden';
       setTimeout(() => this.finishIntro(), 3200);
     } else {
@@ -1437,6 +1484,7 @@ class Component extends DCLogic {
 
   handleVideoEnd = () => {
     if (this.state.phase !== 'video') return;
+    this.dismissBootLoader();
     if (this.introFallback) clearTimeout(this.introFallback);
     if (this.videoRef) this.videoRef.pause();
     // El logo permanece sobre el último cuadro iluminado del camión; ya no

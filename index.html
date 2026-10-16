@@ -32,7 +32,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   html.usso-redirecting, html.usso-redirecting body { background:#050505 !important; }
-  html.usso-redirecting body { visibility:hidden !important; }
+  html.usso-redirecting .gate,
+  html.usso-redirecting body > form { display:none !important; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     min-height: 100vh; display: grid; place-items: center;
@@ -71,9 +72,36 @@
   button:hover { filter: brightness(1.08); }
   .err { font-size: 13px; color: #ff6b5e; min-height: 18px; margin-top: 4px; }
   .foot { margin-top: 32px; font-size: 11px; color: rgba(243,241,236,0.3); letter-spacing: 0.08em; text-transform: uppercase; }
+  .usso-loading-screen {
+    display: none; position: fixed; inset: 0; z-index: 99999;
+    align-items: center; justify-content: center; background: #050505;
+    color: #f6c02a; font-family: 'Inter', system-ui, sans-serif;
+  }
+  html.usso-redirecting .usso-loading-screen { display: flex; }
+  .usso-loading-box { width: min(300px, 72vw); text-align: center; }
+  .usso-loading-text {
+    margin-bottom: 14px; font-size: 13px; font-weight: 600;
+    letter-spacing: .18em; text-transform: uppercase;
+  }
+  .usso-loading-track {
+    height: 4px; overflow: hidden; border-radius: 999px;
+    background: rgba(246,192,42,.16); box-shadow: 0 0 18px rgba(246,192,42,.08);
+  }
+  .usso-loading-bar {
+    display: block; width: 8%; height: 100%; border-radius: inherit;
+    background: #f6c02a; box-shadow: 0 0 14px rgba(246,192,42,.8);
+    animation: ussoLoadingFill 2.4s cubic-bezier(.18,.75,.22,1) forwards;
+  }
+  @keyframes ussoLoadingFill { from { width: 8%; } to { width: 94%; } }
 </style>
 </head>
 <body>
+<div class="usso-loading-screen" role="status" aria-live="polite" aria-label="Cargando el sitio">
+  <div class="usso-loading-box">
+    <div class="usso-loading-text">Cargando...</div>
+    <div class="usso-loading-track"><span class="usso-loading-bar"></span></div>
+  </div>
+</div>
 <div class="gate">
   <div class="badge">Acceso privado</div>
   <img class="logo" src="assets/logo-usso-v2-transparent.png" alt="USSO Tractopartes">
