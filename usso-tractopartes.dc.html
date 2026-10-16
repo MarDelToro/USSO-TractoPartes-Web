@@ -366,15 +366,15 @@
       display:flex !important;
       flex-wrap:nowrap !important;
       align-items:stretch !important;
-      gap:14px !important;
+      gap:12px !important;
       width:100vw !important;
       max-width:none !important;
       margin:0 0 0 calc(50% - 50vw) !important;
-      padding:12px 9vw 32px !important;
+      padding:12px 14vw 34px !important;
       box-sizing:border-box !important;
       overflow-x:auto !important;
       overflow-y:visible !important;
-      scroll-snap-type:x mandatory !important;
+      scroll-snap-type:none !important;
       overscroll-behavior-x:contain;
       -webkit-overflow-scrolling:touch;
       scrollbar-width:none;
@@ -385,18 +385,18 @@
     .usso-auctions-grid > .usso-featured-lot,
     .usso-auctions-grid > .usso-featured-lot[data-auction-copy="1"][data-auction-index="0"] {
       display:grid !important;
-      flex:0 0 82vw !important;
-      width:82vw !important;
-      max-width:82vw !important;
+      flex:0 0 72vw !important;
+      width:72vw !important;
+      max-width:72vw !important;
       min-width:0 !important;
       margin:0 !important;
       align-self:stretch !important;
       height:auto !important;
       scroll-snap-align:center !important;
       scroll-snap-stop:always !important;
-      opacity:.48 !important;
-      filter:brightness(.58) saturate(.72) !important;
-      transform:scale(.94) !important;
+      opacity:.42 !important;
+      filter:brightness(.52) saturate(.68) !important;
+      transform:scale(.92) !important;
       transform-origin:center !important;
       border-color:rgba(246,192,42,.13) !important;
       box-shadow:0 15px 36px rgba(0,0,0,.52) !important;
@@ -407,8 +407,8 @@
       opacity:1 !important;
       filter:brightness(1) saturate(1.02) !important;
       transform:scale(1) !important;
-      border-color:rgba(246,192,42,.3) !important;
-      box-shadow:0 22px 48px rgba(0,0,0,.58) !important;
+      border-color:#f6c02a !important;
+      box-shadow:0 0 18px rgba(246,192,42,.5),0 0 48px rgba(246,192,42,.3),0 24px 52px rgba(0,0,0,.62) !important;
     }
     .usso-secondary-auctions-grid { margin:18px -20px 0; padding:4px 20px 10px; gap:12px; }
     .usso-secondary-auction-card { flex-basis:76%; }
@@ -1513,9 +1513,10 @@ class Component extends DCLogic {
       el.dataset.dragInited = '1';
       el.style.scrollSnapType = 'none';
       el.style.scrollBehavior = 'auto';
-      let sx = 0, sy = 0, sl = 0, mode = null, lastX = 0, lastT = 0, vel = 0, raf = null;
+      let sx = 0, sy = 0, sl = 0, mode = null, lastX = 0, lastT = 0, vel = 0, raf = null, suppressClick = false;
       const onStart = (e) => {
         const t = e.touches[0];
+        suppressClick = false;
         sx = lastX = t.clientX; sy = t.clientY; sl = el.scrollLeft;
         mode = null; vel = 0; lastT = Date.now();
         if (raf) { cancelAnimationFrame(raf); raf = null; }
@@ -1530,6 +1531,7 @@ class Component extends DCLogic {
         }
         if (mode !== 'x') return;
         if (e.cancelable) e.preventDefault();
+        if (Math.abs(dx) > 10) suppressClick = true;
         el.scrollLeft = sl - dx;
         const now = Date.now(), dt = now - lastT || 16;
         vel = (t.clientX - lastX) / dt;
@@ -1537,6 +1539,15 @@ class Component extends DCLogic {
       };
       const onEnd = () => {
         if (mode === 'x') {
+          // La subasta principal sigue directamente el dedo y encaja al soltar.
+          // Evitamos la inercia artificial aquí porque, combinada con el ciclo
+          // infinito, hacía que Safari móvil frenara o saltara tarjetas.
+          if (el.classList.contains('usso-auctions-grid')) {
+            el.dataset.touching = '0';
+            mode = null;
+            requestAnimationFrame(() => this.snapNearest(el));
+            return;
+          }
           let v = vel * 16;
           const step = () => {
             if (Math.abs(v) < 0.5) {
@@ -1557,6 +1568,12 @@ class Component extends DCLogic {
       el.addEventListener('touchmove', onMove, { passive: false });
       el.addEventListener('touchend', onEnd, { passive: true });
       el.addEventListener('touchcancel', onEnd, { passive: true });
+      el.addEventListener('click', (e) => {
+        if (!suppressClick) return;
+        e.preventDefault();
+        e.stopPropagation();
+        suppressClick = false;
+      }, true);
     });
     this.initModalDrag();
   };
