@@ -327,15 +327,17 @@
       html,body { overflow-x:hidden; }
       main { width:100%; margin:0; padding:0 13px 54px; }
       .admin-index { inset:12px 12px auto auto; width:auto; height:auto; padding:0; display:block; border:0; background:transparent; box-shadow:none; }
+      .admin-index.menu-open { width:min(260px,calc(100vw - 24px)); max-height:calc(100dvh - 24px); padding:10px; display:flex; flex-direction:column; gap:8px; overflow-x:hidden; overflow-y:auto; border:1px solid var(--admin-line); border-radius:17px; background:#111113; box-shadow:0 24px 65px rgba(0,0,0,.66); -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
       .admin-sidebar-brand { display:none; }
       .admin-mobile-menu { position:relative; z-index:2; min-width:122px; min-height:43px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; border:1px solid rgba(246,192,42,.38); border-radius:12px; background:rgba(20,20,22,.96); color:#f6c02a; font:900 11px Manrope,sans-serif; box-shadow:0 10px 28px rgba(0,0,0,.35); backdrop-filter:blur(16px); }
+      .admin-index.menu-open .admin-mobile-menu { width:100%; flex:none; box-sizing:border-box; background:#171719; box-shadow:none; }
       .admin-mobile-menu::after { content:"⌄"; font-size:16px; transition:transform .2s ease; }
       .admin-index.menu-open .admin-mobile-menu::after { transform:rotate(180deg); }
-      .admin-index-links { position:absolute; top:50px; right:0; width:220px; max-height:min(62vh,470px); padding:8px; display:none; flex-direction:column; gap:4px; overflow:auto; border:1px solid var(--admin-line); border-radius:15px; background:rgba(17,17,19,.98); box-shadow:0 22px 60px rgba(0,0,0,.58); backdrop-filter:blur(18px); }
+      .admin-index-links { position:static; width:100%; max-height:none; box-sizing:border-box; padding:0; display:none; flex:none; flex-direction:column; gap:4px; overflow:visible; border:0; border-radius:0; background:transparent; box-shadow:none; backdrop-filter:none; }
       .admin-index.menu-open .admin-index-links { display:flex; }
       .admin-index a { flex:none; min-height:43px; padding:10px 12px 10px 42px; justify-content:flex-start; border-radius:10px; font-size:10px; text-align:left; }
       .admin-index a::before { left:13px; top:50%; transform:translateY(-50%); }
-      .admin-index-publish { position:absolute; top:calc(50px + min(62vh,470px) + 7px); right:0; width:220px; min-height:44px; display:none; border-radius:12px; }
+      .admin-index-publish { position:static; width:100%; min-height:46px; display:none; flex:none; box-sizing:border-box; margin:2px 0 0; border-radius:12px; }
       .admin-index.menu-open .admin-index-publish { display:flex; }
       .admin-index-publish > span:last-child { display:inline; }
       .admin-hero { position:relative; min-height:auto; align-items:center; flex-direction:row; padding:16px 0; }
@@ -1752,7 +1754,12 @@
       publishFeedback.style.color = isError ? "#ff8a80" : "#7ee2a8";
     };
     document.getElementById("openPublish").addEventListener("click", openPublishDialog);
-    document.getElementById("publishIndex").addEventListener("click", (event) => { event.preventDefault(); openPublishDialog(); });
+    document.getElementById("publishIndex").addEventListener("click", (event) => {
+      event.preventDefault();
+      document.querySelector(".admin-index")?.classList.remove("menu-open");
+      document.getElementById("adminMobileMenu")?.setAttribute("aria-expanded", "false");
+      openPublishDialog();
+    });
     document.getElementById("closePublish").addEventListener("click", closePublishDialog);
     document.getElementById("cancelPublish").addEventListener("click", closePublishDialog);
     publishDialog.addEventListener("click", (event) => { if (event.target === publishDialog) closePublishDialog(); });
