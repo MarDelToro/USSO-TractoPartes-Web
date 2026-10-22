@@ -313,6 +313,49 @@
   .usso-secondary-auction-card button { padding:9px 7px !important; font-size:9.5px !important; }
   .usso-secondary-auction-card:hover { filter:brightness(1.04); border-color:rgba(var(--border-rgb),.24); }
   .usso-secondary-auction-card.is-carousel-current { border-color:#f6c02a; box-shadow:0 0 22px rgba(246,192,42,.48),0 0 58px rgba(246,192,42,.24),0 20px 42px rgba(0,0,0,.62); }
+  .usso-auction-showcase { position:relative; min-height:650px; border-radius:26px; overflow:hidden; isolation:isolate; background:#111113; border:1px solid rgba(var(--border-rgb),.11); box-shadow:0 38px 90px rgba(0,0,0,.56); }
+  .usso-auction-showcase-bg { position:absolute; inset:0; z-index:-3; width:100%; height:100%; object-fit:cover; object-position:var(--showcase-position,50% 50%); transform:scale(var(--showcase-zoom,1.01)); animation:ussoShowcaseReveal .72s cubic-bezier(.2,.72,.2,1) both; }
+  .usso-auction-showcase::before { content:""; position:absolute; inset:0; z-index:-2; background:linear-gradient(90deg,rgba(7,7,8,.95) 0%,rgba(7,7,8,.78) 34%,rgba(7,7,8,.25) 61%,rgba(7,7,8,.38) 100%); }
+  .usso-auction-showcase::after { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(0deg,rgba(7,7,8,.62),transparent 44%),radial-gradient(circle at 72% 45%,transparent 0,rgba(7,7,8,.08) 54%,rgba(7,7,8,.42) 100%); pointer-events:none; }
+  .usso-auction-showcase-layout { min-height:650px; padding:54px 48px 38px; box-sizing:border-box; display:grid; grid-template-columns:minmax(330px,.82fr) minmax(500px,1.18fr); gap:44px; align-items:end; }
+  .usso-auction-showcase-copy { align-self:center; max-width:480px; animation:ussoShowcaseCopy .58s cubic-bezier(.2,.72,.2,1) both; }
+  .usso-auction-showcase-kicker { display:flex; align-items:center; gap:10px; margin-bottom:16px; font:800 10px Manrope,sans-serif; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.7); }
+  .usso-auction-showcase-kicker::before { content:""; width:28px; height:1px; background:#f6c02a; box-shadow:0 0 10px rgba(246,192,42,.65); }
+  .usso-auction-showcase-title { max-width:520px; margin:0 0 16px; color:#fff; font:900 clamp(36px,4.4vw,66px)/.95 'Archivo Black',sans-serif; letter-spacing:-.045em; text-wrap:balance; text-shadow:0 3px 28px rgba(0,0,0,.44); }
+  .usso-auction-showcase-meta { display:flex; flex-wrap:wrap; align-items:flex-end; gap:24px; margin:22px 0 24px; }
+  .usso-auction-showcase-price small,.usso-auction-showcase-clock small { display:block; margin-bottom:5px; color:rgba(255,255,255,.55); font:700 10px Manrope,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+  .usso-auction-showcase-price strong { color:#f6c02a; font:900 32px/1 'Archivo Black',sans-serif; }
+  .usso-auction-showcase-clock strong { color:#fff; font:900 19px/1.1 'Archivo Black',monospace; font-variant-numeric:tabular-nums; }
+  .usso-auction-showcase-actions { display:flex; flex-wrap:wrap; gap:10px; }
+  .usso-auction-showcase-actions button { min-height:44px; border-radius:100px; padding:12px 20px; font:800 12px Manrope,sans-serif; cursor:pointer; }
+  .usso-showcase-primary { border:0; background:#f6c02a; color:#09090a; box-shadow:0 8px 26px rgba(246,192,42,.2); }
+  .usso-showcase-secondary { border:1px solid rgba(255,255,255,.34); background:rgba(8,8,9,.32); color:#fff; backdrop-filter:blur(9px); }
+  .usso-auction-showcase-browser { min-width:0; align-self:end; }
+  .usso-auction-showcase-cards { display:flex; align-items:flex-end; gap:14px; overflow-x:auto; padding:20px 7px 24px; scrollbar-width:none; scroll-snap-type:x proximity; overscroll-behavior-x:contain; }
+  .usso-auction-showcase-cards::-webkit-scrollbar { display:none; }
+  .usso-auction-mini-card { position:relative; flex:0 0 156px; height:236px; padding:0; border-radius:11px; overflow:hidden; border:1px solid rgba(255,255,255,.18); background:#1b1b1e; color:#fff; cursor:pointer; scroll-snap-align:center; box-shadow:0 16px 28px rgba(0,0,0,.38); transform:translateY(0); transition:width .28s ease,flex-basis .28s ease,transform .28s ease,border-color .28s ease,box-shadow .28s ease,filter .28s ease; filter:saturate(.78) brightness(.78); }
+  .usso-auction-mini-card:hover { transform:translateY(-8px); filter:saturate(1) brightness(.96); border-color:rgba(246,192,42,.5); }
+  .usso-auction-mini-card.is-selected { flex-basis:178px; height:270px; transform:translateY(-6px); filter:saturate(1.05) brightness(1); border-color:#f6c02a; box-shadow:0 0 0 1px rgba(246,192,42,.22),0 18px 44px rgba(0,0,0,.5),0 0 28px rgba(246,192,42,.2); }
+  .usso-auction-mini-card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:var(--card-position,50% 50%); transform:scale(var(--card-zoom,1)); }
+  .usso-auction-mini-card::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(4,4,5,.96) 0%,rgba(4,4,5,.62) 32%,transparent 66%); }
+  .usso-auction-mini-content { position:absolute; z-index:2; left:13px; right:13px; bottom:14px; text-align:left; }
+  .usso-auction-mini-content span { display:block; color:#f6c02a; font:800 8px Manrope,sans-serif; letter-spacing:.11em; text-transform:uppercase; }
+  .usso-auction-mini-content strong { display:block; margin-top:5px; color:#fff; font:800 12px/1.25 Manrope,sans-serif; }
+  .usso-auction-mini-content small { display:block; margin-top:7px; color:rgba(255,255,255,.62); font:700 9px Manrope,sans-serif; }
+  .usso-auction-showcase-nav { display:flex; align-items:center; gap:11px; padding-left:7px; }
+  .usso-auction-showcase-nav button { width:38px; height:38px; border-radius:50%; display:grid; place-items:center; border:1px solid rgba(255,255,255,.25); background:rgba(8,8,9,.38); color:#fff; font-size:16px; cursor:pointer; backdrop-filter:blur(9px); }
+  .usso-auction-showcase-nav button:hover { border-color:#f6c02a; color:#f6c02a; }
+  .usso-auction-showcase-progress { width:110px; height:2px; overflow:hidden; background:rgba(255,255,255,.16); }
+  .usso-auction-showcase-progress span { display:block; width:var(--showcase-progress,25%); height:100%; background:#f6c02a; transition:width .42s ease; }
+  .usso-auction-showcase-position { color:rgba(255,255,255,.7); font:800 10px Manrope,sans-serif; letter-spacing:.12em; }
+  @keyframes ussoShowcaseReveal { from { opacity:.18; transform:scale(1.075); } to { opacity:1; transform:scale(var(--showcase-zoom,1.01)); } }
+  @keyframes ussoShowcaseCopy { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+  @media(max-width:980px){
+    .usso-auction-showcase-layout{grid-template-columns:minmax(270px,.75fr) minmax(390px,1.25fr);gap:20px;padding:42px 30px 30px}.usso-auction-showcase-title{font-size:clamp(32px,5.3vw,50px)}.usso-auction-mini-card{flex-basis:132px;height:205px}.usso-auction-mini-card.is-selected{flex-basis:150px;height:232px}
+  }
+  @media(max-width:640px){
+    #subastas{padding-left:0!important;padding-right:0!important;max-width:none!important}.usso-auction-section-heading{padding:0 20px}.usso-auction-showcase{min-height:690px;border-radius:0;border-left:0;border-right:0}.usso-auction-showcase-layout{min-height:690px;padding:38px 0 24px;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:18px}.usso-auction-showcase::before{background:linear-gradient(0deg,rgba(6,6,7,.98) 0%,rgba(6,6,7,.76) 47%,rgba(6,6,7,.14) 79%,rgba(6,6,7,.28) 100%)}.usso-auction-showcase-bg{height:58%;bottom:auto;object-position:center}.usso-auction-showcase-copy{margin-top:auto;padding:0 20px;max-width:100%}.usso-auction-showcase-title{font-size:clamp(31px,10vw,43px);margin-bottom:10px;max-width:92%}.usso-auction-showcase-meta{margin:16px 0 18px;gap:20px}.usso-auction-showcase-price strong{font-size:27px}.usso-auction-showcase-clock strong{font-size:16px}.usso-auction-showcase-actions{flex-wrap:nowrap}.usso-auction-showcase-actions button{flex:1;min-width:0;padding:11px 10px;font-size:10.5px}.usso-auction-showcase-browser{width:100%}.usso-auction-showcase-cards{gap:10px;padding:7px 20px 17px}.usso-auction-mini-card{flex-basis:118px;height:158px;border-radius:9px}.usso-auction-mini-card.is-selected{flex-basis:132px;height:176px;transform:translateY(-3px)}.usso-auction-mini-content{left:10px;right:10px;bottom:10px}.usso-auction-mini-content strong{font-size:10px}.usso-auction-mini-content small{font-size:8px}.usso-auction-showcase-nav{padding:0 20px}.usso-auction-showcase-nav button{width:34px;height:34px}.usso-auction-showcase-progress{flex:1;max-width:100px}
+  }
   @media (max-width:760px) and (min-width:641px) {
     .usso-secondary-auctions-grid { gap:18px; padding:30px 18px 46px; }
     .usso-secondary-auction-card { flex-basis:480px; }
@@ -862,110 +905,52 @@
   <!-- SUBASTAS -->
   <section id="subastas" data-screen-label="Subastas" ref="{{ registerReveal_subastas }}" class="usso-section-pad" style="padding:120px 48px;max-width:1400px;margin:0 auto">
     <div style="opacity:{{ styles.auctions.opacity }};transform:{{ styles.auctions.transform }};filter:{{ styles.auctions.filter }};transition:{{ styles.auctions.transition }}">
-      <div style="margin-bottom:40px">
+      <div class="usso-auction-section-heading" style="margin-bottom:40px">
         <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Subastas</span>
         <h2 style="font-family:'Archivo Black',sans-serif;font-size:clamp(32px,4.4vw,52px);margin:10px 0 0;color:var(--text)">Tú pones el precio.<br>Nosotros la evidencia.</h2>
       </div>
 
-      <!-- LOTE DESTACADO -->
+      <!-- EXPERIENCIA DE SUBASTAS -->
       <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
-      <div class="usso-auctions-grid" ref="{{ auctionsRef }}" style="{{ auctionsGridStyle }}">
-      <sc-for list="{{ featuredCarouselItems }}" as="lot" hint-placeholder-count="3">
-      <div data-auction-id="{{ lot.id }}" data-auction-copy="{{ lot.copy }}" data-auction-index="{{ lot.index }}" class="usso-featured-lot {{ lot.finishClass }} {{ lot.activeClass }} {{ lot.statusClass }}" onClick="{{ lot.cardGoTo }}" onKeyDown="{{ lot.openOnKey }}" role="button" tabIndex="0" aria-label="Abrir subasta {{ lot.title }}" style="flex:0 0 min(1120px,86vw)">
-        <div class="usso-featured-photo" style="position:relative;aspect-ratio:1/1;align-self:center;width:100%">
-         <sc-if value="{{ lot.hasImage }}">
-         <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="eager" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }});display:block">
-         </sc-if>
-         <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
-          <span class="usso-live-badge" style="position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:7px;background:rgba(10,10,11,0.86);backdrop-filter:blur(6px);border:1px solid {{ lot.badgeBorder }};border-radius:100px;padding:7px 14px;z-index:4">
-            <span style="width:6px;height:6px;border-radius:50%;background:{{ lot.badgeDot }};animation:{{ lot.badgeAnimation }}"></span>
-            <span style="font:800 11px Manrope,sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:{{ lot.badgeColor }}">{{ lot.badgeLabel }}</span>
-          </span>
-        </div>
-
-        <div class="usso-featured-body" style="padding:30px 32px 0;display:flex;flex-direction:column;justify-content:center">
-          <span style="font:700 11px Manrope,sans-serif;letter-spacing:0.16em;color:rgba(var(--text-rgb),0.45)">LOTE {{ lot.number }}</span>
-          <h3 class="usso-featured-title" style="font-family:'Archivo Black',sans-serif;font-size:26px;line-height:1.14;color:var(--text);margin:8px 0 14px">{{ lot.title }}</h3>
-
-          <div class="usso-evidence-row" style="margin-bottom:20px">
-            <sc-for list="{{ lot.evidence }}" as="ev" hint-placeholder-count="3">
-              <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.32);border-radius:100px;padding:6px 12px;font:700 11.5px Manrope,sans-serif;color:#7ee2a8">
-                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" style="flex:none"><path d="M1.5 6.2l3 3L10.5 2.8" stroke="#7ee2a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{ ev }}
-              </span>
-            </sc-for>
-          </div>
-
-          <div class="usso-featured-dates" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px">
-            <div style="padding:10px 12px;border-radius:11px;background:rgba(var(--border-rgb),.045);border:1px solid rgba(var(--border-rgb),.09)"><span style="display:block;font:700 9.5px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--text-rgb),.42);margin-bottom:4px">Inicio</span><strong style="font:700 11.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ lot.startsDate }}</strong></div>
-            <div style="padding:10px 12px;border-radius:11px;background:rgba(var(--border-rgb),.045);border:1px solid rgba(var(--border-rgb),.09)"><span style="display:block;font:700 9.5px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--text-rgb),.42);margin-bottom:4px">Cierre</span><strong style="font:700 11.5px/1.35 Manrope,sans-serif;color:var(--text)">{{ lot.closesDate }}</strong></div>
-          </div>
-
-          <div class="usso-featured-meta" style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:18px 0;border-top:1px solid rgba(var(--border-rgb),0.09);border-bottom:1px solid rgba(var(--border-rgb),0.09);margin-bottom:22px">
-            <div>
-              <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">{{ lot.priceLabel }}</p>
-              <p class="usso-featured-bid" style="font-family:'Archivo Black',sans-serif;font-size:34px;line-height:1;color:{{ accent }};margin:0">{{ lot.bid }}</p>
-              <p style="font:600 12px Manrope,sans-serif;color:rgba(var(--text-rgb),0.4);margin:7px 0 0">Precio base {{ lot.base }}</p>
+      <div class="usso-auction-showcase">
+        <sc-if value="{{ featuredHasImage }}"><img class="usso-auction-showcase-bg" src="{{ featuredSrc }}" data-fallback-src="{{ featuredFullSrc }}" onError="{{ onAuctionImageError }}" alt="" style="--showcase-position:{{ featuredPosition }};--showcase-zoom:{{ featuredZoom }}"></sc-if>
+        <div class="usso-auction-showcase-layout">
+          <div class="usso-auction-showcase-copy">
+            <div class="usso-auction-showcase-kicker">Lote {{ featuredNumber }} · {{ featuredBadgeLabel }}</div>
+            <h3 class="usso-auction-showcase-title">{{ featuredTitle }}</h3>
+            <div class="usso-evidence-row">
+              <sc-for list="{{ featuredEvidence }}" as="ev" hint-placeholder-count="3"><span style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid rgba(126,226,168,.34);border-radius:100px;background:rgba(7,7,8,.36);color:#7ee2a8;font:800 9px Manrope,sans-serif;backdrop-filter:blur(8px)">✓ {{ ev }}</span></sc-for>
             </div>
-            <div style="text-align:right">
-              <p style="font:600 11.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5);margin:0 0 5px">{{ lot.clockLabel }}</p>
-              <p class="usso-featured-clock" style="font-family:'Archivo Black',monospace;font-size:25px;line-height:1;color:{{ lot.clockColor }};font-variant-numeric:tabular-nums;margin:0">{{ lot.closesDisplay }}</p>
+            <div class="usso-auction-showcase-meta">
+              <div class="usso-auction-showcase-price"><small>{{ featuredPriceLabel }}</small><strong>{{ featuredBid }}</strong></div>
+              <div class="usso-auction-showcase-clock"><small>{{ featuredClockLabel }}</small><strong>{{ featuredClock }}</strong></div>
+            </div>
+            <div class="usso-auction-showcase-actions">
+              <sc-if value="{{ featuredIsActive }}"><button class="usso-showcase-primary" onClick="{{ featuredBidAction }}" aria-disabled="{{ featuredBidDisabled }}" style="cursor:{{ featuredBidCursor }};opacity:{{ featuredBidOpacity }}">{{ bidButtonLabel }}</button></sc-if>
+              <sc-if value="{{ featuredIsUpcoming }}"><button class="usso-showcase-primary" onClick="{{ featuredNotify }}" style="background:{{ featuredNotifyBg }};border:1px solid {{ featuredNotifyBorder }};color:{{ featuredNotifyColor }}">{{ featuredNotifyLabel }}</button></sc-if>
+              <button class="usso-showcase-secondary" onClick="{{ featuredGoTo }}">Ver detalles</button>
             </div>
           </div>
 
-        </div>
-
-        <div class="usso-featured-actions" style="padding:22px 32px 28px;display:flex;flex-direction:column;gap:12px">
-          <div class="usso-evidence-row usso-featured-chips-mobile">
-            <sc-for list="{{ lot.evidence }}" as="ev" hint-placeholder-count="3">
-              <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.32);border-radius:100px;padding:4px 10px;font:700 10.5px Manrope,sans-serif;color:#7ee2a8">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="flex:none"><path d="M1.5 6.2l3 3L10.5 2.8" stroke="#7ee2a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{ ev }}
-              </span>
-            </sc-for>
+          <div class="usso-auction-showcase-browser">
+            <div class="usso-auction-showcase-cards">
+              <sc-for list="{{ auctionShowcaseCards }}" as="lot" hint-placeholder-count="4">
+                <button class="usso-auction-mini-card {{ lot.selectedClass }}" onClick="{{ lot.select }}" aria-pressed="{{ lot.selected }}" aria-label="Mostrar lote {{ lot.number }}">
+                  <sc-if value="{{ lot.hasImage }}"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="--card-position:{{ lot.position }};--card-zoom:{{ lot.zoom }}"></sc-if>
+                  <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
+                  <div class="usso-auction-mini-content"><span>{{ lot.status }} · Lote {{ lot.number }}</span><strong>{{ lot.title }}</strong><small>{{ lot.bid }}</small></div>
+                </button>
+              </sc-for>
+            </div>
+            <div class="usso-auction-showcase-nav">
+              <button onClick="{{ auctionsPrev }}" aria-label="Subasta anterior">←</button>
+              <button onClick="{{ auctionsNext }}" aria-label="Subasta siguiente">→</button>
+              <div class="usso-auction-showcase-progress" style="--showcase-progress:{{ featuredProgress }}"><span></span></div>
+              <span class="usso-auction-showcase-position">{{ featuredPositionLabel }}</span>
+            </div>
           </div>
-          <div style="display:flex;gap:10px">
-            <sc-if value="{{ lot.isActive }}">
-            <button onClick="{{ lot.bidAction }}" aria-disabled="{{ lot.bidDisabled }}" style="flex:1;min-width:170px;background:{{ accent }};color:#0a0a0b;font:800 14px Manrope,sans-serif;padding:14px 24px;border-radius:100px;border:0;cursor:{{ lot.bidCursor }};opacity:{{ lot.bidOpacity }}">{{ lot.bidButtonLabel }}</button>
-            </sc-if>
-            <button onClick="{{ lot.goTo }}" style="flex:{{ lot.detailsFlex }};background:transparent;border:1.5px solid rgba(var(--text-rgb),0.25);color:var(--text);font:700 14px Manrope,sans-serif;padding:13px 22px;border-radius:100px;cursor:pointer">Ver detalles</button>
-          </div>
-          <sc-if value="{{ lot.isUpcoming }}">
-            <button onClick="{{ lot.notify }}" style="width:100%;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:800 13px Manrope,sans-serif;padding:13px 18px;border-radius:100px;cursor:pointer">{{ lot.notifyLabel }}</button>
-          </sc-if>
         </div>
       </div>
-      </sc-for>
-      </div>
-      <sc-if value="{{ featuredHasMultiple }}">
-        <div class="usso-featured-carousel-nav" style="display:none;align-items:center;justify-content:center;gap:14px;margin-top:20px">
-          <button onClick="{{ auctionsPrev }}" aria-label="Subasta anterior" style="width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.2);color:var(--text);font-size:19px;cursor:pointer">←</button>
-          <button onClick="{{ auctionsNext }}" aria-label="Subasta siguiente" style="width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.2);color:var(--text);font-size:19px;cursor:pointer">→</button>
-        </div>
-      </sc-if>
-      </sc-if>
-
-      <sc-if value="{{ hasSecondaryAuctions }}">
-        <div class="usso-secondary-auctions-grid" ref="{{ secondaryAuctionsRef }}">
-          <sc-for list="{{ secondaryCarouselItems }}" as="lot" hint-placeholder-count="6">
-            <div class="usso-secondary-auction-card" data-secondary-copy="{{ lot.copy }}" data-secondary-index="{{ lot.index }}" onClick="{{ lot.cardGoTo }}">
-              <div style="position:relative;aspect-ratio:1/1;overflow:hidden;background:#171719">
-                <sc-if value="{{ lot.hasImage }}"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }});display:block"></sc-if>
-                <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
-                <span style="position:absolute;top:12px;left:12px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 10px Manrope,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 10px;border-radius:100px">{{ lot.status }}</span>
-              </div>
-              <div style="padding:18px">
-                <span style="font:700 10px Manrope,sans-serif;letter-spacing:.12em;color:rgba(var(--text-rgb),.45)">LOTE {{ lot.number }}</span>
-                <h3 style="font:800 18px/1.25 Manrope,sans-serif;color:var(--text);margin:5px 0 10px">{{ lot.title }}</h3>
-                <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.28);border-radius:100px;padding:5px 10px;font:700 10px Manrope;color:#7ee2a8;margin-bottom:12px">✓ {{ lot.evidenceLabel }}</span>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px"><div style="padding:8px;border-radius:9px;background:rgba(var(--border-rgb),.045)"><small style="display:block;font:700 7px Manrope;color:rgba(var(--text-rgb),.42);margin-bottom:3px">INICIO</small><strong style="font:700 9px/1.25 Manrope;color:var(--text)">{{ lot.startsDateDisplay }}</strong></div><div style="padding:8px;border-radius:9px;background:rgba(var(--border-rgb),.045)"><small style="display:block;font:700 7px Manrope;color:rgba(var(--text-rgb),.42);margin-bottom:3px">CIERRE</small><strong style="font:700 9px/1.25 Manrope;color:var(--text)">{{ lot.closesDateDisplay }}</strong></div></div>
-                <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px;border-top:1px solid rgba(var(--border-rgb),.09);padding-top:13px">
-                  <div><small style="display:block;color:rgba(var(--text-rgb),.48);font:600 10px Manrope;margin-bottom:3px">{{ lot.bidLabel }}</small><strong style="font:900 20px 'Archivo Black',sans-serif;color:{{ accent }}">{{ lot.bid }}</strong></div>
-                  <div style="text-align:right"><small style="display:block;color:rgba(var(--text-rgb),.48);font:600 10px Manrope;margin-bottom:3px">{{ lot.closesLabel }}</small><strong style="font:800 13px Manrope;color:{{ lot.clockColor }}">{{ lot.closesDisplay }}</strong></div>
-                </div>
-                <sc-if value="{{ lot.isUpcoming }}"><button onClick="{{ lot.notify }}" style="width:100%;margin-top:14px;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:800 10.5px Manrope;padding:11px 10px;border-radius:100px;cursor:pointer">{{ lot.notifyLabel }}</button></sc-if>
-              </div>
-            </div>
-          </sc-for>
-        </div>
       </sc-if>
 
       <sc-if value="{{ noAuctions }}" hint-placeholder-val="{{ false }}">
@@ -2969,6 +2954,12 @@ submitAuth = async (e) => {
     }));
   };
 
+  selectFeaturedAuction = (index) => () => {
+    const length = Array.isArray(this.featuredAuctionQueue) ? this.featuredAuctionQueue.length : 0;
+    if (!length) return;
+    this.setState({ featuredAuctionIndex: Math.max(0, Math.min(Number(index) || 0, length - 1)) });
+  };
+
   renderVals() {
     const phase = this.state.phase;
     const accent = this.props.accent ?? '#f6c02a';
@@ -2992,12 +2983,37 @@ submitAuth = async (e) => {
     const st = this.state;
     const u = st.user;
     const initials = u ? u.nombre.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() : '';
-    const active = this.auctionItemsComputed.filter((l) => l.status === 'Activa').sort((a, b) => a.closesAt - b.closesAt);
-    const upcoming = this.auctionItemsComputed.filter((l) => l.status === 'Próxima').sort((a, b) => a.startsAt - b.startsAt);
+    let active = this.auctionItemsComputed.filter((l) => l.status === 'Activa').sort((a, b) => a.closesAt - b.closesAt);
+    let upcoming = this.auctionItemsComputed.filter((l) => l.status === 'Próxima').sort((a, b) => a.startsAt - b.startsAt);
     const history = this.auctionItemsComputed.filter((l) => l.status === 'Finalizada').sort((a, b) => b.closesAt - a.closesAt);
+    const localDesignPreview = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && new URLSearchParams(window.location.search).has('demo');
+    if (localDesignPreview && active.length + upcoming.length < 4) {
+      const previewDefaults = [
+        { id:'preview-1', number:'101', title:'International 9400i', src:'assets/lot-l1.webp', fullSrc:'assets/lot-l1.webp', bid:'$130,000', base:'$130,000', bidCount:0, evidence:['Fotografías reales'] },
+        { id:'preview-2', number:'102', title:'Motor Cummins N14', src:'assets/lot-l2.webp', fullSrc:'assets/lot-l2.webp', bid:'$185,000', base:'$185,000', bidCount:0, evidence:['Video funcionando'] },
+        { id:'preview-3', number:'103', title:'Transmisión Eaton Fuller', src:'assets/lot-l3.webp', fullSrc:'assets/lot-l3.webp', bid:'$92,000', base:'$92,000', bidCount:0, evidence:['Condición documentada'] },
+        { id:'preview-4', number:'104', title:'Diferencial Meritor', src:'assets/diferencial-cover.webp', fullSrc:'assets/diferencial-cover.webp', bid:'$78,000', base:'$78,000', bidCount:0, evidence:['Publicada en el sistema'] }
+      ];
+      const previewSource = [...(!active.length && !upcoming.length ? history : []), ...previewDefaults]
+        .slice(0, 4 - active.length - upcoming.length);
+      const previewLots = previewSource.map((lot, index) => ({
+        ...lot,
+        id:`design-${lot.id || index}`,
+        number:lot.number || String(101 + index),
+        status:'Próxima',
+        position:lot.position || '50% 50%',
+        zoom:lot.zoom || 1.06,
+        evidence:Array.isArray(lot.evidence) && lot.evidence.length ? lot.evidence : ['Publicada en el sistema'],
+        startsAt:Date.now() + (index + 1) * 86400000,
+        closesAt:Date.now() + (index + 2) * 86400000,
+        closesDisplay:this.formatCountdown((index + 1) * 86400000),
+        goTo:() => {}
+      }));
+      upcoming = [...upcoming, ...previewLots];
+    }
     const hasAnyAuction = active.length > 0;
     const hasCurrentOrUpcoming = active.length > 0 || upcoming.length > 0;
-    const featuredAuctionQueue = [...active, ...upcoming].slice(0, 3);
+    const featuredAuctionQueue = [...active, ...upcoming];
     const secondaryAuctionQueue = active.length > 0 ? upcoming : upcoming.slice(1);
     this.featuredAuctionQueue = featuredAuctionQueue;
     const featuredAuctionIndex = featuredAuctionQueue.length
@@ -3109,6 +3125,17 @@ submitAuth = async (e) => {
         notifyColor: watchOn ? '#7ee2a8' : 'var(--text)',
       };
     });
+    const auctionShowcaseCards = featuredAuctionQueue.map((lot, index) => ({
+      ...lot,
+      hasImage: !!lot.src,
+      noImage: !lot.src,
+      fullSrc: lot.fullSrc || lot.src,
+      position: lot.position || '50% 50%',
+      zoom: lot.zoom || 1,
+      selected: index === featuredAuctionIndex,
+      selectedClass: index === featuredAuctionIndex ? 'is-selected' : '',
+      select: this.selectFeaturedAuction(index),
+    }));
     const activeFilter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
     const publicAuctions = [...active, ...upcoming];
     const filtered = publicAuctions.filter(activeFilter.test);
@@ -3269,6 +3296,9 @@ submitAuth = async (e) => {
       featuredFinishClass: featuredCelebrating ? 'usso-finished-lot' : '',
       featuredHasMultiple: featuredAuctionQueue.length > 1,
       featuredCarouselItems,
+      auctionShowcaseCards,
+      featuredProgress: `${((featuredAuctionIndex + 1) / Math.max(featuredAuctionQueue.length, 1)) * 100}%`,
+      featuredPositionLabel: `${String(featuredAuctionIndex + 1).padStart(2, '0')} / ${String(Math.max(featuredAuctionQueue.length, 1)).padStart(2, '0')}`,
       secondaryCarouselItems: (secondaryAuctionQueue.length > 1
         ? [...secondaryAuctionQueue, ...secondaryAuctionQueue, ...secondaryAuctionQueue]
         : secondaryAuctionQueue
@@ -3410,8 +3440,8 @@ submitAuth = async (e) => {
       videosGridStyle: { display: 'flex', flexWrap: 'nowrap', gap: '24px', alignItems: 'center', justifyContent: this.state.overflow.videos ? 'flex-start' : 'center' },
       invPrev: this.scrollCarousel('inv', -1),
       invNext: this.scrollCarousel('inv', 1),
-      auctionsPrev: this.scrollCarousel('auctions', -1),
-      auctionsNext: this.scrollCarousel('auctions', 1),
+      auctionsPrev: this.moveFeaturedAuction(-1),
+      auctionsNext: this.moveFeaturedAuction(1),
       videosPrev: this.scrollCarousel('videos', -1),
       videosNext: this.scrollCarousel('videos', 1),
       mobileMenuOpen: this.state.mobileMenuOpen,
