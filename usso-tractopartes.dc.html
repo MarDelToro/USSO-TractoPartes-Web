@@ -346,11 +346,11 @@
   .usso-auction-mini-card:hover { transform:translateY(-8px); filter:saturate(1) brightness(.96); border-color:rgba(246,192,42,.5); }
   .usso-auction-mini-card.is-selected { flex-basis:124px; height:158px; transform:translateY(-3px); filter:saturate(1.05) brightness(1); border-color:#f6c02a; box-shadow:0 0 0 1px rgba(246,192,42,.22),0 14px 30px rgba(0,0,0,.5),0 0 24px rgba(246,192,42,.2); }
   .usso-auction-mini-card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:var(--card-position,50% 50%); transform:scale(var(--card-zoom,1)); }
-  .usso-auction-mini-card::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(4,4,5,.96) 0%,rgba(4,4,5,.62) 32%,transparent 66%); }
-  .usso-auction-mini-content { position:absolute; z-index:2; left:9px; right:9px; bottom:9px; text-align:left; }
-  .usso-auction-mini-content span { display:block; color:#f6c02a; font:800 8px Manrope,sans-serif; letter-spacing:.11em; text-transform:uppercase; }
-  .usso-auction-mini-content strong { display:-webkit-box; margin-top:4px; min-height:22px; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; color:#fff; font:800 9px/1.2 Manrope,sans-serif; }
-  .usso-auction-mini-content small { display:block; margin-top:5px; color:rgba(255,255,255,.62); font:700 8px Manrope,sans-serif; }
+  .usso-auction-mini-card::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(4,4,5,.97) 0%,rgba(4,4,5,.52) 38%,transparent 68%); }
+  .usso-auction-mini-lot { position:absolute; z-index:3; top:8px; left:8px; display:inline-flex; align-items:center; min-height:19px; padding:0 7px; border:1px solid rgba(255,255,255,.2); border-radius:100px; background:rgba(5,5,6,.68); color:rgba(255,255,255,.88); font:800 7px Manrope,sans-serif; letter-spacing:.12em; text-transform:uppercase; backdrop-filter:blur(8px); }
+  .usso-auction-mini-content { position:absolute; z-index:2; left:10px; right:10px; bottom:9px; text-align:left; }
+  .usso-auction-mini-content strong { display:-webkit-box; min-height:22px; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; color:#fff; font:800 9px/1.2 Manrope,sans-serif; letter-spacing:-.01em; text-transform:none; }
+  .usso-auction-mini-content small { display:block; margin-top:6px; color:#f6c02a; font:800 8px Manrope,sans-serif; letter-spacing:.03em; }
   .usso-auction-showcase-nav { display:flex; align-items:center; gap:11px; padding-left:7px; }
   .usso-auction-showcase-nav button { width:38px; height:38px; border-radius:50%; display:grid; place-items:center; border:1px solid rgba(255,255,255,.25); background:rgba(8,8,9,.38); color:#fff; font-size:16px; cursor:pointer; backdrop-filter:blur(9px); }
   .usso-auction-showcase-nav button:hover { border-color:#f6c02a; color:#f6c02a; }
@@ -953,7 +953,8 @@
                 <a class="usso-auction-mini-card {{ lot.selectedClass }}" href="{{ lot.href }}" aria-current="{{ lot.selected }}" aria-label="Ver detalles del lote {{ lot.number }}">
                   <sc-if value="{{ lot.hasImage }}"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="--card-position:{{ lot.position }};--card-zoom:{{ lot.zoom }}"></sc-if>
                   <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
-                  <div class="usso-auction-mini-content"><span>{{ lot.status }} · Lote {{ lot.number }}</span><strong>{{ lot.title }}</strong><small>{{ lot.bid }}</small></div>
+                  <span class="usso-auction-mini-lot">#{{ lot.number }}</span>
+                  <div class="usso-auction-mini-content"><strong>{{ lot.title }}</strong><small>{{ lot.bid }}</small></div>
                 </a>
               </sc-for>
             </div>
