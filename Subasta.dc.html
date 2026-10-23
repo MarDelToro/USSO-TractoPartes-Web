@@ -77,6 +77,40 @@
     );
     const STORE_PHONE = "524522822400";
     const lotId = window.location.hash.slice(1);
+    const isLocalDemo = (location.hostname === "localhost" || location.hostname === "127.0.0.1") && new URLSearchParams(location.search).has("demo");
+    const demoListing = isLocalDemo && lotId === "design-lot-3017" ? {
+      id:"design-lot-3017",
+      title:"Estructura Kenworth T680 2016",
+      description:"Estructura Kenworth T680 modelo 2016, lote 3017. Revisa las fotografías y el video para conocer su carrocería, interiores y condición visible.",
+      image_url:"local-media/lot-3017/2%202.png",
+      media_urls:[
+        "local-media/lot-3017/2%202.png", "local-media/lot-3017/1%202.png",
+        "local-media/lot-3017/3.png", "local-media/lot-3017/4.png",
+        "local-media/lot-3017/5.png", "local-media/lot-3017/6.png",
+        "local-media/lot-3017/7.png", "local-media/lot-3017/8.png",
+        "local-media/lot-3017/9.png", "local-media/lot-3017/10.png",
+        "local-media/lot-3017/11.png", "local-media/lot-3017/12.png",
+        "local-media/lot-3017/13.png", "local-media/lot-3017/14.png",
+        "local-media/lot-3017/15.png", "local-media/lot-3017/16.png",
+        { type:"video", url:"local-media/lot-3017/DEMO%20Estructura%20KW%20T680%20Lote%203017%20-%20Editado.mp4" }
+      ],
+      product_details:["Marca: Kenworth","Modelo: T680","Año: 2016","Condición: Usado","Lote: 3017","Categoría: Estructuras"],
+      start_price:150000,
+      current_price:150000,
+      buy_now_price:null,
+      status:"active",
+      starts_at:"2026-10-30T10:00:00-06:00",
+      ends_at:"2026-10-30T18:00:00-06:00",
+      category:"estructuras",
+      auction_round:1,
+      bid_count:0,
+      winner_id:null
+    } : null;
+    if (isLocalDemo) {
+      document.querySelectorAll('a[href="usso-tractopartes.dc.html#subastas"]').forEach((link) => {
+        link.href = "usso-tractopartes.dc.html?demo=1#subastas";
+      });
+    }
     let listing = null;
     let currentUser = null;
     let minimumBid = 0;
@@ -318,17 +352,18 @@
 
     async function load() {
       if (!lotId) return renderNotFound();
-      const {data:{user}} = await client.auth.getUser();
-      if (!user) {
+      const authResult = demoListing ? { data:{ user:null } } : await client.auth.getUser();
+      const user = authResult.data.user;
+      if (!user && !demoListing) {
         const intendedPage = `Subasta.dc.html#${encodeURIComponent(lotId)}`;
         window.location.replace(`registro.html?motivo=detalles&next=${encodeURIComponent(intendedPage)}`);
         return;
       }
       currentUser = user;
-      let listingResult = await client.from("listings")
+      let listingResult = demoListing ? { data:demoListing, error:null } : await client.from("listings")
         .select("id,title,description,image_url,media_urls,product_details,start_price,current_price,buy_now_price,status,starts_at,ends_at,category,auction_round,bid_count,winner_id")
         .eq("id", lotId).single();
-      if (listingResult.error) {
+      if (listingResult.error && !demoListing) {
         listingResult = await client.from("listings")
           .select("id,title,description,image_url,start_price,current_price,status,starts_at,ends_at,category,auction_round,bid_count,winner_id")
           .eq("id", lotId).single();

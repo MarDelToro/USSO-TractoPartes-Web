@@ -334,20 +334,20 @@
   .usso-auction-showcase-price strong { color:#f6c02a; font:900 32px/1 'Archivo Black',sans-serif; }
   .usso-auction-showcase-clock strong { color:#fff; font:900 19px/1.1 'Archivo Black',monospace; font-variant-numeric:tabular-nums; }
   .usso-auction-showcase-actions { display:flex; flex-wrap:wrap; gap:10px; }
-  .usso-auction-showcase-actions button { min-height:44px; border-radius:100px; padding:12px 20px; font:800 12px Manrope,sans-serif; cursor:pointer; }
+  .usso-auction-showcase-actions button,.usso-auction-showcase-actions a { min-height:44px; border-radius:100px; padding:12px 20px; font:800 12px Manrope,sans-serif; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; box-sizing:border-box; }
   .usso-showcase-primary { border:0; background:#f6c02a; color:#09090a; box-shadow:0 8px 26px rgba(246,192,42,.2); }
   .usso-showcase-secondary { border:1px solid rgba(255,255,255,.34); background:rgba(8,8,9,.32); color:#fff; backdrop-filter:blur(9px); }
   .usso-auction-showcase-browser { min-width:0; align-self:stretch; margin-top:18px; }
   .usso-auction-showcase-cards { display:flex; align-items:flex-end; gap:10px; overflow-x:auto; padding:10px 4px 13px; scrollbar-width:none; scroll-snap-type:x proximity; overscroll-behavior-x:contain; }
   .usso-auction-showcase-cards::-webkit-scrollbar { display:none; }
-  .usso-auction-mini-card { position:relative; flex:0 0 112px; height:142px; padding:0; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,.18); background:#1b1b1e; color:#fff; cursor:pointer; scroll-snap-align:center; box-shadow:0 12px 24px rgba(0,0,0,.34); transform:translateY(0); transition:width .28s ease,flex-basis .28s ease,transform .28s ease,border-color .28s ease,box-shadow .28s ease,filter .28s ease; filter:saturate(.78) brightness(.78); }
+  .usso-auction-mini-card { position:relative; flex:0 0 112px; height:142px; padding:0; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,.18); background:#1b1b1e; color:#fff; cursor:pointer; text-decoration:none; scroll-snap-align:center; box-shadow:0 12px 24px rgba(0,0,0,.34); transform:translateY(0); transition:width .28s ease,flex-basis .28s ease,transform .28s ease,border-color .28s ease,box-shadow .28s ease,filter .28s ease; filter:saturate(.78) brightness(.78); }
   .usso-auction-mini-card:hover { transform:translateY(-8px); filter:saturate(1) brightness(.96); border-color:rgba(246,192,42,.5); }
   .usso-auction-mini-card.is-selected { flex-basis:124px; height:158px; transform:translateY(-3px); filter:saturate(1.05) brightness(1); border-color:#f6c02a; box-shadow:0 0 0 1px rgba(246,192,42,.22),0 14px 30px rgba(0,0,0,.5),0 0 24px rgba(246,192,42,.2); }
   .usso-auction-mini-card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:var(--card-position,50% 50%); transform:scale(var(--card-zoom,1)); }
   .usso-auction-mini-card::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg,rgba(4,4,5,.96) 0%,rgba(4,4,5,.62) 32%,transparent 66%); }
   .usso-auction-mini-content { position:absolute; z-index:2; left:9px; right:9px; bottom:9px; text-align:left; }
   .usso-auction-mini-content span { display:block; color:#f6c02a; font:800 8px Manrope,sans-serif; letter-spacing:.11em; text-transform:uppercase; }
-  .usso-auction-mini-content strong { display:block; margin-top:4px; color:#fff; font:800 9px/1.2 Manrope,sans-serif; }
+  .usso-auction-mini-content strong { display:-webkit-box; margin-top:4px; min-height:22px; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; color:#fff; font:800 9px/1.2 Manrope,sans-serif; }
   .usso-auction-mini-content small { display:block; margin-top:5px; color:rgba(255,255,255,.62); font:700 8px Manrope,sans-serif; }
   .usso-auction-showcase-nav { display:flex; align-items:center; gap:11px; padding-left:7px; }
   .usso-auction-showcase-nav button { width:38px; height:38px; border-radius:50%; display:grid; place-items:center; border:1px solid rgba(255,255,255,.25); background:rgba(8,8,9,.38); color:#fff; font-size:16px; cursor:pointer; backdrop-filter:blur(9px); }
@@ -923,10 +923,10 @@
       <div class="usso-auction-showcase">
         <sc-if value="{{ featuredHasImage }}"><img class="usso-auction-showcase-bg" src="{{ featuredSrc }}" data-fallback-src="{{ featuredFullSrc }}" onError="{{ onAuctionImageError }}" alt="" style="--showcase-position:{{ featuredPosition }};--showcase-zoom:{{ featuredZoom }}"></sc-if>
         <div class="usso-auction-showcase-layout">
-          <div class="usso-auction-showcase-visual">
+          <a class="usso-auction-showcase-visual" href="{{ featuredHref }}" aria-label="Ver detalles de {{ featuredTitle }}" style="cursor:pointer">
             <sc-if value="{{ featuredHasImage }}"><img class="usso-auction-showcase-subject" src="{{ featuredFullSrc }}" data-fallback-src="{{ featuredSrc }}" onError="{{ onAuctionImageError }}" alt="{{ featuredTitle }}" fetchpriority="high"></sc-if>
             <sc-if value="{{ featuredNoImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
-          </div>
+          </a>
           <div class="usso-auction-showcase-panel">
           <div class="usso-auction-showcase-copy">
             <div class="usso-auction-showcase-kicker">Lote {{ featuredNumber }} · {{ featuredBadgeLabel }}</div>
@@ -941,18 +941,18 @@
             <div class="usso-auction-showcase-actions">
               <sc-if value="{{ featuredIsActive }}"><button class="usso-showcase-primary" onClick="{{ featuredBidAction }}" aria-disabled="{{ featuredBidDisabled }}" style="cursor:{{ featuredBidCursor }};opacity:{{ featuredBidOpacity }}">{{ bidButtonLabel }}</button></sc-if>
               <sc-if value="{{ featuredIsUpcoming }}"><button class="usso-showcase-primary" onClick="{{ featuredNotify }}" style="background:{{ featuredNotifyBg }};border:1px solid {{ featuredNotifyBorder }};color:{{ featuredNotifyColor }}">{{ featuredNotifyLabel }}</button></sc-if>
-              <button class="usso-showcase-secondary" onClick="{{ featuredGoTo }}">Ver detalles</button>
+              <a class="usso-showcase-secondary" href="{{ featuredHref }}">Ver detalles</a>
             </div>
           </div>
 
           <div class="usso-auction-showcase-browser">
             <div class="usso-auction-showcase-cards">
               <sc-for list="{{ auctionShowcaseCards }}" as="lot" hint-placeholder-count="4">
-                <button class="usso-auction-mini-card {{ lot.selectedClass }}" onClick="{{ lot.select }}" aria-pressed="{{ lot.selected }}" aria-label="Mostrar lote {{ lot.number }}">
+                <a class="usso-auction-mini-card {{ lot.selectedClass }}" href="{{ lot.href }}" aria-current="{{ lot.selected }}" aria-label="Ver detalles del lote {{ lot.number }}">
                   <sc-if value="{{ lot.hasImage }}"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="--card-position:{{ lot.position }};--card-zoom:{{ lot.zoom }}"></sc-if>
                   <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
                   <div class="usso-auction-mini-content"><span>{{ lot.status }} · Lote {{ lot.number }}</span><strong>{{ lot.title }}</strong><small>{{ lot.bid }}</small></div>
-                </button>
+                </a>
               </sc-for>
             </div>
             <div class="usso-auction-showcase-nav">
@@ -1983,8 +1983,11 @@ class Component extends DCLogic {
   goToLot = (id) => (e) => {
     if (e && e.stopPropagation) e.stopPropagation();
     this.setState({ pageOpacity: 0 });
-    setTimeout(() => { window.location.href = `Subasta.dc.html#${id}`; }, 240);
+    const demoQuery = String(id || '').startsWith('design-') ? '?demo=1' : '';
+    setTimeout(() => { window.location.href = `Subasta.dc.html${demoQuery}#${id}`; }, 240);
   };
+
+  lotHref = (id) => `Subasta.dc.html${String(id || '').startsWith('design-') ? '?demo=1' : ''}#${id}`;
 
   goToLotFromCard = (id) => (e) => {
     if (e && e.target && e.target.closest && e.target.closest('button, a, input, select, textarea')) return;
@@ -3008,6 +3011,7 @@ submitAuth = async (e) => {
         number:'3017',
         cat:'estructuras',
         title:'Estructura Kenworth T680 2016',
+        shortTitle:'Kenworth T680',
         src:'assets/lot-3017-preview.jpg',
         fullSrc:'assets/lot-3017-preview.jpg',
         bid:'$150,000',
@@ -3021,7 +3025,7 @@ submitAuth = async (e) => {
         startsAt:previewStart,
         closesAt:new Date('2026-10-30T18:00:00-06:00').getTime(),
         closesDisplay:this.formatCountdown(previewStart - Date.now()),
-        goTo:() => {}
+        goTo:this.goToLot('design-lot-3017')
       }, ...upcoming];
     }
     if (localDesignPreview && active.length + upcoming.length < 4) {
@@ -3162,8 +3166,12 @@ submitAuth = async (e) => {
         notifyColor: watchOn ? '#7ee2a8' : 'var(--text)',
       };
     });
+    const compactAuctionTitle = (lot) => lot.shortTitle || String(lot.title || '')
+      .replace(/^(estructura|motor|transmisi[oó]n|diferencial)\s+/i, '')
+      .replace(/\s+20\d{2}$/i, '');
     const auctionShowcaseCards = featuredAuctionQueue.map((lot, index) => ({
       ...lot,
+      title:compactAuctionTitle(lot),
       hasImage: !!lot.src,
       noImage: !lot.src,
       fullSrc: lot.fullSrc || lot.src,
@@ -3171,7 +3179,8 @@ submitAuth = async (e) => {
       zoom: lot.zoom || 1,
       selected: index === featuredAuctionIndex,
       selectedClass: index === featuredAuctionIndex ? 'is-selected' : '',
-      select: this.selectFeaturedAuction(index),
+      href: this.lotHref(lot.id),
+      select: index === featuredAuctionIndex ? lot.goTo : this.selectFeaturedAuction(index),
     }));
     const activeFilter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
     const publicAuctions = [...active, ...upcoming];
@@ -3373,6 +3382,7 @@ submitAuth = async (e) => {
       featuredBidCursor: hasAnyAuction && featuredIsActive && !featuredIsLeading ? 'pointer' : 'not-allowed',
       featuredBidOpacity: hasAnyAuction && featuredIsActive && !featuredIsLeading ? '1' : '0.55',
       featuredGoTo: feat.goTo,
+      featuredHref: this.lotHref(feat.id),
       bidButtonLabel: bidLabel,
       hasAnyAuction,
       hasFeaturedAuction: hasCurrentOrUpcoming,
