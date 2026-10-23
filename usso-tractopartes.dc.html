@@ -3001,6 +3001,29 @@ submitAuth = async (e) => {
     let upcoming = this.auctionItemsComputed.filter((l) => l.status === 'Próxima').sort((a, b) => a.startsAt - b.startsAt);
     const history = this.auctionItemsComputed.filter((l) => l.status === 'Finalizada').sort((a, b) => b.closesAt - a.closesAt);
     const localDesignPreview = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && new URLSearchParams(window.location.search).has('demo');
+    if (localDesignPreview && !upcoming.some((lot) => String(lot.title || '').toLowerCase().includes('kenworth t680'))) {
+      const previewStart = new Date('2026-10-30T10:00:00-06:00').getTime();
+      upcoming = [{
+        id:'design-lot-3017',
+        number:'3017',
+        cat:'estructuras',
+        title:'Estructura Kenworth T680 2016',
+        src:'assets/lot-3017-preview.jpg',
+        fullSrc:'assets/lot-3017-preview.jpg',
+        bid:'$150,000',
+        base:'$150,000',
+        bidCount:0,
+        auctionRound:1,
+        evidence:['16 fotografías · Video de evidencia'],
+        status:'Próxima',
+        position:'50% 50%',
+        zoom:1,
+        startsAt:previewStart,
+        closesAt:new Date('2026-10-30T18:00:00-06:00').getTime(),
+        closesDisplay:this.formatCountdown(previewStart - Date.now()),
+        goTo:() => {}
+      }, ...upcoming];
+    }
     if (localDesignPreview && active.length + upcoming.length < 4) {
       const previewDefaults = [
         { id:'preview-1', number:'101', title:'International 9400i', src:'assets/lot-l1.webp', fullSrc:'assets/lot-l1.webp', bid:'$130,000', base:'$130,000', bidCount:0, evidence:['Fotografías reales'] },
