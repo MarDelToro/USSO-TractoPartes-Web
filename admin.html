@@ -672,6 +672,7 @@
   <dialog class="publish-dialog" id="publishDialog">
     <div class="edit-dialog-head"><div><h2>Publicar una pieza</h2><p>Crea una subasta nueva y agrega toda la evidencia del producto.</p></div><button class="dialog-close" id="closePublish" type="button" aria-label="Cerrar">×</button></div>
     <form id="pieza" class="piece-grid" novalidate>
+      <div class="field"><label for="lot_number">Número de lote</label><input id="lot_number" inputmode="numeric" autocomplete="off" placeholder="Ej. 3018" required><span class="field-help">Lo asigna USSO y no cambiará aunque reordenes las subastas.</span></div>
       <div class="field"><label for="title">Nombre de la pieza</label><input id="title" placeholder="Ej. Transmisión Eaton Fuller" required></div>
       <div class="field"><label for="category">Categoría</label><select id="category" required><option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="estructuras">Estructuras</option><option value="suspension">Suspensión</option></select></div>
       <div class="field full"><label for="description">Descripción</label><textarea id="description" placeholder="Modelo, condición, compatibilidad y cualquier detalle importante"></textarea></div>
@@ -700,6 +701,7 @@
     <div class="edit-dialog-head"><div><h2>Editar subasta</h2><p>Los cambios aparecerán automáticamente en las cuentas de los usuarios.</p></div><button class="dialog-close" id="closeEdit" type="button" aria-label="Cerrar">×</button></div>
     <form class="piece-grid edit-form" id="editForm" novalidate>
       <input id="edit_id" type="hidden">
+      <div class="field"><label for="edit_lot_number">Número de lote</label><input id="edit_lot_number" inputmode="numeric" autocomplete="off" required><span class="field-help">Número público asignado por USSO.</span></div>
       <div class="field"><label for="edit_title">Nombre de la pieza</label><input id="edit_title" required></div>
       <div class="field"><label for="edit_category">Categoría</label><select id="edit_category"><option value="motores">Motores</option><option value="transmisiones">Transmisiones</option><option value="diferenciales">Diferenciales</option><option value="cortes">Cortes completos</option><option value="estructuras">Estructuras</option><option value="suspension">Suspensión</option></select></div>
       <div class="field full"><label for="edit_description">Descripción</label><textarea id="edit_description"></textarea></div>
@@ -1463,7 +1465,7 @@
 
       let listingResult = await client
         .from("listings")
-        .select("id, title, description, category, image_url, media_urls, product_details, current_price, start_price, buy_now_price, bid_count, auction_round, status, winner_id, starts_at, ends_at, payment_status, paid_amount, paid_at")
+        .select("id, lot_number, title, description, category, image_url, media_urls, product_details, current_price, start_price, buy_now_price, bid_count, auction_round, status, winner_id, starts_at, ends_at, payment_status, paid_amount, paid_at")
         .order("created_at", { ascending: false });
       if (listingResult.error) {
         listingResult = await client
@@ -1541,7 +1543,7 @@
             <span class="auction-state ${cerrada ? "closed" : ""}">${cerrada ? "Cerrada" : (proxima ? "Próxima" : "Activa")}</span>
           </button>
           <div class="auction-card-body">
-            <span class="auction-kicker">Lote ${100 + index} · Ronda ${Number(p.auction_round || 1)}</span>
+            <span class="auction-kicker">Lote ${escapeAdminHtml(p.lot_number || "Sin asignar")} · Ronda ${Number(p.auction_round || 1)}</span>
             <h3>${p.title || "Pieza sin título"}</h3>
             <span class="auction-price-label">Precio actual</span>
             <div class="auction-price">${money(p.current_price || p.start_price)}</div>
@@ -1575,7 +1577,7 @@
           : `<button class="action-btn action-secondary" data-edit="${p.id}">Editar</button><button class="action-btn action-primary" data-close="${p.id}">Cerrar subasta</button>`;
         return `
           <tr>
-            <td>${p.title}</td>
+            <td><strong>${escapeAdminHtml(p.title || "Sin título")}</strong><br><span class="muted">Lote ${escapeAdminHtml(p.lot_number || "sin asignar")}</span></td>
             <td class="money">${money(p.current_price || p.start_price)}</td>
             <td><span class="status-badge ${estado === "active" ? "status-active" : (estado === "upcoming" ? "status-pending" : "status-closed")}">${estado === "active" ? "Activa" : (estado === "upcoming" ? "Próxima" : "Cerrada")}</span></td>
             <td>${w ? (w.full_name || (w.role === "admin" ? "Administrador USSO" : "Usuario")) : "-"}</td>
@@ -1594,7 +1596,7 @@
           ? `<div class="actions-cell"><span class="status-badge ${isPaid ? "status-paid" : "status-pending"}">${isPaid ? `Pagada · ${money(p.paid_amount || p.current_price || p.start_price)}` : "Pendiente"}</span><button class="action-btn ${isPaid ? "action-secondary" : "action-primary"}" data-payment="${p.id}" data-payment-status="${isPaid ? "pending" : "paid"}" data-payment-amount="${Number(p.current_price || p.start_price || 0)}">${isPaid ? "Marcar pendiente" : "Marcar pagada"}</button></div>`
           : `<span class="muted">Sin venta</span>`;
         return `<tr>
-          <td><strong>${p.title || "Sin título"}</strong></td>
+          <td><strong>${escapeAdminHtml(p.title || "Sin título")}</strong><br><span class="muted">Lote ${escapeAdminHtml(p.lot_number || "sin asignar")}</span></td>
           <td class="money">${money(p.current_price || p.start_price)}</td>
           <td>${Number(p.bid_count || 0)}</td>
           <td>Ronda ${Number(p.auction_round || 1)}</td>
@@ -1626,6 +1628,7 @@
           const listing = currentListings.find((item) => item.id === btn.dataset.edit);
           if (!listing) return;
           document.getElementById("edit_id").value = listing.id;
+          document.getElementById("edit_lot_number").value = listing.lot_number || "";
           document.getElementById("edit_title").value = listing.title || "";
           document.getElementById("edit_category").value = listing.category || "motores";
           document.getElementById("edit_description").value = listing.description || "";
@@ -1676,6 +1679,7 @@
           const listing = currentListings.find((item) => item.id === btn.dataset.reopen);
           if (!listing) return;
           document.getElementById("edit_id").value = listing.id;
+          document.getElementById("edit_lot_number").value = listing.lot_number || "";
           document.getElementById("edit_title").value = listing.title || "";
           document.getElementById("edit_category").value = listing.category || "motores";
           document.getElementById("edit_description").value = listing.description || "";
@@ -1865,6 +1869,7 @@
       const publishButton = document.getElementById("publishSave");
       if (publishButton.disabled) return;
       const originalButtonText = publishButton.textContent;
+      const lotNumber = document.getElementById("lot_number").value.trim();
       const title = document.getElementById("title").value.trim();
       const start = Number(document.getElementById("start_price").value || 0);
       const buyNowPrice = Number(document.getElementById("buy_now_price").value || 0) || null;
@@ -1873,6 +1878,10 @@
       const ends = dateTimeFromFields("create_end");
       const selectedFiles = document.getElementById("photo").files;
       const fileValidationError = validateEvidenceFiles(selectedFiles);
+      if (!lotNumber) {
+        showPublishFeedback("Escribe el número de lote asignado por USSO.");
+        return;
+      }
       if (!title) {
         showPublishFeedback("Escribe el nombre de la pieza.");
         return;
@@ -1920,6 +1929,7 @@
         showPublishFeedback("Guardando la subasta…", false);
         publishStage = "save";
         const { error } = await client.from("listings").insert({
+          lot_number: lotNumber,
           title,
           category: document.getElementById("category").value,
           description: document.getElementById("description").value.trim(),
@@ -1947,7 +1957,9 @@
         await Promise.all([loadListings(), loadLiveBids()]);
       } catch (error) {
         const rawMessage = String(error?.message || error || "No se pudo publicar la subasta.");
-        const message = publishStage === "upload"
+        const message = /listings_lot_number_unique|duplicate key|lot_number/i.test(rawMessage)
+          ? `El lote ${lotNumber} ya está asignado. Escribe otro número.`
+          : publishStage === "upload"
           ? (/^(El archivo|Falta habilitar|Tu sesión|Se perdió|No pudimos)/.test(rawMessage) ? rawMessage : evidenceErrorMessage(error))
           : rawMessage;
         msg.textContent = message;
@@ -2119,10 +2131,13 @@
       const endsAt = dateTimeFromFields("edit_end");
       const startsAt = dateTimeFromFields("edit_start");
       const selectedStatus = document.getElementById("edit_status").value;
+      const lotNumber = document.getElementById("edit_lot_number").value.trim();
       const title = document.getElementById("edit_title").value.trim();
+      if (!lotNumber) return showEditFeedback("Escribe el número de lote asignado por USSO.");
       if (!title) return showEditFeedback("Escribe el nombre de la pieza antes de guardar.");
       if (!endDate) return showEditFeedback("Selecciona la fecha de cierre antes de guardar.");
       const changes = {
+        lot_number: lotNumber,
         title,
         category: document.getElementById("edit_category").value,
         description: document.getElementById("edit_description").value.trim(),
@@ -2158,8 +2173,11 @@
       }
       const { error } = await client.from("listings").update(changes).eq("id", id);
       saveButton.disabled = false;
-      msg.textContent = error ? error.message : "Subasta actualizada";
-      showEditFeedback(error ? error.message : "Cambios guardados correctamente.", !error);
+      const editError = error && /listings_lot_number_unique|duplicate key|lot_number/i.test(error.message || "")
+        ? `El lote ${lotNumber} ya está asignado. Escribe otro número.`
+        : error?.message;
+      msg.textContent = error ? editError : "Subasta actualizada";
+      showEditFeedback(error ? editError : "Cambios guardados correctamente.", !error);
       if (!error) {
         editForm.dataset.reopen = "false";
         closeEditDialog();

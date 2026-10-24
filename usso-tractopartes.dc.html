@@ -538,6 +538,9 @@
     .usso-mobile-cta { display: none !important; }
     .usso-hide-desktop { display: none !important; }
   }
+  .usso-intro-sound { position:absolute;left:36px;bottom:36px;z-index:4;display:inline-flex;align-items:center;gap:9px;padding:12px 17px;border-radius:100px;border:1px solid rgba(255,255,255,.3);background:rgba(8,8,9,.58);color:#fff;font:800 12px Manrope,sans-serif;letter-spacing:.04em;cursor:pointer;backdrop-filter:blur(12px);box-shadow:0 12px 38px rgba(0,0,0,.32); }
+  .usso-intro-sound-dot { width:8px;height:8px;border-radius:50%;background:#f6c02a;box-shadow:0 0 0 5px rgba(246,192,42,.13); }
+  @media (max-width:640px) { .usso-intro-sound { left:18px;bottom:24px;padding:11px 14px;font-size:11px; } }
 </style>
 </helmet>
 
@@ -550,6 +553,7 @@
     </sc-if>
     <sc-if value="{{ showSkip }}" hint-placeholder-val="{{ true }}">
       <button onClick="{{ onSkip }}" style="position:absolute;bottom:36px;right:36px;background:rgba(var(--border-rgb),0.08);border:1px solid rgba(var(--border-rgb),0.35);color:var(--text);font:600 13px Manrope,sans-serif;letter-spacing:0.08em;text-transform:uppercase;padding:12px 22px;border-radius:100px;cursor:pointer;backdrop-filter:blur(6px);z-index:3">Omitir</button>
+      <button class="usso-intro-sound" onClick="{{ toggleIntroSound }}" type="button" aria-label="{{ introSoundAria }}"><span class="usso-intro-sound-dot"></span>{{ introSoundLabel }}</button>
     </sc-if>
     <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom, rgba(10,10,10,0.15) 0%, rgba(10,10,10,0.35) 55%, rgba(10,10,10,0.75) 100%)"></div>
     <sc-if value="{{ showLogo }}" hint-placeholder-val="{{ false }}">
@@ -1281,7 +1285,7 @@ class Component extends DCLogic {
     notifOpen: false, notifFilter: 'all', accountOpen: false, notifs: [], avatarUploading: false, avatarMessage: '', avatarError: '',
     notifPrefs: { superada: true, cierre: true, gane: true, perdi: true, favorita: true },
     bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', watching: {},
-    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {}, featuredAuctionIndex: 0 };
+    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {}, featuredAuctionIndex: 0, introSoundOn:false };
   videoRef = null;
   observer = null;
   listingRequestInFlight = false;
@@ -1314,8 +1318,8 @@ class Component extends DCLogic {
     }
     if (this.videoStallTimer) clearTimeout(this.videoStallTimer);
     this.videoRef = v;
-    v.muted = true;
-    v.defaultMuted = true;
+    v.muted = !this.state.introSoundOn;
+    v.defaultMuted = !this.state.introSoundOn;
     v.playsInline = true;
     v.setAttribute('playsinline', '');
     v.setAttribute('webkit-playsinline', '');
@@ -1459,6 +1463,16 @@ class Component extends DCLogic {
       const ctx = this.outcomeAudioContext || (this.outcomeAudioContext = new AudioCtx());
       if (ctx.state === 'suspended') ctx.resume();
     } catch (e) {}
+  };
+
+  toggleIntroSound = () => {
+    const next = !this.state.introSoundOn;
+    if (this.videoRef) {
+      this.videoRef.muted = !next;
+      this.videoRef.defaultMuted = !next;
+      if (next) this.videoRef.play().catch(() => {});
+    }
+    this.setState({ introSoundOn:next });
   };
 
   onPageShow = () => {
@@ -2318,10 +2332,17 @@ class Component extends DCLogic {
         "https://ahhlfvjicxylidpmeciw.supabase.co",
         "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
       );
-  const { data } = await client
+  let listingsResult = await client
     .from("listings")
-    .select("id, title, image_url, media_urls, current_price, start_price, status, starts_at, ends_at, category, bid_count, auction_round, winner_id")
+    .select("id, lot_number, title, image_url, media_urls, current_price, start_price, status, starts_at, ends_at, category, bid_count, auction_round, winner_id")
     .order("created_at", { ascending: false });
+  if (listingsResult.error && /lot_number|column|schema cache/i.test(listingsResult.error.message || "")) {
+    listingsResult = await client
+      .from("listings")
+      .select("id, title, image_url, media_urls, current_price, start_price, status, starts_at, ends_at, category, bid_count, auction_round, winner_id")
+      .order("created_at", { ascending: false });
+  }
+  const { data } = listingsResult;
 
   this.rawAuctionItems = (data || []).map((p, i) => {
     const inicia = p.starts_at ? new Date(p.starts_at).getTime() : null;
@@ -2338,7 +2359,7 @@ class Component extends DCLogic {
       || null;
     return {
       id: p.id,
-      number: String(100 + i),
+      number: String(p.lot_number || "Sin asignar"),
       cat: p.category || "motores",
       title: p.title || "Pieza",
       bid: "$" + precio.toLocaleString("es-MX"),
@@ -3460,6 +3481,9 @@ submitAuth = async (e) => {
       videoRef: this.setupVideo,
       onVideoEnd: this.handleVideoEnd,
       onSkip: this.skipIntro,
+      toggleIntroSound: this.toggleIntroSound,
+      introSoundLabel: this.state.introSoundOn ? 'Sonido activado' : 'Activar experiencia sonora',
+      introSoundAria: this.state.introSoundOn ? 'Silenciar introducción' : 'Activar sonido de la introducción',
       registerHero: this.makeReveal('heroTitle'),
       registerReveal_inventario: this.makeReveal('inventory'),
       registerReveal_financiamiento: this.makeReveal('financing'),

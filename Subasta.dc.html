@@ -23,8 +23,10 @@
     .end-exact{display:block;color:#85858d;font-size:11px;font-weight:700;margin-top:8px}.value.ended{color:#ff5c52}.badge.closed{color:#ff8a80;border-color:rgba(255,92,82,.45);background:rgba(255,92,82,.1)}
     .notice{padding:17px 18px;border:1px solid rgba(246,192,42,.35);background:rgba(246,192,42,.08);border-radius:14px;color:#d8d2c4;line-height:1.5;margin:0 0 16px}.auction-notice{font-weight:700}.auction-notice.upcoming{border-color:rgba(246,192,42,.5);color:#f3d989}.auction-notice.finished{border-color:rgba(255,92,82,.38);background:rgba(255,92,82,.08);color:#ffaaa3}.actions{display:grid;gap:12px}.bid-form{display:flex;gap:10px}.bid-form input{min-width:0;flex:1;background:#19191c;border:1px solid #39393f;color:#fff;border-radius:12px;padding:15px;font:700 16px Manrope;outline:none}.bid-form input.invalid{border-color:#ff5c52;box-shadow:0 0 0 3px rgba(255,92,82,.12)}.btn{border:0;border-radius:99px;padding:15px 24px;background:var(--yellow);color:#090909;font:800 15px Manrope;cursor:pointer}.btn:disabled{cursor:not-allowed;opacity:.45}.btn.secondary{display:block;text-align:center;background:transparent;border:1px solid #444;color:#fff}.msg{min-height:22px;color:#ffb5b5;font-weight:700}.hidden{display:none!important}.loading,.not-found{text-align:center;padding:120px 20px}.not-found h1{font-size:36px}
     .buy-now{margin:0 0 16px;padding:18px;border-radius:16px;background:linear-gradient(145deg,rgba(246,192,42,.16),rgba(246,192,42,.05));border:1px solid rgba(246,192,42,.55);box-shadow:0 0 30px rgba(246,192,42,.1)}.buy-now-label{display:block;color:#b9b1a0;font-size:12px;font-weight:700}.buy-now-price{display:block;margin:4px 0 14px;color:var(--yellow);font:28px 'Archivo Black',sans-serif}.buy-now .btn{display:block;text-align:center;width:100%}
+    .lot-id{display:inline-flex;align-items:center;gap:8px;margin:0 0 2px;color:#a7a7ae;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.lot-id::before{content:"";width:25px;height:2px;background:var(--yellow)}
+    .bid-activity{margin:18px 0;padding:16px;border:1px solid rgba(126,226,168,.22);border-radius:18px;background:linear-gradient(145deg,rgba(126,226,168,.07),rgba(20,20,22,.92));overflow:hidden}.bid-activity-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.bid-activity-head h2{margin:0;font-size:14px}.live-label{display:inline-flex;align-items:center;gap:7px;color:#7ee2a8;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.live-label::before{content:"";width:7px;height:7px;border-radius:50%;background:#7ee2a8;box-shadow:0 0 0 5px rgba(126,226,168,.1);animation:livePulse 1.6s infinite}.bid-activity-rail{display:flex;gap:9px;overflow-x:auto;padding:2px 1px 5px;scroll-snap-type:x proximity}.bid-person{flex:0 0 auto;min-width:142px;padding:10px 12px;border-radius:13px;background:#0d0d0f;border:1px solid #2a2a2f;scroll-snap-align:start}.bid-person:first-child{border-color:rgba(246,192,42,.65);box-shadow:0 0 24px rgba(246,192,42,.08)}.bid-member{display:flex;align-items:center;gap:7px;color:#f4f3ee;font-size:11px;font-weight:900}.bid-avatar{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#f6c02a,#9a6d00);color:#090909;font-size:9px}.bid-location{display:block;margin:5px 0 3px;color:#85858d;font-size:10px}.bid-value{color:var(--yellow);font-size:13px;font-weight:900}@keyframes livePulse{50%{opacity:.45;transform:scale(.82)}}
     .outcome{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:22px;background:rgba(5,5,6,.97);text-align:center;overflow:hidden}.outcome-card{position:relative;z-index:2;width:min(650px,94vw);padding:50px 28px;border-radius:28px;background:linear-gradient(145deg,#28200b,#141416 58%);border:1px solid rgba(246,192,42,.72);box-shadow:0 0 80px rgba(246,192,42,.22);animation:outcomeIn .7s cubic-bezier(.2,.85,.24,1.12)}.outcome.loss .outcome-card{max-width:560px;background:#141416;border-color:rgba(255,92,82,.38);box-shadow:0 30px 80px rgba(0,0,0,.72)}.outcome-icon{font-size:76px;line-height:1}.outcome.loss .outcome-icon{font-size:48px;color:#ff6b61}.outcome h2{font:clamp(36px,7vw,68px)/1 'Archivo Black',sans-serif;color:#7ee2a8;margin:18px 0 10px}.outcome.loss h2{font-size:clamp(29px,5vw,45px);color:#ff8a80}.outcome p{max-width:490px;margin:0 auto 24px;color:#f3f1ec;font:600 17px/1.55 Manrope}.outcome.loss p{color:#aaa;font-size:15px}.outcome .btn{min-width:190px}.outcome-close{position:absolute;top:15px;right:15px;width:40px;height:40px;border:1px solid #3b3b40;border-radius:50%;background:#202024;color:#fff;font-size:26px;line-height:1;cursor:pointer}.confetti i{position:absolute;top:-30px;width:10px;height:20px;background:var(--yellow);animation:fall 3.2s linear infinite}.confetti i:nth-child(2n){background:#7ee2a8}.confetti i:nth-child(3n){background:#fff}.confetti i:nth-child(1){left:8%}.confetti i:nth-child(2){left:20%;animation-delay:.4s}.confetti i:nth-child(3){left:34%;animation-delay:1s}.confetti i:nth-child(4){left:49%;animation-delay:.2s}.confetti i:nth-child(5){left:63%;animation-delay:1.4s}.confetti i:nth-child(6){left:78%;animation-delay:.7s}.confetti i:nth-child(7){left:92%;animation-delay:1.1s}@keyframes fall{to{transform:translateY(115vh) rotate(720deg)}}@keyframes outcomeIn{from{opacity:0;transform:scale(.75) translateY(30px)}to{opacity:1;transform:scale(1)}}
-    @media(max-width:800px){.nav{padding:0 20px}.logo{width:125px}.grid{grid-template-columns:1fr;gap:24px}main{padding-top:30px}h1{font-size:31px;margin:14px 0 8px}.desc{margin:0 0 18px}.meta{margin:20px 0 18px}.metric{padding:16px 14px}.value{font-size:23px}.details-card{margin:18px 0}.bid-form{flex-direction:column}.details-list{grid-template-columns:1fr}.photo{aspect-ratio:1/1}.lightbox{padding:72px 12px 82px}.lightbox-nav{top:auto;bottom:18px;transform:none}.lightbox-prev{left:calc(50% - 62px)}.lightbox-next{right:calc(50% - 62px)}}
+    @media(max-width:800px){.nav{height:68px;padding:0 16px}.logo{width:116px}.back{font-size:12px}.grid{grid-template-columns:1fr;gap:22px}main{width:min(100% - 28px,620px);padding-top:18px}h1{font-size:30px;margin:10px 0 8px}.desc{margin:0 0 18px}.meta{margin:18px 0 16px;gap:9px}.metric{padding:14px 12px}.value{font-size:21px}.details-card{margin:16px 0}.bid-form{flex-direction:column}.details-list{grid-template-columns:1fr}.photo{aspect-ratio:1/1;border-radius:18px}.bid-activity{margin:15px 0;padding:14px}.bid-person{min-width:132px}.lightbox{padding:72px 12px 82px}.lightbox-nav{top:auto;bottom:18px;transform:none}.lightbox-prev{left:calc(50% - 62px)}.lightbox-next{right:calc(50% - 62px)}}
   </style>
 </head>
 <body>
@@ -40,6 +42,7 @@
       <div class="gallery"><div class="photo" id="mediaStage"><img id="image" alt=""><div id="noImage" class="empty hidden">Evidencia próximamente</div></div><div class="thumbs hidden" id="mediaThumbs" aria-label="Fotos y videos del producto"></div></div>
       <div>
         <span id="status" class="badge"></span>
+        <div id="lotNumber" class="lot-id"></div>
         <h1 id="title"></h1>
         <p id="description" class="desc"></p>
         <div class="meta">
@@ -47,6 +50,7 @@
           <div class="metric"><div class="label">Cierre</div><div id="ends" class="value"></div><span id="endExact" class="end-exact"></span></div>
         </div>
         <section class="details-card hidden" id="detailsCard"><h2>Detalles del producto</h2><ul class="details-list" id="productDetails"></ul></section>
+        <section class="bid-activity hidden" id="bidActivity" aria-live="polite"><div class="bid-activity-head"><h2>Pujas recientes</h2><span class="live-label">Actividad en vivo</span></div><div id="bidActivityRail" class="bid-activity-rail"></div></section>
         <div id="auctionNotice" class="notice auction-notice hidden"></div>
         <div id="buyNow" class="buy-now hidden"><span class="buy-now-label">Precio fijo antes de la subasta</span><strong id="buyNowPrice" class="buy-now-price"></strong><a id="buyNowWhatsapp" class="btn" target="_blank" rel="noopener">Comprar ahora por WhatsApp</a></div>
         <div id="guest" class="actions hidden"><div class="notice">Inicia sesión para participar en esta subasta.</div><a class="btn secondary" href="login.html">Iniciar sesión</a></div>
@@ -80,6 +84,7 @@
     const isLocalDemo = (location.hostname === "localhost" || location.hostname === "127.0.0.1") && new URLSearchParams(location.search).has("demo");
     const demoListing = isLocalDemo && lotId === "design-lot-3017" ? {
       id:"design-lot-3017",
+      lot_number:"3017",
       title:"Estructura Kenworth T680 2016",
       description:"Estructura Kenworth T680 modelo 2016, lote 3017. Revisa las fotografías y el video para conocer su carrocería, interiores y condición visible.",
       image_url:"local-media/lot-3017/2%202.png",
@@ -400,6 +405,35 @@
       return !button.disabled;
     }
 
+    const demoBidActivity = [
+      { member_number:3184, state:"Jalisco", amount:150000, created_at:new Date().toISOString() },
+      { member_number:1276, state:"Michoacán", amount:149000, created_at:new Date(Date.now() - 48000).toISOString() },
+      { member_number:904, state:"Guanajuato", amount:148000, created_at:new Date(Date.now() - 92000).toISOString() }
+    ];
+    const publicMemberLabel = (value) => `USSO-${String(Number(value || 0)).padStart(6,"0")}`;
+    function renderBidActivity(rows) {
+      const activity = (rows || []).filter((row) => row?.member_number);
+      const section = document.getElementById("bidActivity");
+      const rail = document.getElementById("bidActivityRail");
+      if (!activity.length) {
+        section.classList.add("hidden");
+        rail.innerHTML = "";
+        return;
+      }
+      rail.innerHTML = activity.map((row, index) => {
+        const member = publicMemberLabel(row.member_number);
+        const state = String(row.state || "México").trim();
+        return `<article class="bid-person"><div class="bid-member"><span class="bid-avatar">${index === 0 ? "1°" : "↑"}</span><span>${escapeHtml(member)}</span></div><span class="bid-location">${escapeHtml(state)}</span><strong class="bid-value">${money(row.amount)}</strong></article>`;
+      }).join("");
+      section.classList.remove("hidden");
+    }
+    async function loadBidActivity() {
+      if (!listing) return;
+      if (demoListing) return renderBidActivity(demoBidActivity);
+      const { data, error } = await client.rpc("get_public_bid_activity", { p_listing_id:listing.id, p_limit:12 });
+      if (!error) renderBidActivity(data);
+    }
+
     async function load() {
       if (!lotId) return renderNotFound();
       const authResult = demoListing ? { data:{ user:null } } : await client.auth.getUser();
@@ -411,7 +445,7 @@
       }
       currentUser = user;
       let listingResult = demoListing ? { data:demoListing, error:null } : await client.from("listings")
-        .select("id,title,description,image_url,media_urls,product_details,start_price,current_price,buy_now_price,status,starts_at,ends_at,category,auction_round,bid_count,winner_id")
+        .select("id,lot_number,title,description,image_url,media_urls,product_details,start_price,current_price,buy_now_price,status,starts_at,ends_at,category,auction_round,bid_count,winner_id")
         .eq("id", lotId).single();
       if (listingResult.error && !demoListing) {
         listingResult = await client.from("listings")
@@ -428,11 +462,13 @@
       listing = data;
       hide("loading"); show("detail");
       document.getElementById("title").textContent = data.title || "Pieza USSO";
+      document.getElementById("lotNumber").textContent = `Lote ${data.lot_number || "por asignar"}`;
       document.getElementById("description").textContent = data.description || "Consulta con USSO para conocer todos los detalles y evidencia de esta pieza.";
       document.getElementById("price").textContent = money(data.current_price || data.start_price);
       updateMinimum(data.current_price || data.start_price);
       renderAuctionTime(data);
       renderEvidence(data);
+      await loadBidActivity();
       const details = Array.isArray(data.product_details) ? data.product_details.filter(Boolean) : [];
       if (details.length) {
         document.getElementById("productDetails").innerHTML = details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("");
@@ -529,6 +565,7 @@
       document.getElementById("price").textContent = money(data.current_price || data.start_price);
       renderAuctionTime(data);
       updateMinimum(data.current_price || data.start_price);
+      await loadBidActivity();
       await checkOutcome(listing);
       if (currentUser) {
         const wasLeading = userIsLeading;
