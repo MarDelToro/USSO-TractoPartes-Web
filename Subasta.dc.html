@@ -119,6 +119,9 @@
     let countdownTimer = null;
     let galleryMedia = [];
     let galleryIndex = 0;
+    let lightboxSourceIndex = -1;
+    let lightboxSourceTime = 0;
+    let lightboxResumePlayback = false;
 
     function saveAccountNotification(notification) {
       try {
@@ -180,13 +183,55 @@
       : `<img src="${escapeHtml(mediaDisplayUrl(item, expanded))}" alt="Evidencia de ${escapeHtml(title || "pieza USSO")}" decoding="async" style="${mediaFrameStyle(item, expanded)}" ${expanded ? "" : 'fetchpriority="high"'}>`;
     function renderLightbox() {
       if (!galleryMedia.length) return;
-      document.getElementById("lightboxStage").innerHTML = mediaMarkup(galleryMedia[galleryIndex], listing?.title, true);
+      const lightboxStage = document.getElementById("lightboxStage");
+      lightboxStage.querySelector("video")?.pause();
+      lightboxStage.innerHTML = mediaMarkup(galleryMedia[galleryIndex], listing?.title, true);
+      const expandedVideo = lightboxStage.querySelector("video");
+      if (expandedVideo && galleryIndex === lightboxSourceIndex) {
+        const syncExpandedVideo = () => {
+          expandedVideo.currentTime = Math.min(lightboxSourceTime, Number(expandedVideo.duration || lightboxSourceTime));
+          expandedVideo.play().catch(() => {});
+        };
+        if (expandedVideo.readyState >= 1) syncExpandedVideo();
+        else expandedVideo.addEventListener("loadedmetadata", syncExpandedVideo, { once:true });
+      }
       document.getElementById("lightboxCount").textContent = `${galleryIndex + 1} / ${galleryMedia.length}`;
       document.querySelectorAll(".lightbox-nav").forEach((button) => button.classList.toggle("hidden", galleryMedia.length < 2));
     }
-    function openLightbox(index) { galleryIndex = index; renderLightbox(); show("mediaLightbox"); document.body.style.overflow = "hidden"; }
-    function closeLightbox() { hide("mediaLightbox"); document.getElementById("lightboxStage").innerHTML = ""; document.body.style.overflow = ""; }
-    function moveLightbox(direction) { galleryIndex = (galleryIndex + direction + galleryMedia.length) % galleryMedia.length; renderLightbox(); }
+    function openLightbox(index) {
+      const sourceVideo = document.querySelector("#mediaStage video");
+      lightboxSourceIndex = index;
+      lightboxSourceTime = Number(sourceVideo?.currentTime || 0);
+      lightboxResumePlayback = !!sourceVideo && !sourceVideo.paused;
+      sourceVideo?.pause();
+      galleryIndex = index;
+      renderLightbox();
+      show("mediaLightbox");
+      document.body.style.overflow = "hidden";
+    }
+    function closeLightbox() {
+      const lightboxStage = document.getElementById("lightboxStage");
+      const expandedVideo = lightboxStage.querySelector("video");
+      if (expandedVideo && galleryIndex === lightboxSourceIndex) lightboxSourceTime = Number(expandedVideo.currentTime || lightboxSourceTime);
+      expandedVideo?.pause();
+      hide("mediaLightbox");
+      lightboxStage.innerHTML = "";
+      document.body.style.overflow = "";
+      const sourceVideo = document.querySelector("#mediaStage video");
+      if (sourceVideo && galleryIndex === lightboxSourceIndex) {
+        sourceVideo.currentTime = lightboxSourceTime;
+        if (lightboxResumePlayback) sourceVideo.play().catch(() => {});
+      }
+      lightboxSourceIndex = -1;
+      lightboxResumePlayback = false;
+    }
+    function moveLightbox(direction) {
+      const expandedVideo = document.querySelector("#lightboxStage video");
+      if (expandedVideo && galleryIndex === lightboxSourceIndex) lightboxSourceTime = Number(expandedVideo.currentTime || lightboxSourceTime);
+      expandedVideo?.pause();
+      galleryIndex = (galleryIndex + direction + galleryMedia.length) % galleryMedia.length;
+      renderLightbox();
+    }
     function renderEvidence(data) {
       const raw = Array.isArray(data.media_urls) ? data.media_urls : [];
       const media = raw.map((item) => typeof item === "string" ? { url:item, type:mediaTypeFor(item) } : { ...item, url:item.url, type:mediaTypeFor(item) }).filter((item) => item.url);
