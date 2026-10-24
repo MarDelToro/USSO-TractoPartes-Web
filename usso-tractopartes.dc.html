@@ -324,8 +324,12 @@
   .usso-auction-showcase::after { content:""; position:absolute; inset:0; z-index:-1; background:radial-gradient(circle at 24% 45%,transparent 0,rgba(7,7,8,.06) 36%,rgba(7,7,8,.48) 100%); pointer-events:none; }
   .usso-auction-showcase-layout { min-height:540px; padding:26px; box-sizing:border-box; display:grid; grid-template-columns:minmax(360px,.92fr) minmax(520px,1.08fr); gap:28px; align-items:stretch; }
   .usso-auction-showcase-visual { position:relative; min-width:0; min-height:488px; border:1px solid rgba(255,255,255,.1); border-radius:18px; overflow:hidden; background:rgba(5,5,6,.72); box-shadow:inset 0 0 42px rgba(0,0,0,.3); }
+  .usso-auction-showcase-visual-bg { position:absolute;inset:-22px;width:calc(100% + 44px);height:calc(100% + 44px);object-fit:cover;object-position:center;filter:blur(22px) brightness(.52) saturate(.86);transform:scale(1.08);opacity:.88; }
+  .usso-auction-showcase-visual::before { content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(5,5,6,.04),rgba(5,5,6,.16));pointer-events:none; }
   .usso-auction-showcase-subject { position:absolute; inset:18px; width:calc(100% - 36px); height:calc(100% - 36px); object-fit:contain; object-position:center; filter:drop-shadow(0 24px 24px rgba(0,0,0,.48)) saturate(1.06) brightness(1.04); animation:ussoShowcaseSubject .72s cubic-bezier(.2,.72,.2,1) both; }
   .usso-auction-showcase-visual::after { content:""; position:absolute; inset:auto 8% 0; height:18%; background:radial-gradient(ellipse,rgba(246,192,42,.15),transparent 68%); pointer-events:none; }
+  .usso-auction-showcase-subject { z-index:2; }
+  .usso-review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.usso-review-card{padding:24px;border:1px solid rgba(var(--border-rgb),.1);border-radius:18px;background:linear-gradient(145deg,rgba(31,31,35,.94),rgba(14,14,16,.96));box-shadow:0 18px 42px rgba(0,0,0,.24)}.usso-review-stars{color:#f6c02a;letter-spacing:.12em;font-size:13px}.usso-review-card blockquote{margin:16px 0 20px;color:rgba(var(--text-rgb),.8);font:600 14px/1.65 Manrope,sans-serif}.usso-review-person{display:flex;align-items:center;gap:10px}.usso-review-avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(246,192,42,.14);border:1px solid rgba(246,192,42,.32);color:#f6c02a;font:900 11px Manrope}.usso-review-person strong,.usso-review-person span{display:block}.usso-review-person strong{font:800 12px Manrope}.usso-review-person span{margin-top:2px;color:rgba(var(--text-rgb),.42);font:700 9px Manrope;text-transform:uppercase;letter-spacing:.08em}.usso-demo-disclosure{display:inline-flex;margin-top:22px;padding:8px 11px;border-radius:100px;background:rgba(92,160,255,.08);border:1px solid rgba(92,160,255,.25);color:#9ec4ff;font:700 10px Manrope;letter-spacing:.05em}
   .usso-auction-showcase-panel { min-width:0; display:flex; flex-direction:column; justify-content:space-between; padding:12px 0 2px; }
   .usso-auction-showcase-copy { max-width:none; animation:ussoShowcaseCopy .58s cubic-bezier(.2,.72,.2,1) both; }
   .usso-auction-showcase-kicker { display:flex; align-items:center; gap:10px; margin-bottom:16px; font:800 10px Manrope,sans-serif; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.7); }
@@ -365,6 +369,7 @@
   }
   @media(max-width:640px){
     #subastas{padding:52px 0!important;max-width:none!important}.usso-auction-section-heading{padding:0 20px;display:block;margin-bottom:20px!important}.usso-auction-section-heading h2{font-size:clamp(30px,9vw,40px)!important}.usso-auction-showcase{min-height:760px;border-radius:0;border-left:0;border-right:0}.usso-auction-showcase-layout{min-height:760px;padding:16px 0 22px;display:flex;flex-direction:column;gap:14px}.usso-auction-showcase-visual{min-height:285px;margin:0 16px}.usso-auction-showcase-subject{inset:8px;width:calc(100% - 16px);height:calc(100% - 16px)}.usso-auction-showcase-panel{padding:0}.usso-auction-showcase-copy{padding:0 20px;max-width:100%}.usso-auction-showcase-title{font-size:clamp(28px,9vw,39px);margin-bottom:9px;max-width:92%}.usso-auction-showcase-meta{margin:13px 0 15px;gap:20px}.usso-auction-showcase-price strong{font-size:25px}.usso-auction-showcase-clock strong{font-size:15px}.usso-auction-showcase-actions{flex-wrap:nowrap}.usso-auction-showcase-actions button{flex:1;min-width:0;padding:10px 9px;font-size:10px}.usso-auction-showcase-browser{width:100%;margin-top:12px}.usso-auction-showcase-cards{gap:9px;padding:7px 20px 13px}.usso-auction-mini-card{flex-basis:106px;height:138px;border-radius:9px}.usso-auction-mini-card.is-selected{flex-basis:116px;height:150px;transform:translateY(-2px)}.usso-auction-mini-content{left:9px;right:9px;bottom:9px}.usso-auction-mini-content strong{font-size:9px}.usso-auction-mini-content small{font-size:8px}.usso-auction-showcase-nav{padding:0 20px}.usso-auction-showcase-nav button{width:32px;height:32px}.usso-auction-showcase-progress{flex:1;max-width:90px}
+    .usso-review-grid{grid-template-columns:1fr}.usso-review-card{padding:20px}
   }
   @media (max-width:760px) and (min-width:641px) {
     .usso-secondary-auctions-grid { gap:18px; padding:30px 18px 46px; }
@@ -930,6 +935,7 @@
         <sc-if value="{{ featuredHasImage }}"><img class="usso-auction-showcase-bg" src="{{ featuredSrc }}" data-fallback-src="{{ featuredFullSrc }}" onError="{{ onAuctionImageError }}" alt="" style="--showcase-position:{{ featuredPosition }};--showcase-zoom:{{ featuredZoom }}"></sc-if>
         <div class="usso-auction-showcase-layout">
           <a class="usso-auction-showcase-visual" href="{{ featuredHref }}" aria-label="Ver detalles de {{ featuredTitle }}" style="cursor:pointer">
+            <sc-if value="{{ featuredHasImage }}"><img class="usso-auction-showcase-visual-bg" src="{{ featuredSrc }}" data-fallback-src="{{ featuredFullSrc }}" onError="{{ onAuctionImageError }}" alt="" aria-hidden="true"></sc-if>
             <sc-if value="{{ featuredHasImage }}"><img class="usso-auction-showcase-subject" src="{{ featuredFullSrc }}" data-fallback-src="{{ featuredSrc }}" onError="{{ onAuctionImageError }}" alt="{{ featuredTitle }}" fetchpriority="high"></sc-if>
             <sc-if value="{{ featuredNoImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
           </a>
@@ -1042,6 +1048,7 @@
                 <sc-if value="{{ lot.isUpcoming }}" hint-placeholder-val="{{ false }}">
                   <button onClick="{{ lot.notify }}" style="width:100%;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:700 13px Manrope,sans-serif;padding:11px 16px;border-radius:100px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px">{{ lot.notifyLabel }}</button>
                 </sc-if>
+                <sc-if value="{{ lot.isFinished }}" hint-placeholder-val="{{ false }}"><button onClick="{{ lot.goTo }}" style="width:100%;background:transparent;border:1px solid rgba(var(--border-rgb),.24);color:var(--text);font:700 13px Manrope,sans-serif;padding:12px 14px;border-radius:100px;cursor:pointer">Ver resultado</button></sc-if>
               </div>
             </div>
           </sc-for>
@@ -1057,35 +1064,13 @@
     </div>
   </section>
 
-  <!-- HISTORIAL PUBLICO DE SUBASTAS -->
-  <section id="historial-subastas" class="usso-section-pad" style="padding:100px 48px;max-width:1400px;margin:0 auto;border-top:1px solid rgba(var(--border-rgb),0.07)">
-    <div>
-      <div style="margin-bottom:30px">
-        <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Resultados reales</span>
-        <h2 style="font-family:'Archivo Black',sans-serif;font-size:clamp(30px,4.2vw,48px);margin:10px 0 8px;color:var(--text)">Subastas finalizadas</h2>
-        <p style="font:500 14px/1.6 Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0">Consulta los lotes que ya cerraron y su precio final de venta.</p>
-      </div>
-      <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ true }}">
-        <div class="usso-history-grid">
-          <sc-for list="{{ historyLots }}" as="lot" hint-placeholder-count="3">
-            <article class="usso-history-card" onClick="{{ lot.goTo }}">
-              <div class="usso-history-photo"><sc-if value="{{ lot.hasImage }}"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }})"></sc-if><sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if></div>
-              <div class="usso-history-body">
-                <span style="font:800 10.5px Manrope,sans-serif;color:{{ lot.resultColor }};text-transform:uppercase;letter-spacing:.09em">{{ lot.resultLabel }} · Ronda {{ lot.auctionRound }}</span>
-                <h3 style="font:800 18px Manrope,sans-serif;color:var(--text);margin:7px 0 18px">{{ lot.title }}</h3>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px"><div><span style="display:block;font:700 8.5px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Inició</span><strong style="font:700 10px/1.35 Manrope;color:var(--text)">{{ lot.startsDateDisplay }}</strong></div><div><span style="display:block;font:700 8.5px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Finalizó</span><strong style="font:700 10px/1.35 Manrope;color:var(--text)">{{ lot.closesDateDisplay }}</strong></div></div>
-                <div class="usso-history-result">
-                  <div><span style="display:block;font:600 11px Manrope;color:rgba(var(--text-rgb),.5)">Precio final</span><strong style="font:800 22px 'Archivo Black';color:{{ accent }}">{{ lot.bid }}</strong></div>
-                  <span style="font:700 12px Manrope;color:rgba(var(--text-rgb),.55)">{{ lot.bidCount }} ofertas</span>
-                </div>
-              </div>
-            </article>
-          </sc-for>
-        </div>
-      </sc-if>
-      <sc-if value="{{ noHistory }}" hint-placeholder-val="{{ false }}"><p style="padding:30px;border-radius:16px;background:var(--card-bg);color:rgba(var(--text-rgb),.55)">El historial aparecerá aquí cuando finalice la primera subasta.</p></sc-if>
-    </div>
+  <sc-if value="{{ showReviewPreview }}" hint-placeholder-val="{{ false }}">
+  <section class="usso-section-pad" style="padding:100px 48px;max-width:1400px;margin:0 auto;border-top:1px solid rgba(var(--border-rgb),.07)">
+    <div style="margin-bottom:30px"><span style="font:700 12px Manrope;letter-spacing:.2em;text-transform:uppercase;color:{{ accent }}">Comunidad USSO</span><h2 style="font-family:'Archivo Black';font-size:clamp(30px,4.2vw,48px);margin:10px 0 8px">Experiencias de clientes</h2><p style="font:500 14px/1.6 Manrope;color:rgba(var(--text-rgb),.55);margin:0">Vista previa del espacio reservado para opiniones reales y verificadas.</p></div>
+    <div class="usso-review-grid"><sc-for list="{{ reviewPreviewItems }}" as="review" hint-placeholder-count="3"><article class="usso-review-card"><div class="usso-review-stars">★★★★★</div><blockquote>“{{ review.text }}”</blockquote><div class="usso-review-person"><span class="usso-review-avatar">{{ review.initials }}</span><div><strong>{{ review.name }}</strong><span>{{ review.location }}</span></div></div></article></sc-for></div>
+    <span class="usso-demo-disclosure">Contenido ilustrativo para revisar el diseño local; no son testimonios publicados.</span>
   </section>
+  </sc-if>
 
   <!-- CONFIANZA -->
   <section id="confianza" data-screen-label="Confianza" ref="{{ registerReveal_confianza }}" class="usso-section-pad" style="padding:100px 48px;background:var(--bg-alt);border-top:1px solid rgba(var(--border-rgb),0.07)">
@@ -2616,8 +2601,9 @@ async syncAuthFromSupabase() {
     { id: 'cortes', label: 'Cortes completos', test: (l) => l.cat === 'cortes' },
     { id: 'estructuras', label: 'Estructuras', test: (l) => l.cat === 'estructuras' },
     { id: 'terminar', label: 'Por terminar', test: (l) => l.status === 'Activa' && l.closesAt - Date.now() < 3 * 86400000 },
-    { id: 'semana', label: 'Esta semana', test: (l) => l.closesAt - Date.now() < 7 * 86400000 },
+    { id: 'semana', label: 'Esta semana', test: (l) => l.status !== 'Finalizada' && l.closesAt > Date.now() && l.closesAt - Date.now() < 7 * 86400000 },
     { id: 'proximas', label: 'Próximas', test: (l) => l.status === 'Próxima' },
+    { id: 'finalizadas', label: 'Finalizadas', test: (l) => l.status === 'Finalizada' },
   ];
 
   setFilter = (id) => () => this.setState({ lotFilter: id });
@@ -3207,7 +3193,7 @@ submitAuth = async (e) => {
       select: index === featuredAuctionIndex ? lot.goTo : this.selectFeaturedAuction(index),
     }));
     const activeFilter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
-    const publicAuctions = [...active, ...upcoming];
+    const publicAuctions = [...active, ...upcoming, ...history];
     const filtered = publicAuctions.filter(activeFilter.test);
     const historyAll = st.accountHistory || [];
     const historyFiltered = historyAll.filter((item) => st.historyFilter === 'all' || item.outcome === st.historyFilter);
@@ -3441,6 +3427,7 @@ submitAuth = async (e) => {
           categoryLabel: this.CATS[l.cat] || '',
           isActive,
           isUpcoming: l.status === 'Próxima',
+          isFinished: l.status === 'Finalizada',
           bidAction: !u ? this.startBid(l.id) : (st.bidStatus === 'autorizado' ? this.startBid(l.id) : this.requestAuth),
           bidDisabled: isLeading,
           bidCursor: isLeading ? 'not-allowed' : 'pointer',
@@ -3461,6 +3448,12 @@ submitAuth = async (e) => {
       historyLots: history.map((lot) => ({ ...lot, hasImage:!!lot.src, noImage:!lot.src, resultLabel: lot.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas', resultColor: lot.bidCount > 0 ? '#7ee2a8' : '#ff8a80' })),
       hasHistory: history.length > 0,
       noHistory: history.length === 0,
+      showReviewPreview: localDesignPreview,
+      reviewPreviewItems: [
+        { initials:'MR', name:'Muestra de reseña', location:'Michoacán · pendiente de verificar', text:'La evidencia del lote me ayudó a revisar cada detalle antes de tomar una decisión.' },
+        { initials:'JL', name:'Muestra de reseña', location:'Jalisco · pendiente de verificar', text:'El proceso de subasta se sintió claro y pude seguir el precio sin confusiones.' },
+        { initials:'GT', name:'Muestra de reseña', location:'Guanajuato · pendiente de verificar', text:'Las fotografías y el video mostraron la condición visible de la pieza de forma directa.' }
+      ],
 
       registerReveal_confianza: this.makeReveal('trust'),
       trustItems: [

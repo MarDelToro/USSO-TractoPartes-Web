@@ -24,17 +24,13 @@ set lot_number = '3017'
 from current_lot_3017 target
 where l.id = target.id;
 
--- Actividad pública segura: revela únicamente el número de miembro, el estado
--- capturado en el perfil, el monto y la hora de la puja.
-create or replace function public.get_public_bid_activity(
-  p_listing_id uuid,
-  p_limit integer default 12
-)
+-- Evento público efímero: sólo permite consultar una puja recién creada de una
+-- subasta activa. No entrega historial ni datos personales.
+create or replace function public.get_public_bid_event(p_bid_id uuid)
 returns table (
   member_number bigint,
   state text,
-  amount numeric,
-  created_at timestamptz
+  amount numeric
 )
 language sql
 stable
@@ -49,12 +45,15 @@ as $$
   from public.bids b
   join public.profiles p on p.id = b.user_id
   join public.listings l on l.id = b.listing_id
-  where b.listing_id = p_listing_id
+  where b.id = p_bid_id
     and b.auction_round = coalesce(l.auction_round, 1)
+    and l.status = 'active'
+    and l.starts_at <= now()
+    and l.ends_at > now()
+    and b.created_at > now() - interval '20 seconds'
     and p.member_number is not null
-  order by b.created_at desc
-  limit least(greatest(coalesce(p_limit, 12), 1), 30);
+  limit 1;
 $$;
 
-revoke all on function public.get_public_bid_activity(uuid, integer) from public;
-grant execute on function public.get_public_bid_activity(uuid, integer) to anon, authenticated;
+revoke all on function public.get_public_bid_event(uuid) from public;
+grant execute on function public.get_public_bid_event(uuid) to anon, authenticated;
