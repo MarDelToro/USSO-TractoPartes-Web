@@ -191,7 +191,7 @@
     .reframe-dialog::backdrop { background:rgba(0,0,0,.84); backdrop-filter:blur(6px); }
     .reframe-body { padding:12px 24px 24px; }
     .reframe-preview { position:relative; width:min(100%,520px); aspect-ratio:1/1; margin:0 auto 20px; overflow:hidden; border:1px solid rgba(246,192,42,.38); border-radius:17px; background:#09090a; }
-    .reframe-preview img { width:100%; height:100%; display:block; object-fit:cover; transition:transform .12s ease; }
+    .reframe-preview img, .reframe-preview video { width:100%; height:100%; display:block; object-fit:cover; transition:transform .12s ease; }
     .reframe-preview::after { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,transparent 33.1%,rgba(255,255,255,.28) 33.3%,transparent 33.5%,transparent 66.4%,rgba(255,255,255,.28) 66.6%,transparent 66.8%),linear-gradient(transparent 33.1%,rgba(255,255,255,.28) 33.3%,transparent 33.5%,transparent 66.4%,rgba(255,255,255,.28) 66.6%,transparent 66.8%); }
     .reframe-controls { display:grid; gap:14px; }
     .reframe-control { display:grid; grid-template-columns:100px minmax(0,1fr) 42px; align-items:center; gap:12px; color:#c9cbd0; font-size:12px; font-weight:800; }
@@ -201,7 +201,7 @@
     .edit-media-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-top:4px; }
     .edit-media-card { position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.12); border-radius:14px; background:#0e0e10; }
     .edit-media-card img, .edit-media-card video { width:100%; aspect-ratio:1/1; display:block; object-fit:cover; background:#09090a; }
-    .edit-media-card video { object-fit:contain; }
+    .edit-media-card video { object-fit:cover; }
     .edit-media-badge { position:absolute; top:8px; left:8px; padding:4px 8px; border-radius:999px; background:rgba(10,10,11,.86); color:#f6c02a; font-size:9px; font-weight:900; }
     .edit-media-action { width:100%; min-height:38px; padding:8px 10px; border-radius:0; background:#242429; color:#f6c02a; font-size:11px; font-weight:900; }
     .details-heading { grid-column:1 / -1; display:flex; align-items:center; gap:12px; margin-top:4px; padding-top:15px; border-top:1px solid rgba(255,255,255,.09); }
@@ -714,7 +714,7 @@
       <div class="field"><label for="edit_photo">Agregar fotos o videos</label><input id="edit_photo" type="file" accept="image/*,video/*" multiple><span class="field-help">Los nuevos archivos se agregarán a la evidencia existente.</span></div>
       <div class="field"><label for="edit_image_url">Fotografía de portada</label><div class="cover-tools"><input id="edit_image_url" type="url" placeholder="https://..."><button class="reframe-trigger" id="openReframe" type="button">Ajustar encuadre</button></div><span class="field-help" id="reframeStatus">Centra la parte importante de la fotografía.</span></div>
       <div class="field full"><label for="edit_media_urls">Galería actual y direcciones adicionales</label><textarea id="edit_media_urls" placeholder="Una dirección por línea"></textarea><span class="field-help">Puedes reordenar o borrar direcciones. La portada se controla en el campo anterior.</span></div>
-      <div class="field full"><label>Encuadre de la galería</label><div class="edit-media-grid" id="editMediaGrid"></div><span class="field-help">Pulsa “Encuadrar” debajo de cualquier fotografía. Los videos no necesitan ajuste.</span></div>
+      <div class="field full"><label>Encuadre de la galería</label><div class="edit-media-grid" id="editMediaGrid"></div><span class="field-help">Pulsa “Encuadrar miniatura” debajo de cualquier foto o video.</span></div>
       <div class="field"><label for="edit_start_price">Precio base</label><input id="edit_start_price" type="number" min="0" step="1" required></div>
       <div class="field"><label for="edit_buy_now_price">Precio Comprar ahora</label><input id="edit_buy_now_price" type="number" min="0" step="1" placeholder="Opcional"><span class="field-help">Déjalo vacío para ocultar la compra anticipada.</span></div>
       <div class="field full"><label for="edit_start_date">Fecha y hora de inicio</label><div class="date-time-row"><input id="edit_start_date" type="date"><select id="edit_start_hour" aria-label="Hora de inicio"></select><span class="date-time-separator">:</span><select id="edit_start_minute" aria-label="Minutos de inicio"></select><select id="edit_start_period" aria-label="Periodo de inicio"><option value="AM">a. m.</option><option value="PM">p. m.</option></select></div><span class="field-help">Para una subasta próxima, elige aquí el día y la hora exactos en que comenzará.</span></div>
@@ -726,9 +726,9 @@
   </dialog>
 
   <dialog class="reframe-dialog" id="reframeDialog">
-    <div class="edit-dialog-head"><div><h2>Ajustar encuadre</h2><p>Mueve el punto de atención; la foto se adaptará a cada tarjeta sin perder el sujeto.</p></div><button class="dialog-close" id="closeReframe" type="button" aria-label="Cerrar">&times;</button></div>
+    <div class="edit-dialog-head"><div><h2>Ajustar encuadre</h2><p>Mueve el punto de atención; la miniatura se adaptará a cada tarjeta sin perder el sujeto.</p></div><button class="dialog-close" id="closeReframe" type="button" aria-label="Cerrar">&times;</button></div>
     <div class="reframe-body">
-      <div class="reframe-preview"><img id="reframeImage" alt="Vista previa del encuadre"></div>
+      <div class="reframe-preview"><img id="reframeImage" alt="Vista previa del encuadre"><video id="reframeVideo" muted playsinline preload="metadata" class="hidden"></video></div>
       <div class="reframe-controls">
         <label class="reframe-control" for="reframeX"><span>Horizontal</span><input id="reframeX" type="range" min="0" max="100" value="50"><output id="reframeXValue">50%</output></label>
         <label class="reframe-control" for="reframeY"><span>Vertical</span><input id="reframeY" type="range" min="0" max="100" value="50"><output id="reframeYValue">50%</output></label>
@@ -1992,32 +1992,33 @@
     const reframeX = document.getElementById("reframeX");
     const reframeY = document.getElementById("reframeY");
     const reframeZoom = document.getElementById("reframeZoom");
-    const applyReframeGeometry = (image) => {
-      const frame = image?.parentElement;
+    const applyReframeGeometry = (media) => {
+      const frame = media?.parentElement;
       const frameWidth = Number(frame?.clientWidth || 0);
       const frameHeight = Number(frame?.clientHeight || 0);
-      const naturalWidth = Number(image?.naturalWidth || 0);
-      const naturalHeight = Number(image?.naturalHeight || 0);
-      if (!image || !frameWidth || !frameHeight || !naturalWidth || !naturalHeight) return;
+      const naturalWidth = Number(media?.naturalWidth || media?.videoWidth || 0);
+      const naturalHeight = Number(media?.naturalHeight || media?.videoHeight || 0);
+      if (!media || !frameWidth || !frameHeight || !naturalWidth || !naturalHeight) return;
       const zoom = Number(reframeZoom.value) / 100;
       const scale = Math.max(frameWidth / naturalWidth, frameHeight / naturalHeight) * zoom;
       const width = naturalWidth * scale;
       const height = naturalHeight * scale;
       const focalX = Number(reframeX.value) / 100;
       const focalY = Number(reframeY.value) / 100;
-      image.style.position = "absolute";
-      image.style.maxWidth = "none";
-      image.style.width = `${width}px`;
-      image.style.height = `${height}px`;
-      image.style.left = `${-(width - frameWidth) * focalX}px`;
-      image.style.top = `${-(height - frameHeight) * focalY}px`;
-      image.style.objectFit = "fill";
-      image.style.objectPosition = "center";
-      image.style.transform = "none";
+      media.style.position = "absolute";
+      media.style.maxWidth = "none";
+      media.style.width = `${width}px`;
+      media.style.height = `${height}px`;
+      media.style.left = `${-(width - frameWidth) * focalX}px`;
+      media.style.top = `${-(height - frameHeight) * focalY}px`;
+      media.style.objectFit = "fill";
+      media.style.objectPosition = "center";
+      media.style.transform = "none";
     };
     const updateReframePreview = () => {
       const image = document.getElementById("reframeImage");
-      applyReframeGeometry(image);
+      const video = document.getElementById("reframeVideo");
+      applyReframeGeometry(video.classList.contains("hidden") ? image : video);
       document.getElementById("reframeXValue").textContent = `${reframeX.value}%`;
       document.getElementById("reframeYValue").textContent = `${reframeY.value}%`;
       document.getElementById("reframeZoomValue").textContent = `${reframeZoom.value}%`;
@@ -2032,29 +2033,49 @@
       const coverUrl = document.getElementById("edit_image_url").value.trim();
       const known = Array.isArray(listing?.media_urls) ? listing.media_urls : [];
       const media = uniqueMedia([...mediaFromLines(document.getElementById("edit_media_urls").value, known), ...(coverUrl ? mediaFromLines(coverUrl, known) : [])]);
-      document.getElementById("editMediaGrid").innerHTML = media.map((item) => {
+      const grid = document.getElementById("editMediaGrid");
+      grid.innerHTML = media.map((item) => {
         const pending = pendingMediaFrames.get(item.url);
         const position = focalPosition(pending || item);
         const isVideo = item.type === "video";
         const source = item.preview_url || item.url;
         return `<article class="edit-media-card">${isVideo
-          ? `<video src="${escapeAdminHtml(item.url)}" muted playsinline preload="metadata"></video>`
+          ? `<video src="${escapeAdminHtml(item.url)}" muted playsinline preload="metadata" style="object-position:${position};transform-origin:${position};transform:scale(${focalZoom(pending || item)})"></video>`
           : `<img src="${escapeAdminHtml(source)}" alt="Fotografía de la galería" loading="lazy" decoding="async" style="object-position:${position};transform-origin:${position};transform:scale(${focalZoom(pending || item)})">`}
           ${item.url === coverUrl ? `<span class="edit-media-badge">PORTADA</span>` : ""}
-          ${isVideo ? "" : `<button class="edit-media-action" type="button" data-reframe-url="${escapeAdminHtml(item.url)}">Encuadrar</button>`}</article>`;
-      }).join("") || `<span class="field-help">Agrega una fotografía para poder ajustar su encuadre.</span>`;
+          <button class="edit-media-action" type="button" data-reframe-url="${escapeAdminHtml(item.url)}">Encuadrar miniatura</button></article>`;
+      }).join("") || `<span class="field-help">Agrega una fotografía o video para poder ajustar su encuadre.</span>`;
+      grid.querySelectorAll("video").forEach((video) => video.addEventListener("loadedmetadata", () => {
+        const duration = Number(video.duration || 0);
+        video.currentTime = Math.min(1, duration * .08);
+      }, { once:true }));
     };
     const openReframeFor = (url) => {
       if (!url) return showEditFeedback("Agrega primero una fotografía de portada para ajustar su encuadre.");
       reframeTargetUrl = url;
       const saved = pendingMediaFrames.get(url) || currentMediaItem(url);
+      const isVideo = (saved?.type || mediaTypeFor(url)) === "video";
       reframeX.value = String(saved?.focal_x ?? 50);
       reframeY.value = String(saved?.focal_y ?? 50);
       reframeZoom.value = String(Math.round(focalZoom(saved) * 100));
       const image = document.getElementById("reframeImage");
-      image.src = saved?.preview_url || url;
-      image.onload = () => applyReframeGeometry(image);
-      image.onerror = () => showEditFeedback("No pudimos mostrar esa fotografía. Revisa la dirección web.");
+      const video = document.getElementById("reframeVideo");
+      image.classList.toggle("hidden", isVideo);
+      video.classList.toggle("hidden", !isVideo);
+      if (isVideo) {
+        video.src = url;
+        video.onloadedmetadata = () => {
+          const duration = Number(video.duration || 0);
+          video.currentTime = Math.min(1, duration * .08);
+          applyReframeGeometry(video);
+        };
+        video.onseeked = () => applyReframeGeometry(video);
+        video.onerror = () => showEditFeedback("No pudimos mostrar ese video. Revisa la dirección web.");
+      } else {
+        image.src = saved?.preview_url || url;
+        image.onload = () => applyReframeGeometry(image);
+        image.onerror = () => showEditFeedback("No pudimos mostrar esa fotografía. Revisa la dirección web.");
+      }
       updateReframePreview();
       reframeDialog.showModal();
     };
