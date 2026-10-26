@@ -758,6 +758,14 @@
       ["brand", "Marca"], ["model", "Modelo"], ["year", "Año"], ["condition", "Condición"],
       ["compatibility", "Compatibilidad"], ["includes", "Incluye"]
     ];
+    const LOT_NUMBER_DETAIL_PREFIX = "__USSO_LOT_NUMBER__:";
+    const lotNumberFromDetails = (details) => {
+      const marker = (Array.isArray(details) ? details : []).find((item) => typeof item === "string" && item.startsWith(LOT_NUMBER_DETAIL_PREFIX));
+      return marker ? marker.slice(LOT_NUMBER_DETAIL_PREFIX.length).trim() : "";
+    };
+    const publicProductDetails = (details) => (Array.isArray(details) ? details : []).filter((item) => !(typeof item === "string" && item.startsWith(LOT_NUMBER_DETAIL_PREFIX)));
+    const productDetailsWithLot = (details, lotNumber) => [...publicProductDetails(details), `${LOT_NUMBER_DETAIL_PREFIX}${String(lotNumber || "").trim()}`];
+    const missingLotNumberColumn = (error) => /lot_number.*(column|schema cache)|column.*lot_number|could not find.*lot_number/i.test(String(error?.message || error || ""));
     const buildProductDetails = (prefix = "") => {
       const structured = detailDefinitions.map(([key, label]) => {
         const value = document.getElementById(`${prefix}detail_${key}`).value.trim();
@@ -768,7 +776,7 @@
     const populateProductDetails = (details, prefix = "edit_") => {
       const remaining = [];
       const values = Object.fromEntries(detailDefinitions.map(([key]) => [key, ""]));
-      for (const raw of Array.isArray(details) ? details : parseLines(details)) {
+      for (const raw of publicProductDetails(Array.isArray(details) ? details : parseLines(details))) {
         const line = String(raw || "").trim();
         const match = detailDefinitions.find(([, label]) => line.toLocaleLowerCase("es").startsWith(`${label.toLocaleLowerCase("es")}:`));
         if (!match) remaining.push(line);
@@ -1477,8 +1485,9 @@
       if (error) return msg.textContent = error.message;
       const data = (rawListings || []).map((listing) => ({
         ...listing,
+        lot_number: listing.lot_number || lotNumberFromDetails(listing.product_details),
         media_urls: Array.isArray(listing.media_urls) ? listing.media_urls : (listing.image_url ? [{ type:"image", url:listing.image_url }] : []),
-        product_details: Array.isArray(listing.product_details) ? listing.product_details : [],
+        product_details: publicProductDetails(Array.isArray(listing.product_details) ? listing.product_details : []),
         payment_status: listing.payment_status || "pending",
         paid_amount: Number(listing.paid_amount || 0)
       }));
@@ -1928,7 +1937,7 @@
         publishButton.textContent = "Publicando…";
         showPublishFeedback("Guardando la subasta…", false);
         publishStage = "save";
-        const { error } = await client.from("listings").insert({
+        const listingPayload = {
           lot_number: lotNumber,
           title,
           category: document.getElementById("category").value,
@@ -1943,7 +1952,13 @@
           starts_at: starts ? new Date(starts).toISOString() : new Date().toISOString(),
           ends_at: new Date(ends).toISOString(),
           created_by:user.id
-        });
+        };
+        let { error } = await client.from("listings").insert(listingPayload);
+        if (error && missingLotNumberColumn(error)) {
+          const { lot_number: ignoredLotNumber, ...compatiblePayload } = listingPayload;
+          compatiblePayload.product_details = productDetailsWithLot(compatiblePayload.product_details, lotNumber);
+          ({ error } = await client.from("listings").insert(compatiblePayload));
+        }
         if (error) {
           await removeUploadedEvidence(uploadedMedia);
           throw error;
@@ -2171,7 +2186,12 @@
         changes.bid_count = 0;
         changes.auction_round = Number(original.auction_round || 1) + 1;
       }
-      const { error } = await client.from("listings").update(changes).eq("id", id);
+      let { error } = await client.from("listings").update(changes).eq("id", id);
+      if (error && missingLotNumberColumn(error)) {
+        const { lot_number: ignoredLotNumber, ...compatibleChanges } = changes;
+        compatibleChanges.product_details = productDetailsWithLot(compatibleChanges.product_details, lotNumber);
+        ({ error } = await client.from("listings").update(compatibleChanges).eq("id", id));
+      }
       saveButton.disabled = false;
       const editError = error && /listings_lot_number_unique|duplicate key|lot_number/i.test(error.message || "")
         ? `El lote ${lotNumber} ya está asignado. Escribe otro número.`

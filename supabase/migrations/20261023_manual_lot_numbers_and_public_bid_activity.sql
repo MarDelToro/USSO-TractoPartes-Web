@@ -40,8 +40,7 @@ as $$
   select
     p.member_number,
     nullif(btrim(regexp_replace(coalesce(p.city, ''), '^.*,\s*', '')), '') as state,
-    b.amount,
-    b.created_at
+    b.amount
   from public.bids b
   join public.profiles p on p.id = b.user_id
   join public.listings l on l.id = b.listing_id
