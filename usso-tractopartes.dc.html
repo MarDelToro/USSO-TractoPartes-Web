@@ -2,6 +2,13 @@
 <html lang="es-MX">
 <head>
 <meta charset="utf-8">
+<script>
+  const previewUrl = new URL(window.location.href);
+  if (previewUrl.searchParams.has('mobileScene')) {
+    previewUrl.searchParams.delete('mobileScene');
+    history.replaceState(null, '', previewUrl.pathname + previewUrl.search + previewUrl.hash);
+  }
+</script>
 <script src="/access-guard.js"></script>
 <script src="/youtube-stats.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -620,6 +627,355 @@
     .usso-mobile-dock svg { width:19px;height:19px; }
     .usso-mobile-cta { right:17px !important;bottom:calc(81px + env(safe-area-inset-bottom)) !important;width:48px !important;height:48px !important;background:rgba(246,192,42,.88) !important;border-color:rgba(246,192,42,.95) !important; }
   }
+
+  .usso-social-links { display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:40px; }
+  .usso-social-button { display:flex;align-items:center;gap:10px;min-height:48px;min-width:0;padding:8px 14px;box-sizing:border-box;border-radius:12px;color:#fff;text-decoration:none;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.1);box-shadow:none;transition:transform .2s ease,border-color .2s ease; }
+  .usso-social-button:hover { transform:translateY(-2px);border-color:#f6c02a; }
+  .usso-social-button:focus-visible,.usso-mobile-cta:focus-visible { outline:3px solid #fff;outline-offset:5px; }
+  .usso-social-button small { display:block;color:#c7c7cd;font:600 9px/1.4 Manrope,sans-serif; }
+  .usso-social-button strong { display:block;font:800 15px/1.3 Manrope,sans-serif; }
+  .usso-social-icon { width:23px;height:23px;flex:none; }
+  .usso-social-tiktok .usso-social-icon { filter:drop-shadow(-2px -1px 0 #25f4ee) drop-shadow(2px 1px 0 #fe2c55); }
+  .usso-social-youtube { border-color:rgba(255,255,255,.1); }
+  .usso-social-arrow { margin-left:2px;color:#f6c02a;font:700 16px Manrope,sans-serif; }
+  .usso-mobile-cta { color:#101012; }
+  .usso-mobile-cta svg { width:28px;height:28px;flex:none; }
+  @media(max-width:640px) {
+    .usso-social-links { gap:10px;margin-top:24px; }
+    .usso-social-button { width:auto;min-width:0;min-height:48px;padding:8px 12px; }
+  }
+  @media(prefers-reduced-motion:reduce) { .usso-social-button { transition:none; } .usso-social-button:hover { transform:none; } }
+  /* Retained designs on the published continuous-page structure. */
+
+  .usso-filter-row, .usso-finance-route { touch-action: pan-y; }
+  .usso-hero-carousel { display: none; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; gap: 12px; }
+  .usso-hero-carousel::-webkit-scrollbar { display: none; }
+  @media (max-width: 1200px) {
+    .usso-hero-section { padding: 150px 32px 60px !important; gap: 32px !important; }
+  }
+  @media (max-width: 1000px) {
+    .usso-hero-section { gap: 4px !important; padding: 100px 24px 50px !important; }
+  }
+  @media (max-width: 640px) {
+
+    .usso-hero-icon-badge { display: none !important; }
+    .usso-hero-truck-photo { display: none !important; }
+    .usso-hero-truck-mobile { display: block !important; object-position: 62% bottom !important; }
+    .usso-hero-scrim { background: linear-gradient(165deg, rgba(10,10,11,0.93) 0%, rgba(10,10,11,0.8) 34%, rgba(10,10,11,0.3) 66%, rgba(10,10,11,0.6) 100%) !important; }
+    .usso-hero-section { overflow-x: hidden; box-sizing: border-box; padding: 124px 20px 96px !important; min-height: 84vh !important; align-items: flex-start !important; }
+    .usso-hero-section h1 { font-size: 42px !important; line-height: 1.02 !important; letter-spacing: -0.015em; text-shadow: 0 4px 24px rgba(0,0,0,0.65); margin-bottom: 18px !important; text-align: left !important; }
+    .usso-hero-section p { font-size: 16px !important; max-width: 300px !important; margin-bottom: 26px !important; text-align: left !important; }
+    .usso-hero-title-wrap { display: flex !important; flex-direction: column !important; align-items: flex-start !important; }
+    .usso-hero-badge-row { align-self: flex-start !important; }
+    .usso-hero-section a { width: auto !important; padding: 16px 26px !important; }
+    .usso-hero-title-wrap > div:last-of-type { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; width: auto !important; }
+    .usso-hero-section a { justify-content: center !important; width: 100%; box-sizing: border-box; padding: 16px 20px !important; font-size: 16px !important; }
+    .usso-all-grid {
+      scroll-snap-type: x proximity !important;
+      -webkit-mask-image: none !important; mask-image: none !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y !important;
+      scroll-snap-type: none !important;
+    }
+    .usso-all-grid > div {
+      scroll-snap-stop: normal !important;
+      transform: none !important; opacity: 1 !important; transition: none !important;
+    }
+  }
+  @media (max-width: 1100px) and (min-width: 641px) {
+    .usso-hero-section { padding: 110px 32px 90px !important; }
+    .usso-hero-content { max-width: 520px !important; }
+    .usso-hero-truck-photo { object-position: 78% center !important; }
+  }
+  @media (max-width: 640px) {
+    .usso-hero-content { max-width: 100% !important; }
+  }
+  .usso-all-photo > img { position:absolute; inset:0; width:100%; height:100%; max-width:none; object-fit:cover; display:block; }
+  .usso-all-photo { position:relative; overflow:hidden; background:#171719; }
+  .usso-review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.usso-review-card{padding:24px;border:1px solid rgba(var(--border-rgb),.1);border-radius:18px;background:linear-gradient(145deg,rgba(31,31,35,.94),rgba(14,14,16,.96));box-shadow:0 18px 42px rgba(0,0,0,.24)}.usso-review-stars{color:#f6c02a;letter-spacing:.12em;font-size:13px}.usso-review-card blockquote{margin:16px 0 20px;color:rgba(var(--text-rgb),.8);font:600 14px/1.65 Manrope,sans-serif}.usso-review-person{display:flex;align-items:center;gap:10px}.usso-review-avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(246,192,42,.14);border:1px solid rgba(246,192,42,.32);color:#f6c02a;font:900 11px Manrope}.usso-review-person strong,.usso-review-person span{display:block}.usso-review-person strong{font:800 12px Manrope}.usso-review-person span{margin-top:2px;color:rgba(var(--text-rgb),.42);font:700 9px Manrope;text-transform:uppercase;letter-spacing:.08em}.usso-demo-disclosure{display:inline-flex;margin-top:22px;padding:8px 11px;border-radius:100px;background:rgba(92,160,255,.08);border:1px solid rgba(92,160,255,.25);color:#9ec4ff;font:700 10px Manrope;letter-spacing:.05em}
+  @media(max-width:640px){
+    .usso-review-grid{grid-template-columns:1fr}.usso-review-card{padding:20px}
+  }
+  @media (max-width: 640px) {
+    .usso-all-grid { display: flex !important; grid-template-columns: none !important; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 12px !important; margin: 0 -20px; padding: 2px 20px 8px; }
+    .usso-all-grid::-webkit-scrollbar { display: none; }
+    .usso-all-grid > div, .usso-all-card { flex: 0 0 88% !important; scroll-snap-align: center; scroll-snap-stop: always; box-shadow: 0 10px 28px rgba(0,0,0,0.35); display: grid !important; grid-template-columns: minmax(0,1fr) !important; grid-template-rows: auto auto auto !important; grid-template-areas: "photo" "body" "actions" !important; align-items: stretch; }
+    .usso-all-grid > div > div:first-child, .usso-all-photo { grid-area: photo !important; width:100% !important; aspect-ratio: 16/10 !important; align-self:stretch !important; min-height:0 !important; }
+    .usso-all-grid > div > div:first-child img, .usso-all-photo img { width:100% !important; height:100% !important; object-fit:cover !important; }
+    .usso-all-grid > div > div:first-child > span, .usso-all-photo > span { font-size: 9.5px !important; padding: 4px 8px !important; top: 8px !important; left: 8px !important; }
+    .usso-all-grid > div > div:first-child > span:last-child, .usso-all-cat { display: none !important; }
+    .usso-all-body { grid-area: body !important; padding: 13px 14px 12px !important; }
+    .usso-all-actions { grid-area: actions !important; flex-direction: row !important; gap: 8px !important; padding: 12px 14px 14px !important; margin-top: 2px; border-top: 1px solid rgba(var(--border-rgb),0.09); }
+    .usso-all-actions > div { display:flex !important; flex:1 1 100% !important; width:100% !important; min-width:0 !important; gap:8px !important; }
+    .usso-all-actions button { flex: 1 1 0 !important; min-width:0 !important; min-height:44px !important; font-size:11.5px !important; line-height:1.15 !important; padding:10px 8px !important; border-radius:12px !important; white-space:nowrap !important; }
+    .usso-all-grid > div h3 { font-size: 15px !important; line-height: 1.25 !important; margin: 3px 0 8px !important; }
+    .usso-all-body > span:nth-of-type(2) { font-size: 10px !important; padding: 3px 9px !important; margin-bottom: 10px !important; }
+    .usso-all-body > div:last-of-type { padding-top: 10px !important; }
+    .usso-filter-row { flex-wrap: nowrap !important; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin-left: -20px; margin-right: -20px; padding: 0 20px 4px; }
+    .usso-filter-row::-webkit-scrollbar { display: none; }
+    .usso-filter-row > button { flex: 0 0 auto !important; white-space: nowrap; }
+  }
+  .usso-all-grid::-webkit-scrollbar { display: none; }
+  .usso-all-grid > div { flex: 0 0 300px; scroll-snap-align: center; scroll-snap-stop: always; }
+  .usso-finance-visual { position:relative;min-height:570px;border-radius:30px;border:1px solid rgba(246,192,42,.22);overflow:hidden;background:radial-gradient(circle at 20% 10%,rgba(246,192,42,.2),transparent 34%),linear-gradient(145deg,#171719,#080809);box-shadow:0 34px 90px rgba(0,0,0,.46);padding:34px;box-sizing:border-box; }
+  .usso-finance-visual::after { content:"";position:absolute;width:320px;height:320px;border:1px solid rgba(246,192,42,.12);border-radius:50%;right:-110px;top:-100px;box-shadow:0 0 0 45px rgba(246,192,42,.025),0 0 0 90px rgba(246,192,42,.018); }
+  .usso-finance-kpi { position:relative;z-index:1;padding:28px;border-radius:22px;background:rgba(7,7,8,.64);border:1px solid rgba(var(--border-rgb),.1); }
+  .usso-finance-route { position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0; }
+  .usso-finance-step { position:relative;padding:17px 12px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(var(--border-rgb),.08); }
+  .usso-finance-step:not(:last-child)::after { content:"";position:absolute;top:27px;right:-11px;width:12px;height:2px;background:#f6c02a;z-index:2; }
+  .usso-finance-check { width:74px;height:74px;min-width:74px;flex:0 0 74px;aspect-ratio:1/1;border-radius:50%;border:7px solid rgba(246,192,42,.15);border-top-color:#f6c02a;display:grid;place-items:center;color:#f6c02a;font:900 19px Manrope;box-sizing:border-box; }
+  .usso-finance-editorial { position:relative;min-height:760px;overflow:hidden;background:#0b0b0c;isolation:isolate; }
+  .usso-finance-editorial::before { content:"";position:absolute;inset:0;z-index:-3;background:url('assets/hero-truck-sunset-mobile.png') center 34%/cover no-repeat;filter:saturate(.72) contrast(1.06); }
+  .usso-finance-editorial::after { content:"";position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(7,7,8,.97) 0%,rgba(7,7,8,.88) 43%,rgba(7,7,8,.2) 78%),linear-gradient(180deg,rgba(7,7,8,.12) 0%,rgba(7,7,8,.18) 48%,rgba(7,7,8,.96) 100%); }
+  .usso-finance-editorial-inner { width:min(1400px,calc(100% - 96px));min-height:760px;margin:0 auto;display:grid;grid-template-columns:minmax(0,.9fr) minmax(520px,1.1fr);grid-template-rows:1fr auto;align-items:center;gap:38px 64px;padding:108px 0 54px;box-sizing:border-box; }
+  .usso-finance-copy { max-width:610px;align-self:center; }
+  .usso-finance-eyebrow { display:flex;align-items:center;gap:14px;font:800 12px Manrope,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#f6c02a; }
+  .usso-finance-eyebrow::before { content:"";width:44px;height:3px;border-radius:999px;background:#f6c02a;box-shadow:0 0 18px rgba(246,192,42,.5); }
+  .usso-finance-title { margin:22px 0 20px;font:900 clamp(46px,5.2vw,76px)/.94 'Archivo Black',sans-serif;letter-spacing:-.045em;color:#f5f2ea; }
+  .usso-finance-title span { color:#f6c02a; }
+  .usso-finance-lede { max-width:510px;margin:0;font:500 18px/1.62 Manrope,sans-serif;color:rgba(245,242,234,.72); }
+  .usso-finance-benefits { grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid rgba(246,192,42,.3);border-bottom:1px solid rgba(255,255,255,.1);background:rgba(8,8,9,.72);backdrop-filter:blur(14px); }
+  .usso-finance-benefit { position:relative;min-height:150px;padding:25px 24px 22px;box-sizing:border-box; }
+  .usso-finance-benefit:not(:last-child)::after { content:"";position:absolute;right:0;top:22px;bottom:22px;width:1px;background:rgba(255,255,255,.11); }
+  .usso-finance-benefit-num { display:block;margin-bottom:12px;font:900 13px Manrope,sans-serif;letter-spacing:.13em;color:#f6c02a; }
+  .usso-finance-benefit strong { display:block;margin-bottom:7px;font:800 16px/1.2 Manrope,sans-serif;color:#f5f2ea; }
+  .usso-finance-benefit p { margin:0;font:500 12px/1.48 Manrope,sans-serif;color:rgba(245,242,234,.55); }
+  .usso-finance-cta { justify-self:end;align-self:center;display:inline-flex;align-items:center;justify-content:space-between;gap:28px;min-width:330px;padding:20px 26px;border-radius:999px;background:#f6c02a;color:#09090a;font:900 15px Manrope,sans-serif;box-shadow:0 16px 40px rgba(246,192,42,.22); }
+  .usso-finance-cta span:last-child { font-size:23px;line-height:1; }
+  @media(max-width:1000px){.usso-finance-visual{min-height:auto}}
+  @media(max-width:640px){
+    .usso-finance-visual{min-height:0;padding:14px;border-radius:20px}.usso-finance-kpi{padding:17px;border-radius:16px}.usso-finance-kpi strong{font-size:27px!important;line-height:1.02!important}.usso-finance-check{width:50px;height:50px;min-width:50px;flex-basis:50px;border-width:5px}.usso-finance-route{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;margin:12px 0;padding:0;gap:7px}.usso-finance-step{min-width:0;padding:12px 8px;border-radius:12px}.usso-finance-step:not(:last-child)::after{display:none}.usso-finance-step span{font-size:8px!important;margin-bottom:5px!important}.usso-finance-step strong{display:block;font-size:9.5px!important;line-height:1.25!important}
+    .usso-finance-editorial{height:calc(100svh - 62px);min-height:690px;padding:0!important;}
+    .usso-finance-editorial::before{background-position:58% 20%;background-size:auto 67%;background-repeat:no-repeat;opacity:.84;}
+    .usso-finance-editorial::after{background:linear-gradient(180deg,rgba(8,8,9,.28) 0%,rgba(8,8,9,.32) 29%,rgba(8,8,9,.78) 48%,#09090a 70%,#09090a 100%),linear-gradient(90deg,rgba(8,8,9,.46),transparent 70%);}
+    .usso-finance-editorial-inner{width:100%;min-height:100%;height:100%;display:flex;flex-direction:column;gap:0;padding:72px 18px 78px;box-sizing:border-box;}
+    .usso-finance-copy{width:100%;max-width:none;}
+    .usso-finance-eyebrow{gap:9px;font-size:9px;letter-spacing:.19em;}
+    .usso-finance-eyebrow::before{width:28px;height:2px;}
+    .usso-finance-title{max-width:330px;margin:12px 0 10px;font-size:clamp(34px,10.3vw,43px);line-height:.94;letter-spacing:-.05em;text-shadow:0 4px 20px rgba(0,0,0,.5);}
+    .usso-finance-lede{max-width:285px;font-size:11.5px;line-height:1.48;color:rgba(245,242,234,.72);}
+    .usso-finance-copy{order:1;}
+    .usso-finance-benefits{order:2;width:100%;margin-top:auto;display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(246,192,42,.22);border-radius:18px;overflow:hidden;background:rgba(12,12,13,.84);backdrop-filter:blur(10px);}
+    .usso-finance-benefit{min-height:93px;padding:11px 12px 10px;}
+    .usso-finance-benefit:nth-child(odd)::after{content:"";position:absolute;right:0;top:10px;bottom:10px;width:1px;background:rgba(255,255,255,.1);}
+    .usso-finance-benefit:nth-child(even)::after{display:none;}
+    .usso-finance-benefit:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.1);}
+    .usso-finance-benefit-num{margin-bottom:5px;font-size:8px;}
+    .usso-finance-benefit strong{margin-bottom:3px;font-size:10.5px;line-height:1.16;}
+    .usso-finance-benefit p{font-size:8px;line-height:1.34;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .usso-finance-cta{order:3;width:100%;min-width:0;margin-top:10px;padding:14px 18px;font-size:12px;box-sizing:border-box;box-shadow:0 12px 28px rgba(246,192,42,.18);}
+    .usso-finance-cta span:last-child{font-size:18px;}
+  }
+  .usso-finance-editorial{background:#eee8dd;color:#111;}
+  .usso-finance-editorial::before{background-image:url('assets/financing-studio-truck-mobile.png');background-position:center;background-size:cover;filter:none;opacity:1;}
+  .usso-finance-editorial::after{background:linear-gradient(90deg,rgba(242,237,228,.98) 0%,rgba(242,237,228,.84) 40%,rgba(242,237,228,.06) 72%),linear-gradient(180deg,transparent 55%,rgba(242,237,228,.2) 100%);}
+  .usso-finance-eyebrow{color:#171714;}
+  .usso-finance-eyebrow::before{background:#f6c02a;box-shadow:none;}
+  .usso-finance-title{color:#11110f;text-shadow:none;}
+  .usso-finance-title span{color:#f5b711;}
+  .usso-finance-lede{color:rgba(17,17,15,.68);}
+  .usso-finance-benefits{border-color:rgba(17,17,15,.16);background:rgba(242,237,228,.7);backdrop-filter:blur(10px);}
+  .usso-finance-benefit:not(:last-child)::after{background:rgba(17,17,15,.16);}
+  .usso-finance-benefit-num{display:none;}
+  .usso-finance-benefit-icon{display:block;width:54px;height:54px;margin:0 auto 10px;border-radius:50%;object-fit:cover;border:1px solid rgba(246,192,42,.62);}
+  .usso-finance-benefit strong{color:#11110f;text-align:center;}
+  .usso-finance-benefit p{color:rgba(17,17,15,.61);text-align:center;}
+  .usso-finance-cta{background:#f6c02a;color:#11110f;box-shadow:0 16px 38px rgba(191,139,0,.22);}
+  @media(max-width:640px){
+    .usso-finance-editorial::before{background-position:center top;background-size:cover;opacity:1;}
+    .usso-finance-editorial::after{background:linear-gradient(90deg,rgba(242,237,228,.98) 0%,rgba(242,237,228,.82) 49%,rgba(242,237,228,.06) 77%),linear-gradient(180deg,rgba(242,237,228,.05) 43%,rgba(242,237,228,.58) 64%,rgba(242,237,228,.92) 100%);}
+    .usso-finance-editorial-inner{padding:70px 18px 76px;}
+    .usso-finance-eyebrow{font-size:8.5px;letter-spacing:.21em;}
+    .usso-finance-title{max-width:270px;margin:14px 0 14px;font-size:39px;line-height:.93;letter-spacing:-.055em;}
+    .usso-finance-lede{max-width:220px;font-size:11.5px;line-height:1.48;color:rgba(17,17,15,.68);}
+    .usso-finance-benefits{grid-template-columns:repeat(4,minmax(0,1fr));border:0;border-top:1px solid rgba(17,17,15,.2);border-radius:0;background:rgba(242,237,228,.58);overflow:visible;backdrop-filter:blur(8px);}
+    .usso-finance-benefit{min-height:135px;padding:12px 7px 8px;}
+    .usso-finance-benefit:nth-child(-n+2){border-bottom:0;}
+    .usso-finance-benefit:not(:last-child)::after,.usso-finance-benefit:nth-child(odd)::after{display:block;content:"";position:absolute;right:0;top:16px;bottom:12px;width:1px;background:rgba(17,17,15,.15);}
+    .usso-finance-benefit:last-child::after{display:none;}
+    .usso-finance-benefit-icon{width:37px;height:37px;margin-bottom:7px;}
+    .usso-finance-benefit strong{min-height:24px;margin:0 0 5px;font-size:8.4px;line-height:1.15;}
+    .usso-finance-benefit p{font-size:6.8px;line-height:1.32;-webkit-line-clamp:4;}
+    .usso-finance-cta{margin-top:9px;padding:14px 18px;font-size:12.5px;}
+  }
+  .usso-finance-editorial{background:#09090a;color:#f5f2ea;}
+  .usso-finance-editorial::before{background-image:url('assets/hero-truck-sunset-mobile.png');background-position:center 28%;background-size:cover;filter:saturate(.72) contrast(1.08);opacity:1;}
+  .usso-finance-editorial::after{background:linear-gradient(90deg,rgba(7,7,8,.96) 0%,rgba(7,7,8,.76) 45%,rgba(7,7,8,.12) 78%),linear-gradient(180deg,rgba(7,7,8,.08) 42%,rgba(7,7,8,.78) 70%,#09090a 100%);}
+  .usso-finance-eyebrow{color:#f5f2ea;}
+  .usso-finance-title{color:#f5f2ea;}
+  .usso-finance-title span{color:#f6c02a;}
+  .usso-finance-lede{color:rgba(245,242,234,.72);}
+  .usso-finance-benefits{border-color:rgba(246,192,42,.28);background:rgba(9,9,10,.72);backdrop-filter:blur(12px);}
+  .usso-finance-benefit:not(:last-child)::after{background:rgba(255,255,255,.14);}
+  .usso-finance-benefit strong{color:#f5f2ea;}
+  .usso-finance-benefit p{color:rgba(245,242,234,.58);}
+  @media(max-width:640px){
+    .usso-finance-editorial::before{background-position:58% 18%;background-size:auto 69%;background-repeat:no-repeat;}
+    .usso-finance-editorial::after{background:linear-gradient(90deg,rgba(7,7,8,.88) 0%,rgba(7,7,8,.58) 48%,rgba(7,7,8,.06) 82%),linear-gradient(180deg,rgba(7,7,8,.08) 34%,rgba(7,7,8,.7) 59%,#09090a 81%);}
+    .usso-finance-benefits{border-top-color:rgba(246,192,42,.3);background:rgba(9,9,10,.7);}
+    .usso-finance-benefit:not(:last-child)::after,.usso-finance-benefit:nth-child(odd)::after{background:rgba(255,255,255,.14);}
+    .usso-finance-benefit strong{color:#f5f2ea;}
+    .usso-finance-benefit p{color:rgba(245,242,234,.58);}
+  }
+  .usso-finance-editorial::before{background-image:url('assets/financing-studio-truck-mobile.png');background-position:center top;background-size:cover;filter:brightness(.42) saturate(.6) contrast(1.1);}
+  .usso-finance-editorial::after{background:linear-gradient(90deg,rgba(7,7,8,.9) 0%,rgba(7,7,8,.68) 48%,rgba(7,7,8,.16) 82%),linear-gradient(180deg,rgba(7,7,8,.1) 0%,rgba(7,7,8,.2) 42%,rgba(7,7,8,.75) 76%,#09090a 100%);}
+  @media(max-width:640px){
+    .usso-finance-editorial::before{background-position:center top;background-size:cover;filter:brightness(.43) saturate(.58) contrast(1.12);}
+    .usso-finance-editorial::after{background:linear-gradient(90deg,rgba(7,7,8,.9) 0%,rgba(7,7,8,.68) 50%,rgba(7,7,8,.1) 84%),linear-gradient(180deg,rgba(7,7,8,.08) 0%,rgba(7,7,8,.14) 38%,rgba(7,7,8,.72) 72%,#09090a 100%);}
+    .usso-finance-editorial-inner{justify-content:flex-start;padding:72px 18px 76px;}
+    .usso-finance-title{max-width:300px;font-size:40px;}
+    .usso-finance-lede{max-width:245px;font-size:12px;line-height:1.5;}
+    .usso-finance-benefits{margin-top:84px;background:rgba(9,9,10,.78);backdrop-filter:blur(12px);}
+    .usso-finance-benefit{min-height:148px;padding:14px 7px 10px;}
+    .usso-finance-benefit-icon{width:42px;height:42px;margin-bottom:8px;}
+    .usso-finance-benefit strong{min-height:28px;font-size:9px;line-height:1.18;}
+    .usso-finance-benefit p{font-size:7.2px;line-height:1.38;-webkit-line-clamp:4;}
+    .usso-finance-cta{margin-top:12px;padding:15px 18px;font-size:13px;}
+  }
+  .usso-finance-signoff{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:18px;color:rgba(245,242,234,.68);font:700 10px/1.5 Manrope,sans-serif;letter-spacing:.24em;text-transform:uppercase;}
+  .usso-finance-signoff::before{content:"";width:54px;height:1px;background:rgba(246,192,42,.72);}
+  @media(max-width:640px){
+    .usso-finance-editorial::before{background-image:url('assets/financing-white-truck-dark-mobile.png');background-position:center top;background-size:cover;filter:none;}
+    .usso-finance-editorial::after{background:linear-gradient(90deg,rgba(5,6,7,.88) 0%,rgba(5,6,7,.63) 53%,rgba(5,6,7,.08) 84%),linear-gradient(180deg,rgba(5,6,7,.08) 0%,rgba(5,6,7,.2) 45%,rgba(5,6,7,.84) 78%,#070809 100%);}
+    .usso-finance-editorial-inner{justify-content:center;padding:118px 18px 34px;}
+    .usso-finance-copy{flex:0 0 auto;}
+    .usso-finance-title{max-width:330px;margin:15px 0 15px;font-size:43px;line-height:.92;}
+    .usso-finance-lede{max-width:270px;font-size:13.5px;line-height:1.52;}
+    .usso-finance-benefits{flex:0 0 auto;margin-top:38px;background:rgba(7,8,9,.76);}
+    .usso-finance-benefit{min-height:155px;padding:13px 7px 10px;}
+    .usso-finance-benefit-icon{width:44px;height:44px;margin-bottom:9px;}
+    .usso-finance-benefit strong{min-height:31px;font-size:9.5px;line-height:1.18;}
+    .usso-finance-benefit p{font-size:7.6px;line-height:1.4;-webkit-line-clamp:4;}
+    .usso-finance-cta{flex:0 0 auto;margin-top:13px;padding:15px 18px;font-size:13.5px;}
+    .usso-finance-signoff{order:4;flex:0 0 auto;margin-top:18px;gap:12px;font-size:7.5px;letter-spacing:.2em;}
+    .usso-finance-signoff::before{width:34px;}
+  }
+  .usso-evidence-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  @media (max-width: 640px) {
+    .usso-featured-body .usso-evidence-row { display:flex !important; margin-bottom:10px !important; }
+    .usso-featured-body .usso-evidence-row span { font-size:9px !important; padding:4px 9px !important; }
+  }
+  .usso-hero-mobile-editorial,.usso-hero-mobile-logo { display:none; }
+  .usso-evidence-editorial{max-width:1240px;margin:0 auto}
+  .usso-evidence-intro{max-width:860px}
+  .usso-evidence-eyebrow{display:flex;align-items:center;gap:22px;color:#f3f0e6;font:800 12px Manrope,sans-serif;letter-spacing:.24em;text-transform:uppercase}
+  .usso-evidence-eyebrow::before{content:"";width:62px;height:5px;border-radius:99px;background:#f6b914}
+  .usso-evidence-title{margin:32px 0 24px;color:#f4f1e8;font:900 clamp(64px,8vw,116px)/.88 'Archivo Black',sans-serif;letter-spacing:-.065em}
+  .usso-evidence-title span{display:block;color:#f5b315}
+  .usso-evidence-lead{max-width:760px;margin:0;color:rgba(243,240,230,.64);font:500 clamp(19px,2vw,30px)/1.45 Manrope,sans-serif}
+  .usso-evidence-list{display:grid;gap:18px;margin-top:52px}
+  .usso-evidence-card{min-height:210px;display:grid;grid-template-columns:minmax(0,.95fr) minmax(360px,.72fr);overflow:hidden;border:1px solid rgba(255,255,255,.11);border-radius:32px;background:rgba(20,20,22,.92);box-shadow:0 20px 55px rgba(0,0,0,.28)}
+  .usso-evidence-card-copy{display:grid;grid-template-columns:74px 1fr;gap:22px;align-content:center;padding:34px 38px}
+  .usso-evidence-card-num{color:#f5b315;font:900 25px Manrope,sans-serif}
+  .usso-evidence-card h3{margin:0 0 13px;color:#f4f1e8;font:900 25px/1.12 Manrope,sans-serif}
+  .usso-evidence-card p{margin:0;max-width:530px;color:rgba(243,240,230,.58);font:500 16px/1.55 Manrope,sans-serif}
+  .usso-evidence-card-media{position:relative;min-height:210px;overflow:hidden}
+  .usso-evidence-card-media img{width:100%;height:100%;display:block;object-fit:cover;filter:saturate(.88) contrast(1.04)}
+  .usso-evidence-card-media::after{content:"→";position:absolute;right:24px;top:50%;width:58px;height:58px;display:grid;place-items:center;transform:translateY(-50%);border:1px solid rgba(255,255,255,.75);border-radius:50%;background:rgba(8,8,9,.82);color:#fff;font:500 27px Manrope,sans-serif;backdrop-filter:blur(9px)}
+  @media (max-width:640px) {
+    #hero,#todas-subastas,#confianza,#financiamiento { min-height:calc(100svh - 62px);box-sizing:border-box; }
+
+    .usso-hero-section { min-height:calc(100svh - 62px) !important;padding:0 !important;align-items:flex-start !important;justify-content:flex-start !important; }
+    .usso-hero-truck-mobile { object-position:center bottom !important;transform:scale(1.005);transform-origin:center bottom;filter:brightness(1.16) contrast(1.02) saturate(1.05); }
+    .usso-hero-scrim { background:linear-gradient(180deg,rgba(3,3,4,.05) 0%,rgba(3,3,4,.08) 27%,rgba(3,3,4,.28) 55%,rgba(3,3,4,.34) 76%,rgba(3,3,4,.08) 100%) !important; }
+    .usso-hero-section::after { content:"";position:absolute;z-index:1;left:0;right:0;bottom:0;height:43%;pointer-events:none;background:radial-gradient(ellipse at 78% 35%,rgba(205,112,38,.18),transparent 46%),linear-gradient(180deg,transparent 0%,rgba(20,15,11,.04) 34%,rgba(3,3,4,.1) 100%);mix-blend-mode:screen; }
+    .usso-hero-content { display:none !important; }
+    .usso-hero-mobile-logo { display:none !important; }
+    .usso-hero-mobile-editorial { position:absolute;z-index:2;top:49.5%;left:24px;right:24px;width:auto;max-width:345px;margin:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left; }
+    .usso-hero-mobile-editorial .eyebrow { position:relative;margin:0 0 20px;padding-top:19px;color:#f3f0e6;font:800 10px Manrope,sans-serif;letter-spacing:.24em;text-transform:uppercase; }
+    .usso-hero-mobile-editorial .eyebrow::before { content:"";position:absolute;top:0;left:0;width:44px;height:3px;border-radius:99px;background:#f6c02a;box-shadow:0 0 18px rgba(246,192,42,.55); }
+    .usso-hero-mobile-editorial h1 { margin:0 !important;max-width:none !important;font:900 clamp(40px,11.5vw,49px)/.93 'Archivo Black',sans-serif !important;letter-spacing:-.05em !important;text-transform:uppercase;text-align:left !important;text-shadow:0 8px 35px rgba(0,0,0,.96); }
+    .usso-hero-mobile-editorial h1 span { display:block;color:#f3f0e6; }
+    .usso-hero-mobile-editorial h1 span:last-child { color:#f6c02a; }
+    .usso-hero-mobile-editorial p { max-width:300px !important;margin:24px 0 22px !important;color:rgba(243,240,230,.78) !important;font:600 14px/1.55 Manrope,sans-serif !important;text-align:left !important;text-shadow:0 4px 24px rgba(0,0,0,.98); }
+    .usso-hero-mobile-editorial a { display:flex;align-items:center;justify-content:center;width:100% !important;min-height:58px;padding:0 22px !important;border-radius:999px !important;background:#f6c02a;color:#11130e;text-decoration:none;font:900 14px Manrope,sans-serif !important;box-shadow:0 15px 38px rgba(0,0,0,.46),0 0 26px rgba(246,192,42,.16); }
+
+    #confianza{height:calc(100svh - 62px);min-height:690px !important;padding:88px 18px 48px !important;overflow:hidden;background:radial-gradient(circle at 85% 14%,rgba(246,192,42,.09),transparent 32%),#08090a !important}
+    .usso-evidence-editorial{height:100%;display:flex;flex-direction:column;max-width:none}
+    .usso-evidence-intro{max-width:none}
+    .usso-evidence-eyebrow{gap:13px;font-size:8px;letter-spacing:.2em}
+    .usso-evidence-eyebrow::before{width:37px;height:3px}
+    .usso-evidence-title{margin:12px 0 10px;font-size:clamp(39px,11vw,47px);line-height:.88;letter-spacing:-.06em}
+    .usso-evidence-lead{max-width:350px;font-size:11.5px;line-height:1.4}
+    .usso-evidence-list{flex:1;min-height:0;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:8px;margin-top:15px}
+    .usso-evidence-card{min-height:0;height:100%;grid-template-columns:minmax(0,1.12fr) minmax(118px,.88fr);border-radius:18px;background:rgba(20,20,22,.9);box-shadow:0 14px 34px rgba(0,0,0,.32)}
+    .usso-evidence-card-copy{grid-template-columns:25px 1fr;gap:8px;padding:12px 10px 12px 13px}
+    .usso-evidence-card-num{font-size:11px}
+    .usso-evidence-card h3{margin:0 0 5px;font-size:12px;line-height:1.08}
+    .usso-evidence-card p{font-size:8.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .usso-evidence-card-media{min-height:0;height:100%}
+    .usso-evidence-card-media::after{right:8px;width:29px;height:29px;font-size:14px}
+    .usso-evidence-row { display:none !important; }
+
+    #todas-subastas { padding-top:82px !important;padding-bottom:92px !important;box-sizing:border-box; }
+    #todas-subastas .usso-filter-row { margin-bottom:12px !important; }
+    .usso-filter-row > button { min-height:40px;padding:9px 14px !important;border-radius:12px !important;font-size:11px !important; }
+    .usso-all-grid > div,.usso-all-card { flex-basis:84% !important;border-radius:19px !important; }
+    .usso-all-grid > div > div:first-child,.usso-all-photo { aspect-ratio:16/9 !important; }
+
+    .usso-review-section { min-height:calc(100svh - 62px);box-sizing:border-box;max-width:none !important;padding:74px 22px 108px !important;border-top:0 !important;background:linear-gradient(180deg,rgba(4,4,5,.68),rgba(4,4,5,.94)),url('assets/truck-crop.jpg') center/cover no-repeat; }
+    .usso-review-heading { margin-bottom:25px !important; }
+    .usso-review-heading > span { display:block;color:#f6c02a !important;font-size:10px !important;letter-spacing:.22em !important; }
+    .usso-review-heading h2 { margin:10px 0 9px !important;color:#fff;font-size:clamp(38px,11vw,48px) !important;line-height:.94;letter-spacing:-.05em;text-transform:uppercase; }
+    .usso-review-heading p { max-width:290px;color:rgba(255,255,255,.62) !important;font-size:13px !important; }
+    .usso-review-grid { display:flex !important;grid-template-columns:none !important;gap:12px !important;overflow-x:auto;margin:0 -22px;padding:2px 22px 10px;scroll-snap-type:x mandatory;scrollbar-width:none; }
+    .usso-review-grid::-webkit-scrollbar { display:none; }
+    .usso-review-card { flex:0 0 calc(100vw - 44px);min-height:285px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;padding:27px 24px !important;border:1px solid rgba(255,255,255,.1) !important;border-radius:20px !important;background:rgba(3,3,4,.75) !important;backdrop-filter:blur(14px);scroll-snap-align:center;box-shadow:0 20px 50px rgba(0,0,0,.32); }
+    .usso-review-stars { order:3;margin-top:13px;font-size:17px !important;letter-spacing:.15em; }
+    .usso-review-card blockquote { min-height:0;margin:8px 0 23px;color:#f5f2e9 !important;font-size:19px;line-height:1.42; }
+    .usso-review-card blockquote::before { content:"“";display:block;height:43px;color:#f6c02a;font:900 58px/.8 Georgia,serif; }
+    .usso-review-person { order:2; }
+    .usso-demo-disclosure { margin-top:14px !important;border-radius:12px;line-height:1.35;background:rgba(4,4,5,.68) !important;color:rgba(255,255,255,.54) !important; }
+  }
+
+  .usso-catalog-tools { display:block; }
+  .usso-catalog-sort,.usso-all-favorite,.usso-all-card-arrow,.usso-catalog-more { display:none; }
+  @media (max-width:720px) {
+    #todas-subastas { padding:88px 14px 92px !important;background:#08090a !important;overflow:visible !important; }
+    #todas-subastas > div { max-width:none !important; }
+    #todas-subastas .usso-catalog-heading { margin:0 16px 15px !important; }
+    #todas-subastas .usso-catalog-heading h2 { display:none !important; }
+    #todas-subastas .usso-catalog-heading span { color:rgba(255,255,255,.52) !important;font-size:11px !important;letter-spacing:.26em !important; }
+    #todas-subastas .usso-filter-row { flex-wrap:nowrap !important;overflow-x:auto !important;margin:0 -14px 18px !important;padding:0 14px 5px !important;gap:8px !important;scrollbar-width:none; }
+    #todas-subastas .usso-filter-row::-webkit-scrollbar { display:none; }
+    #todas-subastas .usso-filter-row > button { flex:0 0 auto !important;min-height:44px !important;padding:10px 17px !important;border-radius:14px !important; }
+    #todas-subastas .usso-catalog-tools { display:flex !important;align-items:center;justify-content:space-between;margin:0 16px 14px; }
+    #todas-subastas .usso-catalog-tools p { margin:0 !important;color:rgba(255,255,255,.58) !important;font-size:16px !important;font-weight:800 !important; }
+    #todas-subastas .usso-catalog-sort { display:inline-flex;align-items:center;gap:9px;min-height:39px;padding:0 14px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:#f5f2eb;font:700 11px Manrope,sans-serif; }
+    #todas-subastas .usso-all-grid { display:grid !important;grid-template-columns:1fr !important;overflow:visible !important;scroll-snap-type:none !important;margin:0 !important;padding:0 0 16px !important;gap:10px !important; }
+    #todas-subastas .usso-all-grid > div,#todas-subastas .usso-all-card { width:100% !important;min-width:0 !important;flex:none !important;display:grid !important;grid-template-columns:44% 56% !important;grid-template-rows:1fr !important;grid-template-areas:"photo body" !important;min-height:196px !important;border-radius:18px !important;background:linear-gradient(125deg,#111315,#090a0b) !important;border-color:rgba(255,255,255,.1) !important;box-shadow:0 12px 28px rgba(0,0,0,.24) !important;overflow:hidden !important;position:relative !important; }
+    #todas-subastas .usso-all-photo { grid-area:photo !important;width:100% !important;height:100% !important;min-height:196px !important;aspect-ratio:auto !important;overflow:hidden !important; }
+    #todas-subastas .usso-all-photo img { width:100% !important;height:100% !important;object-fit:cover !important;transform:none !important; }
+    #todas-subastas .usso-all-status { top:10px !important;left:10px !important;padding:5px 9px !important;font-size:8px !important;letter-spacing:.04em !important;background:#69a9ff !important;color:#07101a !important; }
+    #todas-subastas .usso-all-cat { display:none !important; }
+    #todas-subastas .usso-all-favorite { display:grid !important;place-items:center;position:absolute;top:10px !important;left:auto !important;right:10px !important;width:30px;height:30px;z-index:2;border:1px solid rgba(255,255,255,.5);border-radius:50%;background:rgba(5,6,7,.68);color:white;font:500 21px/1 Manrope; }
+    #todas-subastas .usso-all-body { grid-area:body !important;min-width:0 !important;padding:14px 12px 13px !important;display:flex !important;position:relative; }
+    #todas-subastas .usso-all-body > span:first-child { padding-right:36px;font-size:9px !important; }
+    #todas-subastas .usso-all-body h3 { padding-right:30px;margin:3px 0 7px !important;font-size:14px !important;line-height:1.18 !important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
+    #todas-subastas .usso-all-body > span:nth-of-type(2) { margin-bottom:8px !important;padding:3px 7px !important;font-size:8px !important;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis; }
+    #todas-subastas .usso-all-body > div:nth-of-type(1) { gap:5px !important;margin-bottom:7px !important; }
+    #todas-subastas .usso-all-body > div:nth-of-type(1) > div { padding:6px !important;background:rgba(255,255,255,.035) !important; }
+    #todas-subastas .usso-all-body > div:nth-of-type(1) strong { font-size:8px !important; }
+    #todas-subastas .usso-all-body > div:nth-of-type(2) { padding-top:7px !important;padding-right:34px; }
+    #todas-subastas .usso-all-body > div:nth-of-type(2) > div:first-child > div:last-child { font-size:16px !important; }
+    #todas-subastas .usso-all-body > div:nth-of-type(2) > div:last-child > div:last-child { font-size:10px !important;white-space:nowrap; }
+    #todas-subastas .usso-all-card-arrow { display:grid;place-items:center;position:absolute;right:12px;bottom:12px;width:30px;height:30px;border-radius:50%;background:#ffc62a;color:#090a0b;font:900 18px/1 Manrope; }
+    #todas-subastas .usso-all-actions { display:none !important; }
+    #todas-subastas .usso-all-grid.is-collapsed > .usso-all-card:nth-child(n+5) { display:none !important; }
+    #todas-subastas .usso-catalog-more { width:100%;min-height:52px;margin:10px 0 4px;padding:0 18px;display:flex;align-items:center;justify-content:center;gap:12px;border:1px solid rgba(255,198,42,.42);border-radius:999px;background:rgba(255,198,42,.07);color:#ffc62a;font:800 12px Manrope,sans-serif;letter-spacing:.04em;cursor:pointer; }
+    #todas-subastas .usso-catalog-more-arrow { display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#ffc62a;color:#090a0b;font-size:16px;transition:transform .25s ease; }
+    #todas-subastas .usso-catalog-more[aria-expanded="true"] .usso-catalog-more-arrow { transform:rotate(180deg); }
+  }
+
+  .usso-hero-mobile-editorial,.usso-hero-mobile-logo { display:none; }
+  @media(max-width:640px) {
+    .usso-hero-mobile-editorial { display:flex;position:relative;top:auto;left:auto;right:auto;max-width:none;width:100%;box-sizing:border-box;margin-top:44svh;padding:0 24px 42px; }
+    .usso-hero-section { height:auto !important;min-height:calc(100svh - 62px) !important;overflow:hidden; }
+    #confianza { height:auto !important;min-height:690px !important;overflow:visible; }
+    .usso-evidence-list { flex:none;grid-template-rows:none; }
+    .usso-evidence-card { min-height:145px;height:auto; }
+    #todas-subastas,#financiamiento,#confianza,#comentarios { scroll-margin-top:76px; }
+  }
 </style>
 </helmet>
 
@@ -651,7 +1007,6 @@
       <a href="#hero" onClick="{{ scrollToSection }}" style="font:600 14px Manrope,sans-serif;color:var(--text)">Inicio</a>
       <a href="#subastas" onClick="{{ scrollToSection }}" style="font:600 14px Manrope,sans-serif;color:rgba(var(--text-rgb),0.75)">Subastas</a>
       <a href="#todas-subastas" onClick="{{ scrollToSection }}" style="font:600 14px Manrope,sans-serif;color:rgba(var(--text-rgb),0.75)">Catálogo</a>
-      <a href="#confianza" onClick="{{ scrollToSection }}" style="font:600 14px Manrope,sans-serif;color:rgba(var(--text-rgb),0.75)">Garantías</a>
       <a href="#financiamiento" onClick="{{ scrollToSection }}" style="font:600 14px Manrope,sans-serif;color:rgba(var(--text-rgb),0.75)">Financiamiento</a>
       <a href="#videos" onClick="{{ scrollToSection }}" style="font:600 14px Manrope,sans-serif;color:rgba(var(--text-rgb),0.75)">Videos</a>
       <a href="#contacto" onClick="{{ scrollToSection }}" style="font:600 14px Manrope,sans-serif;color:rgba(var(--text-rgb),0.75)">Contacto</a>
@@ -933,8 +1288,8 @@
     </div>
   </sc-if>
 
-  <a href="{{ whatsappLink }}" target="_blank" class="usso-mobile-cta" aria-label="Cotizar por WhatsApp" style="display:none;position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));z-index:180;width:52px;height:52px;border-radius:50%;align-items:center;justify-content:center;background:rgba(246,192,42,0.28);backdrop-filter:blur(6px);border:1px solid rgba(246,192,42,0.5);box-shadow:0 8px 20px rgba(0,0,0,0.35)">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2z" fill="{{ accent }}" fill-opacity="0.95"></path><path d="M8.5 8.3c.2-.5.5-.5.8-.5h.6c.2 0 .4 0 .6.5s.7 1.7.8 1.8s.1.3 0 .4c-.4.7-.8.9-1.1 1.2s-.1.4 0 .6c.5 1 1.6 2 2.9 2.5c.3.1.4.1.6-.1c.2-.2.7-.8.9-1.1s.4-.2.6-.1c.2.1 1.5.7 1.8.9s.4.2.5.3c.1.2.1.9-.2 1.6c-.3.7-1.6 1.4-2.2 1.4c-.6.1-1.2.2-3.9-.9c-3.2-1.3-5.3-4.5-5.5-4.8s-1.5-2-1.5-3.8c0-1.8 1-2.7 1.3-3.1z" fill="#0a0a0b"></path></svg>
+  <a href="{{ whatsappLink }}" target="_blank" rel="noopener noreferrer" class="usso-mobile-cta" aria-label="Cotizar por WhatsApp" style="display:none;position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));z-index:180;width:52px;height:52px;border-radius:50%;align-items:center;justify-content:center;background:rgba(246,192,42,0.28);backdrop-filter:blur(6px);border:1px solid rgba(246,192,42,0.5);box-shadow:0 8px 20px rgba(0,0,0,0.35)">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.9 11.9 0 0 0 12.05 0C5.46 0 .1 5.36.1 11.95c0 2.1.55 4.16 1.6 5.97L0 24l6.24-1.64a11.93 11.93 0 0 0 5.81 1.48h.01C18.64 23.84 24 18.48 24 11.9c0-3.19-1.24-6.19-3.48-8.42ZM12.06 21.82a9.9 9.9 0 0 1-5.05-1.38l-.36-.21-3.7.97.99-3.61-.24-.37a9.89 9.89 0 0 1-1.52-5.27c0-5.47 4.45-9.92 9.92-9.92a9.85 9.85 0 0 1 7.02 2.91 9.86 9.86 0 0 1 2.9 7.02c0 5.47-4.45 9.92-9.96 9.86Zm5.44-7.43c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.11 3.22 5.11 4.52.71.31 1.27.49 1.7.63.71.22 1.35.19 1.86.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z"/></svg>
   </a>
 
   <div class="usso-mobile-dock" aria-label="Navegación rápida">
@@ -973,8 +1328,9 @@
   <!-- HERO -->
   <section id="hero" data-screen-label="Hero" class="usso-hero-section" style="min-height:88vh;display:flex;align-items:center;padding:120px 48px 100px;position:relative;background:#0a0a0b;overflow:hidden">
     <img src="assets/hero-truck-wide.webp" alt="Camión USSO Tractopartes" class="usso-hero-truck-photo" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:72% center;z-index:0">
-    <img src="assets/hero-truck-mobile.webp" alt="" class="usso-hero-truck-mobile" onError="{{ onMobileHeroError }}" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;z-index:0">
+    <img src="assets/hero-truck-sunset-mobile.png" alt="Tractocamión negro al atardecer" class="usso-hero-truck-mobile" onError="{{ onMobileHeroError }}" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;z-index:0">
     <div class="usso-hero-scrim" style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg, rgba(10,10,11,0.94) 0%, rgba(10,10,11,0.88) 32%, rgba(10,10,11,0.45) 58%, rgba(10,10,11,0.1) 100%)"></div>
+    <img src="assets/logo-usso-v2-transparent.webp" alt="USSO Tractopartes" class="usso-hero-mobile-logo">
     <img src="assets/logo-usso-icon.png" alt="USSO" class="usso-hero-icon-badge" style="display:none;position:relative;z-index:2;width:100%;max-width:450px;height:auto;margin:0 auto -50px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4))">
 
     <div class="usso-hero-content" style="position:relative;z-index:2;max-width:620px">
@@ -990,6 +1346,12 @@
           <a href="#subastas" style="display:flex;align-items:center;gap:10px;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:16px 28px;border-radius:100px">Ver subastas activas</a>
         </div>
       </div>
+    </div>
+    <div class="usso-hero-mobile-editorial">
+      <div class="eyebrow">El siguiente lote puede ser tuyo.</div>
+      <h1><span>Prepara</span><span>tu oferta.</span></h1>
+      <p>Explora las próximas subastas y conoce cada lote antes de participar.</p>
+      <a href="#subastas" onClick="{{ scrollToSection }}">Ver próximas subastas</a>
     </div>
   </section>
 
@@ -1075,8 +1437,8 @@
   <!-- TODAS LAS SUBASTAS -->
   <section id="todas-subastas" data-screen-label="Todas las subastas" ref="{{ registerReveal_todas }}" class="usso-section-pad" style="padding:110px 48px;background:var(--bg-alt);border-top:1px solid rgba(var(--border-rgb),0.07)">
     <div style="max-width:1400px;margin:0 auto;opacity:{{ styles.todas.opacity }};transform:{{ styles.todas.transform }};filter:{{ styles.todas.filter }};transition:{{ styles.todas.transition }}">
-      <div style="margin-bottom:30px">
-        <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Catálogo de subastas</span>
+      <div class="usso-catalog-heading" style="margin-bottom:30px">
+        <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Categorías</span>
         <h2 style="font-family:'Archivo Black',sans-serif;font-size:clamp(30px,4.2vw,48px);margin:10px 0 0;color:var(--text)">Todas las subastas</h2>
       </div>
 
@@ -1086,10 +1448,13 @@
         </sc-for>
       </div>
 
-      <p style="font:600 13px Manrope,sans-serif;color:rgba(var(--text-rgb),0.45);margin:0 0 26px">{{ filterSummary }}</p>
+      <div class="usso-catalog-tools">
+        <p style="font:600 13px Manrope,sans-serif;color:rgba(var(--text-rgb),0.45);margin:0 0 26px">{{ filterSummary }}</p>
+        <span class="usso-catalog-sort">Más próximas <span>⌄</span></span>
+      </div>
 
       <sc-if value="{{ hasFiltered }}" hint-placeholder-val="{{ true }}">
-        <div class="usso-all-grid" style="display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:12px;gap:20px;scrollbar-width:none;padding:2px 8px 6px 12px">
+        <div class="usso-all-grid {{ catalogGridClass }}" style="display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:12px;gap:20px;scrollbar-width:none;padding:2px 8px 6px 12px">
           <sc-for list="{{ filteredLots }}" as="lot" hint-placeholder-count="6">
             <div class="usso-all-card" onClick="{{ lot.goTo }}" style="background:var(--bg);border:1px solid rgba(var(--border-rgb),0.09);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer">
               <div class="usso-all-photo" style="position:relative;aspect-ratio:1/1">
@@ -1099,6 +1464,7 @@
                 <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
                 <span class="usso-all-status" style="position:absolute;top:12px;left:12px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 10.5px Manrope,sans-serif;letter-spacing:0.08em;text-transform:uppercase;padding:5px 11px;border-radius:100px">{{ lot.status }}</span>
                 <span class="usso-all-cat" style="position:absolute;top:12px;right:12px;background:rgba(10,10,11,0.78);backdrop-filter:blur(4px);color:rgba(243,241,236,0.9);font:700 10.5px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:5px 11px;border-radius:100px">{{ lot.categoryLabel }}</span>
+                <span class="usso-all-favorite" aria-hidden="true">♡</span>
               </div>
             <div class="usso-all-body" style="padding:18px;display:flex;flex-direction:column;flex:1">
                 <span style="font:700 10.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.45);letter-spacing:0.1em">LOTE {{ lot.number }}</span>
@@ -1117,6 +1483,7 @@
                     <div style="font:700 14px/1 'Archivo Black',monospace;color:var(--text);font-variant-numeric:tabular-nums">{{ lot.closesDisplay }}</div>
                   </div>
                 </div>
+                <span class="usso-all-card-arrow" aria-hidden="true">→</span>
               </div>
 
               <div class="usso-all-actions" style="display:flex;flex-direction:column;gap:8px;padding:0 18px 18px">
@@ -1134,6 +1501,11 @@
             </div>
           </sc-for>
         </div>
+        <sc-if value="{{ showCatalogControl }}" hint-placeholder-val="true">
+          <button class="usso-catalog-more" onClick="{{ catalogControlAction }}" aria-expanded="{{ catalogExpanded }}">
+            <span>{{ catalogMoreLabel }}</span><span class="usso-catalog-more-arrow">{{ catalogMoreArrow }}</span>
+          </button>
+        </sc-if>
       </sc-if>
       <sc-if value="{{ noFiltered }}" hint-placeholder-val="{{ false }}">
         <div style="background:var(--bg);border:1px solid rgba(var(--border-rgb),0.09);border-radius:16px;padding:56px 28px;text-align:center">
@@ -1145,89 +1517,36 @@
     </div>
   </section>
 
+  <!-- FINANCIAMIENTO -->
+  <section id="financiamiento" data-screen-label="Financiamiento" ref="{{ registerReveal_financiamiento }}" class="usso-finance-editorial">
+    <div class="usso-finance-editorial-inner" style="opacity:{{ styles.financing.opacity }};transform:{{ styles.financing.transform }};filter:{{ styles.financing.filter }};transition:{{ styles.financing.transition }}">
+      <div class="usso-finance-copy">
+        <span class="usso-finance-eyebrow">Financiamiento USSO</span>
+        <h2 class="usso-finance-title">Financiamiento<br><span>con garantía</span></h2>
+        <p class="usso-finance-lede">Consigue las tractopartes que tu camión necesita con planes flexibles y seguros.</p>
+      </div>
+      <a class="usso-finance-cta" href="{{ whatsappLinkFinanciamiento }}" target="_blank" rel="noopener"><span>Cotizar mi financiamiento</span><span aria-hidden="true">→</span></a>
+      <div class="usso-finance-benefits">
+        <sc-for list="{{ financingItems }}" as="f" hint-placeholder-count="4">
+          <div class="usso-finance-benefit">
+            <span class="usso-finance-benefit-num">{{ f.number }}</span>
+            <img class="usso-finance-benefit-icon" src="{{ f.icon }}" alt="" aria-hidden="true">
+            <strong>{{ f.title }}</strong>
+            <p>{{ f.desc }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div class="usso-finance-signoff">Misma calidad, más formas de seguir en movimiento.</div>
+    </div>
+  </section>
+
   <sc-if value="{{ showReviewPreview }}" hint-placeholder-val="{{ false }}">
-  <section class="usso-section-pad" style="padding:100px 48px;max-width:1400px;margin:0 auto;border-top:1px solid rgba(var(--border-rgb),.07)">
-    <div style="margin-bottom:30px"><span style="font:700 12px Manrope;letter-spacing:.2em;text-transform:uppercase;color:{{ accent }}">Comunidad USSO</span><h2 style="font-family:'Archivo Black';font-size:clamp(30px,4.2vw,48px);margin:10px 0 8px">Experiencias de clientes</h2><p style="font:500 14px/1.6 Manrope;color:rgba(var(--text-rgb),.55);margin:0">Vista previa del espacio reservado para opiniones reales y verificadas.</p></div>
+  <section id="comentarios" data-screen-label="Comentarios" class="usso-section-pad usso-review-section" style="padding:100px 48px;max-width:1400px;margin:0 auto;border-top:1px solid rgba(var(--border-rgb),.07)">
+    <div class="usso-review-heading" style="margin-bottom:30px"><span style="font:700 12px Manrope;letter-spacing:.2em;text-transform:uppercase;color:{{ accent }}">La confianza</span><h2 style="font-family:'Archivo Black';font-size:clamp(30px,4.2vw,48px);margin:10px 0 8px">Nos respalda.</h2><p style="font:500 14px/1.6 Manrope;color:rgba(var(--text-rgb),.55);margin:0">Experiencias compartidas por nuestra comunidad.</p></div>
     <div class="usso-review-grid"><sc-for list="{{ reviewPreviewItems }}" as="review" hint-placeholder-count="3"><article class="usso-review-card"><div class="usso-review-stars">★★★★★</div><blockquote>“{{ review.text }}”</blockquote><div class="usso-review-person"><span class="usso-review-avatar">{{ review.initials }}</span><div><strong>{{ review.name }}</strong><span>{{ review.location }}</span></div></div></article></sc-for></div>
     <span class="usso-demo-disclosure">Contenido ilustrativo para revisar el diseño local; no son testimonios publicados.</span>
   </section>
   </sc-if>
-
-  <!-- CONFIANZA -->
-  <section id="confianza" data-screen-label="Confianza" ref="{{ registerReveal_confianza }}" class="usso-section-pad" style="padding:100px 48px;background:var(--bg-alt);border-top:1px solid rgba(var(--border-rgb),0.07)">
-    <div class="usso-trust-layout" style="max-width:1400px;margin:0 auto;opacity:{{ styles.trust.opacity }};transform:{{ styles.trust.transform }};filter:{{ styles.trust.filter }};transition:{{ styles.trust.transition }}">
-      <div>
-        <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Evidencia antes de ofertar</span>
-        <h2 style="font-family:'Archivo Black',sans-serif;font-size:clamp(34px,4.5vw,58px);line-height:1.02;margin:12px 0 22px;color:var(--text)">No compras<br>a ciegas.</h2>
-        <p style="font:500 17px/1.65 Manrope,sans-serif;color:rgba(var(--text-rgb),0.65);margin:0 0 30px;max-width:510px">Documentamos el estado real de cada lote para que tu decisión se base en evidencia, no en promesas.</p>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px"><span style="width:36px;height:2px;background:{{ accent }}"></span><strong style="font:800 12px Manrope,sans-serif;letter-spacing:.12em;color:var(--text);text-transform:uppercase">Lo que ves es lo que ofertas</strong></div>
-        <div class="usso-trust-grid">
-          <sc-for list="{{ trustItems }}" as="t" hint-placeholder-count="3">
-            <div style="background:rgba(var(--border-rgb),.025);border:1px solid rgba(var(--border-rgb),0.08);border-radius:16px;padding:19px 17px">
-              <span style="display:block;font:900 11px Manrope,sans-serif;color:{{ accent }};margin-bottom:10px">{{ t.num }}</span>
-              <h3 style="font:800 14px/1.3 Manrope,sans-serif;color:var(--text);margin:0 0 7px">{{ t.title }}</h3>
-              <p style="font:500 12px/1.55 Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0">{{ t.desc }}</p>
-            </div>
-          </sc-for>
-        </div>
-      </div>
-      <div class="usso-proof-stage" aria-label="Representación de la evidencia técnica de una pieza">
-        <div class="usso-proof-seal">Evidencia<br>USSO</div>
-        <div class="usso-proof-engine">
-          <img src="/assets/motores-cover.webp" alt="Motor Cummins fotografiado para documentar su condición real">
-          <span class="usso-proof-photo-label">Fotografía real del inventario</span>
-        </div>
-        <div class="usso-proof-screen">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><span style="display:block;font:800 10px Manrope;color:{{ accent }};letter-spacing:.14em;text-transform:uppercase">Inspección documentada</span><strong style="display:block;font:800 19px Manrope;color:var(--text);margin-top:4px">Estado real del lote</strong></div><span style="font:900 12px Manrope;color:#72dfa2;padding:7px 11px;border:1px solid rgba(114,223,162,.32);border-radius:999px;background:rgba(114,223,162,.08)">VERIFICADO</span></div>
-          <div class="usso-proof-meter"><span></span></div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px"><div><strong style="display:block;font:800 18px Manrope;color:var(--text)">VIDEO</strong><small style="color:rgba(var(--text-rgb),.48);font:600 10px Manrope">Funcionando</small></div><div><strong style="display:block;font:800 18px Manrope;color:var(--text)">REPORTE</strong><small style="color:rgba(var(--text-rgb),.48);font:600 10px Manrope">Condición real</small></div><div><strong style="display:block;font:800 18px Manrope;color:var(--text)">DATOS</strong><small style="color:rgba(var(--text-rgb),.48);font:600 10px Manrope">Medición</small></div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FINANCIAMIENTO -->
-  <section id="financiamiento" data-screen-label="Financiamiento" ref="{{ registerReveal_financiamiento }}" class="usso-section-pad" style="padding:120px 48px;background:var(--bg-alt)">
-    <div class="usso-financing-grid" style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:0.8fr 1.2fr;gap:64px;align-items:center;opacity:{{ styles.financing.opacity }};transform:{{ styles.financing.transform }};filter:{{ styles.financing.filter }};transition:{{ styles.financing.transition }}">
-      <div>
-        <span style="font:700 12px Manrope,sans-serif;letter-spacing:0.2em;text-transform:uppercase;color:{{ accent }}">Financiamiento USSO</span>
-        <h2 style="font-family:'Archivo Black',sans-serif;font-size:clamp(34px,4.5vw,58px);line-height:1.02;margin:12px 0 22px;color:var(--text)">Financiamiento<br>para tu tractoparte.</h2>
-        <p style="font:500 17px/1.65 Manrope,sans-serif;color:rgba(var(--text-rgb),0.65);max-width:470px;margin:0 0 24px">Haz que tu camión vuelva a trabajar sin detener el flujo de tu negocio. Revisamos contigo una opción clara, rápida y a tu medida.</p>
-        <div style="display:flex;gap:18px;margin:0 0 30px"><div><strong style="display:block;font:900 27px 'Archivo Black';color:{{ accent }}">24–48h</strong><span style="font:600 11px Manrope;color:rgba(var(--text-rgb),.5)">Respuesta estimada</span></div><div style="width:1px;background:rgba(var(--border-rgb),.1)"></div><div><strong style="display:block;font:900 27px 'Archivo Black';color:{{ accent }}">1–6</strong><span style="font:600 11px Manrope;color:rgba(var(--text-rgb),.5)">Meses disponibles</span></div></div>
-        <a href="{{ whatsappLinkFinanciamiento }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:17px 29px;border-radius:100px;box-shadow:0 14px 32px rgba(246,192,42,.18)">Cotizar mi financiamiento →</a>
-      </div>
-      <div class="usso-finance-visual">
-        <div class="usso-finance-kpi">
-          <span style="font:800 10px Manrope;color:{{ accent }};letter-spacing:.14em;text-transform:uppercase">Ruta de financiamiento</span>
-          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-top:13px"><div><strong style="font:900 clamp(30px,4vw,48px)/1 'Archivo Black';color:var(--text)">Tu unidad<br>en movimiento</strong></div><div class="usso-finance-check">✓</div></div>
-        </div>
-        <div class="usso-finance-route">
-          <div class="usso-finance-step"><span style="display:block;font:900 10px Manrope;color:{{ accent }};margin-bottom:8px">01</span><strong style="font:800 13px Manrope;color:var(--text)">Elige tu pieza</strong></div>
-          <div class="usso-finance-step"><span style="display:block;font:900 10px Manrope;color:{{ accent }};margin-bottom:8px">02</span><strong style="font:800 13px Manrope;color:var(--text)">Revisamos tu plan</strong></div>
-          <div class="usso-finance-step"><span style="display:block;font:900 10px Manrope;color:{{ accent }};margin-bottom:8px">03</span><strong style="font:800 13px Manrope;color:var(--text)">Vuelve a trabajar</strong></div>
-        </div>
-        <div class="usso-financing-cards">
-          <sc-for list="{{ financingItems }}" as="f" hint-placeholder-count="4">
-          <div style="display:flex;gap:14px;align-items:flex-start;background:rgba(255,255,255,.035);border:1px solid rgba(var(--border-rgb),0.08);border-radius:16px;padding:17px">
-            <div style="min-width:52px;height:52px;border-radius:12px;background:{{ accentSoft }};display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:20px;color:{{ accent }}">
-              <sc-if value="{{ f.showClock }}" hint-placeholder-val="{{ false }}">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="{{ accent }}" stroke-width="2"></circle><path d="M12 7v5l3.5 2" stroke="{{ accent }}" stroke-width="2" stroke-linecap="round"></path></svg>
-              </sc-if>
-              <sc-if value="{{ f.showShield }}" hint-placeholder-val="{{ false }}">
-                <svg width="22" height="24" viewBox="0 0 22 24" fill="none"><path d="M11 1l9 3.2v6.3C20 16.8 16.5 21.4 11 23c-5.5-1.6-9-6.2-9-12.5V4.2L11 1z" stroke="{{ accent }}" stroke-width="2" stroke-linejoin="round"></path><path d="M7.5 12l2.5 2.5 5-5" stroke="{{ accent }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-              </sc-if>
-              <sc-if value="{{ f.showText }}" hint-placeholder-val="{{ false }}">{{ f.mono }}</sc-if>
-            </div>
-            <div>
-              <h3 style="font:800 14px Manrope,sans-serif;color:var(--text);margin:0 0 5px">{{ f.title }}</h3>
-              <p style="font:500 11.5px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0">{{ f.desc }}</p>
-            </div>
-          </div>
-          </sc-for>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- VIDEOS -->
   <section id="videos" data-screen-label="Videos" ref="{{ registerReveal_videos }}" class="usso-section-pad" style="padding:120px 48px;background:var(--bg-alt)">
@@ -1278,9 +1597,15 @@
         <button onClick="{{ videosPrev }}" aria-label="Anterior" style="width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.15);color:var(--text);font-size:16px">←</button>
         <button onClick="{{ videosNext }}" aria-label="Siguiente" style="width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.15);color:var(--text);font-size:16px">→</button>
       </div>
-      <div style="display:flex;justify-content:center;gap:16px;margin-top:40px">
-        <a href="{{ tiktokLink }}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.1);color:var(--text);font:700 14px Manrope,sans-serif;padding:12px 22px;border-radius:100px">Síguenos en TikTok</a>
-        <a href="{{ youtubeLink }}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.1);color:var(--text);font:700 14px Manrope,sans-serif;padding:12px 22px;border-radius:100px">Síguenos en YouTube</a>
+      <div class="usso-social-links">
+        <a href="{{ tiktokLink }}" target="_blank" rel="noopener noreferrer" class="usso-social-button usso-social-tiktok" aria-label="Síguenos en TikTok">
+          <svg class="usso-social-icon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M16.6 0c.4 3.4 2.3 5.4 5.6 5.6v3.8a9.7 9.7 0 0 1-5.6-1.8v7.7c0 9.8-10.7 12.9-15 5.9C-1.2 16.7.5 8.8 8.6 8.5v4c-.6.1-1.3.2-1.9.4-1.8.6-2.8 1.8-2.5 4 .6 4.2 8.3 5.5 7.7-2.7V0h4.7Z"/></svg>
+          <span><small>Síguenos en</small><strong>TikTok</strong></span><span class="usso-social-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a href="{{ youtubeLink }}" target="_blank" rel="noopener noreferrer" class="usso-social-button usso-social-youtube" aria-label="Síguenos en YouTube">
+          <svg class="usso-social-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff0033" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8Z"/><path fill="#fff" d="m9.6 15.6 6.3-3.6-6.3-3.6Z"/></svg>
+          <span><small>Síguenos en</small><strong>YouTube</strong></span><span class="usso-social-arrow" aria-hidden="true">↗</span>
+        </a>
       </div>
     </div>
   </section>
@@ -1350,7 +1675,7 @@ class Component extends DCLogic {
     authForm: { nombre: '', whatsapp: '', correo: '', ciudad: '', pass: '' },
     notifOpen: false, notifFilter: 'all', accountOpen: false, notifs: [], avatarUploading: false, avatarMessage: '', avatarError: '',
     notifPrefs: { superada: true, cierre: true, gane: true, perdi: true, favorita: true },
-    bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', watching: {},
+    bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', catalogExpanded:false, watching: {},
     myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {}, featuredAuctionIndex: 0, introSoundOn:false };
   videoRef = null;
   observer = null;
@@ -2675,19 +3000,24 @@ async syncAuthFromSupabase() {
 
   CATS = { motores: 'Motores', transmisiones: 'Transmisiones', diferenciales: 'Diferenciales', cortes: 'Cortes completos', estructuras: 'Estructuras', suspension: 'Suspensión' };
   FILTERS = [
-    { id: 'todas', label: 'Todas', test: () => true },
-    { id: 'motores', label: 'Motores', test: (l) => l.cat === 'motores' },
-    { id: 'transmisiones', label: 'Transmisiones', test: (l) => l.cat === 'transmisiones' },
-    { id: 'diferenciales', label: 'Diferenciales', test: (l) => l.cat === 'diferenciales' },
-    { id: 'cortes', label: 'Cortes completos', test: (l) => l.cat === 'cortes' },
-    { id: 'estructuras', label: 'Estructuras', test: (l) => l.cat === 'estructuras' },
+    { id: 'todas', label: 'Todas', test: (l) => l.status !== 'Finalizada' },
+    { id: 'motores', label: 'Motores', test: (l) => l.status !== 'Finalizada' && l.cat === 'motores' },
+    { id: 'transmisiones', label: 'Transmisiones', test: (l) => l.status !== 'Finalizada' && l.cat === 'transmisiones' },
+    { id: 'diferenciales', label: 'Diferenciales', test: (l) => l.status !== 'Finalizada' && l.cat === 'diferenciales' },
+    { id: 'cortes', label: 'Cortes completos', test: (l) => l.status !== 'Finalizada' && l.cat === 'cortes' },
+    { id: 'estructuras', label: 'Estructuras', test: (l) => l.status !== 'Finalizada' && l.cat === 'estructuras' },
     { id: 'terminar', label: 'Por terminar', test: (l) => l.status === 'Activa' && l.closesAt - Date.now() < 3 * 86400000 },
     { id: 'semana', label: 'Esta semana', test: (l) => l.status !== 'Finalizada' && l.closesAt > Date.now() && l.closesAt - Date.now() < 7 * 86400000 },
     { id: 'proximas', label: 'Próximas', test: (l) => l.status === 'Próxima' },
     { id: 'finalizadas', label: 'Finalizadas', test: (l) => l.status === 'Finalizada' },
   ];
 
-  setFilter = (id) => () => this.setState({ lotFilter: id });
+  setFilter = (id) => () => this.setState({ lotFilter: id, catalogExpanded:false });
+  toggleCatalogMore = () => this.setState({ catalogExpanded:!this.state.catalogExpanded });
+  continueFromCatalog = () => {
+    const finance = document.querySelector('#financiamiento');
+    if (finance) finance.scrollIntoView({ behavior:'smooth', block:'start' });
+  };
 
   toggleWatch = (lotId) => async (e) => {
     if (e && e.stopPropagation) e.stopPropagation();
@@ -3273,9 +3603,9 @@ submitAuth = async (e) => {
       href: this.lotHref(lot.id),
       select: index === featuredAuctionIndex ? lot.goTo : this.selectFeaturedAuction(index),
     }));
-    const activeFilter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
     const publicAuctions = [...active, ...upcoming, ...history];
-    const filtered = publicAuctions.filter(activeFilter.test);
+    const filter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
+    const filtered = publicAuctions.filter(filter.test);
     const historyAll = st.accountHistory || [];
     const historyFiltered = historyAll.filter((item) => st.historyFilter === 'all' || item.outcome === st.historyFilter);
     const historyFilterOptions = [
@@ -3482,16 +3812,17 @@ submitAuth = async (e) => {
       registerReveal_todas: this.makeReveal('todas'),
       filterChips: this.FILTERS.map((f) => {
         const on = st.lotFilter === f.id;
+        const count = publicAuctions.filter(f.test).length;
         return {
           id: f.id,
           label: f.label,
-          count: publicAuctions.filter(f.test).length,
+          count,
           apply: this.setFilter(f.id),
           bg: on ? accent : 'rgba(var(--border-rgb),0.05)',
           border: on ? accent : 'rgba(var(--border-rgb),0.14)',
           color: on ? '#0a0a0b' : 'rgba(243,241,236,0.78)',
         };
-      }),
+      }).filter((f) => f.id === 'todas' || f.id === 'finalizadas' || f.count > 0),
       filteredLots: filtered.map((l) => {
         const on = !!st.watching[l.id];
         const ownBid = this.parseMoney(st.myBids[l.id] || 0);
@@ -3526,10 +3857,18 @@ submitAuth = async (e) => {
       hasFiltered: filtered.length > 0,
       noFiltered: filtered.length === 0,
       filterSummary: filtered.length === 1 ? '1 lote' : filtered.length + ' lotes',
+      hasCatalogMore: filtered.length > 4,
+      showCatalogControl: filtered.length >= 4,
+      catalogExpanded: st.catalogExpanded,
+      catalogGridClass: st.catalogExpanded ? 'is-expanded' : 'is-collapsed',
+      catalogMoreLabel: filtered.length > 4 ? (st.catalogExpanded ? 'Ver menos lotes' : 'Ver más lotes') : 'Continuar',
+      catalogMoreArrow: '↓',
+      toggleCatalogMore: this.toggleCatalogMore,
+      catalogControlAction: filtered.length > 4 ? this.toggleCatalogMore : this.continueFromCatalog,
       historyLots: history.map((lot) => ({ ...lot, hasImage:!!lot.src, noImage:!lot.src, resultLabel: lot.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas', resultColor: lot.bidCount > 0 ? '#7ee2a8' : '#ff8a80' })),
       hasHistory: history.length > 0,
       noHistory: history.length === 0,
-      showReviewPreview: localDesignPreview,
+      showReviewPreview: localDesignPreview || /^(localhost|127\.0\.0\.1|192\.168\.1\.96)$/.test(window.location.hostname),
       reviewPreviewItems: [
         { initials:'MR', name:'Muestra de reseña', location:'Michoacán · pendiente de verificar', text:'La evidencia del lote me ayudó a revisar cada detalle antes de tomar una decisión.' },
         { initials:'JL', name:'Muestra de reseña', location:'Jalisco · pendiente de verificar', text:'El proceso de subasta se sintió claro y pude seguir el precio sin confusiones.' },
@@ -3538,9 +3877,9 @@ submitAuth = async (e) => {
 
       registerReveal_confianza: this.makeReveal('trust'),
       trustItems: [
-        { num: '01', title: 'Video de la pieza funcionando', desc: 'Grabamos el motor encendido o la transmisión girando. No fotos bonitas: la pieza trabajando.' },
-        { num: '02', title: 'Reporte honesto de condición', desc: 'Anotamos lo bueno y lo malo. Si tiene una fuga, un desgaste o le falta algo, queda indicado antes de que hagas una oferta.' },
-        { num: '03', title: 'Prueba y medición real', desc: 'Compresión, fugas, juego de baleros y kilometraje cuando aplica. Números, no promesas.' },
+        { num: '01', title: 'Video de la pieza funcionando', desc: 'Grabamos el motor encendido o la transmisión girando para que veas la pieza trabajando.', image: 'assets/motores-cover.webp', alt: 'Motor de inventario USSO documentado en fotografía' },
+        { num: '02', title: 'Reporte honesto de condición', desc: 'Anotamos lo bueno y lo malo. Fugas, desgaste o faltantes quedan indicados antes de ofertar.', image: 'assets/cummins-isx870.webp', alt: 'Motor Cummins inspeccionado por USSO' },
+        { num: '03', title: 'Prueba y medición real', desc: 'Compresión, fugas, juego de baleros y kilometraje cuando aplica. Números, no promesas.', image: 'assets/transmisiones-cover.webp', alt: 'Transmisión de inventario USSO revisada antes de su venta' },
       ],
 
       accent,
@@ -3597,7 +3936,6 @@ submitAuth = async (e) => {
         { href: '#hero', label: 'Inicio' },
         { href: '#subastas', label: 'Subastas' },
         { href: '#todas-subastas', label: 'Catálogo' },
-        { href: '#confianza', label: 'Garantías' },
         { href: '#financiamiento', label: 'Financiamiento' },
         { href: '#videos', label: 'Videos' },
         { href: '#contacto', label: 'Contacto' },
@@ -3656,10 +3994,10 @@ submitAuth = async (e) => {
         return [...brands, ...brands];
       })(),
       financingItems: [
-        { mono: '%', showText: true, title: 'Sin enganche alto', desc: 'Planes diseñados para no descapitalizar tu operación.' },
-        { showClock: true, title: 'Aprobación en 24–48h', desc: 'Respuesta rápida para no detener tu flota.' },
-        { mono: '1-6', showText: true, title: 'Plazos de 1 a 6 meses', desc: 'Pagos flexibles ajustados a tu flujo de caja.' },
-        { showShield: true, title: 'Financiamiento con garantías', desc: 'Deja un objeto de valor como garantía y llévate la tractoparte de inmediato; tienes un plazo definido para pagar y recuperarlo.' },
+        { number: '01', icon: 'assets/finance-icon-shield.png', title: 'Con garantía', desc: 'Deja un objeto de valor y llévate la pieza que necesitas.' },
+        { number: '02', icon: 'assets/finance-icon-calendar.png', title: 'Planes de 1 a 6 meses', desc: 'Pagos ajustados a tu operación.' },
+        { number: '03', icon: 'assets/finance-icon-clock.png', title: 'Aprobación en 24–48 h', desc: 'Respuesta rápida para que sigas en ruta.' },
+        { number: '04', icon: 'assets/finance-icon-gear.png', title: 'Las piezas que necesitas', desc: 'Motores, diferenciales, transmisiones, cortes y más.' },
       ],
       heroLoopLots: this.heroLoopLots,
       setHeroCarouselRef: this.setHeroCarouselRef,
