@@ -5,6 +5,8 @@
   <script src="/access-guard.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin · USSO</title>
+  <link rel="stylesheet" href="admin-calendar.css">
+  <script src="admin-calendar.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="usso-app.css?v=20261009-2">
@@ -467,6 +469,9 @@
       #editDialog .form-actions button { width:100%; min-width:0; }
     }
   </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="admin-dashboard.css?v=20261029">
+  <script src="admin-dashboard.js" defer></script>
 </head>
 <body>
   <main>
@@ -514,6 +519,16 @@
 
     <div class="admin-module-heading" id="adminModuleHeading"><div><span id="adminModuleEyebrow">Vista general</span><h2 id="adminModuleTitle">Resumen del día</h2><p id="adminModuleDescription">Lo más importante de la operación en un solo vistazo.</p></div></div>
 
+    <div class="overview-grid" data-admin-views="overview">
+    <section class="overview-balance" aria-labelledby="balanceTitle">
+      <div class="overview-card-heading"><h2 id="balanceTitle">Resumen financiero</h2><i class="bi bi-wallet2" aria-hidden="true"></i></div>
+      <p>Total adjudicado</p><strong class="overview-amount" id="overviewAwarded">—</strong>
+      <span class="overview-caption">Ventas adjudicadas del inventario</span>
+      <div class="overview-money-row"><div><span>Cobrado</span><strong id="overviewPaid">—</strong></div><div><span>Por cobrar</span><strong id="overviewPending">—</strong></div></div>
+      <a class="overview-primary" href="?view=finance"><i class="bi bi-arrow-up-right" aria-hidden="true"></i> Consultar finanzas</a>
+      <div class="overview-inventory"><span>Subastas publicadas</span><strong id="overviewPublished">—</strong><span>Próximas</span><strong id="overviewUpcoming">—</strong></div>
+    </section>
+
     <section aria-labelledby="attentionTitle" data-admin-views="overview">
       <div class="section-head" style="margin-top:20px"><div><h2 id="attentionTitle">Pendientes de hoy</h2><p>Entra directamente a lo que necesita atención.</p></div></div>
       <div class="attention-grid">
@@ -523,8 +538,19 @@
         <a class="attention-card" href="?view=live" id="attentionClosing"><span>Subastas que cierran<br>en menos de 1 hora</span><strong id="attentionClosingCount">0</strong></a>
       </div>
     </section>
+    <section id="adminCalendar" class="admin-calendar" data-admin-views="overview" aria-label="Calendario de subastas"></section>
+    <section class="overview-shortcuts">
+      <div class="overview-card-heading"><h2>Activas y próximas</h2><i class="bi bi-box-seam" aria-hidden="true"></i></div>
+      <div id="overviewActiveLots" class="overview-active-lots"><p>Cargando subastas…</p></div>
+      <a href="?view=auctions">Administrar todas <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+    </section>
+    <section class="overview-recent">
+      <div class="overview-card-heading"><div><h2>Subastas recientes</h2><p>Los últimos lotes publicados en tu inventario.</p></div><a href="?view=auctions">Ver todas <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></div>
+      <div class="overview-table-wrap"><table><thead><tr><th>Lote</th><th>Subasta</th><th>Precio</th><th>Estado</th><th>Inicio</th><th><span class="sr-only">Detalles</span></th></tr></thead><tbody id="overviewRecent"><tr><td colspan="6">Cargando subastas…</td></tr></tbody></table></div>
+    </section>
+    </div>
 
-    <section class="auction-preview" id="admin-subastas" data-admin-views="overview auctions">
+    <section class="auction-preview" id="admin-subastas" data-admin-views="auctions">
       <div class="section-head"><div><h2>Vista previa de tus subastas</h2><p>Así se presentan tus lotes, con controles administrativos en la misma tarjeta.</p></div><button class="publish-trigger" id="openPublish" type="button">Publicar pieza</button></div>
       <div class="auction-preview-toolbar">
         <div class="auction-preview-filters" aria-label="Filtrar vistas previas">
@@ -626,6 +652,13 @@
     </table></div>
   </main>
 
+  <nav class="admin-mobile-dock" aria-label="Accesos principales">
+    <a href="?view=overview" data-admin-view-link="overview"><i class="bi bi-house" aria-hidden="true"></i><span>Inicio</span></a>
+    <a href="?view=auctions" data-admin-view-link="auctions"><i class="bi bi-box-seam" aria-hidden="true"></i><span>Subastas</span></a>
+    <button type="button" id="mobilePublish"><i class="bi bi-plus-circle-fill" aria-hidden="true"></i><span>Publicar</span></button>
+    <a href="?view=finance" data-admin-view-link="finance"><i class="bi bi-wallet2" aria-hidden="true"></i><span>Finanzas</span></a>
+    <a href="?view=notices" data-admin-view-link="notices"><i class="bi bi-bell" aria-hidden="true"></i><span>Avisos</span></a>
+  </nav>
   <script>
     (() => {
       const modules = {
@@ -1282,7 +1315,7 @@
         msg.textContent = "No tienes permiso de admin.";
         return null;
       }
-      document.getElementById("who").textContent = me.full_name + " · " + user.email;
+      document.getElementById("who").textContent = (me.full_name || "Admin USSO") + " · " + user.email;
       await renderAdminAvatar(me);
       return user;
     }
@@ -1482,7 +1515,10 @@
           .order("created_at", { ascending: false });
       }
       const { data: rawListings, error } = listingResult;
-      if (error) return msg.textContent = error.message;
+      if (error) {
+        window.USSOCalendar.error();
+        return msg.textContent = error.message;
+      }
       const data = (rawListings || []).map((listing) => ({
         ...listing,
         lot_number: listing.lot_number || lotNumberFromDetails(listing.product_details),
@@ -1492,6 +1528,7 @@
         paid_amount: Number(listing.paid_amount || 0)
       }));
       currentListings = data || [];
+      window.USSOCalendar.update(currentListings);
 
       const [{ data: people }, { data: roundBids }] = await Promise.all([
         client.from("profiles").select("id, full_name, phone, role"),
@@ -1532,6 +1569,7 @@
       document.getElementById("financePaid").textContent = money(totalPaid);
       document.getElementById("financePending").textContent = money(Math.max(0, totalAwarded - totalPaid));
       document.getElementById("financePaidCount").textContent = paidSales.length;
+      window.USSODashboard?.update({ listings:data, active:activeListings, awarded:totalAwarded, paid:totalPaid });
       const previewRail = document.getElementById("auctionPreview");
       const previousPreviewPosition = previewRail.scrollLeft;
       previewRail.innerHTML = activeListings.map((p, index) => {
