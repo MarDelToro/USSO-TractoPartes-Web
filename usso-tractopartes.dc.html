@@ -353,6 +353,11 @@
   .usso-auction-showcase-browser { min-width:0; align-self:stretch; margin-top:18px; }
   .usso-auction-showcase-cards { display:flex; align-items:flex-end; gap:10px; overflow-x:auto; padding:10px 4px 13px; scrollbar-width:none; scroll-snap-type:x proximity; overscroll-behavior-x:contain; }
   .usso-auction-showcase-cards::-webkit-scrollbar { display:none; }
+  .usso-auction-showcase-cards { touch-action:pan-y;cursor:grab;user-select:none;scroll-snap-type:none;scroll-behavior:auto;overflow-anchor:none; }
+  .usso-auction-showcase-cards .usso-auction-mini-card { flex-basis:124px; }
+  .usso-auction-showcase-cards:active { cursor:grabbing; }
+  .usso-auction-mini-card img { -webkit-user-drag:none; }
+  .usso-auction-mini-card:focus-visible { outline:2px solid #f6c02a;outline-offset:2px; }
   .usso-auction-mini-card { position:relative; flex:0 0 112px; height:142px; padding:0; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,.18); background:#1b1b1e; color:#fff; cursor:pointer; text-decoration:none; scroll-snap-align:center; box-shadow:0 12px 24px rgba(0,0,0,.34); transform:translateY(0); transition:width .28s ease,flex-basis .28s ease,transform .28s ease,border-color .28s ease,box-shadow .28s ease,filter .28s ease; filter:saturate(.78) brightness(.78); }
   .usso-auction-mini-card:hover { transform:translateY(-8px); filter:saturate(1) brightness(.96); border-color:rgba(246,192,42,.5); }
   .usso-auction-mini-card.is-selected { flex-basis:124px; height:158px; transform:translateY(-3px); filter:saturate(1.05) brightness(1); border-color:#f6c02a; box-shadow:0 0 0 1px rgba(246,192,42,.22),0 14px 30px rgba(0,0,0,.5),0 0 24px rgba(246,192,42,.2); }
@@ -1424,14 +1429,14 @@
           </div>
 
           <div class="usso-auction-showcase-browser">
-            <div class="usso-auction-showcase-cards">
+            <div class="usso-auction-showcase-cards" ref="{{ showcaseRef }}" aria-label="Seleccionar subasta">
               <sc-for list="{{ auctionShowcaseCards }}" as="lot" hint-placeholder-count="4">
-                <a class="usso-auction-mini-card {{ lot.selectedClass }}" href="{{ lot.href }}" aria-current="{{ lot.selected }}" aria-label="Ver detalles del lote {{ lot.number }}">
+                <button type="button" class="usso-auction-mini-card {{ lot.selectedClass }}" data-showcase-index="{{ lot.index }}" data-showcase-slot="{{ lot.slot }}" tabindex="{{ lot.tabIndex }}" onClick="{{ lot.select }}" aria-pressed="{{ lot.selected }}" aria-label="Seleccionar lote {{ lot.number }}">
                   <sc-if value="{{ lot.hasImage }}"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="--card-position:{{ lot.position }};--card-zoom:{{ lot.zoom }}"></sc-if>
                   <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
                   <span class="usso-auction-mini-lot">#{{ lot.number }}</span>
                   <div class="usso-auction-mini-content"><strong>{{ lot.title }}</strong><small>{{ lot.bid }}</small></div>
-                </a>
+                </button>
               </sc-for>
             </div>
             <div class="usso-auction-showcase-nav">
@@ -1819,6 +1824,7 @@ class Component extends DCLogic {
   };
 
   componentWillUnmount() {
+    if (this.showcaseCleanup) this.showcaseCleanup();
     clearTimeout(this.welcomeTimer);
     document.body.style.overflow = '';
     if (this.observer) this.observer.disconnect();
@@ -2160,7 +2166,7 @@ class Component extends DCLogic {
     el.dataset.loopCentered = '1';
     el.style.scrollBehavior = 'auto';
     const cardRect = middleFirst.getBoundingClientRect();
-    el.scrollLeft += cardRect.left + cardRect.width / 2 - window.innerWidth / 2;
+    el.scrollLeft += cardRect.left + cardRect.width / 2 - (el.getBoundingClientRect().left + el.clientWidth / 2);
     requestAnimationFrame(() => {
       if (!this.isTouchLayout()) el.style.scrollBehavior = '';
       this.applyCoverflow('videos');
@@ -3423,18 +3429,159 @@ submitAuth = async (e) => {
   this.loadListingsFromDB();
 };
 
+  centerShowcaseSelection = (animate = false, slot = null) => {
+    cancelAnimationFrame(this.showcaseFrame);
+    this.showcaseFrame = requestAnimationFrame(() => {
+      const el = this.showcaseEl;
+      const length = this.featuredAuctionQueue?.length || 0;
+      const middle = length > 1 ? length * 3 : 0;
+      const logical = length ? ((Number(this.state.featuredAuctionIndex || 0) % length) + length) % length : 0;
+      const card = el?.querySelector(`[data-showcase-slot="${slot ?? middle + logical}"]`);
+      if (!card) { this.showcaseAnimating = false; return; }
+      const first = el.querySelector('[data-showcase-slot="0"]');
+      const padding = parseFloat(getComputedStyle(el).paddingLeft) || 0;
+      const from = el.scrollLeft, to = card.offsetLeft - first.offsetLeft + padding - (el.clientWidth - card.offsetWidth) / 2;
+      const duration = animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 160 : 0;
+      const start = performance.now();
+      const tick = now => {
+        const t = duration ? Math.min(1, (now - start) / duration) : 1;
+        el.scrollLeft = from + (to - from) * (1 - Math.pow(1 - t, 3));
+        if (t < 1) { this.showcaseFrame = requestAnimationFrame(tick); return; }
+        // Equivalent copies keep both neighbours identical during this invisible rebase.
+        const home = el.querySelector(`[data-showcase-slot="${middle + logical}"]`);
+        if (home) el.scrollLeft += home.offsetLeft - card.offsetLeft;
+        this.showcaseAnimating = false;
+      };
+      this.showcaseFrame = requestAnimationFrame(tick);
+    });
+  };
+
+  setShowcaseRef = (el) => {
+    if (el === this.showcaseEl) return;
+    if (this.showcaseCleanup) this.showcaseCleanup();
+    this.showcaseEl = el;
+    if (!el) return;
+    const resize = new ResizeObserver(() => { if (!this.showcaseAnimating) this.centerShowcaseSelection(); });
+    resize.observe(el);
+    this.centerShowcaseSelection();
+    let gesture = null, wheelTotal = 0, wheelStart = null, wheelOrigin = 0, wheelTimer;
+    const prepareDrag = () => {
+      // Follow the pointer from anywhere in the row, including gaps and card edges.
+      cancelAnimationFrame(this.showcaseFrame);
+      this.showcaseAnimating = false;
+      const selected = Array.from(el.querySelectorAll('.is-selected'));
+      const first = el.querySelector('[data-showcase-slot="0"]');
+      const padding = parseFloat(getComputedStyle(el).paddingLeft) || 0;
+      const nearest = selected.reduce((best, card) => {
+        const distance = Math.abs(card.offsetLeft - first.offsetLeft + padding + card.offsetWidth / 2 - el.scrollLeft - el.clientWidth / 2);
+        return !best || distance < best.distance ? {card, distance} : best;
+      }, null);
+      const length = this.featuredAuctionQueue?.length || 0;
+      const home = el.querySelector(`[data-showcase-slot="${(length > 1 ? length * 3 : 0) + (this.state.featuredAuctionIndex || 0)}"]`);
+      if (home && nearest) el.scrollLeft += home.offsetLeft - nearest.card.offsetLeft;
+    };
+    const down = (e) => {
+      if (!e.isPrimary || e.button !== 0) return;
+      clearTimeout(wheelTimer);wheelStart=null;wheelTotal=0;
+      this.showcaseSuppressClickUntil = 0;
+      prepareDrag();
+      gesture = { id:e.pointerId, x:e.clientX, y:e.clientY, left:el.scrollLeft, horizontal:false };
+    };
+    const move = (e) => {
+      if (!gesture || gesture.id !== e.pointerId) return;
+      const dx = e.clientX - gesture.x, dy = e.clientY - gesture.y;
+      if (!gesture.horizontal && Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx) * 1.3) { gesture=null; this.centerShowcaseSelection(true); return; }
+      if (!gesture.horizontal && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+        gesture.horizontal = true;
+        el.setPointerCapture(e.pointerId);
+      }
+      if (gesture.horizontal) {
+        e.preventDefault();
+        el.scrollLeft = gesture.left - dx;
+      }
+    };
+    const up = (e) => {
+      if (!gesture || gesture.id !== e.pointerId) return;
+      const dx = e.clientX - gesture.x;
+      if (gesture.horizontal) {
+        this.showcaseSuppressClickUntil = Date.now() + 350;
+        if (Math.abs(dx) >= 18) this.moveFeaturedAuction(dx < 0 ? 1 : -1)();
+        else this.centerShowcaseSelection(true);
+      }
+      gesture = null;
+    };
+    const cancel = () => { if (gesture) this.centerShowcaseSelection(true); gesture=null; };
+    const click = (e) => { if (Date.now() < (this.showcaseSuppressClickUntil || 0)) { e.preventDefault();e.stopPropagation(); } };
+    const wheel = (e) => {
+      if ((this.featuredAuctionQueue?.length || 0) < 2) return;
+      if (wheelStart === null && Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      if (!e.deltaX) return;
+      e.preventDefault();
+      // Trackpad deltas move the row directly. Never discard them behind an
+      // animation lock; settle only after the gesture and its momentum end.
+      if (wheelStart === null) {
+        prepareDrag();wheelStart=el.scrollLeft;wheelTotal=0;
+        wheelOrigin=Number(this.state.featuredAuctionIndex || 0);
+      }
+      const cards = el.querySelectorAll('[data-showcase-slot]');
+      if (cards.length < 2) return;
+      const step = cards[1].offsetLeft - cards[0].offsetLeft;
+      const delta = e.deltaX * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientWidth : 1);
+      wheelTotal = Math.max(-step, Math.min(step, wheelTotal + delta));
+      el.scrollLeft = wheelStart + wheelTotal;
+      const direction = Math.abs(wheelTotal) >= step * .35 ? Math.sign(wheelTotal) : 0;
+      const length = this.featuredAuctionQueue.length;
+      const selected = (wheelOrigin + direction + length) % length;
+      if (selected !== this.state.featuredAuctionIndex) this.setState({featuredAuctionIndex:selected});
+      this.showcaseSuppressClickUntil=Date.now()+350;
+      clearTimeout(wheelTimer);
+      wheelTimer=setTimeout(() => {
+        const direction=Math.abs(wheelTotal)>=step*.35 ? Math.sign(wheelTotal) : 0;
+        const slot=length*3+wheelOrigin+direction;
+        wheelStart=null;wheelTotal=0;
+        this.centerShowcaseSelection(true,slot);
+      }, 70);
+    };
+    const drag = e => e.preventDefault();
+    const key = e => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();this.moveFeaturedAuction(e.key === 'ArrowRight' ? 1 : -1)();
+    };
+    el.addEventListener('keydown', key);
+    el.addEventListener('pointerdown',down);
+    window.addEventListener('pointermove',move,{passive:false});
+    window.addEventListener('pointerup',up);
+    el.addEventListener('pointercancel',cancel);
+    el.addEventListener('click',click,true);
+    el.addEventListener('wheel',wheel,{passive:false});
+    el.addEventListener('dragstart',drag);
+    this.showcaseCleanup = () => {
+      clearTimeout(wheelTimer);
+      cancelAnimationFrame(this.showcaseFrame);resize.disconnect();el.removeEventListener('keydown', key);
+      el.removeEventListener('pointerdown',down);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',cancel);el.removeEventListener('click',click,true);el.removeEventListener('wheel',wheel);el.removeEventListener('dragstart',drag);
+    };
+  };
+
   moveFeaturedAuction = (direction) => () => {
     const length = Array.isArray(this.featuredAuctionQueue) ? this.featuredAuctionQueue.length : 0;
-    if (length < 2) return;
+    if (length < 2 || this.showcaseAnimating) return;
+    const current = Number(this.state.featuredAuctionIndex || 0);
+    this.showcaseAnimating = true;
     this.setState((state) => ({
       featuredAuctionIndex: (Number(state.featuredAuctionIndex || 0) + direction + length) % length,
-    }));
+    }), () => this.centerShowcaseSelection(true, length * 3 + current + direction));
   };
 
   selectFeaturedAuction = (index) => () => {
+    if (Date.now() < (this.showcaseSuppressClickUntil || 0)) return;
     const length = Array.isArray(this.featuredAuctionQueue) ? this.featuredAuctionQueue.length : 0;
-    if (!length) return;
-    this.setState({ featuredAuctionIndex: Math.max(0, Math.min(Number(index) || 0, length - 1)) });
+    if (!length || this.showcaseAnimating) return;
+    const current = Number(this.state.featuredAuctionIndex || 0);
+    const target = Math.max(0, Math.min(Number(index) || 0, length - 1));
+    let distance = target - current;
+    if (distance > length / 2) distance -= length;
+    if (distance < -length / 2) distance += length;
+    this.moveFeaturedAuction(distance)();
   };
 
   renderVals() {
@@ -3519,6 +3666,12 @@ submitAuth = async (e) => {
     const featuredAuctionQueue = [...active, ...upcoming];
     const secondaryAuctionQueue = active.length > 0 ? upcoming : upcoming.slice(1);
     this.featuredAuctionQueue = featuredAuctionQueue;
+    const showcaseSignature = featuredAuctionQueue.map(lot => lot.id).join('|');
+    if (this.showcaseSignature !== showcaseSignature) {
+      this.showcaseSignature = showcaseSignature;
+      this.showcaseAnimating = false;
+      this.centerShowcaseSelection();
+    }
     const featuredAuctionIndex = featuredAuctionQueue.length
       ? ((Number(st.featuredAuctionIndex || 0) % featuredAuctionQueue.length) + featuredAuctionQueue.length) % featuredAuctionQueue.length
       : 0;
@@ -3631,7 +3784,7 @@ submitAuth = async (e) => {
     const compactAuctionTitle = (lot) => lot.shortTitle || String(lot.title || '')
       .replace(/^(estructura|motor|transmisi[oó]n|diferencial)\s+/i, '')
       .replace(/\s+20\d{2}$/i, '');
-    const auctionShowcaseCards = featuredAuctionQueue.map((lot, index) => ({
+    const auctionShowcaseCards = Array.from({ length: featuredAuctionQueue.length > 1 ? 7 : 1 }, (_, copy) => featuredAuctionQueue.map((lot, index) => ({
       ...lot,
       title:compactAuctionTitle(lot),
       hasImage: !!lot.src,
@@ -3642,8 +3795,11 @@ submitAuth = async (e) => {
       selected: index === featuredAuctionIndex,
       selectedClass: index === featuredAuctionIndex ? 'is-selected' : '',
       href: this.lotHref(lot.id),
-      select: index === featuredAuctionIndex ? lot.goTo : this.selectFeaturedAuction(index),
-    }));
+      index,
+      slot: copy * featuredAuctionQueue.length + index,
+      tabIndex: copy === (featuredAuctionQueue.length > 1 ? 3 : 0) ? 0 : -1,
+      select: this.selectFeaturedAuction(index),
+    }))).flat();
     const publicAuctions = [...active, ...upcoming, ...history];
     const filter = this.FILTERS.find((f) => f.id === st.lotFilter) || this.FILTERS[0];
     const filtered = publicAuctions.filter(filter.test);
@@ -3808,6 +3964,7 @@ submitAuth = async (e) => {
       featuredHasMultiple: featuredAuctionQueue.length > 1,
       featuredCarouselItems,
       auctionShowcaseCards,
+      showcaseRef: this.setShowcaseRef,
       featuredProgress: `${((featuredAuctionIndex + 1) / Math.max(featuredAuctionQueue.length, 1)) * 100}%`,
       featuredPositionLabel: `${String(featuredAuctionIndex + 1).padStart(2, '0')} / ${String(Math.max(featuredAuctionQueue.length, 1)).padStart(2, '0')}`,
       secondaryCarouselItems: (secondaryAuctionQueue.length > 1
