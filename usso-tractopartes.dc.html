@@ -555,7 +555,10 @@
   @media (max-width:640px) { .usso-intro-sound { left:18px;bottom:24px;padding:11px 14px;font-size:11px; } }
 
   /* Mobile app shell: una jerarquía compacta, táctil y consistente. */
-  .usso-mobile-dock { display:none; }
+  .usso-mobile-dock { display:none;transition:transform .24s ease,opacity .24s ease; }
+  .usso-mobile-dock.is-scroll-hidden { transform:translateY(calc(100% + 24px + env(safe-area-inset-bottom)));opacity:0;pointer-events:none; }
+  .usso-mobile-dock:has(a:focus-visible) { transform:none;opacity:1;pointer-events:auto; }
+  @media(prefers-reduced-motion:reduce) { .usso-mobile-dock { transition:none; } }
   @media (max-width:640px) {
     html { scroll-padding-top:70px; }
     body { padding-bottom:calc(76px + env(safe-area-inset-bottom)) !important; }
@@ -628,6 +631,8 @@
     .usso-mobile-cta { right:17px !important;bottom:calc(81px + env(safe-area-inset-bottom)) !important;width:48px !important;height:48px !important;background:rgba(246,192,42,.88) !important;border-color:rgba(246,192,42,.95) !important; }
   }
 
+  .usso-member-greeting { margin:0 0 16px;color:#f6c02a;font:800 clamp(16px,2vw,21px)/1.35 Manrope,sans-serif;overflow-wrap:anywhere; }
+  .usso-member-greeting small { display:block;margin-top:4px;color:#e0ded8;font:500 12px/1.4 Manrope,sans-serif; }
   .usso-social-links { display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:40px; }
   .usso-social-button { display:flex;align-items:center;gap:10px;min-height:48px;min-width:0;padding:8px 14px;box-sizing:border-box;border-radius:12px;color:#fff;text-decoration:none;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.1);box-shadow:none;transition:transform .2s ease,border-color .2s ease; }
   .usso-social-button:hover { transform:translateY(-2px);border-color:#f6c02a; }
@@ -929,7 +934,13 @@
   }
 
   .usso-catalog-tools { display:block; }
-  .usso-catalog-sort,.usso-all-favorite,.usso-all-card-arrow,.usso-catalog-more { display:none; }
+  .usso-catalog-sort,.usso-all-favorite,.usso-all-card-arrow { display:none; }
+  #todas-subastas .usso-all-grid.is-collapsed > .usso-all-card:nth-child(n+5) { display:none !important; }
+  #todas-subastas .usso-catalog-more { display:flex;align-items:center;justify-content:center;gap:7px;width:max-content;min-height:44px;margin:8px auto 0;padding:8px 10px;border:0;border-radius:0;background:none;box-shadow:none;color:#ffc62a;font:700 12px Manrope,sans-serif;cursor:pointer; }
+  #todas-subastas .usso-catalog-more-arrow { display:inline-block;font-size:15px;transition:transform .2s ease; }
+  #todas-subastas .usso-catalog-more[aria-expanded="true"] .usso-catalog-more-arrow { transform:rotate(180deg); }
+  .usso-main-nav:focus-within { transform:translateY(0) !important; }
+  @media(prefers-reduced-motion:reduce) { .usso-main-nav { transition:none !important; } }
   @media (max-width:720px) {
     #todas-subastas { padding:88px 14px 92px !important;background:#08090a !important;overflow:visible !important; }
     #todas-subastas > div { max-width:none !important; }
@@ -962,8 +973,6 @@
     #todas-subastas .usso-all-card-arrow { display:grid;place-items:center;position:absolute;right:12px;bottom:12px;width:30px;height:30px;border-radius:50%;background:#ffc62a;color:#090a0b;font:900 18px/1 Manrope; }
     #todas-subastas .usso-all-actions { display:none !important; }
     #todas-subastas .usso-all-grid.is-collapsed > .usso-all-card:nth-child(n+5) { display:none !important; }
-    #todas-subastas .usso-catalog-more { width:100%;min-height:52px;margin:10px 0 4px;padding:0 18px;display:flex;align-items:center;justify-content:center;gap:12px;border:1px solid rgba(255,198,42,.42);border-radius:999px;background:rgba(255,198,42,.07);color:#ffc62a;font:800 12px Manrope,sans-serif;letter-spacing:.04em;cursor:pointer; }
-    #todas-subastas .usso-catalog-more-arrow { display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#ffc62a;color:#090a0b;font-size:16px;transition:transform .25s ease; }
     #todas-subastas .usso-catalog-more[aria-expanded="true"] .usso-catalog-more-arrow { transform:rotate(180deg); }
   }
 
@@ -999,7 +1008,7 @@
   </div>
 
   <!-- NAV -->
-  <nav style="position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(var(--bg-rgb),0.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(var(--border-rgb),0.08);transform:translateY({{ navOffset }});transition:transform 700ms cubic-bezier(.16,1,.3,1)">
+  <nav class="usso-main-nav" style="position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(var(--bg-rgb),0.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(var(--border-rgb),0.08);transform:translateY({{ navOffset }});transition:transform 240ms ease">
     <div style="display:flex;align-items:center">
       <img src="assets/logo-usso-v2-transparent.webp" alt="USSO Tractopartes" style="height:28px;width:auto;display:block">
     </div>
@@ -1031,7 +1040,7 @@
             <sc-if value="{{ hasUserAvatar }}" hint-placeholder-val="{{ false }}"><img src="{{ userAvatarUrl }}" alt="Foto de perfil" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
             <sc-if value="{{ noUserAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if>
           </span>
-          <span class="usso-account-name" style="font:700 13px Manrope,sans-serif;color:var(--text);white-space:nowrap">{{ userFirstName }}</span>
+          <span class="usso-account-name" style="font:700 13px Manrope,sans-serif;color:var(--text);white-space:nowrap">{{ userGreeting }}</span>
         </button>
       </sc-if>
       <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
@@ -1049,6 +1058,7 @@
       <button onClick="{{ toggleMobileMenu }}" aria-label="Cerrar" style="position:absolute;top:18px;right:20px;background:transparent;border:1px solid rgba(var(--border-rgb),0.25);border-radius:10px;padding:9px 11px;cursor:pointer">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="#f3f1ec" stroke-width="1.6"></path></svg>
       </button>
+      <sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}"><p class="usso-member-greeting">{{ userGreeting }}</p></sc-if>
       <sc-for list="{{ mobileMenuLinks }}" as="link" hint-placeholder-count="6">
         <a href="{{ link.href }}" onClick="{{ scrollToSection }}" style="font:800 26px 'Archivo Black',sans-serif;color:var(--text);padding:14px 0">{{ link.label }}</a>
       </sc-for>
@@ -1186,7 +1196,7 @@
             </label>
           </div>
           <div style="min-width:0">
-            <h2 style="font:800 20px Manrope,sans-serif;color:var(--text);margin:0 0 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ userName }}</h2>
+            <h2 style="font:800 20px Manrope,sans-serif;color:var(--text);margin:0 0 3px;overflow-wrap:anywhere">{{ userGreeting }}</h2>
             <p style="font:500 13px Manrope,sans-serif;color:rgba(var(--text-rgb),0.55);margin:0">{{ userCiudad }}</p>
             <label style="display:inline-block;margin-top:6px;color:{{ accent }};font:800 12px Manrope,sans-serif;cursor:pointer">
               <input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" onChange="{{ onAvatarChange }}" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
@@ -1292,7 +1302,7 @@
     <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.9 11.9 0 0 0 12.05 0C5.46 0 .1 5.36.1 11.95c0 2.1.55 4.16 1.6 5.97L0 24l6.24-1.64a11.93 11.93 0 0 0 5.81 1.48h.01C18.64 23.84 24 18.48 24 11.9c0-3.19-1.24-6.19-3.48-8.42ZM12.06 21.82a9.9 9.9 0 0 1-5.05-1.38l-.36-.21-3.7.97.99-3.61-.24-.37a9.89 9.89 0 0 1-1.52-5.27c0-5.47 4.45-9.92 9.92-9.92a9.85 9.85 0 0 1 7.02 2.91 9.86 9.86 0 0 1 2.9 7.02c0 5.47-4.45 9.92-9.96 9.86Zm5.44-7.43c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.49 0 1.47 1.07 2.89 1.22 3.09.15.2 2.11 3.22 5.11 4.52.71.31 1.27.49 1.7.63.71.22 1.35.19 1.86.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35Z"/></svg>
   </a>
 
-  <div class="usso-mobile-dock" aria-label="Navegación rápida">
+  <div class="usso-mobile-dock {{ dockScrollClass }}" aria-label="Navegación rápida">
     <a href="#hero" aria-label="Inicio"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.2 12 4l9 7.2V21h-6v-6H9v6H3v-9.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Inicio</span></a>
     <a href="#subastas" aria-label="Subastas"><svg viewBox="0 0 24 24" fill="none"><path d="m5 15 7-7 4 4-7 7-4-4Zm8-8 2-2 4 4-2 2M3 21h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Subastas</span></a>
     <a href="#todas-subastas" aria-label="Catálogo"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4zM4 10h16M9 5v14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Catálogo</span></a>
@@ -1334,6 +1344,7 @@
     <img src="assets/logo-usso-icon.png" alt="USSO" class="usso-hero-icon-badge" style="display:none;position:relative;z-index:2;width:100%;max-width:450px;height:auto;margin:0 auto -50px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4))">
 
     <div class="usso-hero-content" style="position:relative;z-index:2;max-width:620px">
+      <sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}"><div class="usso-member-greeting">{{ userGreeting }}<small>Qué gusto verte de nuevo. Tu sesión está iniciada.</small></div></sc-if>
       <div class="usso-hero-title-wrap" style="position:relative;z-index:1;opacity:{{ styles.heroTitle.opacity }};transform:{{ styles.heroTitle.transform }};transition:{{ styles.heroTitle.transition }}" ref="{{ registerHero }}">
         <div class="usso-hero-badge-row" style="display:inline-flex;align-items:center;gap:7px;margin-bottom:8px;background:rgba(246,192,42,0.14);border:1px solid rgba(246,192,42,0.4);border-radius:100px;padding:6px 12px">
           <span style="width:6px;height:6px;border-radius:50%;background:#ff0000;animation:livePulse 0.8s ease-in-out infinite"></span>
@@ -1348,6 +1359,7 @@
       </div>
     </div>
     <div class="usso-hero-mobile-editorial">
+      <sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}"><div class="usso-member-greeting">{{ userGreeting }}<small>Qué gusto verte de nuevo. Tu sesión está iniciada.</small></div></sc-if>
       <div class="eyebrow">El siguiente lote puede ser tuyo.</div>
       <h1><span>Prepara</span><span>tu oferta.</span></h1>
       <p>Explora las próximas subastas y conoce cada lote antes de participar.</p>
@@ -1501,7 +1513,7 @@
             </div>
           </sc-for>
         </div>
-        <sc-if value="{{ showCatalogControl }}" hint-placeholder-val="true">
+        <sc-if value="{{ showCatalogControl }}" hint-placeholder-val="false">
           <button class="usso-catalog-more" onClick="{{ catalogControlAction }}" aria-expanded="{{ catalogExpanded }}">
             <span>{{ catalogMoreLabel }}</span><span class="usso-catalog-more-arrow">{{ catalogMoreArrow }}</span>
           </button>
@@ -1540,13 +1552,6 @@
     </div>
   </section>
 
-  <sc-if value="{{ showReviewPreview }}" hint-placeholder-val="{{ false }}">
-  <section id="comentarios" data-screen-label="Comentarios" class="usso-section-pad usso-review-section" style="padding:100px 48px;max-width:1400px;margin:0 auto;border-top:1px solid rgba(var(--border-rgb),.07)">
-    <div class="usso-review-heading" style="margin-bottom:30px"><span style="font:700 12px Manrope;letter-spacing:.2em;text-transform:uppercase;color:{{ accent }}">La confianza</span><h2 style="font-family:'Archivo Black';font-size:clamp(30px,4.2vw,48px);margin:10px 0 8px">Nos respalda.</h2><p style="font:500 14px/1.6 Manrope;color:rgba(var(--text-rgb),.55);margin:0">Experiencias compartidas por nuestra comunidad.</p></div>
-    <div class="usso-review-grid"><sc-for list="{{ reviewPreviewItems }}" as="review" hint-placeholder-count="3"><article class="usso-review-card"><div class="usso-review-stars">★★★★★</div><blockquote>“{{ review.text }}”</blockquote><div class="usso-review-person"><span class="usso-review-avatar">{{ review.initials }}</span><div><strong>{{ review.name }}</strong><span>{{ review.location }}</span></div></div></article></sc-for></div>
-    <span class="usso-demo-disclosure">Contenido ilustrativo para revisar el diseño local; no son testimonios publicados.</span>
-  </section>
-  </sc-if>
 
   <!-- VIDEOS -->
   <section id="videos" data-screen-label="Videos" ref="{{ registerReveal_videos }}" class="usso-section-pad" style="padding:120px 48px;background:var(--bg-alt)">
@@ -1876,7 +1881,13 @@ class Component extends DCLogic {
 
   onPageScroll = () => {
     if (this.state.phase === 'content') {
-      this.setState((s) => ({ scrollY: window.scrollY, heroPassed: s.heroPassed || window.scrollY > 40 }));
+      const y = Math.max(0, Math.min(window.scrollY, document.documentElement.scrollHeight - window.innerHeight));
+      const previous = this.navScrollAnchor ?? 0;
+      const delta = y - previous;
+      if (y <= 64 || Math.abs(delta) >= 8) {
+        this.navScrollAnchor = y;
+        this.setState((s) => ({ scrollY:y, heroPassed:s.heroPassed || y > 40, navHidden:y > 64 && delta > 0 }));
+      }
     }
   };
 
@@ -3619,7 +3630,8 @@ submitAuth = async (e) => {
       isGuest: !u,
       isAdmin: !!u && u.role === 'admin',
       userInitials: initials,
-      userFirstName: u ? u.nombre.trim().split(/\s+/)[0] : '',
+      userFirstName: u ? String(u.nombre || '').trim().split(/\s+/)[0] : '',
+      userGreeting: u ? (String(u.nombre || '').trim() ? `¡Hola, ${String(u.nombre).trim().split(/\s+/)[0]}!` : '¡Hola! Qué gusto verte.') : '',
       userName: u ? u.nombre : '',
       userCiudad: u ? u.ciudad : '',
       userWhatsapp: u ? u.whatsapp : '',
@@ -3858,22 +3870,16 @@ submitAuth = async (e) => {
       noFiltered: filtered.length === 0,
       filterSummary: filtered.length === 1 ? '1 lote' : filtered.length + ' lotes',
       hasCatalogMore: filtered.length > 4,
-      showCatalogControl: filtered.length >= 4,
+      showCatalogControl: filtered.length > 4,
       catalogExpanded: st.catalogExpanded,
       catalogGridClass: st.catalogExpanded ? 'is-expanded' : 'is-collapsed',
-      catalogMoreLabel: filtered.length > 4 ? (st.catalogExpanded ? 'Ver menos lotes' : 'Ver más lotes') : 'Continuar',
+      catalogMoreLabel: st.catalogExpanded ? 'Mostrar menos' : 'Mostrar más',
       catalogMoreArrow: '↓',
       toggleCatalogMore: this.toggleCatalogMore,
-      catalogControlAction: filtered.length > 4 ? this.toggleCatalogMore : this.continueFromCatalog,
+      catalogControlAction: this.toggleCatalogMore,
       historyLots: history.map((lot) => ({ ...lot, hasImage:!!lot.src, noImage:!lot.src, resultLabel: lot.bidCount > 0 ? 'Finalizada · ¡¡VENDIDA!!' : 'Finalizada · Sin ofertas', resultColor: lot.bidCount > 0 ? '#7ee2a8' : '#ff8a80' })),
       hasHistory: history.length > 0,
       noHistory: history.length === 0,
-      showReviewPreview: localDesignPreview || /^(localhost|127\.0\.0\.1|192\.168\.1\.96)$/.test(window.location.hostname),
-      reviewPreviewItems: [
-        { initials:'MR', name:'Muestra de reseña', location:'Michoacán · pendiente de verificar', text:'La evidencia del lote me ayudó a revisar cada detalle antes de tomar una decisión.' },
-        { initials:'JL', name:'Muestra de reseña', location:'Jalisco · pendiente de verificar', text:'El proceso de subasta se sintió claro y pude seguir el precio sin confusiones.' },
-        { initials:'GT', name:'Muestra de reseña', location:'Guanajuato · pendiente de verificar', text:'Las fotografías y el video mostraron la condición visible de la pieza de forma directa.' }
-      ],
 
       registerReveal_confianza: this.makeReveal('trust'),
       trustItems: [
@@ -3890,7 +3896,8 @@ submitAuth = async (e) => {
       videoBrightness: phase === 'video' || this.state.introVisualActive ? 1.05 : 0.5,
       overlayOpacity: phase === 'content' ? (this.state.heroPassed ? 0 : Math.max(0, 1 - this.state.scrollY / 40)) : 1,
       overlayPointer: phase === 'content' ? 'none' : 'auto',
-      navOffset: '0%',
+      navOffset: st.navHidden && !st.mobileMenuOpen && !st.notifOpen && !st.accountOpen ? '-110%' : '0%',
+      dockScrollClass: st.navHidden && !st.mobileMenuOpen && !st.notifOpen && !st.accountOpen ? 'is-scroll-hidden' : '',
       videoRef: this.setupVideo,
       onVideoEnd: this.handleVideoEnd,
       onSkip: this.skipIntro,
