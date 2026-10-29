@@ -636,11 +636,13 @@
     .usso-mobile-cta { right:17px !important;bottom:calc(81px + env(safe-area-inset-bottom)) !important;width:48px !important;height:48px !important;background:rgba(246,192,42,.88) !important;border-color:rgba(246,192,42,.95) !important; }
   }
 
-  .usso-welcome-notice { position:fixed;z-index:210;right:20px;bottom:24px;width:min(340px,calc(100% - 32px));box-sizing:border-box;padding:18px 44px 18px 20px;background:#171719;border:1px solid rgba(246,192,42,.45);border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.35);color:#f3f1ec; }
+  .usso-welcome-notice { position:fixed;z-index:210;left:50%;top:calc(88px + env(safe-area-inset-top));transform:translateX(-50%);width:min(340px,calc(100% - 32px));box-sizing:border-box;padding:12px 40px 12px 16px;background:#171719;border:1px solid rgba(246,192,42,.45);border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.35);color:#f3f1ec; }
+  .usso-account-avatar { position:relative;isolation:isolate;flex-shrink:0; }
+  .usso-account-avatar img { position:absolute;inset:0;width:100% !important;height:100% !important;max-width:none;object-fit:cover !important;object-position:center;border-radius:50%;display:block; }
   .usso-welcome-notice strong { display:block;color:#f6c02a;font:800 17px/1.35 Manrope,sans-serif;overflow-wrap:anywhere; }
   .usso-welcome-notice p { margin:5px 0 0;font:500 13px/1.5 Manrope,sans-serif; }
   .usso-welcome-notice button { position:absolute;top:4px;right:4px;width:40px;height:40px;border:0;background:none;color:#fff;font-size:24px;cursor:pointer; }
-  @media(max-width:640px) { .usso-welcome-notice { left:16px;right:16px;bottom:calc(144px + env(safe-area-inset-bottom));width:auto; } }
+  @media(max-width:640px) { .usso-welcome-notice { top:calc(76px + env(safe-area-inset-top)); } }
   .usso-member-greeting { margin:0 0 16px;color:#f6c02a;font:800 clamp(16px,2vw,21px)/1.35 Manrope,sans-serif;overflow-wrap:anywhere; }
   .usso-member-greeting small { display:block;margin-top:4px;color:#e0ded8;font:500 12px/1.4 Manrope,sans-serif; }
   .usso-social-links { display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:40px; }
@@ -1322,7 +1324,7 @@
     <a href="#hero" aria-label="Inicio"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.2 12 4l9 7.2V21h-6v-6H9v6H3v-9.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Inicio</span></a>
     <a href="#subastas" aria-label="Subastas"><svg viewBox="0 0 24 24" fill="none"><path d="m5 15 7-7 4 4-7 7-4-4Zm8-8 2-2 4 4-2 2M3 21h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Subastas</span></a>
     <a href="#todas-subastas" aria-label="Catálogo"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4zM4 10h16M9 5v14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Catálogo</span></a>
-    <a href="login.html" aria-label="Mi cuenta"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Cuenta</span></a>
+    <a href="{{ accountDestination }}" onClick="{{ openDockAccount }}" aria-label="Mi cuenta"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Cuenta</span></a>
   </div>
 
   <sc-if value="{{ winnerCelebrationOpen }}" hint-placeholder-val="{{ false }}">
@@ -2726,7 +2728,7 @@ class Component extends DCLogic {
     this.welcomedMemberId = id;
     clearTimeout(this.welcomeTimer);
     this.setState({ welcomeOpen:true });
-    this.welcomeTimer = setTimeout(this.dismissWelcome, 8000);
+    this.welcomeTimer = setTimeout(this.dismissWelcome, 2000);
   };
 
   loadUser() {
@@ -3235,6 +3237,11 @@ submitAuth = async (e) => {
   }
 
   toggleAccount = () => this.setState((s) => ({ accountOpen: !s.accountOpen, notifOpen: false }));
+  openDockAccount = (e) => {
+    if (!this.state.user) return;
+    e.preventDefault();
+    this.setState({accountOpen:true,notifOpen:false,mobileMenuOpen:false,navHidden:false});
+  };
   closeAccount = () => this.setState({ accountOpen: false });
   openAccountFromMenu = () => this.setState({ mobileMenuOpen: false, accountOpen: true });
   onAvatarChange = async (event) => {
@@ -3909,6 +3916,8 @@ submitAuth = async (e) => {
 
       accountOpen: st.accountOpen,
       toggleAccount: this.toggleAccount,
+      openDockAccount: this.openDockAccount,
+      accountDestination: u ? '#cuenta' : 'login.html',
       closeAccount: this.closeAccount,
       openAccountFromMenu: this.openAccountFromMenu,
       logout: this.logout,
