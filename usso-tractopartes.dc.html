@@ -38,6 +38,19 @@
   html.usso-app-ready #usso-boot-loader { opacity: 0; pointer-events: none; }
   html.usso-app-ready .usso-boot-bar { width: 100%; animation: none; }
   @keyframes ussoBootFill { from { width: 8%; } to { width: 94%; } }
+  @media(min-width:641px) {
+    #hero.usso-hero-section { min-height:82svh !important;padding:120px clamp(32px,7vw,120px) 90px !important; }
+    #hero .usso-hero-content,#hero .usso-hero-truck-photo { display:none !important; }
+    #hero .usso-hero-truck-mobile { display:block !important;object-position:center 43% !important; }
+    #hero .usso-hero-scrim { background:linear-gradient(90deg,rgba(4,4,5,.88),rgba(4,4,5,.58) 45%,rgba(4,4,5,.08)),linear-gradient(0deg,rgba(4,4,5,.5),transparent 50%) !important; }
+    #hero .usso-hero-mobile-editorial { display:flex;position:relative;z-index:2;flex-direction:column;align-items:flex-start;max-width:650px; }
+    #hero .usso-hero-mobile-editorial .eyebrow { color:#f6c02a;font:800 12px/1.6 Manrope,sans-serif;letter-spacing:.22em;text-transform:uppercase;margin-bottom:28px; }
+    #hero .usso-hero-mobile-editorial h1 { font:900 clamp(60px,7vw,104px)/.98 'Archivo Black',sans-serif;letter-spacing:-.05em;text-transform:uppercase;margin:0; }
+    #hero .usso-hero-mobile-editorial h1 span { display:block;color:#f3f0e6; }
+    #hero .usso-hero-mobile-editorial h1 span:last-child { color:#f6c02a; }
+    #hero .usso-hero-mobile-editorial p { max-width:460px;color:#e1ded6;font:500 19px/1.65 Manrope,sans-serif;margin:28px 0; }
+    #hero .usso-hero-mobile-editorial a { display:inline-flex;padding:20px 34px;border-radius:999px;background:#f6c02a;color:#111;font:800 16px Manrope,sans-serif;text-decoration:none; }
+  }
 </style>
 <title>USSO Tractopartes México | Motores y refacciones para camiones</title>
 <meta name="description" content="USSO Tractopartes México en Uruapan, Michoacán: motores diésel, transmisiones, diferenciales, cortes y refacciones para camiones pesados. Consulta inventario y subastas.">
