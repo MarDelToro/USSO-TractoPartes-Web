@@ -32,8 +32,9 @@ const bridge=code=>`<!doctype html><html lang="es"><head><meta charset="utf-8"><
 await write('Subasta.dc.html',bridge('let id=location.hash.slice(1);try{id=decodeURIComponent(id)}catch{}location.replace(id?"/miembros/#lote/"+encodeURIComponent(id):"/miembros/#subastas");'));
 await write('perfil.html',bridge('location.replace("/miembros/#cuenta");'));
 await write('mis-pujas.html',bridge('location.replace("/miembros/#pujas");'));
+// Netlify handles directory URLs; an explicit trailing-slash redirect would loop.
 let redirects=await read('_redirects');
-if(!redirects.includes('/miembros /miembros/'))redirects='/miembros /miembros/ 301!\n'+redirects;
+redirects=redirects.replace('/miembros /miembros/ 301!\n','');
 await write('_redirects',redirects);
 let headers=await read('_headers');
 if(!headers.includes('/miembros/'))headers+='\n/miembros/\n  Cache-Control: public, max-age=0, must-revalidate\n\n/miembros/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n';
