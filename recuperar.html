@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <title>Recuperar contraseña · USSO</title>
+  <link rel="stylesheet" href="usso-app.css?v=20261009-2">
+  <style>[hidden]{display:none!important}.auth-card{box-sizing:border-box}.auth-card form{width:100%;min-width:0;margin:0;border:0;background:none}.auth-submit:disabled{opacity:.55;cursor:wait}.msg{line-height:1.6}.auth-field small{color:#aaa}</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="recuperar.js" defer></script>
+</head>
+<body class="auth-page">
+  <main class="auth-card">
+    <img src="logo-usso-icon.png" alt="USSO">
+    <h1 id="heading">Recupera tu acceso</h1>
+    <p class="auth-intro" id="intro">Te enviaremos un enlace para crear una nueva contraseña.</p>
+    <form id="request" style="display:grid;gap:17px">
+      <div class="auth-field"><label for="email">Correo de tu cuenta</label><input id="email" type="email" autocomplete="email" required></div>
+      <button class="auth-submit" type="submit">Enviar enlace</button>
+    </form>
+    <form id="reset" hidden style="display:grid;gap:17px">
+      <div class="auth-field"><label for="password">Nueva contraseña</label><input id="password" type="password" autocomplete="new-password" minlength="8" required><small>Usa al menos 8 caracteres.</small></div>
+      <div class="auth-field"><label for="confirm">Confirma la contraseña</label><input id="confirm" type="password" autocomplete="new-password" minlength="8" required></div>
+      <button class="auth-submit" type="submit">Guardar contraseña</button>
+    </form>
+    <p class="msg" id="message" role="status" aria-live="polite"></p>
+    <div class="auth-links"><a href="login.html">Volver a iniciar sesión</a></div>
+  </main>
+</body>
+</html>

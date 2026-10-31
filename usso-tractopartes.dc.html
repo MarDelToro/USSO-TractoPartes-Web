@@ -3111,11 +3111,11 @@ async syncAuthFromSupabase() {
     this.openWhats(quien + 'Quiero comprar ahora el lote ' + lot.number + ' (' + lot.title + ') en ' + lot.buyNowPrice + ', sin esperar la subasta.');
   };
 
-  openRegistro = () => this.setState({ authOpen: true, authMode: 'registro', authError: '', accountOpen: false });
-  openLogin = () => this.setState({ authOpen: true, authMode: 'login', authError: '' });
+  openRegistro = () => window.location.assign("/registro.html?next=%2Fmiembros%2F");
+  openLogin = () => window.location.assign("/login.html?next=%2Fmiembros%2F");
   closeAuth = () => this.setState({ authOpen: false, authError: '' });
-  openRegistroFromMenu = () => this.setState({ mobileMenuOpen: false, authOpen: true, authMode: 'registro', authError: '' });
-  openLoginFromMenu = () => this.setState({ mobileMenuOpen: false, authOpen: true, authMode: 'login', authError: '' });
+  openRegistroFromMenu = () => window.location.assign("/registro.html?next=%2Fmiembros%2F");
+  openLoginFromMenu = () => window.location.assign("/login.html?next=%2Fmiembros%2F");
 
   setField = (key) => (e) => {
     const v = e.target.value;
@@ -3143,7 +3143,7 @@ submitAuth = async (e) => {
     const { error } = await client.auth.signInWithPassword({ email: correo, password: pass });
     if (error) return this.setState({ authError: error.message });
     this.setState({ authOpen: false, authError: "" });
-    this.syncAuthFromSupabase();
+    window.location.assign("/miembros/");
     return;
   }
 
@@ -3168,7 +3168,7 @@ submitAuth = async (e) => {
 
   if (data.session) {
     this.setState({ authOpen: false, authError: "" });
-    this.syncAuthFromSupabase();
+    window.location.assign("/miembros/");
     return;
   }
 
@@ -3249,14 +3249,14 @@ submitAuth = async (e) => {
     return date.toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
   }
 
-  toggleAccount = () => this.setState((s) => ({ accountOpen: !s.accountOpen, notifOpen: false }));
+  toggleAccount = () => window.location.assign("/miembros/");
   openDockAccount = (e) => {
     if (!this.state.user) return;
     e.preventDefault();
-    this.setState({accountOpen:true,notifOpen:false,mobileMenuOpen:false,navHidden:false});
+    window.location.assign("/miembros/");
   };
   closeAccount = () => this.setState({ accountOpen: false });
-  openAccountFromMenu = () => this.setState({ mobileMenuOpen: false, accountOpen: true });
+  openAccountFromMenu = () => window.location.assign("/miembros/");
   onAvatarChange = async (event) => {
     const input = event && event.target;
     const file = input && input.files && input.files[0];
@@ -3930,7 +3930,7 @@ submitAuth = async (e) => {
       accountOpen: st.accountOpen,
       toggleAccount: this.toggleAccount,
       openDockAccount: this.openDockAccount,
-      accountDestination: u ? '#cuenta' : 'login.html',
+      accountDestination: u ? '/miembros/' : 'login.html',
       closeAccount: this.closeAccount,
       openAccountFromMenu: this.openAccountFromMenu,
       logout: this.logout,
@@ -4246,7 +4246,7 @@ submitAuth = async (e) => {
 
 </script>
 </body>
-<script src="puente-home.js"></script>
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('/image-cache-worker.js').catch(() => {}));

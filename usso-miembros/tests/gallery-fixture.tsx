@@ -1,0 +1,8 @@
+import {useState} from 'react';
+import {createRoot} from 'react-dom/client';
+import {LotGallery} from '../src/LotGallery';
+import type {Lot} from '../src/member-service';
+import '../src/prototype.css';import '../src/web.css';
+const image=(color:string,width:number,height:number)=>'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect width="${width}" height="${height}" fill="${color}"/></svg>`);
+const media=['#ba9251','#344859','#596344'].map((c,i)=>({url:image(c,...([[400,300],[300,400],[1600,300]][i] as [number,number])),type:'image'}));
+function Fixture(){const [count,setCount]=useState(3),[pointer,setPointer]=useState(''),[closed,setClosed]=useState(false);const lot:Lot={id:'qa',title:'Lote de prueba',number:'QA',image:'',media:media.slice(0,count),status:closed?'closed':'upcoming',price:1000,increment:100,revision:1,startsAt:'',endsAt:'',saved:false,condition:''};return <div className="usso-app"><div className="web-scroll" data-testid="parent"><main className="member-content"><div style={{height:40}}>Galería de prueba</div><div onPointerDownCapture={e=>setPointer(e.pointerType)}><LotGallery lot={lot}/></div><output data-testid="pointer">{pointer}</output><button onClick={()=>setCount(0)}>Vaciar</button><button onClick={()=>setCount(1)}>Una imagen</button><button onClick={()=>{setCount(0);setTimeout(()=>setCount(3),60)}}>Cargar después</button><button onClick={()=>setClosed(!closed)}>Finalizada</button><div style={{height:1300}}>Contenido vertical</div></main></div></div>};createRoot(document.getElementById('root')!).render(<Fixture/>);

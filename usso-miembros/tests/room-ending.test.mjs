@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {roomEnding} from '../src/room-ending.ts';
+import {mapListing} from '../src/usso-service.ts';
+const now=Date.now(),row={id:'l',status:'active',starts_at:new Date(now-20000).toISOString(),ends_at:new Date(now-1000).toISOString(),current_price:90000,auction_round:2};
+const bids=[{listing_id:'l',auction_round:2,amount:90000}];
+const map=(changes={},own=bids)=>mapListing({...row,...changes},own,new Set(),'me',now);
+test('zero plus leading does not award a lot before server closure',()=>{const l=map();assert.equal(l.leading,true);assert.equal(roomEnding(l,now),'pending');assert.equal(roomEnding(map({winner_id:'me'}),now),'pending')});
+test('confirmed current winner and losing participant receive different endings',()=>{assert.equal(roomEnding(map({status:'closed',winner_id:'me'}),now),'won');assert.equal(roomEnding(map({status:'closed',winner_id:'other'}),now),'lost')});
+test('spectators and previous round bidders are not declared losers',()=>{assert.equal(roomEnding(map({status:'closed',winner_id:'other'},[]),now),'closed');assert.equal(roomEnding(map({status:'closed',winner_id:'other'},[{...bids[0],auction_round:1}]),now),'closed')});
+test('extended timer returns to active room; unknown result waits',()=>{assert.equal(roomEnding(map({ends_at:new Date(now+20000).toISOString()}),now),null);assert.equal(roomEnding(map({status:'closed'}),now),'pending')});
