@@ -120,3 +120,6 @@ All ongoing work targets mobile first. Show review previews inside the existing 
 
 ## Publication approval (31 October 2026)
 The user explicitly requested publication of the approved mobile member experience to the existing USSO website. This supersedes earlier local-only/publication-deferred instructions. Publish the native member entry on /miembros/, preserving existing accounts, backend policies, public visuals and the separate local phone preview. Build with build:release to exclude the simulated live-room entry from production.
+
+## Member-first entry (2 November 2026)
+Authenticated visitors opening the public homepage must enter /miembros/ automatically, including restored sessions and browser-back restores. The homepage is available by explicit choice using ?vista=publica; do not persist that exception across unrelated visits. The company information page remains an intentional destination. Do not base entry on listing requests or cached profile data; use Supabase auth session for navigation only, retaining member/backend authorization.

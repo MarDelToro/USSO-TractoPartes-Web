@@ -14,6 +14,14 @@ export function integrateHtml(name,html,{production=false}={}){
   for(const [from,to] of changes){if(!html.includes(from)&&html.includes(to))continue;if(!html.includes(from))throw new Error(`Public integration anchor missing: ${from.split('=')[0]}`);html=html.replace(from,to)}
   html=html.replaceAll('this.syncAuthFromSupabase();\n    return;','window.location.assign("/miembros/");\n    return;');
   html=html.replace('<script src="puente-home.js"></script>','');
+  if(!html.includes('src="/member-entry.js')){
+   const gate = `<style>html.usso-member-routing body{visibility:hidden!important}</style><script>if(new URLSearchParams(location.search).get('vista')!=='publica'){document.documentElement.classList.add('usso-member-routing');window.ussoEntryFallback=setTimeout(()=>document.documentElement.classList.remove('usso-member-routing'),6000)}</script>`;
+   html=html.replace('<head>','<head>'+gate);
+   html=html.replace('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>','<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/member-entry.js?v=20261102"></script>');
+   html=html.replaceAll('const client = window.supabase.createClient(', 'const client = window.ussoEntryClient || window.supabase.createClient(');
+   html=html.replace('this.auctionRealtimeClient = window.supabase.createClient(', 'this.auctionRealtimeClient = window.ussoEntryClient || window.supabase.createClient(');
+  }
+
  }
  if(name==='login.html'||name==='registro.html'){
   html=html.replace('requestedNext && !requestedNext.startsWith("//") && !requestedNext.includes("://") ? requestedNext : ""','requestedNext && /^(\\/(?!\\/)|[a-zA-Z0-9_-]+\\.html(?:[?#]|$))/.test(requestedNext) && !requestedNext.includes("\\\\") ? requestedNext : ""');
@@ -22,6 +30,11 @@ export function integrateHtml(name,html,{production=false}={}){
   html=html.replace('href="/#subastas"','href="/usso-tractopartes.dc.html#subastas"');
   if(!html.includes('.local-connection-note{'))html=html.replace('</head>','<style>body.auth-page{background:radial-gradient(ellipse at 100% 0%,#61411540,transparent 40%),#0c0e10}.auth-card{border-radius:24px!important;box-shadow:0 10px 55px #0006!important}.auth-submit{box-shadow:0 3px 20px #e7b63733}.local-connection-note{font:500 11px/1.5 Manrope,sans-serif;color:#aab3bf;text-align:center;margin:15px 0 0}</style></head>');
   html=html.replace('<p class="msg" id="msg"></p>','<p class="msg" id="msg" role="status"></p>'+(production?'':'<p class="local-connection-note">Vista local · conectada a tu cuenta real de USSO.</p>'));
+  if(name==='login.html'&&!html.includes('src="/member-entry.js')){
+   html=html.replace('const params = new URLSearchParams', 'window.ussoEntryClient = client;\n    const params = new URLSearchParams');
+   html=html.replace(/(const safeNext =[^\n]+;)/, '$1\n    window.ussoEntryDestination = safeNext || "/miembros/";');
+   html=html.replace('</body>','<script src="/member-entry.js?v=20261102"></script></body>');
+  }
   if(production)html=html.replace('<p class="local-connection-note">Vista local · conectada a tu cuenta real de USSO.</p>','');
  }
  return html;

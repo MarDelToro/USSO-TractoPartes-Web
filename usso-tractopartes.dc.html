@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es-MX">
-<head>
+<head><style>html.usso-member-routing body{visibility:hidden!important}</style><script>if(new URLSearchParams(location.search).get('vista')!=='publica'){document.documentElement.classList.add('usso-member-routing');window.ussoEntryFallback=setTimeout(()=>document.documentElement.classList.remove('usso-member-routing'),6000)}</script>
 <meta charset="utf-8">
 <script>
   const previewUrl = new URL(window.location.href);
@@ -1679,7 +1679,7 @@
 </div>
 
 </x-dc>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/member-entry.js?v=20261102"></script>
 <script type="text/x-dc" data-dc-script data-props="{
   &quot;accent&quot;: {
     &quot;editor&quot;: &quot;color&quot;,
@@ -2529,7 +2529,7 @@ class Component extends DCLogic {
       this.auctionRealtimeRetry = setTimeout(() => this.setupAuctionRealtime(), 350);
       return;
     }
-    this.auctionRealtimeClient = window.supabase.createClient(
+    this.auctionRealtimeClient = window.ussoEntryClient || window.supabase.createClient(
       "https://ahhlfvjicxylidpmeciw.supabase.co",
       "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
     );
@@ -2869,7 +2869,7 @@ class Component extends DCLogic {
 
 async syncAuthFromSupabase() {
   if (!window.supabase || !window.supabase.createClient) return;
-  const client = window.supabase.createClient(
+  const client = window.ussoEntryClient || window.supabase.createClient(
     "https://ahhlfvjicxylidpmeciw.supabase.co",
     "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
   );
@@ -3083,7 +3083,7 @@ async syncAuthFromSupabase() {
     const on = !!this.state.watching[lotId];
     const lot = this.rawAuctionItems.find((l) => l.id === lotId);
     if (!window.supabase) return;
-    const client = window.supabase.createClient(
+    const client = window.ussoEntryClient || window.supabase.createClient(
       "https://ahhlfvjicxylidpmeciw.supabase.co",
       "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
     );
@@ -3133,7 +3133,7 @@ submitAuth = async (e) => {
     return this.setState({ authError: "No se pudo conectar." });
   }
 
-  const client = window.supabase.createClient(
+  const client = window.ussoEntryClient || window.supabase.createClient(
     "https://ahhlfvjicxylidpmeciw.supabase.co",
     "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
   );
@@ -3308,7 +3308,7 @@ submitAuth = async (e) => {
     this.setState((s) => ({ notifPrefs: { ...s.notifPrefs, [key]: !s.notifPrefs[key] } }), async () => {
       this.persist();
       if (!window.supabase) return;
-      const client = window.supabase.createClient(
+      const client = window.ussoEntryClient || window.supabase.createClient(
         "https://ahhlfvjicxylidpmeciw.supabase.co",
         "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
       );
@@ -3336,7 +3336,7 @@ submitAuth = async (e) => {
     if (!window.supabase) return;
     const cityText = u.ciudad ? ' (' + u.ciudad + ')' : '';
     const whatsappUrl = this.waLink('Hola, soy ' + (u.nombre || 'Usuario') + cityText + '. Quiero autorización para pujar en las subastas de USSO. Mi WhatsApp es ' + (u.whatsapp || 'no registrado') + '.');
-    const client = window.supabase.createClient(
+    const client = window.ussoEntryClient || window.supabase.createClient(
       "https://ahhlfvjicxylidpmeciw.supabase.co",
       "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
     );
@@ -3419,7 +3419,7 @@ submitAuth = async (e) => {
     this.setState({ bidError: "No se pudo conectar." });
     return;
   }
-  const client = window.supabase.createClient(
+  const client = window.ussoEntryClient || window.supabase.createClient(
     "https://ahhlfvjicxylidpmeciw.supabase.co",
     "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
   );

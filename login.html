@@ -28,9 +28,11 @@
       "https://ahhlfvjicxylidpmeciw.supabase.co",
       "sb_publishable_9Rr6Nv0ByITBW4TLhdC_HQ_WWpv4q5e"
     );
+    window.ussoEntryClient = client;
     const params = new URLSearchParams(window.location.search);
     const requestedNext = params.get("next") || "";
     const safeNext = requestedNext && /^(\/(?!\/)|[a-zA-Z0-9_-]+\.html(?:[?#]|$))/.test(requestedNext) && !requestedNext.includes("\\") ? requestedNext : "";
+    window.ussoEntryDestination = safeNext || "/miembros/";
     if (params.get("motivo") === "detalles") {
       document.getElementById("authIntro").textContent = "Inicia sesión para ver todas las fotografías, evidencia y detalles de esta subasta.";
     }
@@ -63,5 +65,5 @@
       window.location.href = safeNext || "/miembros/";
     });
   </script>
-</body>
+<script src="/member-entry.js?v=20261102"></script></body>
 </html>

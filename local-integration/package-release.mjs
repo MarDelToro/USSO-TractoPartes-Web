@@ -17,7 +17,7 @@ let entry=await readFile(path.join(source,'usso-miembros/dist/web/web.html'),'ut
 entry=entry.replace('<head>','<head><script src="/access-guard.js"></script>');
 await write('miembros/index.html',entry);
 await cp(path.join(source,'usso-miembros/public/assets/usso'),path.join(target,'assets/usso'),{recursive:true});
-for(const name of ['nosotros.html','nosotros.css','nosotros-videos.js','recuperar.html','recuperar.js']){
+for(const name of ['nosotros.html','nosotros.css','nosotros-videos.js','recuperar.html','recuperar.js','member-entry.js']){
  await cp(path.join(source,name),path.join(target,name));
 }
 let information=await read('nosotros.html');
