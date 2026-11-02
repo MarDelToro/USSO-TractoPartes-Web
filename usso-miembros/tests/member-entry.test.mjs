@@ -44,3 +44,17 @@ test('release and preview routing install scripts once and preserve an explicit 
  }
  assert.match(readFileSync(new URL('../src/Prototype.tsx',import.meta.url),'utf8'),/href="\/usso-tractopartes.dc.html\?vista=publica">Visitar/);
 });
+test('public chrome stays generic for guests, members and admins, including open legacy overlays',()=>{
+ const html=integrateHtml('usso-tractopartes.dc.html',readFileSync(new URL('../../usso-tractopartes.dc.html',import.meta.url),'utf8'));
+ for(const u of [null,{role:'user'},{role:'admin'}]){
+  const st={user:u,welcomeOpen:true,phase:'content',notifOpen:true,accountOpen:true,winnerCelebration:{},lossCelebration:{}};
+  for(const [key,expected] of Object.entries({isLogged:false,isGuest:true,isAdmin:false,showWelcomeNotice:false,notifOpen:false,accountOpen:false,winnerCelebrationOpen:false,lossCelebrationOpen:false})){
+   const expression=[...html.matchAll(new RegExp('^      '+key+': (.+),$','gm'))].at(-1)?.[1];
+   assert.ok(expression,key);assert.equal(vm.runInNewContext(expression,{u,st}),expected,`${key} for ${u?.role||'guest'}`);
+  }
+ }
+ assert.ok(html.includes('class="usso-nav-burger"'));
+ assert.ok(html.includes('onClick="{{ toggleMobileMenu }}"'));
+ assert.match(html,/href="registro.html" class="usso-nav-guest-primary"[^>]+>Crear cuenta<\/a>/);
+ assert.match(html,/onClick="{{ openDockAccount }}" aria-label="Entrar"/);
+});

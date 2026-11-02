@@ -5,6 +5,7 @@ import './connected-phone-preview.css';
 
 const screens=[
  {id:'inicio',label:'Mi cuenta',path:'/miembros/#inicio'},
+ {id:'publica',label:'Página pública',path:'/usso-tractopartes.dc.html?vista=publica'},
  {id:'calendario',label:'Calendario',path:'/miembros/#calendario'},
  {id:'nosotros',label:'Conoce USSO',path:'/nosotros.html'},
  {id:'videos',label:'Desde el taller',path:'/nosotros.html#videos'},

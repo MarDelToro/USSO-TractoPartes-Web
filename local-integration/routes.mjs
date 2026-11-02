@@ -12,6 +12,29 @@ export function integrateHtml(name,html,{production=false}={}){
    ["openRegistroFromMenu = () => this.setState({ mobileMenuOpen: false, authOpen: true, authMode: 'registro', authError: '' });",'openRegistroFromMenu = () => window.location.assign("/registro.html?next=%2Fmiembros%2F");']
   ];
   for(const [from,to] of changes){if(!html.includes(from)&&html.includes(to))continue;if(!html.includes(from))throw new Error(`Public integration anchor missing: ${from.split('=')[0]}`);html=html.replace(from,to)}
+  // Public presentation is independent of an existing account session. Keep
+  // auth intact so Entrar can return the visitor to the native member area.
+  const publicPresentation=[
+   ['isLogged: !!u,','isLogged: false,'],
+   ['isGuest: !u,','isGuest: true,'],
+   ["isAdmin: !!u && u.role === 'admin',",'isAdmin: false,'],
+   ["showWelcomeNotice: !!u && !!st.welcomeOpen && st.phase === 'content' && !st.authOpen && !st.accountOpen && !st.bidOpen && !st.mobileMenuOpen,",'showWelcomeNotice: false,'],
+   ['notifOpen: st.notifOpen,','notifOpen: false,'],
+   ['accountOpen: st.accountOpen,','accountOpen: false,'],
+   ['winnerCelebrationOpen: !!st.winnerCelebration,','winnerCelebrationOpen: false,'],
+   ['lossCelebrationOpen: !!st.lossCelebration,','lossCelebrationOpen: false,'],
+  ];
+  for(const [from,to] of publicPresentation){if(html.includes(from))html=html.replace(from,to);else if(!html.includes(to))throw new Error(`Public presentation anchor missing: ${from.split(':')[0]}`)}
+  html=html.replaceAll('>Crear cuenta para pujar<','>Crear cuenta<');
+  html=html.replace('onClick="{{ openDockAccount }}" aria-label="Mi cuenta"','onClick="{{ openDockAccount }}" aria-label="Entrar"');
+  html=html.replace('<span>Cuenta</span></a>','<span>Entrar</span></a>');
+  if(!html.includes('id="usso-public-entry-style"'))html=html.replace('</head>',`<style id="usso-public-entry-style">
+   @media(max-width:860px){
+    .usso-main-nav .usso-nav-guest-primary{display:inline-flex!important}
+    .usso-main-nav .usso-nav-cta a{font-size:11px!important;padding:9px 10px!important}
+    .usso-main-nav .usso-nav-cta{gap:6px!important}
+   }
+  </style></head>`);
   html=html.replaceAll('this.syncAuthFromSupabase();\n    return;','window.location.assign("/miembros/");\n    return;');
   html=html.replace('<script src="puente-home.js"></script>','');
   if(!html.includes('src="/member-entry.js')){

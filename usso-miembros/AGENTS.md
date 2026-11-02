@@ -123,3 +123,6 @@ The user explicitly requested publication of the approved mobile member experien
 
 ## Member-first entry (2 November 2026)
 Authenticated visitors opening the public homepage must enter /miembros/ automatically, including restored sessions and browser-back restores. The homepage is available by explicit choice using ?vista=publica; do not persist that exception across unrelated visits. The company information page remains an intentional destination. Do not base entry on listing requests or cached profile data; use Supabase auth session for navigation only, retaining member/backend authorization.
+
+## Generic public presentation (2 November 2026)
+The public homepage, including an explicit ?vista=publica visit with an active session, shows only generic entry/create-account actions and its existing menu. Never render the legacy account avatar, greeting, notification bell, admin shortcut or personal overlays there. Keep session authentication intact and use Entrar to return existing members to /miembros/. The private member experience retains its account controls.
