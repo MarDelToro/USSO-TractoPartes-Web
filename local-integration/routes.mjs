@@ -12,11 +12,11 @@ export function integrateHtml(name,html,{production=false}={}){
    ["openRegistroFromMenu = () => this.setState({ mobileMenuOpen: false, authOpen: true, authMode: 'registro', authError: '' });",'openRegistroFromMenu = () => window.location.assign("/registro.html?next=%2Fmiembros%2F");']
   ];
   for(const [from,to] of changes){if(!html.includes(from)&&html.includes(to))continue;if(!html.includes(from))throw new Error(`Public integration anchor missing: ${from.split('=')[0]}`);html=html.replace(from,to)}
-  // Public presentation is independent of an existing account session. Keep
-  // auth intact so Entrar can return the visitor to the native member area.
+  // Guests retain the public entry actions. Members visiting the public site
+  // get a simple return link, without the legacy account interface.
   const publicPresentation=[
    ['isLogged: !!u,','isLogged: false,'],
-   ['isGuest: !u,','isGuest: true,'],
+   ['isGuest: true,','isGuest: !u,'],
    ["isAdmin: !!u && u.role === 'admin',",'isAdmin: false,'],
    ["showWelcomeNotice: !!u && !!st.welcomeOpen && st.phase === 'content' && !st.authOpen && !st.accountOpen && !st.bidOpen && !st.mobileMenuOpen,",'showWelcomeNotice: false,'],
    ['notifOpen: st.notifOpen,','notifOpen: false,'],
@@ -25,15 +25,22 @@ export function integrateHtml(name,html,{production=false}={}){
    ['lossCelebrationOpen: !!st.lossCelebration,','lossCelebrationOpen: false,'],
   ];
   for(const [from,to] of publicPresentation){if(html.includes(from))html=html.replace(from,to);else if(!html.includes(to))throw new Error(`Public presentation anchor missing: ${from.split(':')[0]}`)}
-  html=html.replaceAll('>Crear cuenta para pujar<','>Crear cuenta<');
-  html=html.replace('onClick="{{ openDockAccount }}" aria-label="Mi cuenta"','onClick="{{ openDockAccount }}" aria-label="Entrar"');
-  html=html.replace('<span>Cuenta</span></a>','<span>Entrar</span></a>');
-  if(!html.includes('id="usso-public-entry-style"'))html=html.replace('</head>',`<style id="usso-public-entry-style">
-   @media(max-width:860px){
-    .usso-main-nav .usso-nav-guest-primary{display:inline-flex!important}
-    .usso-main-nav .usso-nav-cta a{font-size:11px!important;padding:9px 10px!important}
-    .usso-main-nav .usso-nav-cta{gap:6px!important}
-   }
+  if(!html.includes('isPublicMember:'))html=html.replace('isGuest: !u,',"isGuest: !u,\n      isPublicMember: !!u,\n      publicAccountLabel: u ? 'Mi cuenta' : 'Cuenta',");
+  if(!html.includes('publicUpcomingHref:'))html=html.replace('isPublicMember: !!u,',"isPublicMember: !!u,\n      publicUpcomingHref: u ? '/miembros/#subastas/proximas' : '#subastas',\n      publicUpcomingClick: (e) => { if (!u) this.scrollToSection(e); },");
+  const upcomingLink='<a href="#subastas" onClick="{{ scrollToSection }}">Ver próximas subastas</a>';
+  const memberUpcomingLink='<a href="{{ publicUpcomingHref }}" onClick="{{ publicUpcomingClick }}">Ver próximas subastas</a>';
+  if(html.includes(upcomingLink))html=html.replace(upcomingLink,memberUpcomingLink);
+  else if(!html.includes(memberUpcomingLink))throw new Error('Public upcoming link anchor missing');
+  html=html.replace(/(class="usso-nav-guest-primary"[^>]*>)Crear cuenta</,'$1Crear cuenta para pujar<');
+  html=html.replace(/(onClick="{{ openRegistroFromMenu }}"[^>]*>)Crear cuenta</,'$1Crear cuenta para pujar<');
+  for(const label of ['Mi cuenta','Entrar'])html=html.replace(`onClick="{{ openDockAccount }}" aria-label="${label}"`,'onClick="{{ openDockAccount }}" aria-label="{{ publicAccountLabel }}"');
+  for(const label of ['Cuenta','Entrar'])html=html.replace(`<span>${label}</span></a>`,'<span>{{ publicAccountLabel }}</span></a>');
+  if(!html.includes('class="usso-public-member-return"'))html=html.replaceAll('<sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">',`<sc-if value="{{ isPublicMember }}" hint-placeholder-val="{{ false }}"><a href="/miembros/" class="usso-public-member-return">Volver a mi cuenta <span aria-hidden="true">↗</span></a></sc-if>
+      <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">`);
+  html=html.replace(/<style id="usso-public-entry-style">[\s\S]*?<\/style>/,'');
+  if(!html.includes('id="usso-public-member-style"'))html=html.replace('</head>',`<style id="usso-public-member-style">
+   .usso-public-member-return{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:10px 15px;border-radius:100px;border:1px solid rgba(246,192,42,.35);background:rgba(246,192,42,.08);color:#f6c02a;font:700 12px Manrope,sans-serif;white-space:nowrap;text-decoration:none}
+   .usso-mobile-menu .usso-public-member-return{margin-top:16px}
   </style></head>`);
   html=html.replaceAll('this.syncAuthFromSupabase();\n    return;','window.location.assign("/miembros/");\n    return;');
   html=html.replace('<script src="puente-home.js"></script>','');

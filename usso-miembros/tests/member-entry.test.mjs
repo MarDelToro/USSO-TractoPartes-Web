@@ -44,17 +44,33 @@ test('release and preview routing install scripts once and preserve an explicit 
  }
  assert.match(readFileSync(new URL('../src/Prototype.tsx',import.meta.url),'utf8'),/href="\/usso-tractopartes.dc.html\?vista=publica">Visitar/);
 });
-test('public chrome stays generic for guests, members and admins, including open legacy overlays',()=>{
+test('public visitors keep entry actions while members get a return link without legacy account chrome',()=>{
  const html=integrateHtml('usso-tractopartes.dc.html',readFileSync(new URL('../../usso-tractopartes.dc.html',import.meta.url),'utf8'));
  for(const u of [null,{role:'user'},{role:'admin'}]){
   const st={user:u,welcomeOpen:true,phase:'content',notifOpen:true,accountOpen:true,winnerCelebration:{},lossCelebration:{}};
-  for(const [key,expected] of Object.entries({isLogged:false,isGuest:true,isAdmin:false,showWelcomeNotice:false,notifOpen:false,accountOpen:false,winnerCelebrationOpen:false,lossCelebrationOpen:false})){
+  for(const [key,expected] of Object.entries({isLogged:false,isGuest:!u,isPublicMember:!!u,publicAccountLabel:u?'Mi cuenta':'Cuenta',isAdmin:false,showWelcomeNotice:false,notifOpen:false,accountOpen:false,winnerCelebrationOpen:false,lossCelebrationOpen:false})){
    const expression=[...html.matchAll(new RegExp('^      '+key+': (.+),$','gm'))].at(-1)?.[1];
    assert.ok(expression,key);assert.equal(vm.runInNewContext(expression,{u,st}),expected,`${key} for ${u?.role||'guest'}`);
   }
  }
  assert.ok(html.includes('class="usso-nav-burger"'));
  assert.ok(html.includes('onClick="{{ toggleMobileMenu }}"'));
- assert.match(html,/href="registro.html" class="usso-nav-guest-primary"[^>]+>Crear cuenta<\/a>/);
- assert.match(html,/onClick="{{ openDockAccount }}" aria-label="Entrar"/);
+ assert.match(html,/href="registro.html" class="usso-nav-guest-primary"[^>]+>Crear cuenta para pujar<\/a>/);
+ assert.match(html,/onClick="{{ openDockAccount }}" aria-label="{{ publicAccountLabel }}"/);
+ assert.equal((html.match(/class="usso-public-member-return"/g)||[]).length,2);
+ assert.ok(!html.includes('id="usso-public-entry-style"'));
+});
+test('upcoming CTA takes members to their upcoming auctions and preserves public scrolling for guests',()=>{
+ const html=integrateHtml('usso-tractopartes.dc.html',readFileSync(new URL('../../usso-tractopartes.dc.html',import.meta.url),'utf8'));
+ const href=html.match(/^      publicUpcomingHref: (.+),$/m)[1];
+ const click=html.match(/^      publicUpcomingClick: (.+),$/m)[1];
+ for(const u of [null,{role:'user'},{role:'admin'}]){
+  let scrolled=0,prevented=0;
+  const e={preventDefault(){prevented++}};
+  const ctx={u,scrollToSection(event){scrolled++;event.preventDefault()}};
+  assert.equal(vm.runInNewContext(href,ctx),u?'/miembros/#subastas/proximas':'#subastas');
+  vm.runInNewContext(click,ctx)(e);
+  assert.equal(scrolled,u?0:1);assert.equal(prevented,u?0:1);
+ }
+ assert.ok(html.includes('<a href="{{ publicUpcomingHref }}" onClick="{{ publicUpcomingClick }}">Ver próximas subastas</a>'));
 });

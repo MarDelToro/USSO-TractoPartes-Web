@@ -126,3 +126,9 @@ Authenticated visitors opening the public homepage must enter /miembros/ automat
 
 ## Generic public presentation (2 November 2026)
 The public homepage, including an explicit ?vista=publica visit with an active session, shows only generic entry/create-account actions and its existing menu. Never render the legacy account avatar, greeting, notification bell, admin shortcut or personal overlays there. Keep session authentication intact and use Entrar to return existing members to /miembros/. The private member experience retains its account controls.
+
+## Public visitor distinction and local-only work (2 November 2026)
+Latest clarification supersedes Generic public presentation: preserve the original public entry/create-account controls for signed-out visitors. Only signed-in members intentionally visiting the public site get a simple “Volver a mi cuenta” action instead of Entrar/Crear cuenta, without the legacy avatar, bell or greetings. Keep navigation and public content. Further changes are LOCAL ONLY until explicit publication approval; no automatic pushes or deployments because they consume credits.
+
+## Approved public-member navigation release (2 November 2026)
+User explicitly authorized publishing the pending public visitor/member distinction and the public hero's “Ver próximas subastas” navigation. Signed-in members go to /miembros/#subastas/proximas; guests keep the existing public #subastas scroll. This one release is approved; later releases still need explicit instruction.

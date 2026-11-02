@@ -124,12 +124,9 @@
 <meta name="ext-resource-dependency" content="assets/estructura-cascadia-4.webp">
 <template id="__bundler_thumbnail" data-bg-color="#0a0a0b"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#0a0a0b"></rect><text x="100" y="112" font-family="Arial Black, sans-serif" font-size="56" font-weight="900" fill="#f6c02a" text-anchor="middle">U</text></svg></template>
 <script src="media-compat.js?v=20261013-2"></script>
-<style id="usso-public-entry-style">
-   @media(max-width:860px){
-    .usso-main-nav .usso-nav-guest-primary{display:inline-flex!important}
-    .usso-main-nav .usso-nav-cta a{font-size:11px!important;padding:9px 10px!important}
-    .usso-main-nav .usso-nav-cta{gap:6px!important}
-   }
+<style id="usso-public-member-style">
+   .usso-public-member-return{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:10px 15px;border-radius:100px;border:1px solid rgba(246,192,42,.35);background:rgba(246,192,42,.08);color:#f6c02a;font:700 12px Manrope,sans-serif;white-space:nowrap;text-decoration:none}
+   .usso-mobile-menu .usso-public-member-return{margin-top:16px}
   </style></head>
 <body>
 <div id="usso-boot-loader" role="status" aria-live="polite" aria-label="Cargando el sitio">
@@ -1074,8 +1071,9 @@
           <span class="usso-account-name" style="font:700 13px Manrope,sans-serif;color:var(--text);white-space:nowrap">{{ userGreeting }}</span>
         </button>
       </sc-if>
+      <sc-if value="{{ isPublicMember }}" hint-placeholder-val="{{ false }}"><a href="/miembros/" class="usso-public-member-return">Volver a mi cuenta <span aria-hidden="true">↗</span></a></sc-if>
       <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
-        <a href="registro.html" class="usso-nav-guest-primary" style="background:{{ accent }};color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:11px 20px;border-radius:100px;border:0;cursor:pointer;white-space:nowrap;text-decoration:none">Crear cuenta</a>
+        <a href="registro.html" class="usso-nav-guest-primary" style="background:{{ accent }};color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:11px 20px;border-radius:100px;border:0;cursor:pointer;white-space:nowrap;text-decoration:none">Crear cuenta para pujar</a>
         <a href="login.html" style="background:transparent;border:1px solid rgba(255,255,255,0.22);color:var(--text);font:700 13px Manrope,sans-serif;padding:10px 18px;border-radius:100px;cursor:pointer;text-decoration:none">Entrar</a>
       </sc-if>
     </div>
@@ -1100,8 +1098,9 @@
         <button onClick="{{ openNotifFromMenu }}" style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.16);color:var(--text);font:800 15px Manrope,sans-serif;padding:14px 28px;border-radius:100px;cursor:pointer">Mis notificaciones <span style="min-width:22px;height:22px;padding:0 6px;border-radius:100px;background:#ff3b30;color:#fff;font:800 11px Manrope,sans-serif;display:flex;align-items:center;justify-content:center">{{ unreadCount }}</span></button>
         <button onClick="{{ openAccountFromMenu }}" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:14px 28px;border-radius:100px;border:0;cursor:pointer">Mi cuenta</button>
       </sc-if>
+      <sc-if value="{{ isPublicMember }}" hint-placeholder-val="{{ false }}"><a href="/miembros/" class="usso-public-member-return">Volver a mi cuenta <span aria-hidden="true">↗</span></a></sc-if>
       <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
-        <button onClick="{{ openRegistroFromMenu }}" style="margin-top:16px;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:15px 30px;border-radius:100px;border:0;cursor:pointer">Crear cuenta</button>
+        <button onClick="{{ openRegistroFromMenu }}" style="margin-top:16px;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:15px 30px;border-radius:100px;border:0;cursor:pointer">Crear cuenta para pujar</button>
         <button onClick="{{ openLoginFromMenu }}" style="margin-top:10px;background:transparent;border:1px solid rgba(255,255,255,0.22);color:var(--text);font:700 15px Manrope,sans-serif;padding:14px 28px;border-radius:100px;cursor:pointer">Ya tengo cuenta</button>
       </sc-if>
       <a href="{{ whatsappLink }}" target="_blank" onClick="{{ closeMobileMenu }}" style="margin-top:14px;display:flex;align-items:center;gap:8px;color:rgba(243,241,236,0.6);font:700 14px Manrope,sans-serif;padding:8px 20px">o escríbenos por WhatsApp</a>
@@ -1343,7 +1342,7 @@
     <a href="#hero" aria-label="Inicio"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.2 12 4l9 7.2V21h-6v-6H9v6H3v-9.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Inicio</span></a>
     <a href="#subastas" aria-label="Subastas"><svg viewBox="0 0 24 24" fill="none"><path d="m5 15 7-7 4 4-7 7-4-4Zm8-8 2-2 4 4-2 2M3 21h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Subastas</span></a>
     <a href="#todas-subastas" aria-label="Catálogo"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4zM4 10h16M9 5v14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Catálogo</span></a>
-    <a href="{{ accountDestination }}" onClick="{{ openDockAccount }}" aria-label="Entrar"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Entrar</span></a>
+    <a href="{{ accountDestination }}" onClick="{{ openDockAccount }}" aria-label="{{ publicAccountLabel }}"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>{{ publicAccountLabel }}</span></a>
   </div>
 
   <sc-if value="{{ winnerCelebrationOpen }}" hint-placeholder-val="{{ false }}">
@@ -1400,7 +1399,7 @@
       <div class="eyebrow">El siguiente lote puede ser tuyo.</div>
       <h1><span>Prepara</span><span>tu oferta.</span></h1>
       <p>Explora las próximas subastas y conoce cada lote antes de participar.</p>
-      <a href="#subastas" onClick="{{ scrollToSection }}">Ver próximas subastas</a>
+      <a href="{{ publicUpcomingHref }}" onClick="{{ publicUpcomingClick }}">Ver próximas subastas</a>
     </div>
   </section>
 
@@ -3855,7 +3854,11 @@ submitAuth = async (e) => {
       isLogged: false,
       showWelcomeNotice: false,
       dismissWelcome: this.dismissWelcome,
-      isGuest: true,
+      isGuest: !u,
+      isPublicMember: !!u,
+      publicUpcomingHref: u ? '/miembros/#subastas/proximas' : '#subastas',
+      publicUpcomingClick: (e) => { if (!u) this.scrollToSection(e); },
+      publicAccountLabel: u ? 'Mi cuenta' : 'Cuenta',
       isAdmin: false,
       userInitials: initials,
       userFirstName: greetingName,
