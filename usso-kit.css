@@ -338,8 +338,8 @@ html[data-theme=light] #todas-subastas .usso-catalog-more{color:#a87400!importan
    ========================================================================== */
 .k-mhome{display:none}
 @media (max-width:760px){
-  #hero.k-hero,.k-marquee,#subastas{display:none!important}
-  .k-mhome{display:block;padding:84px 20px 18px;background:var(--bg);color:var(--text);font-family:Inter,Manrope,system-ui,sans-serif}
+  .k-marquee{display:none!important}
+  .k-mhome{display:block;padding:62px 20px 10px;background:var(--bg);color:var(--text);font-family:Inter,Manrope,system-ui,sans-serif}
   .k-mhome-hi{margin:0 0 6px;font:600 14px var(--k-ui);color:rgba(var(--text-rgb),.6)}
   .k-mhome-title{margin:6px 0 18px;font:700 29px/1.16 Manrope,system-ui,sans-serif;letter-spacing:-.025em;color:var(--text);text-transform:none}
   .k-mhome-title span{color:rgba(var(--text-rgb),.45);font-weight:600}
@@ -376,3 +376,73 @@ html[data-theme=light] #todas-subastas .usso-catalog-more{color:#a87400!importan
 html[data-theme=light] .usso-mobile-dock{background:rgba(255,255,255,.96)!important;border-color:rgba(0,0,0,.08)!important;box-shadow:0 8px 30px rgba(0,0,0,.12)!important}
 html[data-theme=light] .usso-mobile-dock a{color:#6f727a!important}
 html[data-theme=light] .usso-mobile-dock a:active,html[data-theme=light] .usso-mobile-dock a:focus{color:#15161a!important;background:rgba(0,0,0,.05)!important}
+/* Celular con sesión: «Volver a mi cuenta» compacto para no encimarse con el menú */
+@media (max-width:760px){.usso-public-member-return{font-size:0!important;width:40px;height:40px;padding:0!important;display:inline-grid!important;place-items:center;border-radius:50%!important}.usso-public-member-return span{font-size:15px}}
+
+/* ---------- Celular: cinta de marcas, carrusel de subastas y financiamiento ---------- */
+.k-mhome-brands{display:none}
+@media (max-width:760px){
+  /* Cinta de marcas pegada a la barra superior, arriba del título */
+  .k-mhome-brands{display:block;margin:0 -20px 18px;padding:13px 0;overflow:hidden;background:var(--bg-alt);
+    border-bottom:1px solid rgba(var(--border-rgb),.08)}
+  .k-mhome-brands-track{display:flex;width:max-content;animation:marqueeScroll 26s linear infinite}
+  .k-mhome-brands-track span{padding:0 22px;white-space:nowrap;font:800 14px Manrope,system-ui,sans-serif;letter-spacing:.04em;color:rgba(var(--text-rgb),.4)}
+  .k-mhome-title{margin-top:0}
+  /* El carrusel original de subastas queda justo debajo de «Próximas subastas» */
+  .k-mhome-head{margin-bottom:0}
+  #subastas{padding-top:14px!important}
+  #subastas .usso-auction-section-heading{display:none!important}
+  /* Financiamiento: título, texto, simulador y luego el botón de detalles */
+  .k-fin-inner{display:flex!important;flex-direction:column;align-items:stretch;gap:0!important}
+  .k-fin-copy{display:contents}
+  .k-fin-copy .k-eyebrow{order:1}
+  .k-fin-copy .k-section-title{order:2}
+  .k-fin-copy .k-lede{order:3;margin-bottom:20px}
+  .k-calc{order:4}
+  .k-fin-more{order:5}
+  .k-fin-points{order:6;display:none!important;margin-top:12px!important}
+  .k-fin-points.is-open{display:grid!important}
+}
+.k-fin-more{display:none}
+@media (max-width:760px){
+  .k-fin-more{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:14px;min-height:52px;padding:0 18px;
+    border-radius:16px;border:1px solid rgba(var(--border-rgb),.14);background:var(--card-bg);color:var(--text);
+    font:700 15px Manrope,system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .k-fin-more-ic{font:700 22px/1 Manrope,system-ui,sans-serif;font-style:normal;color:var(--k-gold-text,var(--k-gold))}
+}
+@media (max-width:760px) and (prefers-reduced-motion:reduce){.k-mhome-brands-track{animation:none}}
+
+/* ==========================================================================
+   Celular · Portada C: el camión de las luces dentro de una tarjeta redonda
+   ========================================================================== */
+.k-mbrands{display:none}
+@media (max-width:760px){
+  .k-mbrands{display:block;margin-top:62px;padding:13px 0;overflow:hidden;background:var(--bg-alt);border-bottom:1px solid rgba(var(--border-rgb),.08)}
+  .k-mhome-brands{display:none!important}
+  #hero.k-hero{display:flex!important;align-items:flex-end;min-height:0!important;height:min(106vw,400px);margin:14px 14px 0;padding:20px!important;
+    border-radius:26px;overflow:clip;background:#050506;box-shadow:0 22px 40px rgba(0,0,0,.18),0 30px 60px -20px rgba(246,192,42,.25)}
+  #hero .k-hero-scene{top:-84px;left:50%;right:auto;transform:translateX(-50%);width:108%;height:auto}
+  #hero .k-hero-stage{-webkit-mask-image:radial-gradient(ellipse 62% 54% at 50% 42%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse 62% 54% at 50% 42%,#000 62%,transparent 100%)}
+  #hero .k-hero-shade{background:linear-gradient(180deg,rgba(5,5,6,.15) 0%,rgba(5,5,6,0) 38%,rgba(5,5,6,.92) 82%)}
+  #hero .k-switch{top:98px!important;right:calc(4% + 14px)!important;left:auto!important;bottom:auto!important;transform:none!important}
+  #hero .k-hero-content{max-width:none}
+  #hero .k-hero-content .k-eyebrow,#hero .k-hero-lede,#hero .k-hero-ghost,#hero .usso-member-greeting{display:none!important}
+  #hero .k-hero-title{margin:0 0 14px;font-size:clamp(34px,10vw,44px)}
+  #hero .k-hero-actions{flex-direction:row}
+  #hero .k-hero-cta{width:auto!important;min-height:48px!important;padding:0 22px!important;font-size:15px!important}
+  .k-mhome{padding-top:18px}
+  .k-mhome-title{display:none}
+}
+
+/* Apagado de respaldo: oscurecer suave mientras el video regresa al cuadro sin luces */
+.k-hero-video,.k-hero-ambient--on{transition:filter .48s ease,opacity 1.2s ease-in-out}
+.k-hero-scene.is-dimming .k-hero-video{filter:brightness(.18)}
+.k-hero-scene.is-dimming .k-hero-ambient--on{opacity:.15}
+/* El pie de página no debe heredar los estilos antiguos de la barra de navegación */
+.k-footer nav{position:static!important;height:auto!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;display:block!important}
+@media (max-width:760px){
+  .k-footer{padding:40px 22px calc(120px + env(safe-area-inset-bottom))!important}
+  .k-footer-inner{grid-template-columns:1fr 1fr!important;gap:26px 20px!important}
+  .k-footer nav a{margin:9px 0}
+  .k-footer-bottom{margin-top:28px}
+}

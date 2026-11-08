@@ -1374,6 +1374,8 @@
   </sc-if>
 
   <!-- HERO -->
+  <!-- Cinta de marcas (solo celular), pegada a la barra superior -->
+  <div class="k-mbrands" aria-hidden="true"><div class="k-mhome-brands-track"><sc-for list="{{ brandsLoop }}" as="brand" hint-placeholder-count="16"><span>{{ brand }}</span></sc-for></div></div>
   <section id="hero" data-screen-label="Hero" class="k-hero">
     <div class="k-hero-scene" ref="{{ heroSceneRef }}">
       <canvas class="k-hero-ambient k-hero-ambient--on" width="36" height="64" ref="{{ heroAmbientRef }}" aria-hidden="true"></canvas>
@@ -1416,21 +1418,9 @@
     </div>
     <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
       <div class="k-mhome-head">
-        <sc-if value="{{ featuredIsUpcoming }}" hint-placeholder-val="{{ true }}"><h2>Próxima subasta</h2></sc-if>
-        <sc-if value="{{ featuredIsActive }}" hint-placeholder-val="{{ false }}"><h2>Subasta en vivo</h2></sc-if>
+        <sc-if value="{{ featuredIsActive }}" hint-placeholder-val="{{ false }}"><h2>Subastas en vivo</h2></sc-if>
+        <sc-if value="{{ featuredIsUpcoming }}" hint-placeholder-val="{{ true }}"><h2>Próximas subastas</h2></sc-if>
         <a href="#todas-subastas" onClick="{{ scrollToSection }}">Ver todas</a>
-      </div>
-      <div class="k-mhome-card">
-        <a class="k-mhome-link" href="{{ featuredHref }}" aria-label="Ver detalles de {{ featuredTitle }}">
-          <div class="k-mhome-photo">
-            <sc-if value="{{ featuredHasImage }}"><img src="{{ featuredFullSrc }}" data-fallback-src="{{ featuredSrc }}" onError="{{ onAuctionImageError }}" alt=""></sc-if>
-            <span class="k-mhome-pill k-clock {{ featuredClockClass }}">{{ featuredClockLabel }} <strong>{{ featuredClock }}</strong></span>
-          </div>
-          <b>{{ featuredTitle }}</b>
-          <small>Lote {{ featuredNumber }} · Uruapan, Mich.</small>
-          <div class="k-mhome-price">{{ featuredBid }} <span>{{ featuredPriceLabel }}</span></div>
-        </a>
-        <sc-if value="{{ featuredIsUpcoming }}" hint-placeholder-val="{{ true }}"><button type="button" class="k-mhome-heart" onClick="{{ featuredNotify }}" aria-label="{{ featuredNotifyLabel }}" title="{{ featuredNotifyLabel }}" style="color:{{ featuredNotifyColor }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></sc-if>
       </div>
     </sc-if>
   </section>
@@ -1585,7 +1575,8 @@
         <span class="k-eyebrow">Financiamiento USSO</span>
         <h2 class="k-section-title">Llévatela hoy,<br><span>págala en meses.</span></h2>
         <p class="k-lede">Deja un objeto de valor como garantía y llévate la pieza que tu camión necesita.</p>
-        <ul class="k-fin-points">
+        <button type="button" class="k-fin-more" onClick="{{ toggleFinDetails }}" aria-expanded="{{ finDetailsOpen }}">{{ finMoreLabel }} <i class="k-fin-more-ic" aria-hidden="true">{{ finMoreArrow }}</i></button>
+        <ul class="k-fin-points {{ finPointsClass }}">
           <sc-for list="{{ financingItems }}" as="f" hint-placeholder-count="4">
             <li><img src="{{ f.icon }}" alt="" aria-hidden="true"><span><strong>{{ f.title }}</strong>{{ f.desc }}</span></li>
           </sc-for>
@@ -1687,11 +1678,11 @@
         <h2 class="k-section-title">¿Buscas una<br><span>pieza específica?</span></h2>
         <p class="k-lede">Escríbenos con la marca y modelo de tu camión: te cotizamos en minutos.</p>
         <a class="k-contact-line" href="{{ whatsappLink }}" target="_blank" rel="noopener"><i aria-hidden="true">💬</i><span><small>WhatsApp</small><b>452 282 2400</b></span></a>
-        <div class="k-contact-line"><i aria-hidden="true">📍</i><span><small>Ubicación</small><b>Uruapan, Michoacán</b></span></div>
+        <a class="k-contact-line" href="https://www.google.com/maps/search/?api=1&amp;query=USSO%20Tractopartes%20Libramiento%20Oriente%207%20Zumpimito%20Uruapan" target="_blank" rel="noopener"><i aria-hidden="true">📍</i><span><small>Ubicación</small><b>Libramiento Oriente 7, Zumpimito, Uruapan, Mich.</b></span></a>
         <a class="k-contact-line" href="https://www.youtube.com/@usso.tractopartes" target="_blank" rel="noopener"><i aria-hidden="true">▶</i><span><small>Síguenos en TikTok y YouTube</small><b>@usso.tractopartes</b></span></a>
         <a class="k-btn k-btn--gold k-btn--lg" href="{{ whatsappLink }}" target="_blank" rel="noopener">Escribir por WhatsApp</a>
       </div>
-      <div class="k-contact-map"><iframe title="Mapa de Uruapan, Michoacán" loading="lazy" referrerpolicy="no-referrer" src="https://www.google.com/maps?q=Uruapan,+Michoac%C3%A1n&amp;output=embed"></iframe></div>
+      <div class="k-contact-map"><iframe title="Mapa de USSO Tractopartes" loading="lazy" referrerpolicy="no-referrer" src="https://www.google.com/maps?q=Libramiento+Oriente+7,+Zumpimito,+Uruapan,+Michoac%C3%A1n&amp;output=embed"></iframe></div>
     </div>
   </section>
 
@@ -1750,7 +1741,7 @@ class Component extends DCLogic {
     notifOpen: false, notifFilter: 'all', accountOpen: false, notifs: [], avatarUploading: false, avatarMessage: '', avatarError: '',
     notifPrefs: { superada: true, cierre: true, gane: true, perdi: true, favorita: true },
     bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', catalogExpanded:false, watching: {},
-    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {}, featuredAuctionIndex: 0, introSoundOn:false, finPrice: 80000, finMonths: 3, theme: this.themeInit };
+    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {}, featuredAuctionIndex: 0, introSoundOn:false, finPrice: 80000, finMonths: 3, theme: this.themeInit, finDetailsOpen: false };
   videoRef = null;
   observer = null;
   listingRequestInFlight = false;
@@ -2458,6 +2449,7 @@ class Component extends DCLogic {
   searchInputRef = (el) => { this.searchInputEl = el; };
 
   // Simulador de financiamiento (estimado simple: precio entre meses).
+  toggleFinDetails = () => this.setState((st) => ({ finDetailsOpen: !st.finDetailsOpen }));
   onFinPrice = (e) => this.setState({ finPrice: Number(e.target.value) || 80000 });
   pickFinMonths = (n) => () => this.setState({ finMonths: n });
   finMoney = (n) => '$' + Math.round(n).toLocaleString('es-MX') + ' MXN';
@@ -2490,7 +2482,7 @@ class Component extends DCLogic {
   };
   captureHeroOff = () => {
     const v = this.heroVideo;
-    if (this.heroOffReady || !v || v.readyState < 2 || v.currentTime > 0.05 || !this.heroOff || !this.heroAmbientOff) return;
+    if (this.heroOffReady || !v || v.readyState < 2 || v.currentTime > 0.15 || !this.heroOff || !this.heroAmbientOff) return;
     try {
       this.heroOff.getContext('2d').drawImage(v, 0, 0, this.heroOff.width, this.heroOff.height);
       this.heroAmbientOff.getContext('2d').drawImage(v, 0, 0, this.heroAmbientOff.width, this.heroAmbientOff.height);
@@ -2513,6 +2505,9 @@ class Component extends DCLogic {
     el.playbackRate = 1;
     el.addEventListener('loadeddata', () => { this.captureHeroOff(); this.drawHeroAmbient(); });
     el.addEventListener('play', () => requestAnimationFrame(this.heroAmbientLoop));
+    // En iPhone el primer cuadro sólo se puede copiar ya que el video empezó a correr.
+    el.addEventListener('playing', () => requestAnimationFrame(this.captureHeroOff));
+    el.addEventListener('timeupdate', () => { if (!this.heroOffReady && el.currentTime < 0.15) this.captureHeroOff(); });
     el.addEventListener('seeked', this.drawHeroAmbient);
     el.addEventListener('ended', () => { el.currentTime = this.heroEnd(); this.drawHeroAmbient(); });
     if (el.readyState >= 2) this.captureHeroOff();
@@ -2536,9 +2531,20 @@ class Component extends DCLogic {
     this.setHeroLit(turnOn);
     try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
     if (!turnOn) {
-      // Apagar: fundido de 1.2 s hacia el cuadro con las luces apagadas.
-      scene.classList.remove('is-instant');
-      scene.classList.add('is-off');
+      v.pause();
+      if (this.heroOffReady) {
+        // Apagar: fundido de 1.2 s hacia el cuadro con las luces apagadas.
+        scene.classList.remove('is-instant');
+        scene.classList.add('is-off');
+        return;
+      }
+      // Respaldo (celulares que no dejan copiar el cuadro): se oscurece y se regresa al primer cuadro.
+      scene.classList.add('is-dimming');
+      clearTimeout(this.heroDimTimer);
+      this.heroDimTimer = setTimeout(() => {
+        v.addEventListener('seeked', () => { this.captureHeroOff(); this.drawHeroAmbient(); requestAnimationFrame(() => scene.classList.remove('is-dimming')); }, { once:true });
+        v.currentTime = 0;
+      }, 480);
       return;
     }
     // Prender: debajo del cuadro apagado ponemos el video al inicio y lo reproducimos.
@@ -4407,6 +4413,11 @@ submitAuth = async (e) => {
       finMonthly: '$' + Math.round(this.state.finPrice / this.state.finMonths).toLocaleString('es-MX'),
       finMonthChips: [1, 2, 3, 4, 5, 6].map((n) => ({ label: n === 1 ? '1 mes' : n + ' meses', on: this.state.finMonths === n, pick: this.pickFinMonths(n) })),
       onFinPrice: this.onFinPrice,
+      toggleFinDetails: this.toggleFinDetails,
+      finDetailsOpen: this.state.finDetailsOpen ? 'true' : 'false',
+      finPointsClass: this.state.finDetailsOpen ? 'is-open' : '',
+      finMoreLabel: this.state.finDetailsOpen ? 'Ocultar detalles del financiamiento' : 'Ver detalles del financiamiento',
+      finMoreArrow: this.state.finDetailsOpen ? '−' : '+',
       finWhatsapp: this.waLink('Hola, quiero financiar una tractoparte de ' + this.finMoney(this.state.finPrice) + ' a ' + this.state.finMonths + (this.state.finMonths === 1 ? ' mes' : ' meses') + ' (aprox. $' + Math.round(this.state.finPrice / this.state.finMonths).toLocaleString('es-MX') + ' al mes). ¿Qué necesito?'),
       statItems: [
         { value: '+25', label: 'años en el mercado' },

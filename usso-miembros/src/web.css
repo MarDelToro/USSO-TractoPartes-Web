@@ -165,3 +165,52 @@ html[data-theme=light] .member-web .m3-link{background:#fff}
 /* En celular, en tono blanco, el fondo es blanco limpio (sin degradado dorado) */
 @media(max-width:760px){html[data-theme=light] .member-web .usso-app{background:#fff}}
 @media(min-width:960px){.member-web .member-tabs button{white-space:nowrap}}
+
+/* Carrusel grande de próximas subastas (Mi espacio) */
+.member-web .m3-carousel{margin:0 -16px}
+.member-web .m3-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:16px;padding:0 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.member-web .m3-track::-webkit-scrollbar{display:none}
+.member-web .m3-slide{flex:0 0 86%;scroll-snap-align:start;min-width:0}
+.member-web .m3-carousel-nav{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px}
+.member-web .m3-arrow{width:38px;height:38px;border-radius:50%!important;border:1px solid var(--line)!important;display:grid;place-items:center;color:inherit}
+.member-web .m3-arrow svg{width:18px;height:18px}
+.member-web .m3-dots{display:flex;gap:6px}
+.member-web .m3-dots span{width:7px;height:7px;border-radius:999px;background:var(--line);transition:width .25s,background .25s}
+.member-web .m3-dots span.on{width:20px;background:var(--gold)}
+@media(min-width:960px){.member-web .m3-carousel{margin:0}.member-web .m3-track{padding:0 0 4px;scroll-padding-inline:0}.member-web .m3-slide{flex-basis:calc(50% - 6px)}}
+@media(prefers-reduced-motion:reduce){.member-web .m3-dots span{transition:none}}
+
+/* Portada de luces en Mi espacio */
+.member-web .m3-hero{position:relative;overflow:clip;height:min(100vw,380px);margin:0 0 6px;border-radius:24px;background:#050506;color:#f3f1ec;
+  box-shadow:0 20px 40px rgba(0,0,0,.18),0 30px 60px -22px rgba(246,192,42,.25)}
+.member-web .m3-hero-stage{position:absolute;left:50%;top:-80px;width:108%;aspect-ratio:9/16;transform:translateX(-50%);
+  -webkit-mask-image:radial-gradient(ellipse 62% 54% at 50% 42%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse 62% 54% at 50% 42%,#000 62%,transparent 100%)}
+.member-web .m3-hero-stage video,.member-web .m3-hero-stage canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.member-web .m3-hero-stage video{transition:filter .48s ease}
+.member-web .m3-hero-stage canvas{opacity:0;transition:opacity 1.2s cubic-bezier(.45,0,.2,1)}
+.member-web .m3-hero.is-off .m3-hero-stage canvas{opacity:1}
+.member-web .m3-hero.is-dimming .m3-hero-stage video{filter:brightness(.18)}
+.member-web .m3-hero-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,6,.15) 0%,rgba(5,5,6,0) 38%,rgba(5,5,6,.92) 82%)}
+.member-web .m3-switch{position:absolute;top:14px;right:14px;left:auto;bottom:auto;transform:none;z-index:2}
+.member-web .m3-hero-copy{position:absolute;left:20px;right:20px;bottom:20px;z-index:2}
+.member-web .m3-hero-copy h2{margin:0 0 14px;font:400 clamp(32px,9vw,46px)/.95 var(--k-display,'Archivo Black',sans-serif);letter-spacing:-.03em;text-transform:uppercase;color:#f3f1ec}
+.member-web .m3-hero-copy h2 span{color:#f6c02a}
+.member-web .m3-hero-cta{height:48px;padding:0 22px!important;border-radius:999px!important;background:linear-gradient(180deg,#ffd75a,#f6c02a)!important;color:#0a0a0b!important;font:800 15px Manrope,system-ui,sans-serif;box-shadow:0 10px 26px rgba(246,192,42,.28)}
+@media(min-width:960px){.member-web .m3-hero{height:420px}.member-web .m3-hero-stage{left:auto;right:6%;transform:none;width:300px;top:-60px}.member-web .m3-hero-copy{right:auto;max-width:420px;bottom:34px;left:34px}}
+@media(prefers-reduced-motion:reduce){.member-web .m3-hero-stage canvas,.member-web .m3-hero-stage video{transition:none}}
+.member-web .m3-hello p{display:block;line-height:1.45}
+.member-web .m3-hello p svg{display:inline-block;vertical-align:-3px;margin-left:2px}
+
+/* Tus pujas: fila con zona tocable, insignia y botón Pujar rápido */
+.member-web .m3-row{display:flex;align-items:center;gap:10px;padding:12px 0!important;border-bottom:1px solid var(--line)!important}
+.member-web .m3-row:last-child{border-bottom:0!important}
+.member-web .m3-row-main{flex:1;min-width:0;display:flex;align-items:center;gap:14px;padding:0!important;text-align:left}
+.member-web .m3-row-main>span{flex:1;min-width:0}
+.member-web .m3-row-side{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.member-web .m3-row-bid{height:36px;padding:0 18px!important;border-radius:18px!important;background:#f6c02a!important;color:#15161a!important;font:800 14px Manrope,system-ui,sans-serif;box-shadow:0 6px 16px rgba(246,192,42,.3)}
+.member-web .m3-row-bid:disabled{opacity:.45}
+html[data-theme=light] .member-web .m3-row-bid{background:#15161a!important;color:#fff!important;box-shadow:none}
+.member-web .m3-out{font-style:normal;font-weight:800;color:#ffd257}
+html[data-theme=light] .member-web .m3-out{color:#a87400}
+.member-web .m3-row small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.member-web .m3-row>span.m3-row-side{flex:none;min-width:auto}

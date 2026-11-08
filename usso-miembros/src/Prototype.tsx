@@ -18,6 +18,45 @@ const leftText=(ms:number)=>{const t=Math.floor(ms/1000),d=Math.floor(t/86400),h
 function TimeLeft({lot}:{lot:Lot}){const [now,setNow]=useState(Date.now());useEffect(()=>{const id=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(id)},[]);const upcoming=lot.status==='upcoming',date=upcoming?lot.startsAt:lot.endsAt,left=Date.parse(date)-now;if(lot.status==='closed')return <>Finalizó {dateLabel(lot.endsAt)}</>;if(!Number.isFinite(left)||left>86400e3)return <>{upcoming?'Inicia':'Cierra'} {dateLabel(date)} · {hour(date)} h</>;if(left<=0)return <>{upcoming?'Comenzando…':'Cerrando…'}</>;const cls=left<=3600e3?(upcoming?'is-soon':'is-urgent'):'';return <span className={`k-clock ${cls}`}><small>{upcoming?'Empieza en':'Cierra en'}</small> <strong>{leftText(left)}</strong></span>}
 // Tono negro / blanco compartido con la portada (se guarda en este dispositivo).
 function ThemeButton(){const [light,setLight]=useState(()=>document.documentElement.dataset.theme==='light');const toggle=()=>{const next=!light;if(next)document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;try{localStorage.setItem('usso_theme',next?'light':'dark')}catch{}setLight(next)};return <button className="theme-button" aria-label={light?'Cambiar a tono negro':'Cambiar a tono blanco'} title={light?'Tono negro':'Tono blanco'} onClick={toggle}><span aria-hidden="true">{light?'☾':'☀'}</span></button>}
+// Carrusel circular de próximas subastas (regla del proyecto: del último se pasa al primero sin salto visible).
+// Se pintan tres copias visuales y, al terminar de deslizar, se recentra en la copia de en medio.
+function UpcomingCarousel({lots,onOpen,onSave,pending}:{lots:Lot[];onOpen:(l:Lot)=>void;onSave:(l:Lot)=>void;pending:boolean}){
+ const ref=useRef<HTMLDivElement>(null),timer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),n=lots.length,[idx,setIdx]=useState(0);
+ const items=n>1?[...lots,...lots,...lots]:lots;
+ const step=()=>{const el=ref.current,c=el?.children[0] as HTMLElement|undefined;return c&&el?c.offsetWidth+parseFloat(getComputedStyle(el).columnGap||'0'):0};
+ const jump=(i:number)=>{const el=ref.current;if(!el)return;el.style.scrollSnapType='none';el.scrollLeft=i*step();requestAnimationFrame(()=>{el.style.scrollSnapType=''})};
+ useEffect(()=>{if(n>1)jump(n)},[n]);
+ const onScroll=()=>{const el=ref.current,w=step();if(!el||n<2||!w)return;const i=Math.round(el.scrollLeft/w);setIdx(((i%n)+n)%n);clearTimeout(timer.current);timer.current=setTimeout(()=>{const j=Math.round(el.scrollLeft/w);if(j<n||j>=2*n)jump(((j%n)+n)%n+n)},140)};
+ const go=(d:number)=>{const el=ref.current,w=step();if(!el||!w)return;el.scrollBy({left:d*w,behavior:'smooth'})};
+ if(!n)return null;
+ return <div className="m3-carousel"><div className="m3-track" ref={ref} onScroll={onScroll}>{items.map((l,k)=><article className="m3-card m3-slide" key={l.id+'-'+k} aria-hidden={n>1&&(k<n||k>=2*n)?true:undefined}><button className="m3-card-photo" onClick={()=>onOpen(l)} aria-label={`Ver detalles de ${l.title}`}><img src={l.image} alt="" loading="lazy"/><span className="m3-pill"><TimeLeft lot={l}/></span></button><button className="m3-card-copy" onClick={()=>onOpen(l)}><b>{l.title}</b><small>Lote {l.number} · Uruapan, Mich.</small><strong>{money(l.price)} <span>precio base</span></strong></button><button className="m3-heart" aria-label={l.saved?'Quitar de guardados':'Guardar'} aria-pressed={l.saved} disabled={pending} onClick={()=>onSave(l)}>{l.saved?<BookmarkFilledIcon/>:<BookmarkIcon/>}</button></article>)}</div>
+ {n>1&&<div className="m3-carousel-nav"><button className="m3-arrow" aria-label="Anterior" onClick={()=>go(-1)}><ChevronLeftIcon/></button><div className="m3-dots">{lots.map((l,i)=><span key={l.id} className={i===idx?'on':''}/>)}</div><button className="m3-arrow" aria-label="Siguiente" onClick={()=>go(1)}><ChevronRightIcon/></button></div>}
+ </div>}
+// Portada de luces dentro de Mi espacio (misma de la página pública en celular).
+// El camión prende sus luces una vez; el interruptor las apaga con un fundido y las vuelve a prender.
+function LightsHero({onCta}:{onCta:()=>void}){
+ const v=useRef<HTMLVideoElement>(null),off=useRef<HTMLCanvasElement>(null),ready=useRef(false);
+ const [lit,setLit]=useState(true),[isOff,setIsOff]=useState(false),[dim,setDim]=useState(false);
+ const end=()=>{const el=v.current;return el&&Number.isFinite(el.duration)?Math.max(0,el.duration-0.06):3.1};
+ const capture=()=>{const el=v.current,c=off.current;if(ready.current||!el||!c||el.readyState<2||el.currentTime>0.15)return;try{c.getContext('2d')?.drawImage(el,0,0,c.width,c.height);ready.current=true}catch{}};
+ useEffect(()=>{const el=v.current;if(!el)return;el.muted=true;
+  const showLit=()=>{el.currentTime=end()};const atEnd=()=>{el.currentTime=end()};const onPlaying=()=>requestAnimationFrame(capture);const onTime=()=>{if(el.currentTime<0.15)capture()};
+  el.addEventListener('ended',atEnd);el.addEventListener('loadeddata',capture);el.addEventListener('playing',onPlaying);el.addEventListener('timeupdate',onTime);
+  const later=()=>{if(el.readyState>=1)showLit();else el.addEventListener('loadedmetadata',showLit,{once:true})};
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)later();else el.play().catch(later);
+  return()=>{el.pause();el.removeEventListener('ended',atEnd);el.removeEventListener('loadeddata',capture);el.removeEventListener('playing',onPlaying);el.removeEventListener('timeupdate',onTime)}},[]);
+ const toggle=()=>{const el=v.current;if(!el)return;el.pause();try{navigator.vibrate?.(12)}catch{}
+  if(lit){setLit(false);if(ready.current){setIsOff(true);return}
+   setDim(true);setTimeout(()=>{el.addEventListener('seeked',()=>{capture();requestAnimationFrame(()=>setDim(false))},{once:true});el.currentTime=0},480);return}
+  setLit(true);
+  if(isOff){el.addEventListener('seeked',()=>{setIsOff(false);el.play().catch(()=>{el.currentTime=end()})},{once:true});el.currentTime=0;return}
+  if(el.currentTime>=end()-0.05)el.currentTime=0;el.play().catch(()=>{el.currentTime=end()})};
+ return <section className={`m3-hero${isOff?' is-off':''}${dim?' is-dimming':''}`} aria-label="Prepara tu oferta">
+  <div className="m3-hero-stage" aria-hidden="true"><video ref={v} src="/assets/intro-v2.mp4" muted playsInline preload="auto"/><canvas ref={off} width={540} height={960}/></div>
+  <div className="m3-hero-shade" aria-hidden="true"/>
+  <button type="button" className="k-switch m3-switch" role="switch" aria-checked={lit} aria-label="Luces del camión" onClick={toggle}><svg className="k-switch-icon" viewBox="0 0 32 24" aria-hidden="true"><path d="M14 3c6 0 10 4 10 9s-4 9-10 9c-1.7 0-3-1-3-2.5v-13C11 4 12.3 3 14 3Z" fill="currentColor"/><path d="M2 7h6M1 12h7M2 17h6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/></svg><span className="k-switch-text">Luces</span><span className="k-switch-track"><span className="k-switch-knob"/></span></button>
+  <div className="m3-hero-copy"><h2>Prepara<br/><span>tu oferta.</span></h2><button type="button" className="m3-hero-cta" onClick={onCta}>Ver próximas subastas</button></div>
+ </section>}
 const statusText=(l:Lot)=>l.status==='closed'?'Finalizada':l.status==='upcoming'?'Próxima subasta':isLeading(l)?'Vas ganando':l.myBid?'Te superaron':'Abierta';
 const demoService=createDemoService();
 export default function Prototype(){if(new URLSearchParams(location.search).get('preview')==='web')return <ConnectedPhonePreview/>;return <MobileMemberUI><MemberExperience service={demoService}/></MobileMemberUI>}
@@ -68,20 +107,19 @@ export function MemberExperience({service}:{service:MemberService}){
  // Inicio «Claro y confiable»: lo urgente arriba, tus pujas con su estado y lo guardado.
  const short=(ms:number)=>leftText(Math.max(ms,0)).replace(/ \d+ (min|s)$/,'');
  const myBids=data.lots.filter(l=>l.myBid&&l.status!=='closed').sort((x,y)=>Date.parse(x.endsAt)-Date.parse(y.endsAt));
- const outbid=myBids.find(l=>l.status==='active'&&!isLeading(l));
  const saved=data.lots.filter(l=>l.saved&&l.status==='upcoming').sort((x,y)=>Date.parse(x.startsAt)-Date.parse(y.startsAt)).slice(0,3);
- const badge=(l:Lot)=>l.status==='upcoming'?<span className="m3-badge m3-blue">En {short(Date.parse(l.startsAt)-Date.now())}</span>:isLeading(l)?<span className="m3-badge m3-green">Ganando</span>:<span className="m3-badge m3-yellow">Superado</span>;
- const row=(l:Lot,sub:ReactNode)=><button key={l.id} className="m3-row" onClick={()=>detail(l)}><img src={l.image} alt=""/><span><b>{l.title}</b><small>{sub}</small></span>{badge(l)}</button>;
+ const badge=(l:Lot)=>l.status==='upcoming'?<span className="m3-badge m3-blue">En {short(Date.parse(l.startsAt)-Date.now())}</span>:isLeading(l)?<span className="m3-badge m3-green">Casi tuya</span>:<span className="m3-badge m3-yellow">Superado</span>;
+ const outbidNow=(l:Lot)=>l.status==='active'&&!!l.myBid&&!isLeading(l);
+ const row=(l:Lot,sub:ReactNode,quickBid=false)=><div key={l.id} className="m3-row"><button className="m3-row-main" onClick={()=>detail(l)}><img src={l.image} alt=""/><span><b>{l.title}</b><small>{quickBid&&outbidNow(l)?<><em className="m3-out">Superado</em> · {sub}</>:sub}</small></span></button><span className="m3-row-side">{quickBid&&outbidNow(l)?<button className="m3-row-bid" disabled={!canBid(l)} onClick={()=>openBid(l)} aria-label={`Pujar de nuevo por ${l.title}`}>Pujar</button>:badge(l)}</span></div>;
  const first=data.member.name.split(' ')[0];
  return <>
- <div className="m3-hello"><h1>Hola, {first}</h1><p>{data.member.authorized?<>Cuenta autorizada <CheckIcon/></>:'Autorización pendiente'}</p></div>
+ <div className="m3-hello"><h1>Hola, {first}</h1><p>Bienvenido a tu espacio USSO · {data.member.authorized?<>Cuenta autorizada <CheckIcon/></>:'Autorización pendiente'}</p></div>
+ <LightsHero onCta={()=>{navigate('subastas');setFilter('Próximas')}}/>
  {!data.member.authorized?<section className="authorization-card"><h2>Un paso antes de pujar</h2><p>Solicita la autorización de tu cuenta. Mientras tanto, puedes explorar y guardar lotes.</p><button className="gold-button" onClick={()=>navigate('cuenta')}>Ver estado de mi cuenta</button></section>:null}
- {outbid&&<div className="m3-notice"><button className="m3-notice-photo" onClick={()=>detail(outbid)} aria-label={`Ver ${outbid.title}`}><img src={outbid.image} alt=""/></button><div><b>Te superaron</b><small>{outbid.title} · {money(outbid.price)}</small></div><button className="m3-dark-button" disabled={!canBid(outbid)} onClick={()=>openBid(outbid)}>Pujar</button></div>}
- {myBids.length>0&&<>{sectionTitle('Tus pujas',()=>navigate('pujas'))}<div className="m3-list">{myBids.map(l=>row(l,<TimeLeft lot={l}/>))}</div></>}
- {!myBids.length&&nextAuction&&<>{sectionTitle('Próxima subasta',()=>{navigate('subastas');setFilter('Próximas')})}<article className="m3-card"><button className="m3-card-photo" onClick={()=>detail(nextAuction)} aria-label={`Ver detalles de ${nextAuction.title}`}><img src={nextAuction.image} alt=""/><span className="m3-pill"><TimeLeft lot={nextAuction}/></span></button><button className="m3-card-copy" onClick={()=>detail(nextAuction)}><b>{nextAuction.title}</b><small>Lote {nextAuction.number} · Uruapan, Mich.</small><strong>{money(nextAuction.price)} <span>precio base</span></strong></button><button className="m3-heart" aria-label={nextAuction.saved?'Quitar de guardados':'Guardar'} aria-pressed={nextAuction.saved} disabled={pending} onClick={()=>save(nextAuction)}>{nextAuction.saved?<BookmarkFilledIcon/>:<BookmarkIcon/>}</button></article></>}
+ {myBids.length>0&&<>{sectionTitle('Tus pujas',()=>navigate('pujas'))}<div className="m3-list">{myBids.map(l=>row(l,<TimeLeft lot={l}/>,true))}</div></>}
+ {upcomingLots.length>0&&<>{sectionTitle('Próximas subastas',()=>{navigate('subastas');setFilter('Próximas')},'Ver todas')}<UpcomingCarousel lots={upcomingLots.slice(0,6)} onOpen={detail} onSave={save} pending={pending}/></>}
  {saved.length>0&&<>{sectionTitle('Guardados',()=>navigate('calendario'),'Calendario')}<div className="m3-list">{saved.map(l=>row(l,<>Empieza {dateLabel(l.startsAt)} · {hour(l.startsAt)} h</>))}</div></>}
- {!saved.length&&!myBids.length&&upcomingLots.length>1&&<>{sectionTitle('También vienen',()=>{navigate('subastas');setFilter('Próximas')},'Ver todas')}<div className="m3-list">{upcomingLots.filter(l=>l.id!==nextAuction?.id).slice(0,3).map(l=>row(l,<>Empieza {dateLabel(l.startsAt)} · {hour(l.startsAt)} h</>))}</div></>}
- {!myBids.length&&!nextAuction&&<>{sectionTitle('Tu próxima oportunidad')}{empty('Pronto habrá nuevas subastas','Vuelve para descubrir los próximos lotes o explora las subastas finalizadas.',primary)}</>}
+ {!myBids.length&&!upcomingLots.length&&<>{sectionTitle('Tu próxima oportunidad')}{empty('Pronto habrá nuevas subastas','Vuelve para descubrir los próximos lotes o explora las subastas finalizadas.',primary)}</>}
  <a className="m3-link" href="/nosotros.html"><span><b>Conoce USSO</b><small>Trayectoria, financiamiento y contacto</small></span><ChevronRightIcon/></a>
  </>})()}
  {view==='subastas'&&<><div className="page-heading"><h1>Subastas</h1><p>Encuentra tu próxima oportunidad.</p></div><label className="search-field"><MagnifyingGlassIcon/><KeyboardInput aria-label="Buscar subasta" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar por lote o nombre"/></label><div className="filter-options" aria-label="Filtrar subastas">{['Todas','Abiertas','Próximas','Finalizadas','Guardadas'].map(f=><button key={f} aria-pressed={filter===f} onClick={()=>setFilter(f)}>{f}</button>)}</div><div className="lot-list">{(()=>{const shown=data.lots.filter(l=>(filter==='Todas'||filter==='Abiertas'&&l.status==='active'||filter==='Próximas'&&l.status==='upcoming'||filter==='Finalizadas'&&l.status==='closed'||filter==='Guardadas'&&l.saved)&&`${l.title} ${l.number}`.toLowerCase().includes(search.toLowerCase()));return shown.length?<><p className="list-caption">{shown.length} {shown.length===1?'lote':'lotes'}</p>{shown.map(lotRow)}</>:empty('Sin coincidencias','Prueba otro nombre o cambia los filtros.',<button className="text-action" onClick={()=>{setSearch('');setFilter('Todas')}}>Mostrar todas</button>)})()}</div></>}
