@@ -29,8 +29,8 @@ export function validateBid(lot:Lot,member:Member,amount:number,revision:number,
  if(lot.revision!==revision)throw new BidError('La oferta cambió. Revisa el nuevo mínimo antes de confirmar.','STALE_PRICE');
  if(!Number.isSafeInteger(amount)||amount<lot.price+lot.increment)throw new BidError(`La oferta mínima es ${money(lot.price+lot.increment)}.`,'AMOUNT');
 }
-export function createDemoService():MemberService {
- const asOf='2026-10-31T12:00:00-06:00';
+export function createDemoService(live=false):MemberService {
+ let asOf='2026-10-31T12:00:00-06:00';
  let member:Member={id:'demo-member',name:'Carlos',number:'USSO-DEMO',authorized:true,email:'carlos@example.com',city:'Uruapan'};
  const lots:Lot[]=[
  {id:'demo-n14',number:'DEMO 4102',title:'Motor Cummins N14',image:'/assets/usso/cummins-n14-celect.webp',status:'active',price:85000,myBid:80000,increment:1000,revision:1,startsAt:'2026-10-30T09:00:00-06:00',endsAt:'2026-10-31T18:00:00-06:00',saved:true,condition:'Motor usado. Fotografía de referencia para esta demostración. Revisa el reporte del lote antes de participar.'},
@@ -39,6 +39,8 @@ export function createDemoService():MemberService {
  {id:'3019',number:'3019',title:'Transmisión Eaton Fuller',image:'/assets/usso/transmisiones-cover.webp',status:'upcoming',price:15000,increment:1000,revision:1,startsAt:'2026-11-09T09:00:00-06:00',endsAt:'2026-11-10T18:00:00-06:00',saved:true,condition:'Transmisión usada. Confirma modelo, funcionamiento y condiciones con USSO.'},
  {id:'demo-closed',number:'DEMO 4090',title:'Corte International 9400i',image:'/assets/usso/cortes-cover.webp',status:'closed',price:150000,myBid:140000,increment:1000,revision:1,startsAt:'2026-10-20T09:00:00-06:00',endsAt:'2026-10-22T18:00:00-06:00',saved:false,condition:'Subasta finalizada. Ejemplo de historial; no implica disponibilidad.'}
  ];
+ // Vista de ejemplo «en vivo»: recorre las fechas para que todo ocurra alrededor de hoy.
+ if(live){const shift=Date.now()-Date.parse(asOf),mv=(d:string)=>new Date(Date.parse(d)+shift).toISOString();asOf=mv(asOf);lots.forEach(l=>{l.startsAt=mv(l.startsAt);l.endsAt=mv(l.endsAt)})}
  const receipts=new Map<string,{request:BidRequest;receipt:BidReceipt}>();
  const campaigns:Campaign[]=[{id:'usso-cover',title:'CONOCE USSO.',eyebrow:'EL RESPALDO DETRÁS DE CADA LOTE.',body:'Nuestra trayectoria, financiamiento y más sobre nosotros.',image:'/assets/usso/portada.png',label:'Conocer USSO',sponsored:false,destination:'nosotros'}];
  const pause=()=>new Promise<void>(resolve=>setTimeout(resolve,120));

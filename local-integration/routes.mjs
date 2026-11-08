@@ -30,7 +30,7 @@ export function integrateHtml(name,html,{production=false}={}){
   const upcomingLink='<a href="#subastas" onClick="{{ scrollToSection }}">Ver próximas subastas</a>';
   const memberUpcomingLink='<a href="{{ publicUpcomingHref }}" onClick="{{ publicUpcomingClick }}">Ver próximas subastas</a>';
   if(html.includes(upcomingLink))html=html.replace(upcomingLink,memberUpcomingLink);
-  else if(!html.includes(memberUpcomingLink))throw new Error('Public upcoming link anchor missing');
+  else if(!html.includes('href="{{ publicUpcomingHref }}"'))throw new Error('Public upcoming link anchor missing');
   html=html.replace(/(class="usso-nav-guest-primary"[^>]*>)Crear cuenta</,'$1Crear cuenta para pujar<');
   html=html.replace(/(onClick="{{ openRegistroFromMenu }}"[^>]*>)Crear cuenta</,'$1Crear cuenta para pujar<');
   for(const label of ['Mi cuenta','Entrar'])html=html.replace(`onClick="{{ openDockAccount }}" aria-label="${label}"`,'onClick="{{ openDockAccount }}" aria-label="{{ publicAccountLabel }}"');

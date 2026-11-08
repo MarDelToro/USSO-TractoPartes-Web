@@ -1,3 +1,116 @@
 *{box-sizing:border-box}html,body,#root{margin:0;min-height:100%;width:100%}body.member-web{background:#080a0c;color:#f6f6f6;font-family:Manrope,system-ui,sans-serif;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}button,input{font:inherit}button,a{-webkit-tap-highlight-color:transparent}button{cursor:pointer}a{color:#f9ca47}body.member-web .usso-app{position:fixed;inset:0;max-width:520px;margin:0 auto;height:100dvh;box-shadow:0 0 80px #0008}.web-scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#414141 transparent}.member-web .member-content{padding:calc(24px + env(safe-area-inset-top)) 16px calc(112px + env(safe-area-inset-bottom));min-height:100%}.member-web .member-tabs{height:calc(71px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}.member-web .member-tabs:after{display:none}.member-web .member-toast{bottom:calc(83px + env(safe-area-inset-bottom))!important}.member-web .promo-card{background-size:cover}.member-web .photo-button{height:clamp(200px,58vw,265px)}.member-web .detail-photo{height:clamp(210px,70vw,350px)}.member-web .promo-description{max-width:265px;font-size:12px}.member-web .demo-label{letter-spacing:.7px}.member-web .gold-button{display:block;text-decoration:none}.member-web .profile-card{margin-bottom:20px}.account-actions{display:grid;gap:15px;margin:24px 8px}.account-actions>a{font-weight:700;font-size:13px;min-height:42px;display:flex;align-items:center}.usso-app .signout-button{min-height:45px;border:1px solid #8a693c66;border-radius:13px;color:#edd0a2;text-align:center}.evidence-list{display:grid;gap:16px;padding:0 0 20px}.evidence-list img,.evidence-list video{display:block;width:100%;max-height:600px;object-fit:contain;background:#080a0d;border-radius:12px}.evidence-list a{font-size:11px;text-decoration:none}.evidence-list a span{display:block;margin:7px 0}.detail-disclosure ul{padding-left:20px;font-size:12px;line-height:1.8;color:#b8c1ca}.web-sheet-overlay{position:fixed;inset:0;z-index:80;background:#000a;backdrop-filter:blur(4px)}.member-web .web-sheet{position:fixed;z-index:81;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,520px);max-height:92dvh;border-radius:24px 24px 0 0;overflow:hidden;padding:22px 0 calc(18px + env(safe-area-inset-bottom));box-shadow:0 -12px 60px #0007}.member-web .sheet-header{padding:0 20px 16px}.member-web .sheet-title{margin:0;font-size:23px;font-weight:800}.member-web .sheet-content{padding:0 20px;overflow:auto;max-height:calc(92dvh - 120px)}.member-web .sheet-description{margin:6px 0 0!important}.member-web .sheet-close{top:11px;right:9px}.member-web .prebuy-sheet p{margin-bottom:18px}.member-web .prebuy-sheet .gold-button{margin:12px 0}.member-web .bid-flow{padding-bottom:5px}.member-web .amount-label input{outline:none}.member-web .web-gate{max-width:420px;padding:90px 24px;margin:auto;text-align:center}.web-gate img{width:145px;margin-bottom:30px}.web-gate h1{font-size:25px;letter-spacing:-.8px}.web-gate p{color:#b4bdca;line-height:1.6}.web-gate button{background:#f4cb5b;color:#19140b;border:0;border-radius:13px;min-height:46px;padding:10px 22px;font-weight:800;margin:15px}.web-gate a{display:block;margin:14px}.member-web button:focus-visible,.member-web a:focus-visible,.member-web input:focus-visible,.member-web summary:focus-visible{outline:2px solid #ffe39a;outline-offset:3px}
 @media(min-width:700px){.member-web .usso-app{border-inline:1px solid #ffffff12}.member-web .member-content{padding-top:32px}.member-web .member-header{margin-bottom:18px}}
 @media(prefers-reduced-motion:no-preference){.member-web .web-sheet{animation:sheet-in .2s ease-out}@keyframes sheet-in{from{opacity:0;translate:0 20px}to{opacity:1;translate:0 0}}}
+
+/* ===== Computadora: misma identidad que la página pública (barra superior, contenido amplio) ===== */
+@media(min-width:960px){
+ body.member-web .usso-app{max-width:none;border-inline:0;box-shadow:none}
+ .member-web .member-content{max-width:1180px;margin:0 auto;padding:108px 40px 72px}
+ /* Barra superior: logo a la izquierda, secciones al centro, avisos a la derecha */
+ .member-web .member-header{position:fixed;z-index:9;top:0;left:max(40px,calc(50% - 550px));right:max(40px,calc(50% - 550px));height:76px;margin:0;pointer-events:none}
+ .member-web .member-header>*{pointer-events:auto}
+ .member-web .member-tabs{top:0!important;bottom:auto!important;height:76px;display:flex;justify-content:center;gap:4px;padding:0 220px;border:0;border-bottom:1px solid #ffffff14;border-radius:0;background:#0b0d0fe8;box-shadow:0 8px 30px #0006}
+ .member-web .member-tabs button{flex-direction:row;gap:8px;padding:0 16px;font-size:14px;font-weight:700;color:#cfd4dc;border-radius:12px}
+ .member-web .member-tabs button:hover{color:#fff;background:#ffffff0a}
+ .member-web .member-tabs svg{width:18px;height:18px}
+ .member-web .member-tabs button[aria-current]:after{bottom:0;left:16px;right:16px;border-radius:3px 3px 0 0}
+ .member-web .member-toast{bottom:32px!important;left:50%;right:auto;transform:translateX(-50%);max-width:480px}
+ .member-web .demo-label{margin-left:8px}
+ /* Títulos más grandes, como en la portada */
+ .member-web .greeting h1{font-size:44px;letter-spacing:-1.6px}
+ .member-web .page-heading{margin:8px 8px 28px}
+ .member-web .page-heading h1{font-size:44px;letter-spacing:-1.6px}
+ .member-web .page-heading p{font-size:15px}
+ .member-web .section-title{margin:40px 8px 16px}
+ .member-web .section-title h2{font-size:28px}
+ /* Inicio: promoción ancha y lote destacado en dos columnas */
+ .member-web .promo-card{min-height:260px;padding:40px 44px;background-size:cover;background-position:center 40%}
+ .member-web .promo-card h2{font-size:46px;letter-spacing:-1.8px}
+ .member-web .promo-description{max-width:420px!important;width:auto!important;font-size:15px}
+ .member-web .featured-lot{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:stretch}
+ .member-web .featured-lot .photo-button{height:100%;min-height:340px}
+ .member-web .featured-copy{padding:32px 34px;display:flex;flex-direction:column;justify-content:center}
+ .member-web .featured-copy h3{font-size:26px;line-height:1.2}
+ /* Listas de lotes como tarjetas en cuadrícula */
+ .member-web .lot-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+ .member-web .lot-list>.list-caption,.member-web .lot-list>.empty-state{grid-column:1/-1}
+ .member-web .lot-row{padding:14px!important;border:1px solid var(--line)!important;border-radius:18px;background:#14171b!important;transition:border-color .15s,background .15s}
+ .member-web .lot-row:hover{border-color:#c6923680!important;background:#181b20!important}
+ .member-web .lot-row img{width:110px;height:88px}
+ .member-web .lot-row strong{font-size:15px}
+ .member-web .lot-row small{font-size:12px}
+ .member-web .search-field,.member-web .filter-options,.member-web .segmented{max-width:720px}
+ /* Detalle del lote: foto grande */
+ .member-web .detail-photo{height:min(520px,56vh)}
+ /* Cuenta, perfil, avisos y ayuda: columna cómoda de leer */
+ .member-web .member-content[data-view=cuenta],.member-web .member-content[data-view=perfil],.member-web .member-content[data-view=avisos],.member-web .member-content[data-view=ayuda],.member-web .member-content[data-view=calendario],.member-web .member-content[data-view=lote],.member-web .member-content[data-view=pujas]{max-width:860px}
+ .member-web .member-content[data-view] .member-header{left:max(40px,calc(50% - 550px))}
+ /* Ventanas (ofertas, compra) centradas como diálogo */
+ .member-web .web-sheet{bottom:auto;top:50%;transform:translate(-50%,-50%);border-radius:24px;max-height:86dvh}
+}
+@media(min-width:960px){.member-web .featured-copy>.status-pill{align-self:flex-start}}
+
+/* ===== Kit de diseño USSO (mismo estilo que la portada pública) ===== */
+body.member-web .gold-button{min-height:50px;border-radius:999px;background:linear-gradient(180deg,var(--k-gold-hi),var(--k-gold));color:var(--k-ink);
+  box-shadow:0 10px 28px rgba(246,192,42,.25),inset 0 1px 0 rgba(255,255,255,.45);font-size:15px;letter-spacing:.01em;
+  transition:transform .18s var(--k-ease),box-shadow .18s var(--k-ease),opacity .18s}
+body.member-web .gold-button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 14px 34px rgba(246,192,42,.36),inset 0 1px 0 rgba(255,255,255,.45)}
+body.member-web .gold-button:active:not(:disabled),body.member-web .filter-options button:active,body.member-web .segmented button:active,body.member-web .lot-row:active{transform:scale(.97)}
+body.member-web .gold-button:disabled{opacity:.5}
+body.member-web .filter-options{gap:8px}
+body.member-web .filter-options button{min-height:40px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--k-line-strong);color:var(--k-text);font:700 13px var(--k-ui);transition:background-color .18s,border-color .18s,color .18s,transform .18s}
+body.member-web .filter-options button[aria-pressed=true]{background:var(--k-gold);border-color:var(--k-gold);color:var(--k-ink)}
+body.member-web .segmented{border-radius:999px;padding:4px;background:rgba(255,255,255,.05);border:1px solid var(--k-line)}
+body.member-web .segmented button{border-radius:999px;transition:background-color .2s,color .2s}
+body.member-web .segmented button[aria-pressed=true]{background:var(--k-gold);color:var(--k-ink)}
+body.member-web .status-pill{min-height:26px;padding:0 11px;border-radius:999px;background:rgba(10,10,11,.62);border:1px solid rgba(246,192,42,.55);color:var(--k-gold);box-shadow:none;
+  font:800 10.5px/1 var(--k-ui);letter-spacing:.08em;text-transform:uppercase;gap:6px}
+body.member-web .status-pill::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}
+body.member-web .status-pill.winning{border-color:rgba(126,226,168,.5);color:var(--k-green)}
+body.member-web .greeting h1,body.member-web .page-heading h1,body.member-web .promo-card h2,body.member-web .detail-title{font-family:var(--k-display);font-weight:400;letter-spacing:-.02em}
+body.member-web .section-title h2{font-weight:800}
+body.member-web .closing .k-clock small{display:inline;font:700 12px var(--k-ui);color:var(--muted)}
+body.member-web .closing .k-clock strong{font:800 14px var(--k-ui);color:var(--k-text)}
+body.member-web .featured-lot{border-color:rgba(246,192,42,.55);border-radius:var(--k-radius)}
+body.member-web .lot-row img{border-radius:12px}
+body.member-web .member-tabs button{transition:color .2s}
+
+/* ===== Tono blanco en Mi espacio (comparte la elección con la portada) ===== */
+.theme-button{display:inline-grid;place-items:center;width:42px;height:42px;margin-left:auto;margin-right:8px;border-radius:50%;border:1px solid #ffffff20!important;background:#ffffff05!important;color:var(--text,#f6f6f6)!important;font-size:17px;line-height:1}
+html[data-theme=light] body.member-web{background:#eeebe3;color:#15161a}
+html[data-theme=light] .member-web .usso-app{background:radial-gradient(ellipse at 100% 0%,#f6c02a26,transparent 35%),#f6f4ef;color:#15161a;--muted:#5d636c;--line:#00000016;--surface:#ffffff;--gold:#a87400;--text:#15161a}
+html[data-theme=light] .member-web .theme-button{border-color:#00000020!important;background:#0000000a!important}
+html[data-theme=light] .member-web .member-header .icon-button{color:#15161a;border-color:#00000020;background:#0000000a}
+html[data-theme=light] .member-web .member-header .logo-link img{filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+html[data-theme=light] .member-web .demo-label,html[data-theme=light] .member-web .demo-note,html[data-theme=light] .member-web .calendar-key,html[data-theme=light] .member-web .detail-disclosure p,html[data-theme=light] .member-web .agenda-time{color:#5d636c}
+html[data-theme=light] .member-web .member-tabs{background:#fffffff2;border-color:#00000014;box-shadow:0 -8px 24px #0000000f}
+html[data-theme=light] .member-web .member-tabs button{color:#5d636c}
+html[data-theme=light] .member-web .member-tabs button[aria-current]{color:#a87400}
+html[data-theme=light] .member-web .member-tabs button:hover{color:#15161a;background:#0000000a}
+html[data-theme=light] .member-web .featured-lot{background:#fff;box-shadow:0 18px 40px #00000012}
+html[data-theme=light] .member-web .settings-list,html[data-theme=light] .member-web .calendar-panel,html[data-theme=light] .member-web .empty-state,html[data-theme=light] .member-web .activity-card,html[data-theme=light] .member-web .profile-card{background:#fff;box-shadow:0 12px 30px #0000000d}
+html[data-theme=light] .member-web .lot-row{color:#15161a}
+html[data-theme=light] .member-web .lot-row b{color:#3a3d43}
+@media(min-width:960px){html[data-theme=light] .member-web .lot-row{background:#fff!important}html[data-theme=light] .member-web .lot-row:hover{background:#fffdf6!important}}
+html[data-theme=light] .member-web .filter-options button{background:#0000000a;color:#15161a;border-color:#0000001f}
+html[data-theme=light] .member-web .filter-options button[aria-pressed=true]{background:var(--k-gold);color:var(--k-ink);border-color:var(--k-gold)}
+html[data-theme=light] .member-web .segmented{background:#0000000a;border-color:#00000014}
+html[data-theme=light] .member-web .segmented button{color:#5d636c}
+html[data-theme=light] .member-web .segmented button[aria-pressed=true]{color:var(--k-ink)}
+html[data-theme=light] .member-web .search-field{background:#fff;border-color:#00000018}
+html[data-theme=light] .member-web input{color:#15161a}
+html[data-theme=light] .member-web .profile-form input{background:#fff;border-color:#0000001f}
+html[data-theme=light] .member-web .status-pill{background:#fff8e1;color:#a87400;border-color:#e2b23e}
+html[data-theme=light] .member-web .status-pill.winning{background:#ecfbf2;color:#1f8a4c;border-color:#7fd3a3}
+html[data-theme=light] .member-web .closing .k-clock strong{color:#15161a}
+html[data-theme=light] .member-web .calendar-grid button.calendar-day-saved{background:#f6c02a22;color:#8a5f00}
+html[data-theme=light] .member-web .calendar-grid button.calendar-day-scheduled{background:#2f6fb914;color:#1f4f87}
+html[data-theme=light] .member-web .member-toast{background:#15161af5;color:#ffe0a0}
+html[data-theme=light] .member-web .web-sheet,html[data-theme=light] .member-web .bottom-sheet{background:#fff;color:#15161a;--muted:#5d636c;--line:#00000016;--gold:#a87400}
+html[data-theme=light] .member-web .amount-label input{background:#f6f4ef;color:#15161a}
+html[data-theme=light] .member-web .quick-amounts button{background:#f6c02a1f;color:#7a5600;border-color:#e2b23e80}
+html[data-theme=light] .member-web .agenda-event>p{color:#a87400}
+html[data-theme=light] .member-web .member-header .logo-link img{content:url(/assets/logo-usso-transparent.png);filter:none}
+html[data-theme=light] .member-web .promo-card{color:#fff}
+html[data-theme=light] .member-web .promo-card h2,html[data-theme=light] .member-web .promo-card p{color:#fff}
+html[data-theme=light] .member-web .greeting p{color:#5d636c}

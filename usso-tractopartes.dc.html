@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es-MX">
-<head><style>html.usso-member-routing body{visibility:hidden!important}</style><script>if(new URLSearchParams(location.search).get('vista')!=='publica'){document.documentElement.classList.add('usso-member-routing');window.ussoEntryFallback=setTimeout(()=>document.documentElement.classList.remove('usso-member-routing'),6000)}</script>
+<head><script>try{if(localStorage.getItem('usso_theme')==='light')document.documentElement.dataset.theme='light'}catch(e){}</script><style>html.usso-member-routing body{visibility:hidden!important}</style><script>if(new URLSearchParams(location.search).get('vista')!=='publica'){document.documentElement.classList.add('usso-member-routing');window.ussoEntryFallback=setTimeout(()=>document.documentElement.classList.remove('usso-member-routing'),6000)}</script>
 <meta charset="utf-8">
 <script>
   const previewUrl = new URL(window.location.href);
@@ -127,7 +127,7 @@
 <style id="usso-public-member-style">
    .usso-public-member-return{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:10px 15px;border-radius:100px;border:1px solid rgba(246,192,42,.35);background:rgba(246,192,42,.08);color:#f6c02a;font:700 12px Manrope,sans-serif;white-space:nowrap;text-decoration:none}
    .usso-mobile-menu .usso-public-member-return{margin-top:16px}
-  </style></head>
+  </style><link rel="stylesheet" href="/usso-kit.css?v=20261108"></head>
 <body>
 <div id="usso-boot-loader" role="status" aria-live="polite" aria-label="Cargando el sitio">
   <div class="usso-boot-box">
@@ -183,7 +183,7 @@
   .usso-loser-card { position:relative;width:min(600px,94vw); padding:44px 30px; border:1px solid rgba(255,92,82,.38); border-radius:28px; background:rgba(20,20,22,.96); box-shadow:0 30px 100px rgba(0,0,0,.72); }
   .usso-loser-card .icon { font-size:62px; line-height:1;color:#ff6b61; }
   .usso-loser-card h2 { margin:18px 0 10px; color:#ff8a80; font:900 clamp(31px,6vw,54px)/1.05 'Archivo Black',sans-serif; }
-  .usso-loser-card p { margin:0 auto 24px; max-width:470px; color:rgba(243,241,236,.72); font:600 16px/1.6 Manrope,sans-serif; }
+  .usso-loser-card p { margin:0 auto 24px; max-width:470px; color:rgba(var(--text-rgb),.72); font:600 16px/1.6 Manrope,sans-serif; }
   .usso-loser-card button { border:0; border-radius:999px; padding:14px 26px; background:#f6c02a; color:#0a0a0b; font:800 14px Manrope,sans-serif; cursor:pointer; }
   .usso-native-outcome { position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; height:100dvh!important; z-index:2147483647!important; isolation:isolate; overflow:hidden!important; overscroll-behavior:none!important; touch-action:none!important; padding-top:max(18px,env(safe-area-inset-top))!important; padding-bottom:max(18px,env(safe-area-inset-bottom))!important; }
   .usso-winner-confetti span { position:absolute; top:-10%; width:10px; height:20px; background:#f6c02a; animation:winnerFall 3.5s linear infinite; }
@@ -478,7 +478,7 @@
   .usso-modal-scroll::-webkit-scrollbar { display: none; }
   .usso-field { width: 100%; padding: 13px 15px; border-radius: 10px; background: rgba(var(--border-rgb),0.05); border: 1px solid rgba(var(--border-rgb),0.14); color: var(--text); font: 600 15px Manrope, sans-serif; outline: none; }
   .usso-field:focus { border-color: rgba(246,192,42,0.6); background: rgba(var(--border-rgb),0.08); }
-  .usso-field::placeholder { color: rgba(243,241,236,0.32); font-weight: 500; }
+  .usso-field::placeholder { color: rgba(var(--text-rgb),0.32); font-weight: 500; }
   @media (max-width: 640px) {
     .usso-featured-lot { grid-template-columns:minmax(0,1fr) !important; grid-template-rows:auto auto auto !important; grid-template-areas:"photo" "body" "actions" !important; border-radius:16px !important; margin-bottom:8px !important; }
     .usso-auctions-grid {
@@ -1029,8 +1029,9 @@
     </sc-if>
     <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom, rgba(10,10,10,0.15) 0%, rgba(10,10,10,0.35) 55%, rgba(10,10,10,0.75) 100%)"></div>
     <sc-if value="{{ showLogo }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(320px,68vw);animation:logoFadeCinema 1700ms cubic-bezier(.25,.6,.3,1) forwards;z-index:2">
-        <img src="assets/logo-usso-v2-transparent.webp" alt="USSO Tractopartes" style="width:100%;height:auto;display:block;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.6))">
+      <div class="k-intro-logo">
+        <img src="assets/logo-usso-v2-transparent.webp" alt="USSO Tractopartes">
+        <i class="k-intro-line"></i>
       </div>
     </sc-if>
   </div>
@@ -1048,6 +1049,7 @@
       <a href="#videos" onClick="{{ scrollToSection }}" style="font:600 14px Manrope,sans-serif;color:rgba(var(--text-rgb),0.75)">Videos</a>
       <a href="#contacto" onClick="{{ scrollToSection }}" style="font:600 14px Manrope,sans-serif;color:rgba(var(--text-rgb),0.75)">Contacto</a>
     </div>
+    <button type="button" class="k-theme-toggle" onClick="{{ toggleTheme }}" aria-label="{{ themeAria }}" title="{{ themeAria }}"><span aria-hidden="true">{{ themeIcon }}</span></button>
     <div class="usso-nav-search" style="display:flex;align-items:center;gap:{{ searchGap }};background:rgba(var(--border-rgb),0.06);border:1px solid rgba(var(--border-rgb),0.12);border-radius:100px;padding:9px 12px;cursor:pointer" onClick="{{ openSearch }}">
       <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style="flex:none"><circle cx="7" cy="7" r="5.2" stroke="rgba(var(--text-rgb),0.55)" stroke-width="1.6"></circle><path d="M11.2 11.2L14.5 14.5" stroke="rgba(var(--text-rgb),0.55)" stroke-width="1.6" stroke-linecap="round"></path></svg>
       <input type="text" ref="{{ searchInputRef }}" value="{{ searchValue }}" onChange="{{ onSearchChange }}" onKeyDown="{{ onSearchKeyDown }}" onFocus="{{ onSearchFocus }}" onBlur="{{ onSearchBlur }}" placeholder="Buscar pieza..." style="background:transparent;border:0;outline:0;color:var(--text);font:600 13px Manrope,sans-serif;width:{{ searchWidth }};transition:width 0.2s">
@@ -1074,7 +1076,7 @@
       <sc-if value="{{ isPublicMember }}" hint-placeholder-val="{{ false }}"><a href="/miembros/" class="usso-public-member-return">Volver a mi cuenta <span aria-hidden="true">↗</span></a></sc-if>
       <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
         <a href="registro.html" class="usso-nav-guest-primary" style="background:{{ accent }};color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:11px 20px;border-radius:100px;border:0;cursor:pointer;white-space:nowrap;text-decoration:none">Crear cuenta para pujar</a>
-        <a href="login.html" style="background:transparent;border:1px solid rgba(255,255,255,0.22);color:var(--text);font:700 13px Manrope,sans-serif;padding:10px 18px;border-radius:100px;cursor:pointer;text-decoration:none">Entrar</a>
+        <a href="login.html" class="usso-nav-guest-secondary" style="background:transparent;border:1px solid rgba(var(--border-rgb),0.22);color:var(--text);font:700 13px Manrope,sans-serif;padding:10px 18px;border-radius:100px;cursor:pointer;text-decoration:none">Entrar</a>
       </sc-if>
     </div>
     <button onClick="{{ toggleMobileMenu }}" class="usso-nav-burger" aria-label="Menú" style="display:none;background:transparent;border:1px solid rgba(var(--border-rgb),0.25);border-radius:10px;padding:9px 11px;cursor:pointer">
@@ -1103,7 +1105,7 @@
         <button onClick="{{ openRegistroFromMenu }}" style="margin-top:16px;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:15px 30px;border-radius:100px;border:0;cursor:pointer">Crear cuenta para pujar</button>
         <button onClick="{{ openLoginFromMenu }}" style="margin-top:10px;background:transparent;border:1px solid rgba(255,255,255,0.22);color:var(--text);font:700 15px Manrope,sans-serif;padding:14px 28px;border-radius:100px;cursor:pointer">Ya tengo cuenta</button>
       </sc-if>
-      <a href="{{ whatsappLink }}" target="_blank" onClick="{{ closeMobileMenu }}" style="margin-top:14px;display:flex;align-items:center;gap:8px;color:rgba(243,241,236,0.6);font:700 14px Manrope,sans-serif;padding:8px 20px">o escríbenos por WhatsApp</a>
+      <a href="{{ whatsappLink }}" target="_blank" onClick="{{ closeMobileMenu }}" style="margin-top:14px;display:flex;align-items:center;gap:8px;color:rgba(var(--text-rgb),0.6);font:700 14px Manrope,sans-serif;padding:8px 20px">o escríbenos por WhatsApp</a>
     </div>
   </sc-if>
 
@@ -1112,7 +1114,7 @@
     <div onClick="{{ closeAuth }}" class="usso-modal-overlay" style="position:fixed;inset:0;z-index:400;background:rgba(5,5,6,0.82);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px">
       <div onClick="{{ stopProp }}" class="usso-auth-card usso-modal-scroll" style="width:100%;max-width:440px;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.1);border-radius:22px;padding:38px 34px 34px;position:relative">
         <button onClick="{{ closeAuth }}" aria-label="Cerrar" style="position:absolute;top:16px;right:16px;background:transparent;border:0;cursor:pointer;padding:8px">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="rgba(243,241,236,0.55)" stroke-width="1.7"></path></svg>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="rgba(var(--text-rgb),0.55)" stroke-width="1.7"></path></svg>
         </button>
 
         <sc-if value="{{ authIsRegistro }}" hint-placeholder-val="{{ true }}">
@@ -1211,7 +1213,7 @@
     <div onClick="{{ closeAccount }}" class="usso-modal-overlay" style="position:fixed;inset:0;z-index:400;background:rgba(5,5,6,0.82);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px">
       <div onClick="{{ stopProp }}" class="usso-auth-card usso-modal-scroll" style="width:100%;max-width:480px;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.1);border-radius:22px;padding:34px;position:relative">
         <button onClick="{{ closeAccount }}" aria-label="Cerrar" style="position:absolute;top:16px;right:16px;background:transparent;border:0;cursor:pointer;padding:8px">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="rgba(243,241,236,0.55)" stroke-width="1.7"></path></svg>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="rgba(var(--text-rgb),0.55)" stroke-width="1.7"></path></svg>
         </button>
 
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:26px">
@@ -1292,7 +1294,7 @@
     <div onClick="{{ closeBid }}" class="usso-modal-overlay" style="position:fixed;inset:0;z-index:400;background:rgba(5,5,6,0.82);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px">
       <div onClick="{{ stopProp }}" class="usso-auth-card usso-modal-scroll" style="width:100%;max-width:440px;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.1);border-radius:22px;padding:34px;position:relative">
         <button onClick="{{ closeBid }}" aria-label="Cerrar" style="position:absolute;top:16px;right:16px;background:transparent;border:0;cursor:pointer;padding:8px">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="rgba(243,241,236,0.55)" stroke-width="1.7"></path></svg>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="rgba(var(--text-rgb),0.55)" stroke-width="1.7"></path></svg>
         </button>
 
         <span style="font:700 11px Manrope,sans-serif;letter-spacing:0.18em;text-transform:uppercase;color:{{ accent }}">Lote {{ bidLotNumber }}</span>
@@ -1372,35 +1374,32 @@
   </sc-if>
 
   <!-- HERO -->
-  <section id="hero" data-screen-label="Hero" class="usso-hero-section" style="min-height:88vh;display:flex;align-items:center;padding:120px 48px 100px;position:relative;background:#0a0a0b;overflow:hidden">
-    <img src="assets/hero-truck-wide.webp" alt="Camión USSO Tractopartes" class="usso-hero-truck-photo" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:72% center;z-index:0">
-    <img src="assets/hero-truck-sunset-mobile.png" alt="Tractocamión negro al atardecer" class="usso-hero-truck-mobile" onError="{{ onMobileHeroError }}" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;z-index:0">
-    <div class="usso-hero-scrim" style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg, rgba(10,10,11,0.94) 0%, rgba(10,10,11,0.88) 32%, rgba(10,10,11,0.45) 58%, rgba(10,10,11,0.1) 100%)"></div>
-    <img src="assets/logo-usso-v2-transparent.webp" alt="USSO Tractopartes" class="usso-hero-mobile-logo">
-    <img src="assets/logo-usso-icon.png" alt="USSO" class="usso-hero-icon-badge" style="display:none;position:relative;z-index:2;width:100%;max-width:450px;height:auto;margin:0 auto -50px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4))">
-
-    <div class="usso-hero-content" style="position:relative;z-index:2;max-width:620px">
+  <section id="hero" data-screen-label="Hero" class="k-hero">
+    <div class="k-hero-scene" ref="{{ heroSceneRef }}">
+      <canvas class="k-hero-ambient k-hero-ambient--on" width="36" height="64" ref="{{ heroAmbientRef }}" aria-hidden="true"></canvas>
+      <canvas class="k-hero-ambient k-hero-ambient--off" width="36" height="64" ref="{{ heroAmbientOffRef }}" aria-hidden="true"></canvas>
+      <div class="k-hero-stage" aria-hidden="true">
+        <video class="k-hero-video" ref="{{ heroVideoRef }}" src="assets/intro-v2.mp4" muted="{{ true }}" playsInline="{{ true }}" preload="auto" tabindex="-1"></video>
+        <canvas class="k-hero-off" width="540" height="960" ref="{{ heroOffRef }}"></canvas>
+      </div>
+      <button type="button" class="k-switch" ref="{{ heroLightsRef }}" onClick="{{ toggleHeroLights }}" role="switch" aria-checked="false" aria-label="Luces del camión">
+        <svg class="k-switch-icon" viewBox="0 0 32 24" aria-hidden="true"><path d="M14 3c6 0 10 4 10 9s-4 9-10 9c-1.7 0-3-1-3-2.5v-13C11 4 12.3 3 14 3Z" fill="currentColor"/><path d="M2 7h6M1 12h7M2 17h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span class="k-switch-text">Luces</span>
+        <span class="k-switch-track"><span class="k-switch-knob"></span></span>
+      </button>
+    </div>
+    <div class="k-hero-shade" aria-hidden="true"></div>
+    <div class="k-hero-content" ref="{{ registerHero }}" style="opacity:{{ styles.heroTitle.opacity }};transform:{{ styles.heroTitle.transform }};transition:{{ styles.heroTitle.transition }}">
       <sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}"><div class="usso-member-greeting">{{ userGreeting }}</div></sc-if>
-      <div class="usso-hero-title-wrap" style="position:relative;z-index:1;opacity:{{ styles.heroTitle.opacity }};transform:{{ styles.heroTitle.transform }};transition:{{ styles.heroTitle.transition }}" ref="{{ registerHero }}">
-        <div class="usso-hero-badge-row" style="display:inline-flex;align-items:center;gap:7px;margin-bottom:8px;background:rgba(246,192,42,0.14);border:1px solid rgba(246,192,42,0.4);border-radius:100px;padding:6px 12px">
-          <span style="width:6px;height:6px;border-radius:50%;background:#ff0000;animation:livePulse 0.8s ease-in-out infinite"></span>
-          <span style="font:800 11px Manrope,sans-serif;letter-spacing:0.12em;text-transform:uppercase;color:{{ accent }}">Subasta activa ahora</span>
-        </div>
-<h1 style="font-family:'Archivo Black',sans-serif;font-size:clamp(36px,4.6vw,58px);line-height:1.05;margin:0 0 26px;color:var(--text)">Las mejores <span style="color:{{ accent }}">subastas</span><br> de tractopartes en México</h1>
-        <p style="font:600 19px/1.5 Manrope,sans-serif;color:rgba(var(--text-rgb),0.72);max-width:480px;margin:0 0 36px"><strong style="color:var(--text)">USSO Tractopartes, Uruapan, Michoacán.</strong> Puja por motores, transmisiones y diferenciales — más inventario y financiamiento disponibles todo el año.</p>
-
-        <div style="display:flex;gap:16px;flex-wrap:wrap">
-          <a href="#subastas" style="display:flex;align-items:center;gap:10px;background:{{ accent }};color:#0a0a0b;font:800 15px Manrope,sans-serif;padding:16px 28px;border-radius:100px">Ver subastas activas</a>
-        </div>
+      <div class="k-eyebrow">USSO Tractopartes · Uruapan, Michoacán</div>
+      <h1 class="k-hero-title">Prepara <span>tu oferta.</span></h1>
+      <p class="k-hero-lede">Subastas de tractopartes con evidencia real. Tú pones el precio.</p>
+      <div class="k-hero-actions">
+        <a class="k-hero-cta" href="{{ publicUpcomingHref }}" onClick="{{ publicUpcomingClick }}">Ver próximas subastas</a>
+        <a class="k-btn k-btn--ghost k-btn--lg k-hero-ghost" href="{{ whatsappLink }}" target="_blank" rel="noopener">Cotizar por WhatsApp</a>
       </div>
     </div>
-    <div class="usso-hero-mobile-editorial">
-      <sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}"><div class="usso-member-greeting">{{ userGreeting }}</div></sc-if>
-      <div class="eyebrow">El siguiente lote puede ser tuyo.</div>
-      <h1><span>Prepara</span><span>tu oferta.</span></h1>
-      <p>Explora las próximas subastas y conoce cada lote antes de participar.</p>
-      <a href="{{ publicUpcomingHref }}" onClick="{{ publicUpcomingClick }}">Ver próximas subastas</a>
-    </div>
+    <div class="k-hero-scroll" aria-hidden="true"><i></i>Desliza</div>
   </section>
 
   <!-- MARCAS MARQUEE -->
@@ -1439,7 +1438,7 @@
             </div>
             <div class="usso-auction-showcase-meta">
               <div class="usso-auction-showcase-price"><small>{{ featuredPriceLabel }}</small><strong>{{ featuredBid }}</strong></div>
-              <div class="usso-auction-showcase-clock"><small>{{ featuredClockLabel }}</small><strong>{{ featuredClock }}</strong></div>
+              <div class="usso-auction-showcase-clock k-clock {{ featuredClockClass }}"><small>{{ featuredClockLabel }}</small><strong>{{ featuredClock }}</strong></div>
             </div>
             <div class="usso-auction-showcase-actions">
               <sc-if value="{{ featuredIsActive }}"><button class="usso-showcase-primary" onClick="{{ featuredBidAction }}" aria-disabled="{{ featuredBidDisabled }}" style="cursor:{{ featuredBidCursor }};opacity:{{ featuredBidOpacity }}">{{ bidButtonLabel }}</button></sc-if>
@@ -1460,8 +1459,8 @@
               </sc-for>
             </div>
             <div class="usso-auction-showcase-nav">
-              <button onClick="{{ auctionsPrev }}" aria-label="Subasta anterior">←</button>
-              <button onClick="{{ auctionsNext }}" aria-label="Subasta siguiente">→</button>
+              <button class="k-arrow" onClick="{{ auctionsPrev }}" aria-label="Subasta anterior">←</button>
+              <button class="k-arrow" onClick="{{ auctionsNext }}" aria-label="Subasta siguiente">→</button>
               <div class="usso-auction-showcase-progress" style="--showcase-progress:{{ featuredProgress }}"><span></span></div>
               <span class="usso-auction-showcase-position">{{ featuredPositionLabel }}</span>
             </div>
@@ -1504,47 +1503,28 @@
       <sc-if value="{{ hasFiltered }}" hint-placeholder-val="{{ true }}">
         <div class="usso-all-grid {{ catalogGridClass }}" style="display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:12px;gap:20px;scrollbar-width:none;padding:2px 8px 6px 12px">
           <sc-for list="{{ filteredLots }}" as="lot" hint-placeholder-count="6">
-            <div class="usso-all-card" onClick="{{ lot.goTo }}" style="background:var(--bg);border:1px solid rgba(var(--border-rgb),0.09);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer">
-              <div class="usso-all-photo" style="position:relative;aspect-ratio:1/1">
-                <sc-if value="{{ lot.hasImage }}">
-                <img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="eager" decoding="async" style="width:100%;height:100%;display:block;object-fit:cover;object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }})">
-                </sc-if>
+            <div class="usso-all-card k-lot k-lot--{{ lot.statusKey }}" onClick="{{ lot.goTo }}">
+              <div class="k-lot-media">
+                <sc-if value="{{ lot.hasImage }}"><img src="{{ lot.src }}" data-fallback-src="{{ lot.fullSrc }}" onError="{{ onAuctionImageError }}" alt="" loading="lazy" decoding="async" style="object-position:{{ lot.position }};transform-origin:{{ lot.position }};transform:scale({{ lot.zoom }})"></sc-if>
                 <sc-if value="{{ lot.noImage }}"><div class="usso-photo-empty">Sin fotografía</div></sc-if>
-                <span class="usso-all-status" style="position:absolute;top:12px;left:12px;background:{{ lot.statusBg }};color:{{ lot.statusColor }};font:800 10.5px Manrope,sans-serif;letter-spacing:0.08em;text-transform:uppercase;padding:5px 11px;border-radius:100px">{{ lot.status }}</span>
-                <span class="usso-all-cat" style="position:absolute;top:12px;right:12px;background:rgba(10,10,11,0.78);backdrop-filter:blur(4px);color:rgba(243,241,236,0.9);font:700 10.5px Manrope,sans-serif;letter-spacing:0.06em;text-transform:uppercase;padding:5px 11px;border-radius:100px">{{ lot.categoryLabel }}</span>
-                <span class="usso-all-favorite" aria-hidden="true">♡</span>
+                <span class="k-badge k-badge--{{ lot.statusKey }}"><i></i>{{ lot.statusText }}</span>
+                <span class="k-lot-cat">{{ lot.categoryLabel }}</span>
+                <div class="k-lot-heading"><small>Lote {{ lot.number }}</small><h3>{{ lot.title }}</h3></div>
               </div>
-            <div class="usso-all-body" style="padding:18px;display:flex;flex-direction:column;flex:1">
-                <span style="font:700 10.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.45);letter-spacing:0.1em">LOTE {{ lot.number }}</span>
-                <h3 style="font:800 17px/1.3 Manrope,sans-serif;color:var(--text);margin:6px 0 10px">{{ lot.title }}</h3>
-                <span style="display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.28);border-radius:100px;padding:4px 10px;font:700 10.5px Manrope,sans-serif;color:#7ee2a8;margin-bottom:14px">
-                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="flex:none"><path d="M1.5 6.2l3 3L10.5 2.8" stroke="#7ee2a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>{{ lot.evidenceLabel }}
-                </span>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px"><div style="padding:8px;border-radius:9px;background:rgba(var(--border-rgb),.045)"><span style="display:block;font:700 8px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Inicio</span><strong style="font:700 9.5px/1.3 Manrope;color:var(--text)">{{ lot.startsDateDisplay }}</strong></div><div style="padding:8px;border-radius:9px;background:rgba(var(--border-rgb),.045)"><span style="display:block;font:700 8px Manrope;text-transform:uppercase;color:rgba(var(--text-rgb),.42)">Cierre</span><strong style="font:700 9.5px/1.3 Manrope;color:var(--text)">{{ lot.closesDateDisplay }}</strong></div></div>
-                <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(var(--border-rgb),0.08);padding-top:13px;margin-top:auto">
-                  <div>
-                    <div style="font:600 10.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5)">{{ lot.bidLabel }}</div>
-                    <div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:{{ accent }}">{{ lot.bid }}</div>
-                  </div>
-                  <div style="text-align:right">
-                    <div style="font:600 10.5px Manrope,sans-serif;color:rgba(var(--text-rgb),0.5)">{{ lot.closesLabel }}</div>
-                    <div style="font:700 14px/1 'Archivo Black',monospace;color:var(--text);font-variant-numeric:tabular-nums">{{ lot.closesDisplay }}</div>
-                  </div>
-                </div>
-                <span class="usso-all-card-arrow" aria-hidden="true">→</span>
+              <div class="k-lot-info">
+                <div class="k-lot-price"><small>{{ lot.bidLabel }}</small><strong>{{ lot.bid }}</strong></div>
+                <div class="k-clock {{ lot.clockClass }}"><small>{{ lot.closesLabel }}</small><strong>{{ lot.closesDisplay }}</strong></div>
               </div>
-
-              <div class="usso-all-actions" style="display:flex;flex-direction:column;gap:8px;padding:0 18px 18px">
+              <p class="k-lot-date">{{ lot.dateLine }}</p>
+              <div class="k-lot-actions">
                 <sc-if value="{{ lot.isActive }}" hint-placeholder-val="{{ true }}">
-                  <div style="display:flex;gap:8px">
-                    <button onClick="{{ lot.goTo }}" style="flex:1;background:transparent;border:1px solid rgba(var(--border-rgb),0.24);color:var(--text);font:700 13px Manrope,sans-serif;padding:12px 14px;border-radius:100px;cursor:pointer">Ver detalles</button>
-                    <button onClick="{{ lot.bidAction }}" aria-disabled="{{ lot.bidDisabled }}" style="flex:1;background:{{ accent }};border:1px solid {{ accent }};color:#0a0a0b;font:800 13px Manrope,sans-serif;padding:12px 14px;border-radius:100px;cursor:{{ lot.bidCursor }};opacity:{{ lot.bidOpacity }}">{{ lot.bidButtonLabel }}</button>
-                  </div>
+                  <button class="k-btn k-btn--ghost" onClick="{{ lot.goTo }}">Ver detalles</button>
+                  <button class="k-btn k-btn--gold" onClick="{{ lot.bidAction }}" aria-disabled="{{ lot.bidDisabled }}" style="cursor:{{ lot.bidCursor }};opacity:{{ lot.bidOpacity }}">{{ lot.bidButtonLabel }}</button>
                 </sc-if>
                 <sc-if value="{{ lot.isUpcoming }}" hint-placeholder-val="{{ false }}">
-                  <button onClick="{{ lot.notify }}" style="width:100%;background:{{ lot.notifyBg }};border:1px solid {{ lot.notifyBorder }};color:{{ lot.notifyColor }};font:700 13px Manrope,sans-serif;padding:11px 16px;border-radius:100px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px">{{ lot.notifyLabel }}</button>
+                  <button class="k-btn k-btn--ghost k-btn--wide" onClick="{{ lot.notify }}" style="background:{{ lot.notifyBg }};border-color:{{ lot.notifyBorder }};color:{{ lot.notifyColor }}">🔔 {{ lot.notifyLabel }}</button>
                 </sc-if>
-                <sc-if value="{{ lot.isFinished }}" hint-placeholder-val="{{ false }}"><button onClick="{{ lot.goTo }}" style="width:100%;background:transparent;border:1px solid rgba(var(--border-rgb),.24);color:var(--text);font:700 13px Manrope,sans-serif;padding:12px 14px;border-radius:100px;cursor:pointer">Ver resultado</button></sc-if>
+                <sc-if value="{{ lot.isFinished }}" hint-placeholder-val="{{ false }}"><button class="k-btn k-btn--ghost k-btn--wide" onClick="{{ lot.goTo }}">Ver resultado</button></sc-if>
               </div>
             </div>
           </sc-for>
@@ -1566,25 +1546,30 @@
   </section>
 
   <!-- FINANCIAMIENTO -->
-  <section id="financiamiento" data-screen-label="Financiamiento" ref="{{ registerReveal_financiamiento }}" class="usso-finance-editorial">
-    <div class="usso-finance-editorial-inner" style="opacity:{{ styles.financing.opacity }};transform:{{ styles.financing.transform }};filter:{{ styles.financing.filter }};transition:{{ styles.financing.transition }}">
-      <div class="usso-finance-copy">
-        <span class="usso-finance-eyebrow">Financiamiento USSO</span>
-        <h2 class="usso-finance-title">Financiamiento<br><span>con garantía</span></h2>
-        <p class="usso-finance-lede">Consigue las tractopartes que tu camión necesita con planes flexibles y seguros.</p>
+  <section id="financiamiento" data-screen-label="Financiamiento" ref="{{ registerReveal_financiamiento }}" class="k-fin">
+    <div class="k-fin-inner" style="opacity:{{ styles.financing.opacity }};transform:{{ styles.financing.transform }};filter:{{ styles.financing.filter }};transition:{{ styles.financing.transition }}">
+      <div class="k-fin-copy">
+        <span class="k-eyebrow">Financiamiento USSO</span>
+        <h2 class="k-section-title">Llévatela hoy,<br><span>págala en meses.</span></h2>
+        <p class="k-lede">Deja un objeto de valor como garantía y llévate la pieza que tu camión necesita.</p>
+        <ul class="k-fin-points">
+          <sc-for list="{{ financingItems }}" as="f" hint-placeholder-count="4">
+            <li><img src="{{ f.icon }}" alt="" aria-hidden="true"><span><strong>{{ f.title }}</strong>{{ f.desc }}</span></li>
+          </sc-for>
+        </ul>
       </div>
-      <a class="usso-finance-cta" href="{{ whatsappLinkFinanciamiento }}" target="_blank" rel="noopener"><span>Cotizar mi financiamiento</span><span aria-hidden="true">→</span></a>
-      <div class="usso-finance-benefits">
-        <sc-for list="{{ financingItems }}" as="f" hint-placeholder-count="4">
-          <div class="usso-finance-benefit">
-            <span class="usso-finance-benefit-num">{{ f.number }}</span>
-            <img class="usso-finance-benefit-icon" src="{{ f.icon }}" alt="" aria-hidden="true">
-            <strong>{{ f.title }}</strong>
-            <p>{{ f.desc }}</p>
-          </div>
-        </sc-for>
+      <div class="k-calc">
+        <label class="k-calc-label" for="k-fin-price">Precio de la pieza</label>
+        <div class="k-calc-price">{{ finPriceLabel }}</div>
+        <input id="k-fin-price" class="k-range" type="range" min="10000" max="400000" step="5000" value="{{ finPrice }}" onInput="{{ onFinPrice }}" aria-label="Precio de la pieza">
+        <span class="k-calc-label">Plazo</span>
+        <div class="k-calc-months" role="group" aria-label="Meses para pagar">
+          <sc-for list="{{ finMonthChips }}" as="m" hint-placeholder-count="6"><button type="button" aria-pressed="{{ m.on }}" onClick="{{ m.pick }}">{{ m.label }}</button></sc-for>
+        </div>
+        <div class="k-calc-result"><small>Pago mensual estimado</small><div><strong>{{ finMonthly }}</strong><span>/ mes</span></div></div>
+        <a class="k-btn k-btn--gold k-btn--wide k-btn--lg" href="{{ finWhatsapp }}" target="_blank" rel="noopener">Enviar cotización por WhatsApp</a>
+        <p class="k-calc-note">Estimado de referencia. Tu plan final te lo confirmamos por WhatsApp.</p>
       </div>
-      <div class="usso-finance-signoff">Misma calidad, más formas de seguir en movimiento.</div>
     </div>
   </section>
 
@@ -1635,8 +1620,8 @@
         </sc-for>
       </div>
       <div class="usso-carousel-nav" style="display:none !important;justify-content:center;gap:12px;margin-top:16px">
-        <button onClick="{{ videosPrev }}" aria-label="Anterior" style="width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.15);color:var(--text);font-size:16px">←</button>
-        <button onClick="{{ videosNext }}" aria-label="Siguiente" style="width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.15);color:var(--text);font-size:16px">→</button>
+        <button class="k-arrow" onClick="{{ videosPrev }}" aria-label="Anterior" style="width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.15);color:var(--text);font-size:16px">←</button>
+        <button class="k-arrow" onClick="{{ videosNext }}" aria-label="Siguiente" style="width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid rgba(var(--border-rgb),0.15);color:var(--text);font-size:16px">→</button>
       </div>
       <div class="usso-social-links">
         <a href="{{ tiktokLink }}" target="_blank" rel="noopener noreferrer" class="usso-social-button usso-social-tiktok" aria-label="Síguenos en TikTok">
@@ -1651,36 +1636,41 @@
     </div>
   </section>
 
-  <!-- STATS -->
-  <section ref="{{ registerReveal_stats }}" class="usso-stats-section" style="padding:80px 48px;background:{{ accent }}">
-    <div class="usso-stats-grid" style="max-width:980px;margin:0 auto;display:grid;grid-template-columns:repeat(4,auto);justify-content:center;gap:56px;opacity:{{ styles.stats.opacity }};transform:{{ styles.stats.transform }};transition:{{ styles.stats.transition }}">
+  <!-- CONFIANZA -->
+  <section ref="{{ registerReveal_stats }}" class="k-stats" aria-label="USSO en números">
+    <div class="k-stats-head"><span class="k-eyebrow">USSO en números</span><h2 class="k-section-title">Más de 25 años<br><span>moviendo a México.</span></h2></div>
+    <div class="k-stats-grid" style="opacity:{{ styles.stats.opacity }};transform:{{ styles.stats.transform }};transition:{{ styles.stats.transition }}">
       <sc-for list="{{ statItems }}" as="s" hint-placeholder-count="4">
-        <div style="text-align:center">
-          <div class="usso-stat-value" style="font-family:'Archivo Black',sans-serif;font-size:clamp(22px,3vw,38px);white-space:nowrap;color:#0a0a0b">{{ s.value }}</div>
-          <div class="usso-stat-label" style="font:700 14px Manrope,sans-serif;color:rgba(var(--bg-rgb),0.7);margin-top:4px;white-space:nowrap">{{ s.label }}</div>
-        </div>
+        <div class="k-stat"><strong>{{ s.value }}</strong><span>{{ s.label }}</span></div>
       </sc-for>
     </div>
   </section>
 
-  <!-- CONTACT / FOOTER -->
-  <section id="contacto" data-screen-label="Contacto" ref="{{ registerReveal_contacto }}" class="usso-section-pad" style="padding:120px 48px 60px;max-width:1400px;margin:0 auto">
-    <div class="usso-contact-card" style="opacity:{{ styles.contact.opacity }};transform:{{ styles.contact.transform }};transition:{{ styles.contact.transition }};text-align:center;padding:64px 40px;background:var(--card-bg);border-radius:24px;border:1px solid rgba(var(--border-rgb),0.07)">
-      <h2 style="font-family:'Archivo Black',sans-serif;font-size:clamp(30px,4vw,46px);color:var(--text);margin:0 0 18px">¿Buscas una pieza específica?</h2>
-      <p style="font:500 17px/1.6 Manrope,sans-serif;color:rgba(var(--text-rgb),0.65);max-width:520px;margin:0 auto 32px">Escríbenos por WhatsApp con la marca y modelo de tu camión — te cotizamos en minutos.</p>
-      <a href="{{ whatsappLink }}" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:{{ accent }};color:#0a0a0b;font:800 16px Manrope,sans-serif;padding:18px 34px;border-radius:100px">Haz tu oferta por WhatsApp</a>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-top:56px;padding-top:32px;border-top:1px solid rgba(var(--border-rgb),0.08)" class="usso-footer-row">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="display:flex;align-items:center">
-          <img src="assets/logo-usso-v2-transparent.webp" alt="USSO Tractopartes" style="height:24px;width:auto;display:block">
-        </div>
-        <span style="font:700 13px Manrope,sans-serif;color:rgba(var(--text-rgb),0.6)">USSO Tractopartes — La fuerza de tu camión</span>
+  <!-- CONTACTO -->
+  <section id="contacto" data-screen-label="Contacto" ref="{{ registerReveal_contacto }}" class="k-contact">
+    <div class="k-contact-grid" style="opacity:{{ styles.contact.opacity }};transform:{{ styles.contact.transform }};transition:{{ styles.contact.transition }}">
+      <div class="k-contact-card">
+        <span class="k-eyebrow">Contacto</span>
+        <h2 class="k-section-title">¿Buscas una<br><span>pieza específica?</span></h2>
+        <p class="k-lede">Escríbenos con la marca y modelo de tu camión: te cotizamos en minutos.</p>
+        <a class="k-contact-line" href="{{ whatsappLink }}" target="_blank" rel="noopener"><i aria-hidden="true">💬</i><span><small>WhatsApp</small><b>452 282 2400</b></span></a>
+        <div class="k-contact-line"><i aria-hidden="true">📍</i><span><small>Ubicación</small><b>Uruapan, Michoacán</b></span></div>
+        <a class="k-contact-line" href="https://www.youtube.com/@usso.tractopartes" target="_blank" rel="noopener"><i aria-hidden="true">▶</i><span><small>Síguenos en TikTok y YouTube</small><b>@usso.tractopartes</b></span></a>
+        <a class="k-btn k-btn--gold k-btn--lg" href="{{ whatsappLink }}" target="_blank" rel="noopener">Escribir por WhatsApp</a>
       </div>
-      <span style="font:600 13px Manrope,sans-serif;color:rgba(var(--text-rgb),0.4)">© 2026 USSO Tractopartes. Todos los derechos reservados.</span>
+      <div class="k-contact-map"><iframe title="Mapa de Uruapan, Michoacán" loading="lazy" referrerpolicy="no-referrer" src="https://www.google.com/maps?q=Uruapan,+Michoac%C3%A1n&amp;output=embed"></iframe></div>
     </div>
   </section>
 
+  <footer class="k-footer">
+    <div class="k-footer-inner">
+      <div class="k-footer-brand"><img src="assets/logo-usso-v2-transparent.webp" alt="USSO Tractopartes"><p>Tractopartes para camiones pesados desde Uruapan, Michoacán. La fuerza de tu camión.</p></div>
+      <nav aria-label="Comprar"><h4>Comprar</h4><a href="#subastas" onClick="{{ scrollToSection }}">Subastas</a><a href="#todas-subastas" onClick="{{ scrollToSection }}">Catálogo</a><a href="#financiamiento" onClick="{{ scrollToSection }}">Financiamiento</a></nav>
+      <nav aria-label="USSO"><h4>USSO</h4><a href="/nosotros.html">Conoce USSO</a><a href="Videos.dc.html">Videos</a><a href="#contacto" onClick="{{ scrollToSection }}">Contacto</a></nav>
+      <nav aria-label="Tu cuenta"><h4>Tu cuenta</h4><a href="/login.html">Entrar</a><a href="/registro.html">Crear cuenta</a><a href="https://www.tiktok.com/@usso.tractopartes" target="_blank" rel="noopener">TikTok</a><a href="https://www.youtube.com/@usso.tractopartes" target="_blank" rel="noopener">YouTube</a></nav>
+    </div>
+    <div class="k-footer-bottom">© 2026 USSO Tractopartes. Todos los derechos reservados.</div>
+  </footer>
 </div>
 
 </x-dc>
@@ -1708,7 +1698,8 @@ class Component extends DCLogic {
     if (window.location.hash) return true;
     // Dentro de un iframe (previews) el video no autoreproduce: entramos directo.
     try { if (window.self !== window.top) return true; } catch (e) { return true; }
-    try { return sessionStorage.getItem('usso_intro_seen') === '1'; } catch (e) { return false; }
+    // Intro «logo express»: sólo la primera visita (se recuerda en este dispositivo).
+    try { return localStorage.getItem('usso_intro_seen') === '1' ? true : 'logo'; } catch (e) { return 'logo'; }
   })();
   state = { phase: this.skipIntroNow === 'logo' ? 'logo' : (this.skipIntroNow ? 'content' : 'video'), introLogoVisible: this.skipIntroNow === 'logo', introVisualActive: !this.skipIntroNow, visible: { heroTitle: true }, scrollY: window.location.hash ? 999 : 0, showAllInventory: false, pageOpacity: window.location.hash ? 0 : 1, overflow: { inv: true, auctions: true, videos: true },
     user: null, bidStatus: 'ninguno',
@@ -1717,7 +1708,7 @@ class Component extends DCLogic {
     notifOpen: false, notifFilter: 'all', accountOpen: false, notifs: [], avatarUploading: false, avatarMessage: '', avatarError: '',
     notifPrefs: { superada: true, cierre: true, gane: true, perdi: true, favorita: true },
     bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', catalogExpanded:false, watching: {},
-    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {}, featuredAuctionIndex: 0, introSoundOn:false };
+    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {}, featuredAuctionIndex: 0, introSoundOn:false, finPrice: 80000, finMonths: 3, theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark' };
   videoRef = null;
   observer = null;
   listingRequestInFlight = false;
@@ -1777,7 +1768,7 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
-    try { sessionStorage.setItem('usso_intro_seen', '1'); } catch (e) {}
+    try { localStorage.setItem('usso_intro_seen', '1'); sessionStorage.setItem('usso_intro_seen', '1'); } catch (e) {}
     if (this.state.phase === 'content') {
       this.dismissBootLoader();
       document.body.style.overflow = '';
@@ -1788,10 +1779,11 @@ class Component extends DCLogic {
       }
       requestAnimationFrame(() => this.setState({ pageOpacity: 1 }));
       setTimeout(() => this.setState({ heroPassed: true }), 500);
+      setTimeout(() => this.playHeroVideo(), 120);
     } else if (this.state.phase === 'logo') {
       this.dismissBootLoader();
       document.body.style.overflow = 'hidden';
-      setTimeout(() => this.finishIntro(), 3200);
+      setTimeout(() => this.finishIntro(), 1500);
     } else {
       document.body.style.overflow = 'hidden';
       this.introFallback = setTimeout(() => {
@@ -1952,7 +1944,7 @@ class Component extends DCLogic {
   };
 
   finishIntro = () => {
-    this.setState({ phase: 'content', heroPassed:true });
+    this.setState({ phase: 'content', heroPassed:true }, () => this.playHeroVideo());
     document.body.style.overflow = '';
     // Conservamos video y logo detrás del fundido para impedir un cuadro negro.
     clearTimeout(this.introVisualTimer);
@@ -2423,6 +2415,104 @@ class Component extends DCLogic {
   openSearch = () => { this.searchState.open = true; this.forceUpdate(); requestAnimationFrame(() => this.searchInputEl && this.searchInputEl.focus()); };
   searchInputRef = (el) => { this.searchInputEl = el; };
 
+  // Simulador de financiamiento (estimado simple: precio entre meses).
+  onFinPrice = (e) => this.setState({ finPrice: Number(e.target.value) || 80000 });
+  pickFinMonths = (n) => () => this.setState({ finMonths: n });
+  finMoney = (n) => '$' + Math.round(n).toLocaleString('es-MX') + ' MXN';
+
+  // Tono negro / blanco: se recuerda en este dispositivo y lo comparte Mi espacio.
+  toggleTheme = () => {
+    const next = this.state.theme === 'light' ? 'dark' : 'light';
+    if (next === 'light') document.documentElement.dataset.theme = 'light';
+    else delete document.documentElement.dataset.theme;
+    try { localStorage.setItem('usso_theme', next); } catch (e) {}
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', next === 'light' ? '#f6f4ef' : '#0a0a0b');
+    this.setState({ theme: next });
+  };
+
+  // Portada: el camión prende sus luces una sola vez (sin bucle) y se queda así.
+  // Apagar = fundido suave hacia el primer cuadro (luces apagadas).
+  // Prender = el video avanza desde ese cuadro: las luces se encienden como en la realidad.
+  // Unos lienzos diminutos copian la luz del video detrás del camión (alineados con él).
+  heroVideo = null; heroLights = null; heroScene = null;
+  heroAmbient = null; heroAmbientOff = null; heroOff = null; heroOffReady = false;
+  heroEnd = () => (this.heroVideo && Number.isFinite(this.heroVideo.duration) ? Math.max(0, this.heroVideo.duration - 0.06) : 3.1);
+  setHeroLit = (on) => {
+    if (this.heroLights) this.heroLights.setAttribute('aria-checked', on ? 'true' : 'false');
+  };
+  drawHeroAmbient = () => {
+    const c = this.heroAmbient, v = this.heroVideo;
+    if (!c || !v || v.readyState < 2) return;
+    try { c.getContext('2d').drawImage(v, 0, 0, c.width, c.height); } catch (e) {}
+  };
+  captureHeroOff = () => {
+    const v = this.heroVideo;
+    if (this.heroOffReady || !v || v.readyState < 2 || v.currentTime > 0.05 || !this.heroOff || !this.heroAmbientOff) return;
+    try {
+      this.heroOff.getContext('2d').drawImage(v, 0, 0, this.heroOff.width, this.heroOff.height);
+      this.heroAmbientOff.getContext('2d').drawImage(v, 0, 0, this.heroAmbientOff.width, this.heroAmbientOff.height);
+      this.heroOffReady = true;
+    } catch (e) {}
+  };
+  heroAmbientLoop = () => {
+    this.drawHeroAmbient();
+    if (this.heroVideo && !this.heroVideo.paused && !this.heroVideo.ended) requestAnimationFrame(this.heroAmbientLoop);
+  };
+  heroSceneRef = (el) => { if (el) this.heroScene = el; };
+  heroAmbientRef = (el) => { if (el) { this.heroAmbient = el; this.drawHeroAmbient(); } };
+  heroAmbientOffRef = (el) => { if (el) { this.heroAmbientOff = el; this.captureHeroOff(); } };
+  heroOffRef = (el) => { if (el) { this.heroOff = el; this.captureHeroOff(); } };
+  heroLightsRef = (el) => { if (el) { this.heroLights = el; if (this.heroVideo && this.heroVideo.dataset.played && !(this.heroScene && this.heroScene.classList.contains('is-off'))) this.setHeroLit(true); } };
+  heroVideoRef = (el) => {
+    if (!el || el === this.heroVideo) return;
+    this.heroVideo = el;
+    el.muted = true;
+    el.playbackRate = 1;
+    el.addEventListener('loadeddata', () => { this.captureHeroOff(); this.drawHeroAmbient(); });
+    el.addEventListener('play', () => requestAnimationFrame(this.heroAmbientLoop));
+    el.addEventListener('seeked', this.drawHeroAmbient);
+    el.addEventListener('ended', () => { el.currentTime = this.heroEnd(); this.drawHeroAmbient(); });
+    if (el.readyState >= 2) this.captureHeroOff();
+    if (this.state.phase === 'content') this.playHeroVideo();
+  };
+  playHeroVideo = () => {
+    const v = this.heroVideo;
+    if (!v || v.dataset.played) return;
+    v.dataset.played = '1';
+    this.setHeroLit(true);
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const showLit = () => { v.currentTime = this.heroEnd(); };
+    if (reduce) { if (v.readyState >= 1) showLit(); else v.addEventListener('loadedmetadata', showLit, { once:true }); return; }
+    const p = v.play();
+    if (p && p.catch) p.catch(() => { if (v.readyState >= 1) showLit(); else v.addEventListener('loadedmetadata', showLit, { once:true }); });
+  };
+  toggleHeroLights = () => {
+    const v = this.heroVideo, scene = this.heroScene;
+    if (!v || !scene) return;
+    const turnOn = this.heroLights && this.heroLights.getAttribute('aria-checked') !== 'true';
+    this.setHeroLit(turnOn);
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
+    if (!turnOn) {
+      // Apagar: fundido de 1.2 s hacia el cuadro con las luces apagadas.
+      scene.classList.remove('is-instant');
+      scene.classList.add('is-off');
+      return;
+    }
+    // Prender: debajo del cuadro apagado ponemos el video al inicio y lo reproducimos.
+    v.pause();
+    v.currentTime = 0;
+    const go = () => {
+      scene.classList.add('is-instant');
+      scene.classList.remove('is-off');
+      requestAnimationFrame(() => scene.classList.remove('is-instant'));
+      const p = v.play();
+      if (p && p.catch) p.catch(() => { v.currentTime = this.heroEnd(); });
+    };
+    if (!this.heroOffReady || !scene.classList.contains('is-off')) { scene.classList.remove('is-off'); const p = v.play(); if (p && p.catch) p.catch(() => {}); return; }
+    v.addEventListener('seeked', go, { once:true });
+  };
+
   scrollToSection = (e) => {
     e.preventDefault();
     this.setState({ mobileMenuOpen: false });
@@ -2710,14 +2800,26 @@ class Component extends DCLogic {
   }
 
   formatCountdown(ms) {
-    if (ms <= 0) return '00:00:00';
+    // Formato fácil de leer: «2 d 20 h», «20 h 11 min», «8 min 05 s».
+    if (!Number.isFinite(ms) || ms <= 0) return 'Ahora';
     const pad = (n) => String(n).padStart(2, '0');
     const s = Math.floor(ms / 1000);
     const d = Math.floor(s / 86400);
     const h = Math.floor((s % 86400) / 3600);
     const m = Math.floor((s % 3600) / 60);
     const sec = s % 60;
-    return d > 0 ? `${d}d ${pad(h)}:${pad(m)}:${pad(sec)}` : `${pad(h)}:${pad(m)}:${pad(sec)}`;
+    if (d > 0) return h ? `${d} d ${h} h` : `${d} d`;
+    if (h > 0) return `${h} h ${pad(m)} min`;
+    return `${m} min ${pad(sec)} s`;
+  }
+
+  // Clase de urgencia del contador: rojo si una subasta activa cierra en menos de 1 h,
+  // dorado si una próxima empieza en menos de 1 h.
+  clockUrgency(lot) {
+    const hour = 60 * 60 * 1000, now = Date.now();
+    if (lot.status === 'Activa' && lot.closesAt - now <= hour) return 'is-urgent';
+    if (lot.status === 'Próxima' && lot.startsAt - now <= hour) return 'is-soon';
+    return '';
   }
 
   formatAuctionDate(timestamp) {
@@ -2821,7 +2923,7 @@ class Component extends DCLogic {
       auctionRound: Number(p.auction_round || 1),
       winnerId: p.winner_id || null,
       databaseStatus: p.status || null,
-      evidence: ["Publicada en el sistema"],
+      evidence: ["Publicado por USSO"],
       status: proxima ? "Próxima" : (activa ? "Activa" : "Finalizada"),
       statusBg: proxima ? "rgba(92,160,255,0.9)" : (activa ? "rgba(246,192,42,0.9)" : "rgba(255,255,255,0.12)"),
       statusColor: proxima || activa ? "#0a0a0b" : "#f3f1ec",
@@ -3632,13 +3734,17 @@ submitAuth = async (e) => {
         ...l,
         bid: l.bid,
         closesLabel: l.status === 'Próxima' ? 'Inicia en' : (l.status === 'Activa' ? 'Cierra en' : 'Finalizó'),
-        closesDisplay: l.status === 'Próxima' ? this.formatCountdown(l.startsAt - Date.now()) : (l.status === 'Activa' ? this.formatCountdown(l.closesAt - Date.now()) : '00:00:00'),
+        closesDisplay: l.status === 'Próxima' ? this.formatCountdown(l.startsAt - Date.now()) : (l.status === 'Activa' ? this.formatCountdown(l.closesAt - Date.now()) : 'Cerrada'),
         startsDateDisplay: this.formatAuctionDate(l.startsAt),
         closesDateDisplay: this.formatAuctionDate(l.closesAt),
         clockColor: l.status === 'Próxima' ? '#8dbbff' : (l.status === 'Activa' ? 'var(--text)' : '#ff5c52'),
         bidLabel: l.status === 'Próxima' ? 'Precio base' : (l.status === 'Activa' ? (count > 0 ? 'Puja actual · ' + count + ' ofertas' : 'Precio base') : (count > 0 ? 'Precio final · ' + count + ' ofertas' : 'Sin ofertas')),
         evidenceLabel: l.evidence[0],
         goTo: this.goToLot(l.id),
+        statusKey: l.status === 'Próxima' ? 'upcoming' : (l.status === 'Activa' ? 'live' : 'closed'),
+        statusText: l.status === 'Próxima' ? 'Próxima' : (l.status === 'Activa' ? 'En vivo' : 'Finalizada'),
+        clockClass: this.clockUrgency(l),
+        dateLine: l.status === 'Próxima' ? 'Empieza ' + this.formatAuctionDate(l.startsAt) : (l.status === 'Activa' ? 'Cierra ' + this.formatAuctionDate(l.closesAt) : 'Cerró ' + this.formatAuctionDate(l.closesAt)),
       };
     });
     this.heroLoopLots = this.auctionItemsComputed.map((l) => ({ ...l, uid: l.id }));
@@ -3681,7 +3787,7 @@ submitAuth = async (e) => {
         { id:'preview-1', number:'101', title:'International 9400i', src:'assets/lot-l1.webp', fullSrc:'assets/lot-l1.webp', bid:'$130,000', base:'$130,000', bidCount:0, evidence:['Fotografías reales'] },
         { id:'preview-2', number:'102', title:'Motor Cummins N14', src:'assets/lot-l2.webp', fullSrc:'assets/lot-l2.webp', bid:'$185,000', base:'$185,000', bidCount:0, evidence:['Video funcionando'] },
         { id:'preview-3', number:'103', title:'Transmisión Eaton Fuller', src:'assets/lot-l3.webp', fullSrc:'assets/lot-l3.webp', bid:'$92,000', base:'$92,000', bidCount:0, evidence:['Condición documentada'] },
-        { id:'preview-4', number:'104', title:'Diferencial Meritor', src:'assets/diferencial-cover.webp', fullSrc:'assets/diferencial-cover.webp', bid:'$78,000', base:'$78,000', bidCount:0, evidence:['Publicada en el sistema'] }
+        { id:'preview-4', number:'104', title:'Diferencial Meritor', src:'assets/diferencial-cover.webp', fullSrc:'assets/diferencial-cover.webp', bid:'$78,000', base:'$78,000', bidCount:0, evidence:['Publicado por USSO'] }
       ];
       const previewSource = [...(!active.length && !upcoming.length ? history : []), ...previewDefaults]
         .slice(0, 4 - active.length - upcoming.length);
@@ -3692,7 +3798,7 @@ submitAuth = async (e) => {
         status:'Próxima',
         position:lot.position || '50% 50%',
         zoom:lot.zoom || 1.06,
-        evidence:Array.isArray(lot.evidence) && lot.evidence.length ? lot.evidence : ['Publicada en el sistema'],
+        evidence:Array.isArray(lot.evidence) && lot.evidence.length ? lot.evidence : ['Publicado por USSO'],
         startsAt:Date.now() + (index + 1) * 86400000,
         closesAt:Date.now() + (index + 2) * 86400000,
         closesDisplay:this.formatCountdown((index + 1) * 86400000),
@@ -3748,7 +3854,7 @@ submitAuth = async (e) => {
 
     const statusMap = {
       ninguno: { title: 'Aún no puedes pujar', desc: 'Para que nadie infle los precios con ofertas falsas, revisamos cada cuenta antes de habilitarla. Normalmente el mismo día.', bg: 'rgba(246,192,42,0.08)', border: 'rgba(246,192,42,0.3)', color: '#f6c02a' },
-      pendiente: { title: 'Autorización en revisión', desc: 'Ya tenemos tu solicitud. Te escribimos por WhatsApp en cuanto quede lista.', bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.14)', color: 'rgba(243,241,236,0.82)' },
+      pendiente: { title: 'Autorización en revisión', desc: 'Ya tenemos tu solicitud. Te escribimos por WhatsApp en cuanto quede lista.', bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.14)', color: 'rgba(var(--text-rgb),0.82)' },
       autorizado: { title: 'Autorizado para pujar', desc: 'Puedes ofertar en cualquier lote activo. Te avisamos de cada movimiento por WhatsApp.', bg: 'rgba(74,222,128,0.09)', border: 'rgba(74,222,128,0.3)', color: '#7ee2a8' },
     };
     const bs = statusMap[st.bidStatus] || statusMap.ninguno;
@@ -3877,7 +3983,7 @@ submitAuth = async (e) => {
       onAvatarChange: this.onAvatarChange,
       userMemberNumber: u && u.memberNumber ? `USSO-${String(u.memberNumber).padStart(6, '0')}` : 'Pendiente de asignar',
       accountHistory: historyFiltered.map((item) => item.outcome === 'won' ? { ...item, finalPrice:this.formatMoney(this.parseMoney(item.finalPrice)), label:'GANADA · COMPRA', color:'#7ee2a8', bg:'rgba(74,222,128,.1)', border:'rgba(74,222,128,.3)', cursor:'pointer', open:() => { window.location.href = `Compra.dc.html#${encodeURIComponent(item.id)}`; }, dismiss:this.dismissHistoryItem(item) } : { ...item, finalPrice:this.formatMoney(this.parseMoney(item.finalPrice)), label:'PERDIDA', color:'#ff9a91', bg:'rgba(255,92,82,.09)', border:'rgba(255,92,82,.26)', cursor:'default', open:() => {}, dismiss:this.dismissHistoryItem(item) }),
-      historyFilters:historyFilterOptions.map((filter) => ({ ...filter, select:this.setHistoryFilter(filter.id), bg:st.historyFilter === filter.id ? accent : 'rgba(255,255,255,.035)', border:st.historyFilter === filter.id ? accent : 'rgba(255,255,255,.1)', color:st.historyFilter === filter.id ? '#0a0a0b' : 'rgba(243,241,236,.65)' })),
+      historyFilters:historyFilterOptions.map((filter) => ({ ...filter, select:this.setHistoryFilter(filter.id), bg:st.historyFilter === filter.id ? accent : 'rgba(255,255,255,.035)', border:st.historyFilter === filter.id ? accent : 'rgba(255,255,255,.1)', color:st.historyFilter === filter.id ? '#0a0a0b' : 'rgba(var(--text-rgb),.65)' })),
       hasAccountHistory: historyAll.length > 0,
       noAccountHistory: historyAll.length === 0,
       noFilteredAccountHistory:historyFiltered.length === 0,
@@ -3930,7 +4036,7 @@ submitAuth = async (e) => {
       noNotifs: st.notifs.length === 0,
       hasFilteredNotifs: filteredNotifs.length > 0,
       noFilteredNotifs: filteredNotifs.length === 0,
-      notifFilters: notifFilterData.map((filter) => ({ ...filter, select:this.setNotifFilter(filter.id), bg:filter.id === notifFilter ? accent : 'rgba(255,255,255,.045)', border:filter.id === notifFilter ? accent : 'rgba(255,255,255,.12)', color:filter.id === notifFilter ? '#0a0a0b' : 'rgba(243,241,236,.72)' })),
+      notifFilters: notifFilterData.map((filter) => ({ ...filter, select:this.setNotifFilter(filter.id), bg:filter.id === notifFilter ? accent : 'rgba(255,255,255,.045)', border:filter.id === notifFilter ? accent : 'rgba(255,255,255,.12)', color:filter.id === notifFilter ? '#0a0a0b' : 'rgba(var(--text-rgb),.72)' })),
       notifItems: filteredNotifs.map((n) => {
         const c = kindColor[n.kind] || kindColor.info;
         return { ...n, when: this.formatNotifTime(n), iconBg: c[0], iconColor: c[1], bg: n.read ? 'transparent' : 'rgba(246,192,42,0.05)', open: this.openNotifItem(n.id), dismiss:this.dismissNotif(n.id) };
@@ -3992,6 +4098,7 @@ submitAuth = async (e) => {
       featuredBase: feat.base,
       featuredBidCount: feat.bidCount,
       featuredClock: feat.closesDisplay,
+      featuredClockClass: feat.clockClass || '',
       featuredClockLabel: featuredIsUpcoming ? 'Inicia en' : (featuredIsActive ? 'Cierra en' : 'Finalizó'),
       featuredClockColor: featuredIsUpcoming ? '#8dbbff' : (featuredIsActive ? 'var(--text)' : '#ff5c52'),
       featuredStartsDate: this.formatAuctionDate(feat.startsAt),
@@ -4066,7 +4173,7 @@ submitAuth = async (e) => {
           apply: this.setFilter(f.id),
           bg: on ? accent : 'rgba(var(--border-rgb),0.05)',
           border: on ? accent : 'rgba(var(--border-rgb),0.14)',
-          color: on ? '#0a0a0b' : 'rgba(243,241,236,0.78)',
+          color: on ? '#0a0a0b' : 'rgba(var(--text-rgb),0.78)',
         };
       }).filter((f) => f.id === 'todas' || f.id === 'finalizadas' || f.count > 0),
       filteredLots: filtered.map((l) => {
@@ -4097,7 +4204,7 @@ submitAuth = async (e) => {
           notifyLabel: on ? '✓ Te avisaremos 24 horas antes' : (l.status === 'Próxima' ? 'Avisarme cuando comience' : 'Avisarme de esta subasta'),
           notifyBg: on ? 'rgba(74,222,128,0.1)' : 'transparent',
           notifyBorder: on ? 'rgba(74,222,128,0.35)' : 'rgba(var(--border-rgb),0.2)',
-          notifyColor: on ? '#7ee2a8' : 'rgba(243,241,236,0.78)',
+          notifyColor: on ? '#7ee2a8' : 'rgba(var(--text-rgb),0.78)',
         };
       }),
       hasFiltered: filtered.length > 0,
@@ -4243,11 +4350,27 @@ submitAuth = async (e) => {
       heroLoopLots: this.heroLoopLots,
       setHeroCarouselRef: this.setHeroCarouselRef,
       onHeroCarouselScroll: this.onHeroCarouselScroll,
+      heroVideoRef: this.heroVideoRef,
+      heroLightsRef: this.heroLightsRef,
+      heroAmbientRef: this.heroAmbientRef,
+      heroAmbientOffRef: this.heroAmbientOffRef,
+      heroOffRef: this.heroOffRef,
+      heroSceneRef: this.heroSceneRef,
+      toggleHeroLights: this.toggleHeroLights,
+      toggleTheme: this.toggleTheme,
+      themeIcon: this.state.theme === 'light' ? '☾' : '☀',
+      themeAria: this.state.theme === 'light' ? 'Cambiar a tono negro' : 'Cambiar a tono blanco',
+      finPrice: this.state.finPrice,
+      finPriceLabel: this.finMoney(this.state.finPrice),
+      finMonthly: '$' + Math.round(this.state.finPrice / this.state.finMonths).toLocaleString('es-MX'),
+      finMonthChips: [1, 2, 3, 4, 5, 6].map((n) => ({ label: n === 1 ? '1 mes' : n + ' meses', on: this.state.finMonths === n, pick: this.pickFinMonths(n) })),
+      onFinPrice: this.onFinPrice,
+      finWhatsapp: this.waLink('Hola, quiero financiar una tractoparte de ' + this.finMoney(this.state.finPrice) + ' a ' + this.state.finMonths + (this.state.finMonths === 1 ? ' mes' : ' meses') + ' (aprox. $' + Math.round(this.state.finPrice / this.state.finMonths).toLocaleString('es-MX') + ' al mes). ¿Qué necesito?'),
       statItems: [
-        { value: '+20,000', label: 'Piezas en inventario' },
-        { value: '+25 años', label: 'En el mercado' },
-        { value: '100%', label: 'Envíos a todo México' },
-        { value: 'Nacional', label: 'Clientes en todo el país' },
+        { value: '+25', label: 'años en el mercado' },
+        { value: '+20,000', label: 'piezas en inventario' },
+        { value: '100%', label: 'envíos a todo México' },
+        { value: '+220k', label: 'vistas en YouTube' },
       ],
     };
   }
