@@ -1734,6 +1734,15 @@ class Component extends DCLogic {
     // Intro «logo express»: sólo la primera visita (se recuerda en este dispositivo).
     try { return localStorage.getItem('usso_intro_seen') === '1' ? true : 'logo'; } catch (e) { return 'logo'; }
   })();
+  // El constructor de la página vuelve a crear <html> al cargar y pierde el tono elegido;
+  // aquí se aplica otra vez: lo que eligió la persona o, en celular, blanco por defecto.
+  themeInit = (() => {
+    let t = null;
+    try { t = localStorage.getItem('usso_theme'); } catch (e) {}
+    const light = t === 'light' || (!t && window.matchMedia && window.matchMedia('(max-width:760px)').matches);
+    if (light) document.documentElement.dataset.theme = 'light'; else delete document.documentElement.dataset.theme;
+    return light ? 'light' : 'dark';
+  })();
   state = { phase: this.skipIntroNow === 'logo' ? 'logo' : (this.skipIntroNow ? 'content' : 'video'), introLogoVisible: this.skipIntroNow === 'logo', introVisualActive: !this.skipIntroNow, visible: { heroTitle: true }, scrollY: window.location.hash ? 999 : 0, showAllInventory: false, pageOpacity: window.location.hash ? 0 : 1, overflow: { inv: true, auctions: true, videos: true },
     user: null, bidStatus: 'ninguno',
     authOpen: false, authMode: 'registro', authError: '',
@@ -1741,7 +1750,7 @@ class Component extends DCLogic {
     notifOpen: false, notifFilter: 'all', accountOpen: false, notifs: [], avatarUploading: false, avatarMessage: '', avatarError: '',
     notifPrefs: { superada: true, cierre: true, gane: true, perdi: true, favorita: true },
     bidOpen: false, bidLotId: null, bidAmount: '', bidError: '', lotFilter: 'todas', catalogExpanded:false, watching: {},
-    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {}, featuredAuctionIndex: 0, introSoundOn:false, finPrice: 80000, finMonths: 3, theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark' };
+    myBids: {}, winnerCelebration: null, lossCelebration: null, accountHistory: [], historyFilter:'all', youtubeViews: {}, featuredAuctionIndex: 0, introSoundOn:false, finPrice: 80000, finMonths: 3, theme: this.themeInit };
   videoRef = null;
   observer = null;
   listingRequestInFlight = false;
