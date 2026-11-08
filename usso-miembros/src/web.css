@@ -114,3 +114,54 @@ html[data-theme=light] .member-web .member-header .logo-link img{content:url(/as
 html[data-theme=light] .member-web .promo-card{color:#fff}
 html[data-theme=light] .member-web .promo-card h2,html[data-theme=light] .member-web .promo-card p{color:#fff}
 html[data-theme=light] .member-web .greeting p{color:#5d636c}
+
+/* ===== Mi espacio · Inicio «Claro y confiable» ===== */
+.member-web .m3-hello{margin:6px 8px 18px}
+.member-web .m3-hello h1{margin:0;font:800 30px/1.15 Manrope,system-ui,sans-serif;letter-spacing:-.025em}
+.member-web .m3-hello p{display:flex;align-items:center;gap:6px;margin:6px 0 0;color:var(--muted);font:600 15px Manrope,system-ui,sans-serif}
+.member-web .m3-hello svg{width:18px;height:18px;color:#3ccf7a}
+.member-web .m3-notice{display:flex;align-items:center;gap:12px;margin:0 0 6px;padding:14px;border-radius:18px;background:#2a2412;border:1px solid #4a3c12}
+.member-web .m3-notice-photo{flex:none;padding:0;width:58px;height:58px;border-radius:12px;overflow:hidden}
+.member-web .m3-notice-photo img{width:100%;height:100%;object-fit:cover}
+.member-web .m3-notice>div{flex:1;min-width:0}
+.member-web .m3-notice b{display:block;font:800 16px Manrope,system-ui,sans-serif}
+.member-web .m3-notice small{display:block;margin-top:2px;color:#d9c48a;font:600 13px Manrope,system-ui,sans-serif}
+.member-web .m3-dark-button{flex:none;height:44px;padding:0 20px!important;border-radius:22px!important;background:#f6c02a!important;color:#15161a!important;font:800 15px Manrope,system-ui,sans-serif}
+.member-web .m3-list{display:flex;flex-direction:column}
+.member-web .m3-row{display:flex;align-items:center;gap:14px;width:100%;padding:12px 0!important;text-align:left;border-bottom:1px solid var(--line)!important}
+.member-web .m3-row:last-child{border-bottom:0!important}
+.member-web .m3-row img{flex:none;width:62px;height:62px;border-radius:14px;object-fit:cover}
+.member-web .m3-row>span:nth-child(2){flex:1;min-width:0}
+.member-web .m3-row b{display:block;font:700 15.5px Manrope,system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.member-web .m3-row small{display:block;margin-top:3px;color:var(--muted);font:500 13.5px Manrope,system-ui,sans-serif}
+.member-web .m3-row small .k-clock small{display:inline;margin:0;font:inherit;color:inherit}
+.member-web .m3-row small .k-clock strong{font:700 13.5px Manrope,system-ui,sans-serif;color:inherit}
+.member-web .m3-badge{flex:none;padding:6px 11px;border-radius:999px;font:700 12.5px Manrope,system-ui,sans-serif;white-space:nowrap}
+.member-web .m3-yellow{background:#3a3010;color:#ffd257}.member-web .m3-green{background:#103222;color:#5fe096}.member-web .m3-blue{background:#12233d;color:#8dbbff}
+.member-web .m3-card{position:relative}
+.member-web .m3-card-photo{position:relative;display:block;width:100%;height:230px;padding:0;border-radius:20px;overflow:hidden}
+.member-web .m3-card-photo img{width:100%;height:100%;object-fit:cover}
+.member-web .m3-pill{position:absolute;top:12px;left:12px;padding:7px 12px;border-radius:999px;background:#fff;color:#15161a;font:700 12.5px Manrope,system-ui,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.member-web .m3-pill .k-clock small{display:inline;color:#15161a;font:inherit}.member-web .m3-pill .k-clock strong{font-weight:800;color:#15161a}
+.member-web .m3-card-copy{display:block;width:100%;padding:12px 0 0!important;text-align:left}
+.member-web .m3-card-copy b{display:block;font:800 17px Manrope,system-ui,sans-serif}
+.member-web .m3-card-copy small{display:block;margin-top:2px;color:var(--muted);font:500 13.5px Manrope,system-ui,sans-serif}
+.member-web .m3-card-copy strong{display:block;margin-top:6px;font:800 17px Manrope,system-ui,sans-serif}
+.member-web .m3-card-copy strong span{font-weight:500;font-size:13.5px;color:var(--muted)}
+.member-web .m3-heart{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%!important;background:#fff!important;color:#15161a!important;display:grid;place-items:center;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.member-web .m3-heart[aria-pressed=true]{color:#c58f00!important}
+.member-web .m3-link{display:flex;align-items:center;gap:12px;margin:22px 0 4px;padding:16px;border-radius:16px;border:1px solid var(--line);color:inherit;text-decoration:none}
+.member-web .m3-link span{flex:1}.member-web .m3-link b{display:block;font:700 15px Manrope,system-ui,sans-serif}
+.member-web .m3-link small{display:block;color:var(--muted);font:500 13px Manrope,system-ui,sans-serif;margin-top:2px}
+.member-web .m3-link svg{width:18px;height:18px;color:var(--muted)}
+html[data-theme=light] .member-web .m3-notice{background:#fff8e1;border-color:#f3e2a6}
+html[data-theme=light] .member-web .m3-notice small{color:#8a6a1a}
+html[data-theme=light] .member-web .m3-dark-button{background:#15161a!important;color:#fff!important}
+html[data-theme=light] .member-web .m3-yellow{background:#fff3cc;color:#8a6200}
+html[data-theme=light] .member-web .m3-green{background:#e8f7ee;color:#1d7f45}
+html[data-theme=light] .member-web .m3-blue{background:#eaf1fe;color:#2f5fb3}
+html[data-theme=light] .member-web .m3-link{background:#fff}
+@media(min-width:960px){.member-web .member-content[data-view=inicio]{max-width:860px}.member-web .m3-hello h1{font-size:38px}}
+/* En celular, en tono blanco, el fondo es blanco limpio (sin degradado dorado) */
+@media(max-width:760px){html[data-theme=light] .member-web .usso-app{background:#fff}}
+@media(min-width:960px){.member-web .member-tabs button{white-space:nowrap}}

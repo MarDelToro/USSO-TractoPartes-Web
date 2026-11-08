@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es-MX">
-<head><script>try{if(localStorage.getItem('usso_theme')==='light')document.documentElement.dataset.theme='light'}catch(e){}</script><style>html.usso-member-routing body{visibility:hidden!important}</style><script>if(new URLSearchParams(location.search).get('vista')!=='publica'){document.documentElement.classList.add('usso-member-routing');window.ussoEntryFallback=setTimeout(()=>document.documentElement.classList.remove('usso-member-routing'),6000)}</script>
+<head><script>try{var t=localStorage.getItem('usso_theme');if(t==='light'||(!t&&matchMedia('(max-width:760px)').matches))document.documentElement.dataset.theme='light'}catch(e){}</script><style>html.usso-member-routing body{visibility:hidden!important}</style><script>if(new URLSearchParams(location.search).get('vista')!=='publica'){document.documentElement.classList.add('usso-member-routing');window.ussoEntryFallback=setTimeout(()=>document.documentElement.classList.remove('usso-member-routing'),6000)}</script>
 <meta charset="utf-8">
 <script>
   const previewUrl = new URL(window.location.href);
@@ -1341,9 +1341,9 @@
     </aside>
   </sc-if>
   <div class="usso-mobile-dock {{ dockScrollClass }}" aria-label="Navegación rápida">
-    <a href="#hero" aria-label="Inicio"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.2 12 4l9 7.2V21h-6v-6H9v6H3v-9.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Inicio</span></a>
-    <a href="#subastas" aria-label="Subastas"><svg viewBox="0 0 24 24" fill="none"><path d="m5 15 7-7 4 4-7 7-4-4Zm8-8 2-2 4 4-2 2M3 21h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Subastas</span></a>
-    <a href="#todas-subastas" aria-label="Catálogo"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4zM4 10h16M9 5v14" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Catálogo</span></a>
+    <a href="#m-inicio" aria-label="Inicio"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.2 12 4l9 7.2V21h-6v-6H9v6H3v-9.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Inicio</span></a>
+    <a href="#todas-subastas" aria-label="Subastas"><svg viewBox="0 0 24 24" fill="none"><path d="m5 15 7-7 4 4-7 7-4-4Zm8-8 2-2 4 4-2 2M3 21h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Subastas</span></a>
+    <a href="#financiamiento" aria-label="Financiar"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.8"/></svg><span>Financiar</span></a>
     <a href="{{ accountDestination }}" onClick="{{ openDockAccount }}" aria-label="{{ publicAccountLabel }}"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>{{ publicAccountLabel }}</span></a>
   </div>
 
@@ -1402,8 +1402,41 @@
     <div class="k-hero-scroll" aria-hidden="true"><i></i>Desliza</div>
   </section>
 
+  <!-- INICIO EN CELULAR (estilo «Claro y confiable») -->
+  <section id="m-inicio" class="k-mhome" aria-label="Inicio">
+    <sc-if value="{{ isLogged }}" hint-placeholder-val="{{ false }}"><p class="k-mhome-hi">{{ userGreeting }}</p></sc-if>
+    <h1 class="k-mhome-title">La pieza que tu camión necesita, <span>al precio que tú pones.</span></h1>
+    <button type="button" class="k-mhome-search" onClick="{{ openSearch }}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>¿Qué pieza buscas?</button>
+    <div class="k-mhome-cats">
+      <a href="#todas-subastas" onClick="{{ scrollToSection }}"><img src="assets/motores-cover.webp" alt="" loading="lazy"><span>Motores</span></a>
+      <a href="#todas-subastas" onClick="{{ scrollToSection }}"><img src="assets/transmisiones-cover.webp" alt="" loading="lazy"><span>Transmisión</span></a>
+      <a href="#todas-subastas" onClick="{{ scrollToSection }}"><img src="assets/diferencial-cover.webp" alt="" loading="lazy"><span>Diferencial</span></a>
+      <a href="#todas-subastas" onClick="{{ scrollToSection }}"><img src="assets/cortes-cover.webp" alt="" loading="lazy"><span>Cortes</span></a>
+      <a href="#todas-subastas" onClick="{{ scrollToSection }}"><img src="assets/estructura-cascadia-1.webp" alt="" loading="lazy"><span>Estructuras</span></a>
+    </div>
+    <sc-if value="{{ hasFeaturedAuction }}" hint-placeholder-val="{{ true }}">
+      <div class="k-mhome-head">
+        <sc-if value="{{ featuredIsUpcoming }}" hint-placeholder-val="{{ true }}"><h2>Próxima subasta</h2></sc-if>
+        <sc-if value="{{ featuredIsActive }}" hint-placeholder-val="{{ false }}"><h2>Subasta en vivo</h2></sc-if>
+        <a href="#todas-subastas" onClick="{{ scrollToSection }}">Ver todas</a>
+      </div>
+      <div class="k-mhome-card">
+        <a class="k-mhome-link" href="{{ featuredHref }}" aria-label="Ver detalles de {{ featuredTitle }}">
+          <div class="k-mhome-photo">
+            <sc-if value="{{ featuredHasImage }}"><img src="{{ featuredFullSrc }}" data-fallback-src="{{ featuredSrc }}" onError="{{ onAuctionImageError }}" alt=""></sc-if>
+            <span class="k-mhome-pill k-clock {{ featuredClockClass }}">{{ featuredClockLabel }} <strong>{{ featuredClock }}</strong></span>
+          </div>
+          <b>{{ featuredTitle }}</b>
+          <small>Lote {{ featuredNumber }} · Uruapan, Mich.</small>
+          <div class="k-mhome-price">{{ featuredBid }} <span>{{ featuredPriceLabel }}</span></div>
+        </a>
+        <sc-if value="{{ featuredIsUpcoming }}" hint-placeholder-val="{{ true }}"><button type="button" class="k-mhome-heart" onClick="{{ featuredNotify }}" aria-label="{{ featuredNotifyLabel }}" title="{{ featuredNotifyLabel }}" style="color:{{ featuredNotifyColor }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></sc-if>
+      </div>
+    </sc-if>
+  </section>
+
   <!-- MARCAS MARQUEE -->
-  <div style="padding:28px 0;background:var(--bg-alt);border-top:1px solid rgba(var(--border-rgb),0.07);border-bottom:1px solid rgba(var(--border-rgb),0.07);overflow:hidden">
+  <div class="k-marquee" style="padding:28px 0;background:var(--bg-alt);border-top:1px solid rgba(var(--border-rgb),0.07);border-bottom:1px solid rgba(var(--border-rgb),0.07);overflow:hidden">
     <div style="display:flex;width:max-content;animation:marqueeScroll 26s linear infinite">
       <sc-for list="{{ brandsLoop }}" as="brand" hint-placeholder-count="16">
         <span style="font:800 20px Manrope,sans-serif;letter-spacing:0.04em;color:rgba(var(--text-rgb),0.35);padding:0 40px;white-space:nowrap">{{ brand }}</span>

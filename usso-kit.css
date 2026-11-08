@@ -330,3 +330,49 @@ html[data-theme=light] #todas-subastas .usso-catalog-heading h2,html[data-theme=
 html[data-theme=light] #todas-subastas .usso-catalog-heading>span{color:#a87400!important}
 html[data-theme=light] #todas-subastas .usso-catalog-tools p,html[data-theme=light] #todas-subastas .usso-catalog-sort{color:rgba(var(--text-rgb),.62)!important;border-color:rgba(0,0,0,.14)!important;background:rgba(0,0,0,.03)!important}
 html[data-theme=light] #todas-subastas .usso-catalog-more{color:#a87400!important}
+
+/* ==========================================================================
+   Celular · estilo «Claro y confiable» (portada)
+   En celular se oculta la portada cinemática y la vitrina oscura; en su lugar
+   va un inicio limpio: saludo, buscador, categorías y la próxima subasta.
+   ========================================================================== */
+.k-mhome{display:none}
+@media (max-width:760px){
+  #hero.k-hero,.k-marquee,#subastas{display:none!important}
+  .k-mhome{display:block;padding:84px 20px 18px;background:var(--bg);color:var(--text);font-family:Inter,Manrope,system-ui,sans-serif}
+  .k-mhome-hi{margin:0 0 6px;font:600 14px var(--k-ui);color:rgba(var(--text-rgb),.6)}
+  .k-mhome-title{margin:6px 0 18px;font:700 29px/1.16 Manrope,system-ui,sans-serif;letter-spacing:-.025em;color:var(--text);text-transform:none}
+  .k-mhome-title span{color:rgba(var(--text-rgb),.45);font-weight:600}
+  .k-mhome-search{display:flex;align-items:center;gap:12px;width:100%;height:54px;padding:0 20px;border-radius:27px;border:0;cursor:pointer;
+    background:var(--card-bg);color:rgba(var(--text-rgb),.55);font:500 15px Manrope,system-ui,sans-serif;text-align:left;
+    box-shadow:0 2px 12px rgba(0,0,0,.08),0 0 0 1px rgba(var(--border-rgb),.08)}
+  .k-mhome-search svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round}
+  .k-mhome-cats{display:flex;gap:16px;overflow-x:auto;margin:18px -20px 0;padding:2px 20px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .k-mhome-cats::-webkit-scrollbar{display:none}
+  .k-mhome-cats a{flex:none;width:70px;text-align:center;text-decoration:none;color:rgba(var(--text-rgb),.75);font:600 12px Manrope,system-ui,sans-serif}
+  .k-mhome-cats img{display:block;width:70px;height:70px;border-radius:50%;object-fit:cover;margin:0 0 7px;background:rgba(var(--border-rgb),.06)}
+  .k-mhome-head{display:flex;justify-content:space-between;align-items:baseline;margin:24px 0 12px}
+  .k-mhome-head h2{margin:0;font:800 20px Manrope,system-ui,sans-serif;letter-spacing:-.015em;color:var(--text)}
+  .k-mhome-head a{font:600 14px Manrope,system-ui,sans-serif;color:var(--text);text-decoration:underline;text-underline-offset:3px}
+  .k-mhome-card{position:relative}
+  .k-mhome-link{display:block;text-decoration:none;color:var(--text)}
+  .k-mhome-photo{position:relative;height:236px;border-radius:20px;overflow:hidden;background:rgba(var(--border-rgb),.06)}
+  .k-mhome-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .k-mhome-pill{position:absolute;top:12px;left:12px;padding:7px 12px;border-radius:999px;background:#fff;color:#15161a;font:700 12.5px Manrope,system-ui,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+  .k-mhome-pill strong{font-weight:800}
+  .k-mhome-pill.is-urgent strong{color:#d93a2e!important}.k-mhome-pill.is-soon strong{color:#a87400!important}
+  .k-mhome-card b{display:block;margin-top:12px;font:800 17px/1.3 Manrope,system-ui,sans-serif}
+  .k-mhome-card small{display:block;margin-top:2px;color:rgba(var(--text-rgb),.55);font:500 13.5px Manrope,system-ui,sans-serif}
+  .k-mhome-price{margin-top:6px;font:800 17px Manrope,system-ui,sans-serif}
+  .k-mhome-price span{font-weight:500;font-size:13.5px;color:rgba(var(--text-rgb),.55)}
+  .k-mhome-heart{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+  .k-mhome-heart svg{width:21px;height:21px;fill:none;stroke:#15161a;stroke-width:1.9;stroke-linejoin:round}
+  .k-mhome-heart[style*="7ee2a8"] svg{fill:#e0a400;stroke:#e0a400}
+  /* El resto de la página en celular: más limpio, sin brillos */
+  #todas-subastas .usso-all-grid>.k-lot{box-shadow:none!important;border-radius:20px!important}
+  .k-stat,.k-calc,.k-contact-card{box-shadow:none}
+}
+/* Barra inferior del celular en tono blanco */
+html[data-theme=light] .usso-mobile-dock{background:rgba(255,255,255,.96)!important;border-color:rgba(0,0,0,.08)!important;box-shadow:0 8px 30px rgba(0,0,0,.12)!important}
+html[data-theme=light] .usso-mobile-dock a{color:#6f727a!important}
+html[data-theme=light] .usso-mobile-dock a:active,html[data-theme=light] .usso-mobile-dock a:focus{color:#15161a!important;background:rgba(0,0,0,.05)!important}

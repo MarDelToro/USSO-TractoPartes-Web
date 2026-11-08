@@ -9,7 +9,7 @@ import {createUssoService,USSO_URL,USSO_PUBLIC_KEY,SessionRequired} from './usso
 import './prototype.css';
 import '../../usso-kit.css';
 import './web.css';
-try{if(localStorage.getItem('usso_theme')==='light')document.documentElement.dataset.theme='light'}catch{}
+try{const t=localStorage.getItem('usso_theme');if(t==='light'||(!t&&matchMedia('(max-width:760px)').matches))document.documentElement.dataset.theme='light'}catch{}
 declare global {interface Window{supabase:any}}
 const demoPreview=import.meta.env.MODE!=='release'&&new URLSearchParams(location.search).get('preview')==='demo';
 const roomPreview=import.meta.env.MODE!=='release'&&new URLSearchParams(location.search).get('preview')==='sala';
