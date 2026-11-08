@@ -41,6 +41,7 @@ function LightsHero({onCta}:{onCta:()=>void}){
  const capture=()=>{const el=v.current,c=off.current;if(ready.current||!el||!c||el.readyState<2||el.currentTime>0.15)return;try{c.getContext('2d')?.drawImage(el,0,0,c.width,c.height);ready.current=true}catch{}};
  useEffect(()=>{const el=v.current;if(!el)return;el.muted=true;
   const showLit=()=>{el.currentTime=end()};const atEnd=()=>{el.currentTime=end()};const onPlaying=()=>requestAnimationFrame(capture);const onTime=()=>{if(el.currentTime<0.15)capture()};
+  let tries=0;const onError=()=>{if(tries++<3)setTimeout(()=>{el.load();el.play().catch(()=>{})},1500)};el.addEventListener('error',onError);
   el.addEventListener('ended',atEnd);el.addEventListener('loadeddata',capture);el.addEventListener('playing',onPlaying);el.addEventListener('timeupdate',onTime);
   const later=()=>{if(el.readyState>=1)showLit();else el.addEventListener('loadedmetadata',showLit,{once:true})};
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)later();else el.play().catch(later);

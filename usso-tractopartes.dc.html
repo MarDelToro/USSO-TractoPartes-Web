@@ -2504,6 +2504,9 @@ class Component extends DCLogic {
     el.muted = true;
     el.playbackRate = 1;
     el.addEventListener('loadeddata', () => { this.captureHeroOff(); this.drawHeroAmbient(); });
+    // Si la conexión falla al cargar el video, se reintenta solo (hasta 3 veces).
+    let tries = 0;
+    el.addEventListener('error', () => { if (tries++ < 3) setTimeout(() => { el.load(); const p = el.play(); if (p && p.catch) p.catch(() => {}); }, 1500); });
     el.addEventListener('play', () => requestAnimationFrame(this.heroAmbientLoop));
     // En iPhone el primer cuadro sólo se puede copiar ya que el video empezó a correr.
     el.addEventListener('playing', () => requestAnimationFrame(this.captureHeroOff));
